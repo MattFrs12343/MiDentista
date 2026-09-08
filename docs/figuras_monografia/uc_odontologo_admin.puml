@@ -1,0 +1,25 @@
+@startuml uc_odontologo_admin
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam actorStyle awesome
+
+rectangle "MiDentista" {
+  usecase "Crear clinica durante el registro" as A1
+  usecase "Dar de alta al personal (recepcionista y odontologos)" as A2
+  usecase "Gestionar el catalogo de servicios y precios" as A3
+  usecase "Asignar horarios a los odontologos" as A4
+  usecase "Configurar moneda y datos de la clinica" as A5
+  usecase "Registrar cobros y cuentas" as A6
+}
+
+actor "Odontologo administrador" as ADM
+ADM --> A1
+ADM --> A2
+ADM --> A3
+ADM --> A4
+ADM --> A5
+ADM --> A6
+@enduml

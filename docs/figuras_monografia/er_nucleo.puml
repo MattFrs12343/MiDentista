@@ -1,0 +1,98 @@
+@startuml er_nucleo
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Nucleo clinico del paciente
+
+entity Paciente <<tabla>>
+entity Perfil <<tabla>>
+
+entity HistoriaClinica <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  motivo_consulta
+  antecedentes_medicos
+  antecedentes_odontologicos
+  alergias
+  medicamentos
+  enfermedades
+  habitos
+  observaciones
+}
+
+entity Odontograma <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  odontologo_id : FK
+  fecha_examen : date
+  piezas : jsonb
+  notas
+}
+
+entity Diagnostico <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  odontologo_id : FK
+  numero_pieza : int
+  descripcion
+  estado : text check
+  fecha_diagnostico : date
+}
+
+entity PlanTratamiento <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  odontologo_id : FK
+  titulo
+  estado : text check
+  costo_total : numeric
+  notas
+}
+
+entity ProcedimientoTratamiento <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  plan_tratamiento_id : FK
+  servicio_id : FK
+  numero_pieza : int
+  descripcion
+  prioridad : text check
+  costo : numeric
+  estado : text check
+}
+
+entity EvolucionClinica <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  odontologo_id : FK
+  plan_tratamiento_id : FK
+  procedimiento_id : FK
+  fecha_consulta : date
+  motivo_consulta
+  procedimiento_realizado
+  observaciones
+  indicaciones
+  proxima_atencion : date
+}
+
+Paciente ||--o{ HistoriaClinica
+Paciente ||--o{ Odontograma
+Paciente ||--o{ Diagnostico
+Paciente ||--o{ PlanTratamiento
+Perfil ||--o{ Odontograma : registra
+PlanTratamiento ||--o{ ProcedimientoTratamiento
+PlanTratamiento ||--o{ EvolucionClinica
+@enduml

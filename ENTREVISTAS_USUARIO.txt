@@ -1,0 +1,537 @@
+ENTREVISTAS CON EL USUARIO - SISTEMA MiDentista
+================================================
+
+========================================================================
+PRIMERA ENTREVISTA: MÓDULOS PRINCIPALES DEL SISTEMA
+========================================================================
+
+PARTICIPANTES:
+- Entrevistador: Analista de Sistemas
+- Entrevistado: Dr. Ayrthon Rojas Orellana, propietario de la clínica "Dental Cristo Rey"
+- Fecha: [Fecha de la entrevista]
+- Objetivo: Definir los módulos principales que necesita el sistema
+
+------------------------------------------------------------------------
+PREGUNTA 1: ¿Qué problema principal busca resolver con este sistema?
+------------------------------------------------------------------------
+
+RESPUESTA DEL USUARIO:
+"Actualmente manejo todo en cuadernos y papeles. Pierdo información,
+no tengo un historial organizado de mis pacientes, y me es muy difícil
+llevar el control de las citas, pagos y tratamientos. Necesito un
+sistema donde todo esté centralizado y que mis odontólogos y yo
+podamos acceder desde cualquier computadora."
+
+------------------------------------------------------------------------
+PREGUNTA 2: ¿Qué tipo de usuarios usarán el sistema?
+------------------------------------------------------------------------
+
+RESPUESTA DEL USUARIO:
+"Tengo 3 odontólogos trabajando conmigo, una recepcionista que nos
+apoya con las citas y registros, y por supuesto los pacientes. Necesito
+que cada uno tenga su propio acceso con diferentes permisos. Los
+creadores del software son quienes dan de alta las clínicas y crean
+las cuentas de los doctores y recepcionistas. La recepcionista solo
+apoya en lo operativo, no administra el sistema."
+
+------------------------------------------------------------------------
+PREGUNTA 3: ¿Qué módulos necesita para empezar?
+------------------------------------------------------------------------
+
+RESPUESTA DEL USUARIO:
+"Necesito empezar con lo básico pero fundamental:
+
+1. QUE LOS PACIENTES PUEDAN REGISTRARSE Y ACCEDER
+   Quiero que mis pacientes puedan crear su cuenta con su email
+   y contraseña. También necesito que cuando llegue un paciente nuevo,
+   la recepcionista pueda registrarlo rápido con sus datos básicos:
+   nombre, cédula, teléfono, fecha de nacimiento, a qué se dedica,
+   y un contacto de emergencia.
+
+2. HISTORIA CLÍNICA COMPLETA
+   Esto es lo más importante para mí como odontólogo. Necesito poder
+   registrar toda la información médica del paciente: por qué viene,
+   qué enfermedades tiene, qué medicamentos toma, si es alérgico a
+   algo, si fuma o toma alcohol, y cualquier otra cosa relevante.
+   Todo esto tiene que estar vinculado al paciente.
+
+3. ODONTOGRAMA VISUAL
+   Necesito ver la boca del paciente con todas sus piezas dentales
+   y poder marcar qué tiene cada diente: si tiene caries, si le
+   hicieron una restauración, si le falta algún diente, si tiene
+   corona, implante, etc. Que sea visual, como un mapa de la boca.
+   Cada diente tiene diferentes caras (arriba, abajo, costados)
+   y necesito poder marcar en qué parte está el problema.
+
+4. DIAGNÓSTICO Y PLAN DE TRATAMIENTO
+   Después de examinar al paciente, necesito poder escribir qué
+   le diagnóstico y crear un plan de tratamiento con todos los
+   procedimientos que le voy a hacer, con sus costos. El paciente
+   tiene que ver el plan y aceptarlo o rechazarlo.
+
+5. SEGUIMIENTO DE CADA CONSULTA
+   Cada vez que el paciente viene, necesito anotar qué le hice,
+   qué procedimientos realicé, en qué pieza, y cuándo tiene que
+   volver. Todo tiene que quedar registrado cronológicamente."
+
+------------------------------------------------------------------------
+PREGUNTA 4: ¿Cómo funciona el flujo con un paciente nuevo?
+------------------------------------------------------------------------
+
+RESPUESTA DEL USUARIO:
+"El paciente llega, lo registro con sus datos básicos. Luego el
+odontólogo lo examina, llena su historia clínica completa. Después
+hace el odontograma visual marcando qué tiene cada diente. Con
+eso crea un diagnóstico y le propone un plan de tratamiento con
+los costos. El paciente decide si acepta o no. Si acepta, se
+agenda la primera cita y se va trabajando. Cada vez que viene,
+se registra qué se hizo y cuándo tiene que volver."
+
+------------------------------------------------------------------------
+PREGUNTA 5: ¿Qué información es obligatoria y qué es opcional?
+------------------------------------------------------------------------
+
+RESPUESTA DEL USUARIO:
+"Para el paciente nuevo: nombre, cédula y teléfono son obligatorios.
+Lo demás puede ir vacío al inicio pero se puede completar después.
+
+Para la historia clínica: todo es importante pero no todo es
+obligatorio. Lo más crítico son las alergias y medicamentos que
+toma, eso sí o sí tiene que estar.
+
+Para el odontograma: cada pieza debe tener al menos una condición
+marcada, y si tiene algo anormal, que sea obligatorio poner
+observaciones."
+
+========================================================================
+SEGUNDA ENTREVISTA: MÓDULOS DE GESTIÓN Y ADMINISTRACIÓN
+========================================================================
+
+PARTICIPANTES:
+- Entrevistador: Analista de Sistemas
+- Entrevistado: Dr. Ayrthon Rojas Orellana y María López (recepcionista)
+- Fecha: [Fecha de la entrevista]
+- Objetivo: Definir módulos de agenda, presupuestos, pagos, archivos,
+  usuarios y gestión de clínica
+
+------------------------------------------------------------------------
+PREGUNTA 1: ¿Cómo manejan las citas actualmente?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"María anota las citas en un cuaderno. Es un desorden. Los pacientes
+llaman, ella anota, pero a veces se pisan citas, o el odontólogo
+no se entera de que tiene cita. Necesitamos un calendario donde
+se vea todo organizado."
+
+RESPUESTA DE MARÍA:
+"Yo necesito ver de quién es cada hora, poder mover citas cuando
+el paciente pide cambiar, y cancelar cuando no vengan. También
+necesito que el paciente pueda elegir su propio turno."
+
+------------------------------------------------------------------------
+PREGUNTA 2: ¿Cómo funciona la agenda de los odontólogos?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Cada odontólogo tiene sus horarios. Por ejemplo yo atiendo de
+lunes a viernes de 8 a 12 y de 14 a 18. Pero a veces tengo
+consultas externas o me voy de viaje, y necesito poder bloquear
+esos días o horas para que no me asignen citas.
+
+Los pacientes deberían poder ver qué horarios están libres y
+agendar directamente. María también puede agendar por teléfono."
+
+------------------------------------------------------------------------
+PREGUNTA 3: ¿Cómo manejan los presupuestos y pagos?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Cuando le voy a hacer un tratamiento grande al paciente, le
+hago un presupuesto detallado: procedimiento por procedimiento,
+pieza por pieza, con su costo. El paciente lo revisa y decide
+si acepta. Necesito poder enviarle ese presupuesto en formato
+PDF para que lo tenga.
+
+Después cuando el paciente paga, necesito registrar cuánto pagó,
+si fue todo de una o en partes. Y necesito ver cuánto le queda
+por pagar. Usamos QR para cobrar, cada odontólogo tiene su QR."
+
+RESPUESTA DE MARÍA:
+"Yo como recepcionista necesito ver cuánto debe cada paciente,
+el historial de cuánto ha pagado, y poder registrar los pagos
+que van haciendo. También necesito que el paciente pueda ver
+cuánto debe."
+
+------------------------------------------------------------------------
+PREGUNTA 4: ¿Qué tipos de archivos manejan?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Necesito subir fotografías de la boca del paciente antes y
+después del tratamiento. También radiografías. A veces el paciente
+trae documentos de otros doctores y necesito guardarlos. Todo
+asociado al paciente y preferably a la consulta específica."
+
+RESPUESTA DE MARÍA:
+"Y necesito poder ver todo eso sin tener que descargar. Que se
+vea directo en la pantalla."
+
+------------------------------------------------------------------------
+PREGUNTA 5: ¿Cómo manejan los usuarios del sistema?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Los creadores del software son quienes dan de alta la clínica
+y crean las cuentas de nosotros los doctores y de María la
+recepcionista. María no puede crear cuentas de usuarios, ella
+solo apoya en lo operativo.
+
+Cada odontólogo solo debería ver sus propios pacientes y citas,
+no los de los demás. María como recepcionista sí puede ver la
+información de todos los pacientes para apoyar con las citas
+y registros."
+
+------------------------------------------------------------------------
+PREGUNTA 6: ¿Qué información de la clínica necesitan configurar?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Necesito que el sistema sepa el nombre de la clínica, dirección,
+teléfono, logo. También necesito configurar los servicios que
+ofrecemos con sus precios: limpieza, extracción, empaste, corona,
+implante, etc. Cada servicio tiene su precio base.
+
+También los consultorios: yo tengo 3 consultorios, y cada
+odontólogo trabaja en uno específico. Y los horarios generales
+de la clínica: a qué hora abrimos, a qué hora cerramos, qué días
+atendemos."
+
+========================================================================
+TERCERA ENTREVISTA: MÓDULOS COMPLEMENTARIOS Y REQUISITOS GENERALES
+========================================================================
+
+PARTICIPANTES:
+- Entrevistador: Analista de Sistemas
+- Entrevistado: Dr. Ayrthon Rojas Orellana, propietario de la clínica "Dental Cristo Rey" y María López (recepcionista)
+- Fecha: [Fecha de la entrevista]
+- Objetivo: Definir dashboard, configuración, consentimientos y requisitos
+  generales del sistema
+
+------------------------------------------------------------------------
+PREGUNTA 1: ¿Qué información necesitan ver al entrar al sistema?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Cuando entro al sistema, quiero ver un resumen rápido: cuántos
+pacientes tengo, cuántas citas tengo hoy, cuántos tratamientos
+están en proceso, cuánto se ha cobrado este mes, y cuánto falta
+por cobrar. Todo en una pantalla."
+
+RESPUESTA DE MARÍA:
+"Yo como recepcionista necesito ver las citas del día, quiénes
+son los pacientes que vienen, y si hay algún pago pendiente. También
+necesito ver un gráfico de cuántos pacientes atendemos por mes."
+
+------------------------------------------------------------------------
+PREGUNTA 2: ¿Qué configuraciones necesita la clínica?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Necesito poder configurar:
+
+- La moneda: nosotros manejamos en Bolivianos, pero other clínicas
+  pueden usar dólares u otra moneda.
+
+- Los servicios y precios: cada clínica tiene sus propios precios.
+  Yo por ejemplo cobro 200 por una limpieza, pero otro doctor puede
+  cobrar differently. Necesito poder agregar, editar o quitar
+  servicios.
+
+- Los horarios de atención: a qué hora abrimos, a qué hora cerramos,
+  qué días atendemos. Esto es general para toda la clínica.
+
+- Los métodos de pago: nosotros solo usamos QR, pero other clínicas
+  pueden aceptar efectivo, transferencia, etc.
+
+- Las especialidades: odontología general, ortodoncia, endodoncia,
+  periodoncia, etc."
+
+------------------------------------------------------------------------
+PREGUNTA 3: ¿Qué son los consentimientos?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Antes de hacer un tratamiento, el paciente tiene que firmar un
+documento donde acepta que entiende el procedimiento, los riesgos,
+y que autoriza a que se le realice. Necesito poder crear esos
+documentos con un texto estándar, y que el paciente los firme
+digitalmente con su aceptación.
+
+Cada consentimiento tiene que estar vinculado al paciente y al
+tratamiento específico. Y tener la fecha en que aceptó."
+
+------------------------------------------------------------------------
+PREGUNTA 4: ¿Qué requisitos importantes tiene el sistema?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Lo más importante:
+
+1. SEGURIDAD: Cada clínica solo debe ver sus propios datos. Que
+   la clínica de al lado no pueda ver mis pacientes ni yo los suyos.
+   Todo tiene que estar aislado.
+
+2. RÁPIDO: Que no se tarde mucho en cargar. Los pacientes se
+   impacientan.
+
+3. FÁCIL DE USAR: Mis odontólogos no son expertos en computadora.
+   Tiene que ser intuitivo.
+
+4. QUE PUEDA ACCEDER DESDE CUALQUIER LUGAR: Que pueda acceder
+   desde mi casa, del consultorio, o desde el celular.
+
+5. RESPALDO: Que los datos no se pierdan. Que siempre estén
+   guardados en la nube.
+
+6. QUE PUEDA USARLO EN CUALQUIER NAVEGADOR: Chrome, Firefox,
+   Edge, Safari."
+
+------------------------------------------------------------------------
+PREGUNTA 5: ¿Qué no necesita el sistema?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"No necesito:
+- Aplicación para celular (por ahora)
+- Inteligencia artificial para diagnósticos
+- Integración con WhatsApp
+- Facturación electrónica (eso lo hacemos aparte)
+- Integración con bancos
+- Teleodontología
+- Conexión con equipos odontológicos
+- Reportes muy complicados"
+
+------------------------------------------------------------------------
+PREGUNTA 6: ¿Cómo quiere que se acceda al sistema?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Quiero que sea por internet, con una dirección web. Que cada
+persona se registre con su email y contraseña. Los odontólogos
+y la recepcionista usan la misma contraseña que la del email.
+Los pacientes también.
+
+Los creadores del software son quienes dan de alta la clínica
+y crean las cuentas iniciales. Cuando un paciente se registra,
+se le asigna automáticamente a la clínica donde hizo su registro."
+
+------------------------------------------------------------------------
+PREGUNTA 7: ¿Qué pasa con los datos cuando un paciente se atiende?
+------------------------------------------------------------------------
+
+RESPUESTA DEL DR. ROJAS:
+"Cada consulta genera un registro: qué se hizo, en qué pieza,
+qué observaciones hay, y cuándo tiene que volver el paciente.
+Todo tiene que quedar en orden cronológico para poder ver la
+historia completa.
+
+También necesito que cada tratamiento tenga un estado: propuesto,
+aceptado, en proceso, completado. Y que se pueda filtrar por
+esos estados para saber qué tengo pendiente."
+
+------------------------------------------------------------------------
+RESUMEN DE MÓDULOS Y FUNCIONALIDADES
+------------------------------------------------------------------------
+
+FASE 1 - MÓDULOS PRINCIPALES (MVP):
+
+MÓDULO 1: AUTENTICACIÓN Y ACCESO
+- Login con email y contraseña
+- Registro de pacientes (formulario público)
+- Recuperación de contraseña
+- Configuración inicial de nueva clínica (por el odontólogo administrador)
+- Creación de usuarios: doctores y recepcionistas (por el odontólogo administrador)
+- Cierre de sesión
+
+MÓDULO 2: GESTIÓN DE PACIENTES
+- Registro de paciente nuevo con datos básicos
+- Edición de información del paciente
+- Búsqueda por nombre, cédula, teléfono, email
+- Ficha completa del paciente con diferentes vistas
+- Registro de contacto de emergencia
+- Lista de pacientes con paginación
+
+MÓDULO 3: HISTORIA CLÍNICA
+- Registro de motivo de consulta
+- Registro de antecedentes médicos
+- Registro de antecedentes odontológicos
+- Registro de alergias
+- Registro de medicamentos que toma
+- Registro de enfermedades
+- Registro de hábitos (fumar, alcohol, etc.)
+- Registro de observaciones
+- Consulta y edición de información clínica
+
+MÓDULO 4: ODONTOGRAMA
+- Visualización de piezas dentales (imagen clickeable)
+- Selección de pieza dental
+- Registro de condiciones: sano, caries, restauración, ausente,
+  corona, implante, endodoncia, extracción
+- Registro por superficie (facial, lingual, mesial, distal, oclusal)
+- Observaciones por pieza
+- Historial de odontogramas
+- Comparación de odontogramas anteriores
+- Nomenclatura FDI (internacional)
+
+MÓDULO 5: DIAGNÓSTICO Y PLAN DE TRATAMIENTO
+- Crear diagnóstico asociado a paciente y pieza
+- Registrar descripción y observaciones
+- Consultar diagnósticos anteriores
+- Cambiar estado del diagnóstico
+- Crear plan de tratamiento con procedimientos
+- Establecer prioridad y costos por procedimiento
+- Estados: propuesto → aceptado → en proceso → completado
+- Consultar tratamientos por estado
+- Modificar el plan
+
+MÓDULO 6: EVOLUCIÓN CLÍNICA
+- Registrar fecha de atención
+- Registrar motivo y procedimiento realizado
+- Asociar pieza dental y diagnóstico
+- Registrar observaciones e indicaciones
+- Registrar próxima fecha de atención
+- Consultar evolución cronológica
+- Vincular con plan de tratamiento
+
+------------------------------------------------------------------------
+
+FASE 2 - MÓDULOS DE GESTIÓN:
+*módulos 7, 8 y 9 están EN EL MVP (3 meses); módulos 10, 11 y 12 quedan para la versión 2.*
+
+MÓDULO 7: AGENDA Y CITAS
+- El odontólogo carga su disponibilidad semanal
+- Pacientes eligen citas de los horarios disponibles
+- Visualización de calendario (diario, semanal, mensual)
+- Reprogramación y cancelación de citas
+- Registro de días/horas no disponibles
+- Estados: reservada → confirmada → en espera → atendida /
+  cancelada / no asistió
+
+MÓDULO 8: PRESUPUESTOS
+- Crear presupuesto con procedimientos y costos
+- Aplicar descuentos
+- Calcular total automáticamente
+- Consultar y modificar presupuesto
+- Exportar a PDF
+- Estados: borrador → enviado → aceptado → rechazado → vencido
+
+MÓDULO 9: PAGOS Y CUENTAS
+- El odontólogo sube su código QR de pago
+- Generar QR específico por cobro
+- Registro de pagos (parciales o totales)
+- Consulta de historial de pagos
+- Consulta de saldo pendiente
+- Método de pago: QR
+- Estados de cuenta (total, pagado, pendiente)
+
+MÓDULO 10: ARCHIVOS E IMÁGENES  *(VERSIÓN 2 - fuera del MVP)*
+- Subir fotografías clínicas
+- Subir radiografías
+- Subir documentos PDF
+- Asociar archivos a paciente, consulta o tratamiento
+- Visualización de archivos en navegador
+- Descarga de archivos
+- Límite: 5 GB por clínica
+
+MÓDULO 11: USUARIOS Y ROLES  *(VERSIÓN 2 - fuera del MVP; en el MVP la gestión de usuarios la hace el odontólogo administrador con roles odontólogo/recepcionista/paciente)*
+- Crear usuarios (solo el odontólogo administrador)
+- Editar usuarios (solo el odontólogo administrador)
+- Desactivar usuarios (solo el odontólogo administrador)
+- Asignar roles: odontólogo, recepcionista, paciente
+- Consultar lista de usuarios
+- Gestionar perfil propio
+- Cambiar contraseña
+
+MÓDULO 12: GESTIÓN DE CLÍNICA  *(VERSIÓN 2 - fuera del MVP; en el MVP la clínica se registra con datos básicos y los servicios se configuran de forma simple)*
+- Registrar información de la clínica (nombre, dirección, logo)
+- Registrar profesionales con información profesional
+- Registrar especialidades
+- Registrar consultorios
+- Configurar horarios
+- Gestionar catálogo de servicios
+
+------------------------------------------------------------------------
+
+FASE 3 - MÓDULOS COMPLEMENTARIOS:  *(todos los módulos 13, 14 y 15 quedan para la versión 2, fuera del MVP de 3 meses)*
+
+MÓDULO 13: DASHBOARD  *(VERSIÓN 2 - fuera del MVP)*
+- Super Admin: resumen de todas las clínicas del sistema
+- Recepcionista: citas del día, pacientes del día, pagos pendientes
+- Odontólogo: citas del día, pacientes atendidos, tratamientos
+  activos/pendientes, próxima actividad
+- Paciente: próxima cita, tratamiento actual, pagos pendientes,
+  documentos
+
+MÓDULO 14: CONFIGURACIÓN DE CLÍNICA  *(VERSIÓN 2 - fuera del MVP)*
+- Configurar datos generales de la clínica
+- Configurar servicios y precios
+- Configurar horarios generales
+- Configurar métodos de pago aceptados
+- Configurar especialidades
+- Configurar moneda (Bs, USD, EUR, etc.)
+
+MÓDULO 15: CONSENTIMIENTOS  *(VERSIÓN 2 - fuera del MVP)*
+- Crear documentos de consentimiento informado
+- Registrar consentimiento asociado a paciente
+- Checkbox de aceptación del paciente
+- Registrar fecha de aceptación
+- Vincular consentimiento a plan de tratamiento
+- Consultar consentimientos del paciente
+
+------------------------------------------------------------------------
+
+REQUISITOS GENERALES DEL SISTEMA:
+
+SEGURIDAD:
+- Cada clínica solo ve sus propios datos (aislamiento multi-tenant)
+- Autenticación con email y contraseña
+- Cada usuario tiene permisos según su rol
+- Los datos se guardan en la nube con respaldo automático
+- Solo el odontólogo administrador puede crear usuarios del sistema
+
+USABILIDAD:
+- Interfaz intuitiva y fácil de usar
+- Tiempo de carga inicial menor a 3 segundos
+- Compatible con computadoras, tablets y celulares
+- Funciona en Chrome, Firefox, Edge y Safari
+
+RENDIMIENTO:
+- Soporta al menos 100 usuarios concurrentes por clínica
+- Búsquedas rápidas en todos los módulos
+- Paginación en todas las listas
+
+VALIDACIÓN:
+- Todos los formularios validan antes de guardar
+- Mensajes de error claros al usuario
+- Operaciones CRUD funcionan correctamente
+
+MONEDA:
+- Configurable por clínica
+- Soporte para múltiples monedas (Bs, USD, EUR, etc.)
+- Todos los precios y pagos usan la moneda configurada
+
+ALCANCE EXCLUSIVO (NO incluido):
+- Aplicación móvil nativa
+- Inteligencia artificial para diagnóstico
+- Integración con WhatsApp
+- Notificaciones automáticas por email/SMS
+- Facturación electrónica
+- Integraciones bancarias
+- Teleodontología
+- Integración con equipos odontológicos
+- Reportes avanzados y estadísticas complejas
+
+========================================================================
+FIN DEL DOCUMENTO
+========================================================================

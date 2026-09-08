@@ -1,0 +1,44 @@
+@startuml componentes
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Diagrama de componentes
+
+package "SpaMiDentista (React)" {
+  [auth/ onboading] as c_auth
+  [patients/] as c_pat
+  [medical-records/] as c_rec
+  [odontogram/] as c_odt
+  [diagnoses/] as c_dg
+  [treatments/] as c_tr
+  [evolutions/] as c_ev
+  [appointments/] as c_ap
+  [budgets/] as c_bd
+  [payments/] as c_py
+  [services/] as c_sv
+}
+
+[supabase-js] as js
+
+package "Backend Supabase" {
+  component "Auth (email + contrasena)" as b_auth
+  component "PostgREST + RLS" as b_rest
+  component "Storage (logo, QR)" as b_st
+}
+
+c_auth --> js
+c_pat --> js
+c_rec --> js
+c_odt --> js
+c_dg --> js
+c_tr --> js
+c_ev --> js
+c_ap --> js
+c_bd --> js
+c_py --> js
+c_sv --> js
+js --> b_auth
+js --> b_rest
+js --> b_st
+@enduml

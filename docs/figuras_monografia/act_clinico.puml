@@ -1,0 +1,35 @@
+@startuml act_clinico
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Flujo clinico completo
+
+|Recepcionista|
+start
+:Registrar o buscar paciente;
+|Odontologo|
+:Registrar historia clinica;
+:Elaborar odontograma (piezas JSONB);
+if (diagnostico claro?) then (si)
+  :Registrar diagnostico;
+else (no)
+  :Referir o pedir examenes;
+  #palegreen:Elaborar plan de tratamiento (procedimientos y costos);
+endif
+:Presentar plan y presupuesto al paciente;
+if (plan aceptado?) then (si)
+  :Registrar evoluciones por consulta;
+  :Programar proxima atencion;
+  if (plan completado?) then (si)
+    |Recepcionista|
+    :Cobrar y registrar pago;
+    #lightsalmon:Cerrar plan de tratamiento;
+    stop
+  else (no)
+    stop
+  endif
+else (no)
+  :Registrar presupuesto rechazado;
+  stop
+endif
+@enduml

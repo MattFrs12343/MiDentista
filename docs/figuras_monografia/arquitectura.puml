@@ -1,0 +1,32 @@
+@startuml arquitectura
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Arquitectura logica en tres capas
+
+package "Capa de presentacion" {
+  [SPA React + Tailwind CSS] as p1
+  [React Router - 9 modulos funcionales] as p2
+}
+
+package "Capa de logica de negocio" {
+  [Supabase Auth (JWT)] as l1
+  [Funciones helper obtenir_clinica_usuario / obtenir_rol_usuario] as l2
+  [Politicas RLS por tabla] as l3
+  [Triggers de actualizado_en] as l4
+}
+
+package "Capa de datos" {
+  database "PostgreSQL (Supabase) - 15 tablas" as d1
+  database "Storage: logo y QR estatico de referencia" as d2
+}
+
+p1 --> p2
+p2 --> l1
+p2 --> l2
+l2 --> l3
+l3 --> l4
+l4 --> d1
+p2 --> d2
+@enduml

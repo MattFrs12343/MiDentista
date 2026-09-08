@@ -1,0 +1,24 @@
+@startuml seq_cobro
+skinparam shadowing false
+skinparam defaultFontName Arial
+autonumber
+
+title Cobro y registro de un pago con referencia QR estatica
+
+actor Odontologo as O
+actor Paciente as P
+participant "SPA (React)" as SPA
+database "PostgreSQL" as DB
+
+O -> SPA : abre el presupuesto aceptado del paciente
+SPA -->> O : total pendiente y dato QR de referencia
+O -> P : indica el monto a pagar (QR estatico o efectivo)
+P -> O : paga
+O -> SPA : registrar pago (monto, metodo_pago, codigo_referencia)
+SPA -> DB : INSERT pagos (estado=confirmado, registrado_por)
+DB -->> SPA : pago insertado
+SPA -> DB : UPDATE presupuestos (saldo / estado si queda saldo 0)
+DB -->> SPA : presupuesto actualizado
+SPA -->> O : comprobante de pago
+SPA -->> P : recibo (estado de cuenta al dia)
+@enduml

@@ -1,0 +1,30 @@
+@startuml act_agenda
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Gestion de la agenda y las citas
+
+|Odontologo administrador|
+start
+:Definir horarios de los odontologos (tabla horarios);
+|Recepcionista|
+:Buscar paciente o registrar uno nuevo;
+:Elegir fecha, hora y odontologo disponible;
+:Reservar la cita (estado reservada);
+|Paciente|
+:Confirma la cita;
+|Recepcionista|
+:Confirmar cita (estado confirmada);
+if (el paciente asiste?) then (si)
+  |Odontologo|
+  :Atender consulta;
+  :Registrar evolucion clinica;
+  |Recepcionista|
+  :Marcar cita como atendida;
+  stop
+else (no)
+  |Recepcionista|
+  :Marcar cita como cancelada (o reprogramar);
+  stop
+endif
+@enduml

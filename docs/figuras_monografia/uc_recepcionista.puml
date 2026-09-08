@@ -1,0 +1,26 @@
+@startuml uc_recepcionista
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam actorStyle awesome
+
+rectangle "MiDentista" {
+  usecase "Buscar paciente por nombre o CI" as C1
+  usecase "Reservar y confirmar citas" as C2
+  usecase "Atender la agenda del dia" as C3
+  usecase "Registrar cobros" as C4
+  usecase "Consultar historia clinica y presupuestos" as C5
+  usecase "Registrar nuevo paciente" as C6
+}
+
+actor "Recepcionista" as REC
+REC --> C1
+REC --> C2
+REC --> C3
+REC --> C4
+REC --> C5
+C1 .> C6 : <<extend>>
+REC --> C6
+@enduml

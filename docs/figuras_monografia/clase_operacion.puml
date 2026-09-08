@@ -1,0 +1,102 @@
+@startuml clase_operacion
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Diagrama de clases de la gestion operativa (agenda, cobros y catalogos)
+
+class Clinica {
+  id : uuid PK
+  nombre
+  slug
+  moneda : text (Bs)
+  simbolo_moneda
+  activo : bool
+}
+
+class Perfil {
+  id : uuid PK -> auth.users
+  email
+  nombre_completo
+  rol : text (odontologo|recepcionista|paciente)
+  clinica_id : uuid FK
+  especialidad
+  consultorio
+  activo : bool
+}
+
+class Horario {
+  id : uuid PK
+  clinica_id : uuid FK
+  odontologo_id : uuid FK
+  dia_semana : int (0..6)
+  hora_inicio : time
+  hora_fin : time
+}
+
+class Cita {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  odontologo_id : uuid FK
+  plan_tratamiento_id : uuid FK
+  fecha_cita : date
+  hora_inicio : time
+  hora_fin : time
+  estado : text (reservada|confirmada|atendida|cancelada)
+}
+
+class Servicio {
+  id : uuid PK
+  clinica_id : uuid FK
+  nombre
+  precio_por_defecto : numeric
+  duracion_minutos : int
+  activo : bool
+}
+
+class Presupuesto {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  odontologo_id : uuid FK
+  descuento : numeric
+  total : numeric
+  estado : text (borrador|enviado|aceptado|rechazado)
+}
+
+class ItemPresupuesto {
+  id : uuid PK
+  presupuesto_id : uuid FK
+  servicio_id : uuid FK
+  descripcion
+  cantidad : int
+  precio_unitario : numeric
+  subtotal : numeric
+}
+
+class Pago {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  presupuesto_id : uuid FK
+  monto : numeric
+  metodo_pago : text (efectivo|qr|transferencia|otro)
+  codigo_referencia : text
+  estado : text (pendiente|confirmado|rechazado)
+  registrado_por : uuid FK
+}
+
+Clinica "1" o-- "1..*" Perfil
+Perfil "1" o-- "0..*" Horario
+Perfil "1" o-- "0..*" Cita : atiende
+Paciente "1" o-- "0..*" Cita
+Clinica o-- Servicio
+Paciente "1" o-- "0..*" Presupuesto
+Presupuesto "1" *-- "1..*" ItemPresupuesto
+Servicio o-- ItemPresupuesto
+Paciente "1" o-- "0..*" Pago
+Presupuesto "1" o-- "0..*" Pago
+Perfil o-- Pago : registra
+@enduml

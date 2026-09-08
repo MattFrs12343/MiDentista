@@ -1,0 +1,207 @@
+============================================================
+     DEFENSA DE BASE DE DATOS - MiDentista MVP
+     PostgreSQL (Supabase) - 8 de septiembre 2026
+============================================================
+
+1. CONTEXTO DEL PROYECTO
+------------------------------------------------------------
+MiDentista es una plataforma SaaS de gestión para clínicas
+odontológicas en Bolivia. El esquema MVP soporta el ciclo
+completo del paciente: agenda, historial, diagnóstico,
+tratamiento, presupuesto y pago.
+
+Arquitectura: Frontend (Next.js) + Backend (Supabase).
+Motor: PostgreSQL 15+ con extensiones pgcrypto (UUID).
+
+------------------------------------------------------------
+2. MODELO DE DATOS - 15 TABLAS
+------------------------------------------------------------
+
+El esquema sigue un patrón multi-tenant donde TODAS las
+tablas operativas tienen una columna clinica_id como llave
+foránea, garantizando el aislamiento de datos entre clínicas.
+
+ENTIDADES CORE:
+  1. clinicas      → Tenant principal (una clínica = un tenant)
+  2. perfiles       → Extiende auth.users con rol y afiliación
+  3. pacientes     → Datos del paciente + contacto emergencia
+
+MÓDULO CLÍNICO:
+  4. servicios              → Catálogo de servicios odontológicos
+  5. historiales_clinicos   → Historia clínica completa
+  6. odontogramas           → Mapa dental (JSONB para piezas)
+  7. diagnosticos           → Diagnósticos por pieza
+  8. planes_tratamiento     → Plan con estados y costo total
+  9. procedimientos_tratamiento → Detalle del plan por servicio
+  10. evoluciones_clinicas  → Registro de cada consulta
+
+MÓDULO AGENDA:
+  11. horarios → Disponibilidad semanal por odontólogo
+  12. citas    → Agenda con estados del ciclo de vida
+
+MÓDULO FINANCIERO:
+  13. servicios          → Catálogo con precio por defecto
+  14. presupuestos       → Presupuesto con descuento y total
+  15. items_presupuesto  → Líneas del presupuesto
+  16. pagos              → Registro de cobros (efectivo/QR/transferencia)
+
+ESTRUCTURA DE ROLES (tabla perfiles):
+  - odontologo      → Dueño/admin de la clínica
+  - recepcionista   → Staff de la clínica
+  - paciente        → Paciente afiliado a la clínica
+
+------------------------------------------------------------
+3. JUSTIFICACIÓN DE DISEÑO
+------------------------------------------------------------
+
+a) MULTI-TENANT POR CLINICA_ID:
+   Todas las tablas comparten clinica_id como FK. Esto permite:
+   - Aislamiento total de datos entre clínicas
+   - Consultas eficientes con índices compuestos
+   - Políticas RLS uniformes (patrón repetido)
+
+b) UUID COMO PK:
+   - Generación en cliente sin coordinación con el servidor
+   - Imposible de adivinar (seguridad)
+   - Sin colisiones en el futuro
+
+c) JSONB PARA ODONTOGRAMAS (tabla 6):
+   Las piezas dentales se almacenan como array JSONB. Razón:
+   - La estructura varía por paciente y evolución
+   - No requiere JOINs para renderizado del mapa
+   - PostgreSQL permite consultas GIN sobre JSONB
+   - Escalable sin crear tablas por pieza
+
+d) ENUMS VIA CHECK (no custom types):
+   Se usan CHECK constraints en lugar de tipos enumerados de
+   PostgreSQL para mayor portabilidad y facilidad de modificación
+   sin ALTER TYPE.
+
+e) TRIGGERS DE AUTO-ACTUALIZACIÓN:
+   11 triggers BEFORE UPDATE en tablas con actualizado_en.
+   Aseguran trazabilidad de última modificación sin código
+   de aplicación.
+
+------------------------------------------------------------
+4. SEGURIDAD - ROW LEVEL SECURITY (RLS)
+------------------------------------------------------------
+
+Todas las 15 tablas tienen RLS habilitado. El modelo usa
+2 funciones helper SECURITY DEFINER:
+
+  obtener_clinica_usuario() → Retorna la clinica_id del
+                               usuario autenticado (auth.uid)
+  obtener_rol_usuario()     → Retorna el rol del usuario
+
+POLÍTICAS IMPLEMENTADAS:
+
+  Patrón 1 - Acceso por tenant:
+    "acceso_clinica" → clinica_id = obtener_clinica_usuario()
+    Aplicado a: pacientes, historiales, odontogramas,
+    diagnósticos, planes, procedimientos, evoluciones,
+    horarios, citas, servicios, presupuestos, items, pagos
+
+  Patrón 2 - Perfil propio:
+    "lectura_propia" → id = auth.uid()
+    "actualización_propia" → id = auth.uid() con WITH CHECK
+
+  Patrón 3 - Búsqueda pública:
+    "busqueda_publica" → clinicas activas visibles para
+    que pacientes puedan afiliarse
+
+  Patrón 4 - Datos propios del paciente:
+    "datos_propios" → perfil_id = auth.uid() O rol personal
+
+SECURITY DEFINER en las funciones:
+  - Ejecuta con permisos del propietario (superuser)
+  - Evita que el usuario intercepte o modifique la consulta
+  - El search_path se fija a 'public' para evitar inyección
+
+------------------------------------------------------------
+5. RENDIMIENTO - 23 ÍNDICES
+------------------------------------------------------------
+
+ÍNDICES B-Tree (rango y ordenamiento):
+  idx_pacientes_clinica       → Búsqueda por clínica
+  idx_pacientes_nombre        → Búsqueda por nombre (compuesto)
+  idx_pacientes_ci            → Búsqueda por CI (compuesto)
+  idx_citas_clinica_fecha     → Agenda del día por clínica
+  idx_citas_odontologo        → Agenda por odontólogo
+  idx_citas_paciente          → Citas de un paciente
+  idx_citas_estado            → Filtro por estado
+  idx_pagos_paciente          → Historial de pagos
+  idx_pagos_clinica           → Pagos por fecha
+  idx_pagos_estado            → Filtro por estado
+  idx_historiales_paciente    → Historial del paciente
+  idx_diagnosticos_paciente   → Diagnósticos del paciente
+  idx_evoluciones_paciente    → Evoluciones del paciente
+  idx_evoluciones_fecha       → Evoluciones por fecha
+  idx_horarios_odontologo     → Horarios del odontólogo
+  idx_perfiles_clinica        → Personal de la clínica
+  idx_perfiles_email          → Login por email
+
+ÍNDICE GIN (búsqueda full-text):
+  idx_pacientes_busqueda → tsvector en español sobre
+    nombre_completo + CI. Permite búsquedas como
+    "SELECT * FROM pacientes WHERE ... @@ ts_query(...)"
+
+------------------------------------------------------------
+6. STORAGE - AVATARES
+------------------------------------------------------------
+
+Bucket 'avatars' con políticas CRUD:
+  - INSERT: Solo el usuario puede subir su propio avatar
+    (verifica carpeta = auth.uid)
+  - SELECT: Público (bucket público)
+  - UPDATE: Solo el propio usuario
+  - DELETE: Solo el propio usuario
+
+Carpeta: avatars/{user_id}/filename.png
+
+------------------------------------------------------------
+7. MÉTRICAS DEL ESQUEMA
+------------------------------------------------------------
+  Tablas:            15
+  Funciones helper:   2 (obtener_clinica_usuario, obtener_rol_usuario)
+  Triggers:          11 (actualizar_fecha_modificacion)
+  Índices:           23 (17 B-Tree + 1 GIN + 5 compuestos)
+  Políticas RLS:     30+
+  Storage policies:   4
+
+------------------------------------------------------------
+8. JUSTIFICACIÓN TECNOLÓGICA
+------------------------------------------------------------
+
+¿Por qué Supabase/PostgreSQL?
+  - Open source, sin vendor lock-in
+  - RLS nativo sin framework adicional
+  - PostgreSQL es el estándar para datos relacionales
+  - Supabase incluye Auth, Storage y Realtime integrados
+  - Tier gratuito suficiente para MVP (500MB DB, 1GB Storage)
+
+¿Por qué no MongoDB/NoSQL?
+  - Datos odontológicos son altamente relacionales
+  - JOINs eficientes para reportes (presupuesto + pagos)
+  - Transacciones ACID para pagos y tratamientos
+  - RLS robusto que NoSQL no ofrece nativamente
+
+------------------------------------------------------------
+9. CONCLUSIONES
+------------------------------------------------------------
+
+El esquema de MiDentista está diseñado bajo principios de:
+  1. Multi-tenant seguro (clinica_id + RLS)
+  2. Modularidad clara (módulos clínico, agenda, financiero)
+  3. Rendimiento (23 índices estratégicos)
+  4. Trazabilidad (triggers de actualizado_en)
+  5. Seguridad (RLS en TODAS las tablas)
+  6. Flexibilidad (JSONB para odontogramas)
+  7. Portabilidad (CHECK constraints, sin tipos custom)
+
+El diseño soporta el MVP de 3 meses y es escalable para
+futuras versiones (reportes, analytics, integración con
+laboratorios, etc.)
+
+============================================================
+                    FIN DE LA DEFENSA
+============================================================

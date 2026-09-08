@@ -1,0 +1,33 @@
+@startuml uc_odontologo_clinico
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam actorStyle awesome
+
+rectangle "MiDentista" {
+  usecase "Registrar paciente" as B1
+  usecase "Registrar historia clinica" as B2
+  usecase "Elaborar odontograma con piezas (JSONB)" as B3
+  usecase "Registrar diagnostico" as B4
+  usecase "Proponer plan de tratamiento" as B5
+  usecase "Registrar evolucion clinica" as B6
+  usecase "Elaborar presupuesto" as B7
+  usecase "Registrar pago" as B8
+}
+
+actor "Odontologo" as ODO
+ODO --> B1
+ODO --> B2
+ODO --> B3
+ODO --> B4
+ODO --> B5
+ODO --> B6
+ODO --> B7
+B4 .> B3 : <<extend>>
+B5 .> B4 : <<extend>>
+B7 .> B6 : <<include>>
+B8 ..> B7 : <<include>>
+ODO --> B8
+@enduml

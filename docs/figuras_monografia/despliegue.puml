@@ -1,0 +1,30 @@
+@startuml despliegue
+skinparam nodeStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Diagrama de despliegue
+
+node "Navegador del usuario" <<HTTPS>> {
+  component "SPA (React)" as nav
+}
+
+node "Hosting compartido (HostGator)" {
+  component "subdominio midentista" as host
+  component ".htaccess (rewrite SPA)" as ht
+  component "dist/ (build estatico)" as dist
+}
+
+node "Supabase (nube)" {
+  component "API REST / Auth (JWT)" as api
+  component "PostgreSQL 15 tablas con RLS" as db
+  component "Storage buckets: logos, qr-estaticos" as st
+}
+
+nav --> host : HTTPS 443
+host --> dist
+host --> ht
+nav --> api : supabase-js (HTTPS)
+api --> db
+nav --> st
+@enduml

@@ -1,0 +1,110 @@
+@startuml er_general
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Vista general del modelo entidad-relacion (15 tablas)
+
+' Entidades con <<tabla>> para diferenciar del diagrama de clases
+entity Clinica <<tabla>> {
+  * id : uuid PK
+  nombre
+  slug
+}
+
+entity Perfil <<tabla>> {
+  * id : uuid PK (auth.users)
+  rol
+  clinica_id : FK
+}
+
+entity Paciente <<tabla>> {
+  * id : uuid PK
+  clinica_id : FK
+  nombre_completo
+}
+
+entity HistoriaClinica <<tabla>> {
+  * id : uuid PK
+  paciente_id : FK
+}
+
+entity Odontograma <<tabla>> {
+  * id : uuid PK
+  paciente_id : FK
+  piezas : jsonb
+}
+
+entity Diagnostico <<tabla>> {
+  * id : uuid PK
+  paciente_id : FK
+}
+
+entity PlanTratamiento <<tabla>> {
+  * id : uuid PK
+  paciente_id : FK
+}
+
+entity ProcedimientoTratamiento <<tabla>> {
+  * id : uuid PK
+  plan_tratamiento_id : FK
+  servicio_id : FK
+}
+
+entity EvolucionClinica <<tabla>> {
+  * id : uuid PK
+  paciente_id : FK
+}
+
+entity Horario <<tabla>> {
+  * id : uuid PK
+  odontologo_id : FK
+}
+
+entity Cita <<tabla>> {
+  * id : uuid PK
+  paciente_id : FK
+  odontologo_id : FK
+}
+
+entity Servicio <<tabla>> {
+  * id : uuid PK
+  clinica_id : FK
+}
+
+entity Presupuesto <<tabla>> {
+  * id : uuid PK
+  paciente_id : FK
+}
+
+entity ItemPresupuesto <<tabla>> {
+  * id : uuid PK
+  presupuesto_id : FK
+  servicio_id : FK
+}
+
+entity Pago <<tabla>> {
+  * id : uuid PK
+  presupuesto_id : FK
+}
+
+Clinica ||--o{ Perfil
+Clinica ||--o{ Servicio
+Perfil ||--o{ Paciente
+Paciente ||--o{ HistoriaClinica
+Paciente ||--o{ Odontograma
+Paciente ||--o{ Diagnostico
+Paciente ||--o{ PlanTratamiento
+PlanTratamiento ||--o{ ProcedimientoTratamiento
+Paciente ||--o{ EvolucionClinica
+Perfil ||--o{ Horario
+Paciente ||--o{ Cita
+Perfil ||--o{ Cita
+Paciente ||--o{ Presupuesto
+Presupuesto ||--o{ ItemPresupuesto
+Paciente ||--o{ Pago
+Presupuesto ||--o{ Pago
+Servicio ||--o{ ItemPresupuesto
+Note top of Perfil: rol: odontologo|recepcionista|paciente
+@enduml

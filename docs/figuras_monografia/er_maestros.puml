@@ -1,0 +1,70 @@
+@startuml er_maestros
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Datos maestros y usuarios
+
+entity Clinica <<tabla>> {
+  * id : uuid PK
+  --
+  nombre : text
+  slug : text UQ
+  email : text
+  telefono : text
+  direccion : text
+  ciudad : text
+  pais : text
+  moneda : text (Bs)
+  simbolo_moneda : text
+  activo : bool
+}
+
+entity Perfil <<tabla>> {
+  * id : uuid PK -> auth.users
+  --
+  email : text UQ
+  nombre_completo : text
+  telefono : text
+  avatar_url : text
+  rol : text check
+  clinica_id : uuid FK
+  especialidad : text
+  consultorio : text
+  activo : bool
+}
+
+entity Servicio <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : uuid FK
+  nombre : text
+  descripcion : text
+  precio_por_defecto : numeric
+  duracion_minutos : int
+  activo : bool
+}
+
+entity Paciente <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : uuid FK
+  perfil_id : uuid FK
+  ci : text
+  nombre_completo : text
+  fecha_nacimiento : date
+  genero : text
+  telefono : text
+  email : text
+  contacto_emergencia_nombre : text
+  tipo_sangre : text
+  alergias : text
+  activo : bool
+}
+
+Clinica ||--o{ Perfil
+Clinica ||--o{ Servicio
+Perfil o--o{ Paciente
+Note bottom of Perfil: rol check:\nodontologo | recepcionista | paciente
+@enduml

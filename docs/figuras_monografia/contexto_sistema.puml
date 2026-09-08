@@ -1,0 +1,34 @@
+@startuml contexto_sistema
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Esquema general del sistema MiDentista
+
+[Usuario: Paciente] as usu_paciente
+[Usuario: Recepcionista] as usu_recep
+[Usuario: Odontologo] as usu_odonto
+
+package "Navegador web (SPA)" {
+  [Interfaz React + Tailwind CSS] as spa
+}
+
+package "Hosting compartido (HostGator)" {
+  [dist/ - estaticos del SPA] as hosting
+}
+
+package "Supabase (backend como servicio)" {
+  [Auth (registro, login JWT)] as auth
+  [PostgreSQL 15 tablas + RLS] as db
+  [Storage (logo y QR estatico)] as storage
+}
+
+usu_paciente --> spa
+usu_recep --> spa
+usu_odonto --> spa
+spa --> hosting : navegador
+spa --> auth : supabase-js
+spa --> db : consultas SQL (RLS)
+spa --> storage : imagenes
+auth ..> db : perfiles (auth.uid)
+@enduml

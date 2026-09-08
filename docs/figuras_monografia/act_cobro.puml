@@ -1,0 +1,29 @@
+@startuml act_cobro
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Flujo de cobro
+
+|Odontologo / Recepcionista|
+start
+:Buscar paciente;
+:Revisar presupuestos aceptados del paciente;
+if (hay saldo pendiente?) then (si)
+  :Indicar monto al paciente (efectivo o QR estatico de referencia);
+|Paciente|
+:Realiza el pago;
+|Odontologo / Recepcionista|
+:Registrar pago (metodo, monto, codigo de referencia);
+:Marcar pago como confirmado;
+if (saldo del presupuesto = 0?) then (si)
+  :Cerrar presupuesto (estado aceptado/cobrado);
+else (no)
+  :Dejar saldo pendiente visible en el estado de cuenta;
+endif
+:Entregar recibo;
+stop
+else (no)
+  :Informar que el paciente no tiene deudas;
+  stop
+endif
+@enduml

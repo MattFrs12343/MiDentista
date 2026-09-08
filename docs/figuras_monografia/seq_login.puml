@@ -1,0 +1,25 @@
+@startuml seq_login
+skinparam shadowing false
+skinparam defaultFontName Arial
+autonumber
+
+title Inicio de sesion de un usuario
+
+actor Usuario as U
+participant "SPA (React)" as SPA
+participant "Supabase Auth" as AUTH
+database "PostgreSQL" as DB
+
+U -> SPA : email + contrasena
+SPA -> AUTH : signInWithPassword(email, password)
+alt Credenciales validas
+  AUTH -->> SPA : access_token (JWT) + refresh_token
+  SPA -> DB : listas con token + authorization header
+  DB -> DB : RLS (obtener_clinica_usuario / obtener_rol_usuario)
+  DB -->> SPA : datos filtrados por clinica y rol
+  SPA -->> U : pantalla principal del rol
+else Credenciales invalidas
+  AUTH -->> SPA : error 400 (invalid_credentials)
+  SPA -->> U : mensaje de error en pantalla
+end
+@enduml

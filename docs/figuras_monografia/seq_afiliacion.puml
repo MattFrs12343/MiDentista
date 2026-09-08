@@ -1,0 +1,24 @@
+@startuml seq_afiliacion
+skinparam shadowing false
+skinparam defaultFontName Arial
+autonumber
+
+title Afiliacion de un paciente a su clinica
+
+actor Paciente as P
+participant "SPA (React)" as SPA
+database "PostgreSQL" as DB
+
+P -> SPA : elige "afiliarse a una clinica"
+SPA -> DB : SELECT clinicas WHERE activo
+DB -->> SPA : lista de clinicas activas
+P -> SPA : busca su clinica por nombre
+SPA -> DB : SELECT clinicas WHERE nombre ILIKE %%
+DB -->> SPA : resultados
+P -> SPA : selecciona la clinica e ingresa sus datos
+SPA -> DB : INSERT perfiles (rol=paciente, clinica_id)
+DB -->> SPA : perfil creado
+SPA -> DB : INSERT pacientes (clinica_id, perfil_id, datos)
+DB -->> SPA : paciente registrado
+SPA -->> P : afiliacion confirmada
+@enduml

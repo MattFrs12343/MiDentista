@@ -1,0 +1,125 @@
+Summary,Issue Type,Epic Link,Priority,Description,Labels,Story Points
+US-1.1,Story,EPIC-01: Auth & Onboarding,P0,"Como usuario registrado, quiero iniciar sesion con email y contrasena, para acceder al sistema.",auth,5
+US-1.2,Story,EPIC-01: Auth & Onboarding,P0,"Como paciente nuevo, quiero registrarme con mi email y contrasena, para poder acceder a mi informacion.",auth,5
+US-1.3,Story,EPIC-01: Auth & Onboarding,P1,"Como usuario que olvido su contrasena, quiero solicitar un restablecimiento, para recuperar el acceso.",auth,3
+US-1.5,Story,EPIC-01: Auth & Onboarding,P0,"Como odontologo, quiero registrarme y crear mi clinica con su equipo inicial, para empezar a usar el sistema.",auth,registro-clinica,5
+US-1.6,Story,EPIC-01: Auth & Onboarding,P1,"Como usuario autenticado, quiero cerrar sesion, para proteger mi cuenta.",auth,3
+US-1.7,Story,EPIC-01: Auth & Onboarding,P0,"Como paciente sin clinica asignada, quiero buscar clinicas afiliadas por nombre, para elegir donde atenderme (MVP sin busqueda geografica).",auth,busqueda-clinicas,3
+US-1.8,Story,EPIC-01: Auth & Onboarding,P0,"Como paciente, quiero afiliarme a una clinica encontrada en la busqueda, para acceder a sus odontologos y servicios.",auth,busqueda-clinicas,3
+T-1.1,Task,EPIC-01: Auth & Onboarding,,"Configurar Supabase Auth (email/password)",auth,5
+T-1.2,Task,EPIC-01: Auth & Onboarding,,"Crear tabla perfiles y trigger de sync con auth.users",auth,5
+T-1.3,Task,EPIC-01: Auth & Onboarding,,"Crear middleware de autenticacion (JWT + clinica_id)",auth,8
+T-1.4,Task,EPIC-01: Auth & Onboarding,,"Implementar pagina de login",auth,5
+T-1.5,Task,EPIC-01: Auth & Onboarding,,"Implementar formulario de registro de paciente",auth,5
+T-1.6,Task,EPIC-01: Auth & Onboarding,,"Implementar flujo de recuperacion de contrasena",auth,3
+T-1.8,Task,EPIC-01: Auth & Onboarding,,"Crear wizard de alta de clinica y equipo (odontologo crea su clinica y da de alta a su personal)",auth,registro-clinica,8
+T-1.9,Task,EPIC-01: Auth & Onboarding,,"Implementar ProtectedRoute y role-based routing",auth,5
+T-1.10,Task,EPIC-01: Auth & Onboarding,,"Configurar RLS para perfiles",auth,5
+T-1.11,Task,EPIC-01: Auth & Onboarding,,"Implementar cierre de sesion",auth,3
+T-1.12,Task,EPIC-01: Auth & Onboarding,,"Crear hooks de autenticacion (useAuth, useUser)",auth,5
+T-1.14,Task,EPIC-01: Auth & Onboarding,,"Implementar pestana de busqueda de clinicas por nombre (sin radio 5 km)",auth,busqueda-clinicas,5
+T-1.15,Task,EPIC-01: Auth & Onboarding,,"Implementar flujo de afiliacion del paciente a una clinica",auth,busqueda-clinicas,5
+US-2.1,Story,EPIC-02: Pacientes,P0,"Como recepcionista u odontologo, quiero registrar un paciente nuevo con sus datos, para tener su informacion en el sistema.",pacientes,8
+US-2.2,Story,EPIC-02: Pacientes,P1,"Como recepcionista u odontologo, quiero editar los datos de un paciente, para mantener la informacion actualizada.",pacientes,5
+US-2.3,Story,EPIC-02: Pacientes,P0,"Como recepcionista u odontologo, quiero buscar pacientes por nombre, CI, telefono o email, para encontrar rapidamente un registro.",pacientes,5
+US-2.4,Story,EPIC-02: Pacientes,P0,"Como recepcionista u odontologo, quiero ver la ficha completa del paciente, para tener una vista integral (tabs Historia, Odontograma, Diagnostico, Tratamiento, Evolucion, Pagos).",pacientes,8
+US-2.5,Story,EPIC-02: Pacientes,P2,"Como recepcionista u odontologo, quiero registrar el contacto de emergencia del paciente, para tener informacion de emergencia.",pacientes,3
+US-2.6,Story,EPIC-02: Pacientes,P1,"Como recepcionista u odontologo, quiero ver la lista de pacientes paginada, para navegar grandes volumenes de datos.",pacientes,5
+US-2.7,Story,EPIC-02: Pacientes,P1,"Como odontologo, quiero ver el historial de atenciones de un paciente, para entender su trayectoria clinica.",pacientes,5
+T-2.1,Task,EPIC-02: Pacientes,,"Crear tabla pacientes + RLS",pacientes,5
+T-2.2,Task,EPIC-02: Pacientes,,"Crear componente FormPaciente (registro/edicion)",pacientes,8
+T-2.3,Task,EPIC-02: Pacientes,,"Crear componente ListaPacientes con paginacion",pacientes,5
+T-2.4,Task,EPIC-02: Pacientes,,"Implementar busqueda de pacientes",pacientes,5
+T-2.5,Task,EPIC-02: Pacientes,,"Crear componente FichaPaciente (con tabs)",pacientes,13
+T-2.6,Task,EPIC-02: Pacientes,,"Implementar formulario de contacto de emergencia",pacientes,3
+T-2.7,Task,EPIC-02: Pacientes,,"Crear vista de historial de atenciones",pacientes,5
+T-2.8,Task,EPIC-02: Pacientes,,"Implementar validaciones de formulario",pacientes,5
+T-2.9,Task,EPIC-02: Pacientes,,"Crear servicios de pacientes (CRUD Supabase)",pacientes,5
+US-3.1,Story,EPIC-03: Historia Clinica,P0,"Como odontologo, quiero registrar la historia clinica completa del paciente, para documentar su estado de salud.",historia-clinica,8
+US-3.2,Story,EPIC-03: Historia Clinica,P0,"Como odontologo, quiero consultar la historia clinica existente, para revisar la informacion antes de una atencion.",historia-clinica,5
+US-3.3,Story,EPIC-03: Historia Clinica,P1,"Como odontologo, quiero actualizar la historia clinica cuando hay cambios, para mantener la informacion vigente.",historia-clinica,5
+T-3.1,Task,EPIC-03: Historia Clinica,,"Crear tabla historiales_clinicos + RLS",historia-clinica,5
+T-3.2,Task,EPIC-03: Historia Clinica,,"Crear formulario de historia clinica (todos los campos)",historia-clinica,8
+T-3.3,Task,EPIC-03: Historia Clinica,,"Implementar servicio de historia clinica (CRUD)",historia-clinica,5
+T-3.4,Task,EPIC-03: Historia Clinica,,"Crear vista de consulta de historia",historia-clinica,5
+T-3.5,Task,EPIC-03: Historia Clinica,,"Implementar edicion de historia clinica",historia-clinica,5
+T-3.7,Task,EPIC-03: Historia Clinica,,"Integrar historia clinica en ficha del paciente",historia-clinica,5
+US-4.1,Story,EPIC-04: Odontograma,P0,"Como odontologo, quiero ver el odontograma visual con todas las piezas dentales, para evaluar el estado bucal.",odontograma,13
+US-4.2,Story,EPIC-04: Odontograma,P0,"Como odontologo, quiero seleccionar una pieza y registrar su condicion, para documentar el diagnostico visual.",odontograma,8
+US-4.3,Story,EPIC-04: Odontograma,P1,"Como odontologo, quiero especificar la superficie afectada, para ser mas preciso.",odontograma,8
+US-4.4,Story,EPIC-04: Odontograma,P2,"Como odontologo, quiero agregar notas a cada pieza dental, para documentar detalles relevantes.",odontograma,5
+US-4.5,Story,EPIC-04: Odontograma,P1,"Como odontologo, quiero ver odontogramas anteriores del paciente, para comparar evolucion.",odontograma,5
+T-4.1,Task,EPIC-04: Odontograma,,"Crear tabla odontogramas + RLS (piezas en JSONB, sin tabla odontograma_piezas)",odontograma,5
+T-4.2,Task,EPIC-04: Odontograma,,"Obtener/crear imagen de odontograma base (FDI)",odontograma,8
+T-4.3,Task,EPIC-04: Odontograma,,"Implementar mapa de zonas clickeables sobre imagen",odontograma,13
+T-4.4,Task,EPIC-04: Odontograma,,"Crear panel lateral de condiciones",odontograma,5
+T-4.5,Task,EPIC-04: Odontograma,,"Implementar logica de seleccion de superficie",odontograma,8
+T-4.6,Task,EPIC-04: Odontograma,,"Crear servicio de odontograma (CRUD)",odontograma,5
+T-4.7,Task,EPIC-04: Odontograma,,"Implementar guardado de condiciones por pieza",odontograma,5
+T-4.8,Task,EPIC-04: Odontograma,,"Crear vista de historial de odontogramas",odontograma,5
+T-4.10,Task,EPIC-04: Odontograma,,"Agregar observaciones por pieza",odontograma,5
+T-4.11,Task,EPIC-04: Odontograma,,"Integrar odontograma en ficha del paciente",odontograma,5
+US-5.1,Story,EPIC-05: Diagnostico y Plan de Tratamiento,P0,"Como odontologo, quiero crear un diagnostico para un paciente, para documentar sus condiciones.",diagnostico-tratamiento,5
+US-5.2,Story,EPIC-05: Diagnostico y Plan de Tratamiento,P1,"Como odontologo, quiero modificar un diagnostico existente, para corregir o actualizar informacion.",diagnostico-tratamiento,5
+US-5.3,Story,EPIC-05: Diagnostico y Plan de Tratamiento,P1,"Como odontologo, quiero cambiar el estado de un diagnostico, para reflejar su evolucion.",diagnostico-tratamiento,3
+US-5.4,Story,EPIC-05: Diagnostico y Plan de Tratamiento,P0,"Como odontologo, quiero crear un plan de tratamiento con procedimientos, para definir el curso de accion.",diagnostico-tratamiento,8
+US-5.5,Story,EPIC-05: Diagnostico y Plan de Tratamiento,P0,"Como odontologo, quiero agregar multiples procedimientos al plan, para cubrir todas las necesidades.",diagnostico-tratamiento,5
+US-5.6,Story,EPIC-05: Diagnostico y Plan de Tratamiento,P0,"Como odontologo, quiero cambiar el estado del plan (propuesto a aceptado a en proceso a completado), para hacer seguimiento.",diagnostico-tratamiento,5
+US-5.7,Story,EPIC-05: Diagnostico y Plan de Tratamiento,P1,"Como odontologo, quiero filtrar tratamientos por estado, para ver cuales estan pendientes o en proceso.",diagnostico-tratamiento,5
+T-5.1,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Crear tablas diagnosticos + planes_tratamiento + procedimientos_tratamiento + RLS",diagnostico-tratamiento,5
+T-5.2,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Crear formulario de diagnostico",diagnostico-tratamiento,5
+T-5.3,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Implementar servicio de diagnostico (CRUD)",diagnostico-tratamiento,5
+T-5.4,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Crear lista de diagnosticos del paciente",diagnostico-tratamiento,5
+T-5.5,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Crear formulario de plan de tratamiento",diagnostico-tratamiento,8
+T-5.6,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Implementar CRUD de procedimientos",diagnostico-tratamiento,5
+T-5.7,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Implementar maquina de estados del plan",diagnostico-tratamiento,5
+T-5.8,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Crear vista de tratamientos por estado",diagnostico-tratamiento,5
+T-5.9,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Integrar diagnostico y tratamiento en ficha del paciente",diagnostico-tratamiento,5
+T-5.10,Task,EPIC-05: Diagnostico y Plan de Tratamiento,,"Calcular total del plan automaticamente",diagnostico-tratamiento,5
+US-6.1,Story,EPIC-06: Evolucion Clinica,P0,"Como odontologo, quiero registrar la evolucion de cada consulta, para documentar los procedimientos realizados.",evolucion-clinica,8
+US-6.2,Story,EPIC-06: Evolucion Clinica,P1,"Como odontologo, quiero ver la evolucion del paciente en orden cronologico, para entender su progreso.",evolucion-clinica,5
+US-6.3,Story,EPIC-06: Evolucion Clinica,P2,"Como odontologo, quiero indicar la proxima fecha de atencion, para planificar el seguimiento.",evolucion-clinica,3
+US-6.4,Story,EPIC-06: Evolucion Clinica,P1,"Como odontologo, quiero vincular la evolucion con un plan de tratamiento especifico, para hacer seguimiento del progreso.",evolucion-clinica,5
+T-6.1,Task,EPIC-06: Evolucion Clinica,,"Crear tabla evoluciones_clinicas + RLS",evolucion-clinica,5
+T-6.2,Task,EPIC-06: Evolucion Clinica,,"Crear formulario de evolucion clinica",evolucion-clinica,8
+T-6.3,Task,EPIC-06: Evolucion Clinica,,"Implementar servicio de evolucion (CRUD)",evolucion-clinica,5
+T-6.4,Task,EPIC-06: Evolucion Clinica,,"Crear vista de evolucion cronologica",evolucion-clinica,5
+T-6.5,Task,EPIC-06: Evolucion Clinica,,"Implementar seleccion de proxima atencion",evolucion-clinica,3
+T-6.6,Task,EPIC-06: Evolucion Clinica,,"Vincular evolucion con plan de tratamiento",evolucion-clinica,5
+T-6.7,Task,EPIC-06: Evolucion Clinica,,"Integrar evolucion en ficha del paciente",evolucion-clinica,5
+US-7.1,Story,EPIC-07: Agenda y Citas,P0,"Como odontologo, quiero configurar mi disponibilidad semanal, para que los pacientes puedan agendar citas.",agenda-citas,8
+US-7.2,Story,EPIC-07: Agenda y Citas,P0,"Como paciente, quiero agendar una cita eligiendo fecha y hora disponible, para reservar mi consulta.",agenda-citas,8
+US-7.3,Story,EPIC-07: Agenda y Citas,P0,"Como recepcionista u odontologo, quiero ver un calendario con las citas, para visualizar la agenda.",agenda-citas,13
+US-7.4,Story,EPIC-07: Agenda y Citas,P1,"Como recepcionista u odontologo, quiero reprogramar una cita a otra fecha/hora, para gestionar cambios.",agenda-citas,5
+US-7.5,Story,EPIC-07: Agenda y Citas,P1,"Como recepcionista, odontologo o paciente, quiero cancelar una cita, para liberar el espacio.",agenda-citas,5
+US-7.7,Story,EPIC-07: Agenda y Citas,P1,"Como recepcionista u odontologo, quiero cambiar el estado de una cita, para hacer seguimiento.",agenda-citas,5
+T-7.1,Task,EPIC-07: Agenda y Citas,,"Crear tablas horarios + citas + RLS (sin excepciones_horarios: version 2)",agenda-citas,5
+T-7.2,Task,EPIC-07: Agenda y Citas,,"Crear formulario de disponibilidad horaria",agenda-citas,8
+T-7.3,Task,EPIC-07: Agenda y Citas,,"Implementar CRUD de horarios",agenda-citas,5
+T-7.4,Task,EPIC-07: Agenda y Citas,,"Crear componente de calendario (vista diaria/semanal)",agenda-citas,13
+T-7.5,Task,EPIC-07: Agenda y Citas,,"Implementar selector de horarios disponibles para paciente",agenda-citas,8
+T-7.6,Task,EPIC-07: Agenda y Citas,,"Crear flujo de agendamiento de citas",agenda-citas,8
+T-7.7,Task,EPIC-07: Agenda y Citas,,"Implementar reprogramacion de citas",agenda-citas,5
+T-7.8,Task,EPIC-07: Agenda y Citas,,"Implementar cancelacion de citas",agenda-citas,5
+T-7.10,Task,EPIC-07: Agenda y Citas,,"Implementar maquina de estados de cita",agenda-citas,5
+T-7.11,Task,EPIC-07: Agenda y Citas,,"Integrar agenda en ficha del paciente",agenda-citas,5
+US-8.1,Story,EPIC-08: Presupuestos,P0,"Como recepcionista u odontologo, quiero crear un presupuesto para un paciente con procedimientos y costos, para presentarle un estimado.",presupuestos,8
+US-8.2,Story,EPIC-08: Presupuestos,P2,"Como recepcionista u odontologo, quiero aplicar un descuento al presupuesto, para ofrecer precios especiales.",presupuestos,5
+US-8.4,Story,EPIC-08: Presupuestos,P1,"Como recepcionista u odontologo, quiero modificar un presupuesto existente, para ajustar costos o procedimientos.",presupuestos,5
+T-8.1,Task,EPIC-08: Presupuestos,,"Crear tablas presupuestos + items_presupuesto + RLS",presupuestos,5
+T-8.2,Task,EPIC-08: Presupuestos,,"Crear formulario de presupuesto",presupuestos,8
+T-8.3,Task,EPIC-08: Presupuestos,,"Implementar CRUD de items de presupuesto",presupuestos,5
+T-8.4,Task,EPIC-08: Presupuestos,,"Implementar calculo de total y descuento",presupuestos,5
+T-8.6,Task,EPIC-08: Presupuestos,,"Crear lista de presupuestos con filtros",presupuestos,5
+T-8.7,Task,EPIC-08: Presupuestos,,"Integrar servicios de catalogo en presupuesto",presupuestos,5
+T-8.8,Task,EPIC-08: Presupuestos,,"Implementar estados de presupuesto",presupuestos,5
+US-9.3,Story,EPIC-09: Pagos y Cuentas,P0,"Como recepcionista u odontologo, quiero registrar un pago recibido, para actualizar el saldo del paciente.",pagos,5
+US-9.4,Story,EPIC-09: Pagos y Cuentas,P0,"Como recepcionista u odontologo, quiero registrar un pago parcial, para cuando el paciente no paga todo de una.",pagos,5
+US-9.5,Story,EPIC-09: Pagos y Cuentas,P1,"Como recepcionista, odontologo o paciente, quiero ver el historial de pagos, para tener un registro.",pagos,5
+US-9.6,Story,EPIC-09: Pagos y Cuentas,P0,"Como recepcionista u odontologo, quiero ver el estado de cuenta del paciente, para saber cuanto debe.",pagos,5
+T-9.1,Task,EPIC-09: Pagos y Cuentas,,"Crear tabla pagos + RLS (sin codigos_qr_pago: el QR es imagen estatica)",pagos,5
+T-9.4,Task,EPIC-09: Pagos y Cuentas,,"Crear flujo de registro de pago",pagos,5
+T-9.5,Task,EPIC-09: Pagos y Cuentas,,"Implementar pago parcial",pagos,5
+T-9.6,Task,EPIC-09: Pagos y Cuentas,,"Crear vista de historial de pagos",pagos,5
+T-9.7,Task,EPIC-09: Pagos y Cuentas,,"Implementar estado de cuenta (total/pagado/pendiente)",pagos,5
+T-9.8,Task,EPIC-09: Pagos y Cuentas,,"Integrar pagos en ficha del paciente",pagos,5

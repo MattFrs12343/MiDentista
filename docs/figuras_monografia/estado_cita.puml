@@ -1,0 +1,20 @@
+@startuml estado_cita
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Ciclo de vida de una cita
+
+[*] --> Reservada : recepcionista reserva
+Reservada --> Confirmada : paciente u odontologo confirma
+Reservada --> Cancelada : no asistio / se reprograma
+Confirmada --> Atendida : consulta realizada
+Confirmada --> Cancelada : cancelacion del paciente o clinica
+Atendida --> [*]
+Cancelada --> [*]
+
+note right of Reservada
+  La columna estado de citas usa la
+  restriccion CHECK: reservada,
+  confirmada, atendida, cancelada.
+end note
+@enduml

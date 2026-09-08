@@ -1,0 +1,38 @@
+@startuml uc_general
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam actorStyle awesome
+
+rectangle "MiDentista" {
+  usecase "Autenticar usuario (email + contrasena)" as UC1
+  usecase "Registrarse en el sistema" as UC2
+  usecase "Afiliarse a una clinica" as UC3
+  usecase "Registrar paciente" as UC4
+  usecase "Gestionar citas" as UC5
+  usecase "Registrar cobro" as UC6
+  usecase "Consultar estado de cuenta" as UC7
+
+  UC2 .> UC3 : <<include>>
+}
+
+actor "Odontologo" as OD
+actor "Recepcionista" as RE
+actor "Paciente" as PA
+
+OD --> UC1
+OD --> UC4
+OD --> UC5
+OD --> UC6
+OD --> UC7
+RE --> UC1
+RE --> UC4
+RE --> UC5
+RE --> UC6
+PA --> UC1
+PA --> UC2
+PA --> UC3
+PA --> UC7
+@enduml

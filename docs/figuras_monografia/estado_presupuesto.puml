@@ -1,0 +1,18 @@
+@startuml estado_presupuesto
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Ciclo de vida de un presupuesto
+
+[*] --> Borrador : odontologo lo compone con items
+Borrador --> Enviado : se muestra/imprime al paciente
+Enviado --> Aceptado : paciente acepta
+Enviado --> Rechazado : paciente rechaza o vence
+Aceptado --> Rechazado : vencimiento sin aceptacion de pago
+Rechazado --> [*]
+
+note right of Borrador
+  CHECK: borrador, enviado,
+  aceptado, rechazado.
+end note
+@enduml

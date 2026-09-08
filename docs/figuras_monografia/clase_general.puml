@@ -1,0 +1,49 @@
+@startuml clase_general
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Vista general de las clases del dominio (15 clases)
+
+' Soft links: composiciones/agregaciones
+class Clinica
+class Perfil
+class Paciente
+class HistoriaClinica
+class Odontograma
+class Diagnostico
+class PlanTratamiento
+class ProcedimientoTratamiento
+class EvolucionClinica
+class Horario
+class Cita
+class Servicio
+class Presupuesto
+class ItemPresupuesto
+class Pago
+
+Clinica o-- Perfil
+Perfil o-- Paciente
+Paciente o-- HistoriaClinica
+Paciente o-- Odontograma
+Paciente o-- Diagnostico
+Paciente o-- PlanTratamiento
+PlanTratamiento *-- ProcedimientoTratamiento
+Paciente o-- EvolucionClinica
+Perfil o-- Horario
+Paciente o-- Cita
+Perfil o-- Cita
+PlanTratamiento o-- Cita
+Servicio o-- ProcedimientoTratamiento
+Paciente o-- Presupuesto
+Presupuesto *-- ItemPresupuesto
+Servicio o-- ItemPresupuesto
+Paciente o-- Pago
+Presupuesto o-- Pago
+note right of Odontograma
+  piezas: jsonb
+  (FDI, sustituye
+  odontograma_piezas)
+end note
+@enduml

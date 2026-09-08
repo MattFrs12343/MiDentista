@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiDentista — Mapa de la Base de Datos (MVP)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7fb; color: #1e293b; padding: 24px; }
+  h1 { font-size: 26px; color: #0f766e; margin-bottom: 4px; }
+  .sub { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  h2 { font-size: 18px; color: #0f766e; margin-bottom: 12px; border-left: 4px solid #0f766e; padding-left: 8px; }
+  /* Pantallazo general */
+  .snapshot { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .snap-box { flex: 1 1 150px; border-radius: 8px; padding: 12px; text-align: center; color: #fff; min-width: 150px; }
+  .snap-box .n { font-size: 30px; font-weight: 700; }
+  .snap-box .t { font-size: 13px; }
+  .g1 { background: #0f766e; } .g2 { background: #2563eb; } .g3 { background: #d97706; } .g4 { background: #7c3aed; }
+  /* Leyenda relaciones */
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .lg-line { width: 26px; height: 0; }
+  .l-asoc { border-top: 3px solid #2563eb; }
+  .l-comp { border-top: 3px solid #dc2626; }
+  .l-agreg { border-top: 3px dashed #7c3aed; }
+  .l-dep { border-top: 3px dotted #64748b; }
+  .l-her { border-top: 3px solid #d97706; }
+  /* Matriz */
+  .matrix-wrap { overflow-x: auto; }
+  table.matrix { border-collapse: collapse; font-size: 10px; }
+  .matrix th { background: #0f766e; color: #fff; padding: 3px 5px; min-width: 22px; }
+  .matrix th.rot { writing-mode: vertical-rl; transform: rotate(180deg); height: 70px; white-space: nowrap; font-weight: 600; }
+  .matrix td { text-align: center; width: 22px; height: 22px; }
+  .matrix td.rowlabel { text-align: left; white-space: nowrap; background: #f1f5f9; font-weight: 600; }
+  .asoc { background: #bfdbfe; }
+  .comp { background: #fecaca; }
+  .agreg { background: #e9d5ff; }
+  .dep { background: #e2e8f0; }
+  .her { background: #fde68a; }
+  .self { background: #0f766e; }
+  /* Fichas de tabla */
+  .tbl-card { display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin: 6px; width: 270px; vertical-align: top; }
+  .tbl-card b { color: #0f766e; font-size: 14px; }
+  .tbl-card .mod { display: inline-block; background: #ccfbf1; color: #0f766e; border-radius: 999px; font-size: 11px; padding: 1px 8px; margin-left: 6px; }
+  .tbl-card ul { margin: 6px 0 0 16px; font-size: 12px; color: #475569; }
+  .tot { text-align: center; font-size: 14px; color: #475569; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>MiDentista — Mapa de la Base de Datos (MVP)</h1>
+<div class="sub">15 tablas · PostgreSQL (Supabase) · Multi-tenant con RLS · 9 módulos · período 3 meses</div>
+
+<!-- PANTALLAZO -->
+<div class="card">
+  <h2>1 · El proyecto de un vistazo</h2>
+  <div class="snapshot">
+    <div class="snap-box g1"><div class="n">1</div><div class="t">CLÍNICA<br>raíz de todo<br>(clinicas)</div></div>
+    <div class="snap-box g1"><div class="n">1</div><div class="t">USUARIOS<br>quién entra al sistema<br>(perfiles + auth.users)</div></div>
+    <div class="snap-box g2"><div class="n">7</div><div class="t">PACIENTE + SALUD<br>historia, odontograma, diagnósticos, plan, evoluciones</div></div>
+    <div class="snap-box g3"><div class="n">2</div><div class="t">AGENDA<br>horarios, citas</div></div>
+    <div class="snap-box g3"><div class="n">3</div><div class="t">PRESUPUESTOS<br>servicios, presupuestos, items</div></div>
+    <div class="snap-box g4"><div class="n">1</div><div class="t">COBROS<br>pagos</div></div>
+  </div>
+  <div class="tot">La clínica es la raíz (todas tienen <b>clinica_id</b>) y el paciente es el centro clínico.<br>Documentación extendida (10 tablas y 6 módulos más) queda para la versión 2.</div>
+</div>
+
+<!-- LEYENDA -->
+<div class="card">
+  <h2>2 · Tipos de relación (para leer el mapa)</h2>
+  <div class="legend">
+    <span><i class="lg-line l-asoc"></i> Asociación (se conocen)</span>
+    <span><i class="lg-line l-comp"></i> <b>Composición</b> (el hijo no existe sin el padre)</span>
+    <span><i class="lg-line l-agreg"></i> Agregación (el hijo puede vivir solo)</span>
+    <span><i class="lg-line l-dep"></i> Dependencia (se usa, débil)</span>
+    <span><i class="lg-line l-her"></i> Herencia (es un ... con más datos)</span>
+  </div>
+</div>
+
+<!-- MATRIZ -->
+<div class="card">
+  <h2>3 · Matriz de conexiones (quién se conecta con quién)</h2>
+  <p class="sub">Filas = tablas. Cada celda de color = una conexión real hacia la tabla de esa columna.</p>
+  <div class="matrix-wrap">
+    <table class="matrix" id="matrixtable"></table>
+  </div>
+</div>
+
+<!-- FICHAS -->
+<div class="card">
+  <h2>4 · Ficha de cada tabla y a qué módulo pertenece</h2>
+  <div id="cards"></div>
+</div>
+
+<script>
+var TABLES = [
+  "clinicas","perfiles","pacientes","historiales_clinicos","odontogramas",
+  "diagnosticos","planes_tratamiento","procedimientos_tratamiento","evoluciones_clinicas",
+  "horarios","citas","servicios","presupuestos","items_presupuesto","pagos"
+];
+
+var MODULOS = {
+  "clinicas":"M1 Auth y Onboarding","perfiles":"M1 Auth y Onboarding",
+  "pacientes":"M2 Pacientes","historiales_clinicos":"M3 Historia Clínica",
+  "odontogramas":"M4 Odontograma","diagnosticos":"M5 Diag. y Tratamiento",
+  "planes_tratamiento":"M5 Diag. y Tratamiento","procedimientos_tratamiento":"M5 Diag. y Tratamiento",
+  "evoluciones_clinicas":"M6 Evolución Clínica","horarios":"M7 Agenda y Citas",
+  "citas":"M7 Agenda y Citas","servicios":"M5/M8 catálogo",
+  "presupuestos":"M8 Presupuestos","items_presupuesto":"M8 Presupuestos",
+  "pagos":"M9 Pagos y Cuentas"
+};
+
+// TABLA: [{to: "nombre_tabla", type: "asoc|comp|agreg|dep|her", via: "columna"}]
+var CONEXIONES = {
+  "clinicas":[
+    {to:"perfiles",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"clinica_id"},
+    {to:"historiales_clinicos",type:"asoc",via:"clinica_id"},{to:"odontogramas",type:"asoc",via:"clinica_id"},
+    {to:"diagnosticos",type:"asoc",via:"clinica_id"},{to:"planes_tratamiento",type:"asoc",via:"clinica_id"},
+    {to:"procedimientos_tratamiento",type:"asoc",via:"clinica_id"},{to:"evoluciones_clinicas",type:"asoc",via:"clinica_id"},
+    {to:"horarios",type:"asoc",via:"clinica_id"},{to:"citas",type:"asoc",via:"clinica_id"},
+    {to:"servicios",type:"asoc",via:"clinica_id"},{to:"presupuestos",type:"asoc",via:"clinica_id"},
+    {to:"items_presupuesto",type:"asoc",via:"clinica_id"},{to:"pagos",type:"asoc",via:"clinica_id"}
+  ],
+  "perfiles":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"perfil_id"},
+    {to:"odontogramas",type:"asoc",via:"odontologo_id"},{to:"diagnosticos",type:"asoc",via:"odontologo_id"},
+    {to:"planes_tratamiento",type:"asoc",via:"odontologo_id"},{to:"evoluciones_clinicas",type:"asoc",via:"odontologo_id"},
+    {to:"horarios",type:"asoc",via:"odontologo_id"},{to:"citas",type:"asoc",via:"odontologo_id"},
+    {to:"presupuestos",type:"asoc",via:"odontologo_id"},{to:"pagos",type:"asoc",via:"registrado_por"},
+    {to:"auth.users",type:"her",via:"id (Supabase)"}
+  ],
+  "pacientes":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"perfiles",type:"asoc",via:"perfil_id"},
+    {to:"historiales_clinicos",type:"asoc",via:"paciente_id"},{to:"odontogramas",type:"asoc",via:"paciente_id"},
+    {to:"diagnosticos",type:"asoc",via:"paciente_id"},{to:"planes_tratamiento",type:"asoc",via:"paciente_id"},
+    {to:"evoluciones_clinicas",type:"asoc",via:"paciente_id"},{to:"citas",type:"asoc",via:"paciente_id"},
+    {to:"presupuestos",type:"asoc",via:"paciente_id"},{to:"pagos",type:"asoc",via:"paciente_id"}
+  ],
+  "historiales_clinicos":[ {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"} ],
+  "odontogramas":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"},
+    {to:"perfiles",type:"asoc",via:"odontologo_id"}
+  ],
+  "diagnosticos":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"},{to:"perfiles",type:"asoc",via:"odontologo_id"}
+  ],
+  "planes_tratamiento":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"},
+    {to:"perfiles",type:"asoc",via:"odontologo_id"},{to:"procedimientos_tratamiento",type:"comp",via:"plan_tratamiento_id"},
+    {to:"evoluciones_clinicas",type:"asoc",via:"plan_tratamiento_id"},{to:"citas",type:"asoc",via:"plan_tratamiento_id"}
+  ],
+  "procedimientos_tratamiento":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"planes_tratamiento",type:"comp",via:"plan_tratamiento_id"},
+    {to:"servicios",type:"agreg",via:"servicio_id"}
+  ],
+  "evoluciones_clinicas":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"},
+    {to:"perfiles",type:"asoc",via:"odontologo_id"},{to:"planes_tratamiento",type:"asoc",via:"plan_tratamiento_id"},
+    {to:"procedimientos_tratamiento",type:"asoc",via:"procedimiento_id"}
+  ],
+  "horarios":[ {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"perfiles",type:"asoc",via:"odontologo_id"} ],
+  "citas":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"},
+    {to:"perfiles",type:"asoc",via:"odontologo_id"},{to:"planes_tratamiento",type:"asoc",via:"plan_tratamiento_id"}
+  ],
+  "servicios":[ {to:"clinicas",type:"asoc",via:"clinica_id"} ],
+  "presupuestos":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"},
+    {to:"perfiles",type:"asoc",via:"odontologo_id"},{to:"items_presupuesto",type:"comp",via:"presupuesto_id"},
+    {to:"pagos",type:"asoc",via:"presupuesto_id"}
+  ],
+  "items_presupuesto":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"presupuestos",type:"comp",via:"presupuesto_id"},{to:"servicios",type:"agreg",via:"servicio_id"}
+  ],
+  "pagos":[
+    {to:"clinicas",type:"asoc",via:"clinica_id"},{to:"pacientes",type:"asoc",via:"paciente_id"},
+    {to:"presupuestos",type:"asoc",via:"presupuesto_id"},{to:"perfiles",type:"asoc",via:"registrado_por"}
+  ]
+};
+
+// ---------- MATRIZ ----------
+function buildMatrix() {
+  var n = TABLES.length;
+  var all = TABLES.concat(["auth.users"]);
+  var html = "<tr><th></th>";
+  for (var j = 0; j < all.length; j++) html += "<th class='rot'>" + all[j] + "</th>";
+  html += "</tr>";
+  for (var i = 0; i < n; i++) {
+    var t = TABLES[i];
+    html += "<tr><td class='rowlabel'>" + t + "</td>";
+    for (var j = 0; j < all.length; j++) {
+      var d = all[j];
+      if (d === t) { html += "<td class='self'></td>"; continue; }
+      var cell = "";
+      (CONEXIONES[t] || []).forEach(function(c){
+        if (c.to === d) cell = " " + c.type + " ";
+      });
+      if (cell) html += "<td class='" + cell.trim() + "' title='" + t + " → " + d + " (" + cell.trim() + ")'></td>";
+      else html += "<td></td>";
+    }
+    html += "</tr>";
+  }
+  document.getElementById("matrixtable").innerHTML = html;
+}
+
+// ---------- FICHAS ----------
+function buildCards() {
+  var html = "";
+  TABLES.forEach(function(t){
+    var mod = MODULOS[t] || "";
+    var list = (CONEXIONES[t] || []).map(function(c){
+      return "<li>" + c.to + " <small>(vía " + c.via + " · " +
+        ({asoc:"asociación",comp:"composición",agreg:"agregación",dep:"dependencia",her:"herencia"})[c.type] + ")</small></li>";
+    }).join("");
+    html += "<div class='tbl-card'><b>" + t + "</b><span class='mod'>" + mod + "</span><ul>" + list + "</ul></div>";
+  });
+  document.getElementById("cards").innerHTML = html;
+}
+
+buildMatrix();
+buildCards();
+</script>
+
+</body>
+</html>

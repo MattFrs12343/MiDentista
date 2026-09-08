@@ -1,0 +1,87 @@
+@startuml er_operacion
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Agenda, cobros y catalogos
+
+entity Horario <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  odontologo_id : FK
+  dia_semana : int (0..6)
+  hora_inicio : time
+  hora_fin : time
+  activo : bool
+}
+
+entity Cita <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  odontologo_id : FK
+  plan_tratamiento_id : FK
+  fecha_cita : date
+  hora_inicio : time
+  hora_fin : time
+  estado : text check
+  motivo_consulta
+  notas
+}
+
+entity Presupuesto <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  odontologo_id : FK
+  titulo
+  descuento : numeric
+  total : numeric
+  estado : text check
+  valido_hasta : date
+  notas
+}
+
+entity ItemPresupuesto <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  presupuesto_id : FK
+  servicio_id : FK
+  descripcion
+  numero_pieza : int
+  cantidad : int
+  precio_unitario : numeric
+  subtotal : numeric
+}
+
+entity Pago <<tabla>> {
+  * id : uuid PK
+  --
+  clinica_id : FK
+  paciente_id : FK
+  presupuesto_id : FK
+  monto : numeric
+  metodo_pago : text check
+  fecha_pago : date
+  codigo_referencia : text
+  notas
+  estado : text check
+  registrado_por : FK
+}
+
+Perfil ||--o{ Horario
+Paciente ||--o{ Cita
+Perfil ||--o{ Cita
+Cita o--o{ PlanTratamiento
+Paciente ||--o{ Presupuesto
+Presupuesto ||--o{ ItemPresupuesto
+Servicio ||--o{ ItemPresupuesto
+Paciente ||--o{ Pago
+Presupuesto ||--o{ Pago
+Perfil ||--o{ Pago : registra
+@enduml

@@ -1,0 +1,103 @@
+@startuml clase_nucleo
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Diagrama de clases del nucleo clinico
+
+class Paciente {
+  id : uuid PK
+  clinica_id : uuid FK
+  perfil_id : uuid FK
+  ci : text
+  nombre_completo : text
+  fecha_nacimiento : date
+  genero : text
+  telefono : text
+  email : text
+  direccion : text
+  ocupacion : text
+  contacto_emergencia_nombre : text
+  contacto_emergencia_telefono : text
+  contacto_emergencia_parentesco : text
+  tipo_sangre : text
+  alergias : text
+  activo : bool
+}
+
+class HistoriaClinica {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  motivo_consulta : text
+  antecedentes_medicos : text
+  antecedentes_odontologicos : text
+  medicamentos : text
+  habitos : text
+  observaciones : text
+}
+
+class Odontograma {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  odontologo_id : uuid FK
+  fecha_examen : date
+  piezas : jsonb
+  notas : text
+}
+
+class Diagnostico {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  odontologo_id : uuid FK
+  numero_pieza : int
+  descripcion : text
+  estado : text (activo|inactivo|resuelto)
+}
+
+class PlanTratamiento {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  odontologo_id : uuid FK
+  titulo : text
+  estado : text (propuesto|aceptado|en_proceso|completado|cancelado)
+  costo_total : numeric
+}
+
+class ProcedimientoTratamiento {
+  id : uuid PK
+  clinica_id : uuid FK
+  plan_tratamiento_id : uuid FK
+  servicio_id : uuid FK
+  numero_pieza : int
+  descripcion : text
+  prioridad : text
+  costo : numeric
+  estado : text
+}
+
+class EvolucionClinica {
+  id : uuid PK
+  clinica_id : uuid FK
+  paciente_id : uuid FK
+  odontologo_id : uuid FK
+  plan_tratamiento_id : uuid FK
+  procedimiento_id : uuid FK
+  fecha_consulta : date
+  procedimiento_realizado : text
+  indicaciones : text
+  proxima_atencion : date
+}
+
+Paciente "1" o-- "0..1" HistoriaClinica
+Paciente "1" o-- "0..*" Odontograma
+Paciente "1" o-- "0..*" Diagnostico
+Paciente "1" o-- "0..*" PlanTratamiento
+PlanTratamiento "1" *-- "1..*" ProcedimientoTratamiento
+Paciente "1" o-- "0..*" EvolucionClinica
+PlanTratamiento o-- EvolucionClinica
+@enduml

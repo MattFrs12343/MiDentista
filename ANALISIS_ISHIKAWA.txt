@@ -1,0 +1,612 @@
+================================================================================
+ ANALISIS DE PROBLEMAS - MODELO DE ISHIKAWA (ESPINA DE PESCADO)
+================================================================================
+ Proyecto      : MiDentista - Sistema Web de Gestion Odontologica (SaaS)
+ Organizacion  : Clinica Dental "Cristo Rey"
+ Situacion     : Gestion manual con cuadernos y papeles (estado actual)
+ Fuente        : Entrevistas con el usuario (Dr. Ayrthon Rojas Orellana,
+                 propietario, y Maria Lopez, recepcionista)
+================================================================================
+
+
+================================================================================
+ 1) IDENTIFICAR PROBLEMA
+================================================================================
+
+PROBLEMA CENTRAL:
+
+    "Gestion ineficiente de la informacion clinica y administrativa de la
+     clinica dental debido al manejo 100% manual (cuadernos y papeles),
+     lo que provoca perdida de informacion, conflicto de citas, falta de
+     control de pagos y demoras en la atencion."
+
+El diagnostico surge de las entrevistas: el Dr. Rojas indica "manejo todo en
+cuadernos y papeles. Pierdo informacion, no tengo un historial organizado de
+mis pacientes, y me es muy dificil llevar el control de las citas, pagos y
+tratamientos".
+
+
+--------------------------------------------------------------------------------
+ 1.1) LISTA DE PROBLEMAS (LLUVIA DE IDEAS)
+--------------------------------------------------------------------------------
+
+Se identificaron 22 problemas iniciales a partir de las entrevistas:
+
+  P1. Toda la informacion se registra en cuadernos y papeles.
+  P2. Se pierde informacion de los pacientes.
+  P3. No existe un historial clinico organizado por paciente.
+  P4. Las citas se anotan en un cuaderno y se pisan (doble agenda).
+  P5. El odontologo no se entera de que tiene cita asignada.
+  P6. No hay control centralizado de pagos ni de saldos pendientes.
+  P7. Es dificil saber cuanto debe y cuanto ha pagado cada paciente.
+  P8. La informacion solo esta disponible fisicamente en el consultorio.
+  P9. Los presupuestos se calculan a mano y presentan errores.
+  P10. El paciente no puede elegir su propio turno (todo es por telefono).
+  P11. No existe respaldo de la informacion (riesgo de perdida total).
+  P12. Todos acceden a toda la informacion sin permisos diferenciados por rol.
+  P13. La busqueda de datos de un paciente es lenta (revisar papeles).
+  P14. Radiografias y fotografias se guardan sueltas y es dificil ubicarlas.
+  P15. No existe trazabilidad de quien modifico la informacion ni cuando.
+  P16. Los consentimientos en papel se archivan mal y cuesta recuperarlos.
+  P17. Los bloqueos de horario de los odontologos no quedan registrados.
+  P18. Los pacientes olvidan sus proximas citas y controles.
+  P19. Las atenciones se demoran y los pacientes se impacientan.
+  P20. El personal tiene baja familiaridad con herramientas informaticas.
+  P21. No hay resumen gerencial (cobrado del mes, tratamientos en proceso).
+  P22. Existen registros duplicados del mismo paciente en distintos cuadernos.
+
+
+--------------------------------------------------------------------------------
+ 1.2) DEPURAR PROBLEMAS
+--------------------------------------------------------------------------------
+
+CRITERIOS DE DEPURACION:
+ a) Eliminar problemas duplicados o muy similares (fusionar).
+ b) Descartar afirmaciones vagas que no describen un problema concreto.
+ c) Mantener solo problemas verificables y accionables.
+ d) Conservar tanto causas como efectos, ya que ambos alimentan el analisis.
+
+| PROBLEMA INICIAL                         | ACCION       | DETALLE                          |
+|------------------------------------------|--------------|----------------------------------|
+| P1.  Registro en cuadernos y papeles     | SE MANTIENE  | Causa raiz principal.            |
+| P2.  Perdida de informacion              | SE FUSIONA   | Se une con P22 "registros        |
+|                                          |              | duplicados" (la duplicidad       |
+|                                          |              | es una forma de perdida y        |
+|                                          |              | desorden).                       |
+| P3.  Historial clinico no organizado     | SE MANTIENE  | Problema nucleo senalado         |
+|                                          |              | por el Dr. Rojas.                |
+| P4.  Doble agenda en el cuaderno         | SE FUSIONA   | Se une con P5 "odontologo no    |
+|                                          |              | se entera" y P17 "bloqueos de   |
+|                                          |              | horario sin registrar":          |
+|                                          |              | todo es gestion deficiente       |
+|                                          |              | de citas.                        |
+| P5.  Odontologo desinformado de citas    | FUSIONADA    | Integrada en P4.                 |
+| P6.  Pagos sin control centralizado      | SE FUSIONA   | Se une con P7 "dificultad para  |
+|                                          |              | saber cuanto debe cada           |
+|                                          |              | paciente".                       |
+| P7.  Dificultad para conocer saldos      | FUSIONADA    | Integrada en P6.                 |
+| P8.  Informacion solo fisica/presencial  | SE MANTIENE  | Restriccion de acceso.           |
+| P9.  Presupuestos a mano con errores     | SE MANTIENE  | Errores de calculo.              |
+| P10. Paciente no elige su turno          | SE MANTIENE  | Dependencia del telefono.        |
+| P11. Sin respaldo de la informacion      | SE FUSIONA   | Se une con P12 "sin permisos    |
+|                                          |              | por rol" y P15 "sin trazabili-  |
+|                                          |              | dad": todo es ausencia de        |
+|                                          |              | seguridad y control de los       |
+|                                          |              | datos.                           |
+| P12. Todos acceden a todo                | FUSIONADA    | Integrada en P11.                |
+| P15. Sin trazabilidad de cambios         | FUSIONADA    | Integrada en P11.                |
+| P13. Busqueda lenta de datos             | SE FUSIONA   | Se une con P19 "atenciones      |
+|                                          |              | demoradas": la lentitud          |
+|                                          |              | afecta la atencion.              |
+| P14. Radiografias/fotos sueltas          | SE FUSIONA   | Se une con P16 "consentimientos |
+|                                          |              | extraviados": archivos           |
+|                                          |              | clinicos desordenados.           |
+| P16. Consentimientos dificiles de hallar | FUSIONADA    | Integrada en P14.                |
+| P17. Bloqueos de horario sin registrar   | FUSIONADA    | Integrada en P4.                 |
+| P18. Pacientes olvidan sus citas         | SE MANTIENE  | Es un problema propio:           |
+|                                          |              | seguimiento deficiente al        |
+|                                          |              | paciente.                        |
+| P19. Atenciones demoradas                | FUSIONADA    | Integrada en P13.                |
+| P20. Baja familiaridad con computadoras  | SE MANTIENE  | Factor humano que refuerza       |
+|                                          |              | el metodo manual.                |
+| P21. Sin resumen gerencial               | SE MANTIENE  | Ausencia de indicadores          |
+|                                          |              | para decidir.                    |
+| P22. Registros duplicados del paciente   | FUSIONADA    | Integrada en P2.                 |
+
+Resultado: de 22 problemas iniciales se pasa a 14 problemas finales.
+
+
+--------------------------------------------------------------------------------
+ 1.3) LISTA FINAL DE PROBLEMAS
+--------------------------------------------------------------------------------
+
+  P1. REGISTRO MANUAL EN PAPEL
+     Toda la informacion (citas, historias, pagos) se anota en cuadernos.
+
+  P2. PERDIDA Y DUPLICIDAD DE INFORMACION
+     Datos de pacientes que se extravian o quedan repetidos en distintos
+     cuadernos.
+
+  P3. HISTORIA CLINICA DESORGANIZADA
+     No existe una ficha ordenada por paciente con sus antecedentes.
+
+  P4. CITAS EN CONFLICTO
+     Doble agenda, bloqueos de horario sin registrar y odontologos que no se
+     enteran de sus citas.
+
+  P5. PAGOS SIN CONTROL
+     No hay un registro unico de cuanto pago y cuanto debe cada paciente.
+
+  P6. INFORMACION SOLO PRESENCIAL
+     Los datos existen unicamente como papel dentro del consultorio; no se
+     pueden consultar desde casa o el celular.
+
+  P7. PRESUPUESTOS CON ERRORES
+     Los calculos se hacen a mano, procedimiento por procedimiento.
+
+  P8. TURNOS SOLO POR TELEFONO
+     El paciente no puede agendar por si mismo; fuera del horario de
+     recepcion no hay forma de pedir turno.
+
+  P9. SIN RESPALDO NI SEGURIDAD DE LOS DATOS
+     Un incendio o robo perderia todo; cualquiera puede ver o alterar la
+     informacion y no queda constancia de los cambios.
+
+  P10. ARCHIVOS CLINICOS DESORDENADOS
+      Radiografias, fotografias y consentimientos guardados sueltos, dificiles
+      de ubicar.
+
+  P11. ATENCION LENTA
+      Buscar datos entre papeles demora cada consulta y los pacientes se
+      impacientan.
+
+  P12. SIN INFORMACION GERENCIAL
+      El propietario no sabe cuanto cobro este mes ni cuantos tratamientos van
+      en curso sin revisar papeles uno por uno.
+
+  P13. SEGUIMIENTO DEFICIENTE AL PACIENTE
+      Las proximas atenciones se anotan en papeles sueltos y el paciente
+      olvida volver a sus controles.
+
+  P14. PERSONAL NO CAPACITADO EN INFORMATICA
+      Los odontologos y la recepcionista no manejan herramientas digitales.
+
+
+--------------------------------------------------------------------------------
+ 1.4) PROPIETARIOS DE PROBLEMAS
+--------------------------------------------------------------------------------
+
+El "propietario" es la persona directamente responsable o mas afectada por el
+problema, quien puede aportar informacion y validar soluciones.
+
+ TABLA DE PROPIETARIOS Y PROBLEMAS
+
++------+-----------------------------------------------+------+------+-----------+----------+--------------------+
+| ID   | Problema                                      | Dr.  | Mar. | Odonto.  | Pers.    | Cargo/Rol           |
+|      |                                               | Ayrt.| Lop. | de la    | asist.   |                     |
+|      |                                               |      |      | clinica  |          |                     |
++------+-----------------------------------------------+------+------+----------+----------+---------------------+
+| P1   | Registro manual en papel                      |  x   |      |          |          | Propietario         |
+| P2   | Perdida y duplicidad de informacion           |  x   |      |          |          | Propietario         |
+| P3   | Historia clinica desorganizada                |      |      |    x     |          | Prof. de salud      |
+| P4   | Citas en conflicto                            |      |  x   |          |          | Recepcionista       |
+| P5   | Pagos sin control                             |      |  x   |          |          | Recepcionista       |
+| P6   | Informacion solo presencial                   |  x   |      |          |          | Propietario         |
+| P7   | Presupuestos con errores                      |      |      |    x     |          | Prof. de salud      |
+| P8   | Turnos solo por telefono                      |      |  x   |          |          | Recepcionista       |
+| P9   | Sin respaldo ni seguridad de datos            |  x   |      |          |          | Propietario         |
+| P10  | Archivos clinicos desordenados                |      |  x   |          |          | Recepcionista       |
+| P11  | Atencion lenta                                |      |  x   |          |          | Recepcionista       |
+| P12  | Sin informacion gerencial                     |  x   |      |          |          | Propietario         |
+| P13  | Seguimiento deficiente al paciente            |      |  x   |          |          | Recepcionista       |
+| P14  | Personal no capacitado en informatica         |      |      |          |    x     | Todo el equipo      |
++------+-----------------------------------------------+------+------+----------+----------+---------------------+
+
+ LEYENDA DE PROPIETARIOS:
+   Dr. Ayrt.  = Dr. Ayrthon Rojas Orellana       (Propietario)
+   Mar. Lop.  = Maria Lopez                       (Recepcionista)
+   Odonto.    = Odontologos de la clinica         (Profesionales de salud)
+   Pers. asist= Personal asistencial              (Todo el equipo)
+
+
+--------------------------------------------------------------------------------
+ 1.5) ANALISIS DE PROBLEMAS (GRAFO DIRIGIDO)
+--------------------------------------------------------------------------------
+
+RELACIONES CAUSA - EFECTO:
+
+  1. El P14 (personal no capacitado en informatica) REFUERZA el uso del P1
+     (registro manual en papel).
+  2. El P1 provoca la P2 (PERDIDA Y DUPLICIDAD de datos).
+  3. El P1 deja la P3 (HISTORIA CLINICA desorganizada).
+  4. El P1 genera P4 (CITAS EN CONFLICTO) (doble agenda, bloqueos
+     perdidos).
+  5. El P1 impide controlar P5 (PAGOS Y SALDOS).
+  6. El P1 mantiene la P6 (INFORMACION solo presencial).
+  7. El P1 obliga a calcular P7 (PRESUPUESTOS) a mano.
+  8. El P1 obliga a agendar P8 (TURNOS solo por telefono).
+  9. El P1 dispersa los P10 (ARCHIVOS clinicos).
+ 10. El P1 vuelve LENTA la P11 (ATENCION).
+ 11. El P1 deja los datos SIN P9 (RESPALDO NI SEGURIDAD).
+ 12. La P2 (perdida y duplicidad de datos) vuelve mas lenta la P11
+     (ATENCION) (hay que volver a buscar).
+ 13. La P2 impide armar P12 (INFORMACION GERENCIAL).
+ 14. La P3 (historia clinica desorganizada) impide armar P12
+     (INFORMACION GERENCIAL).
+ 15. Los P5 (pagos sin control) impiden saber cuanto se cobro (P12 -
+     SIN INFORMACION GERENCIAL).
+ 16. Las P4 (CITAS EN CONFLICTO) hacen que el paciente OLVIDE sus
+     controles (P13 - SEGUIMIENTO DEFICIENTE).
+ 17. Los P8 (TURNOS solo por telefono) tambien provocan P13
+     (SEGUIMIENTO DEFICIENTE).
+ 18. CIERRE DEL CICLO: el P13 (seguimiento deficiente) trae
+     reprogramaciones y olvidos que vuelven a desordenar las P4
+     (CITAS EN CONFLICTO).
+
+ Total: 18 relaciones causa-efecto entre los 14 problemas.
+
+ DIAGRAMA DEL GRAFO DIRIGIDO (ASCII):
+
+      [P14 - PERSONAL NO CAPACITADO EN INFORMATICA]
+                         |
+                         v   (refuerza)
+         [P1 - REGISTRO MANUAL EN PAPEL] --+--> [P2 - PERDIDA Y DUPLICIDAD DE DATOS] --+
+                                           |                                              |
+                                           |                                              +--> [P11 - ATENCION LENTA]
+                                           |                                              |
+                                           |                                              +--> [P12 - SIN INFO GERENCIAL]
+                                           |
+                                           +--> [P3 - HISTORIA CLINICA DESORGANIZADA] ------> [P12 - SIN INFO GERENCIAL]
+                                           |
+                                           +--> [P4 - CITAS EN CONFLICTO] <======> [P13 - SEGUIMIENTO DEFICIENTE]
+                                           |
+                                           +--> [P5 - PAGOS SIN CONTROL] -------------------> [P12 - SIN INFO GERENCIAL]
+                                           |
+                                           +--> [P6 - INFO SOLO PRESENCIAL]
+                                           |
+                                           +--> [P7 - PRESUPUESTOS CON ERRORES]
+                                           |
+                                           +--> [P8 - TURNOS POR TELEFONO] ----------------> [P13 - SEGUIMIENTO DEFICIENTE]
+                                           |
+                                           +--> [P10 - ARCHIVOS CLINICOS DESORDENADOS]
+                                           |
+                                           +--> [P11 - ATENCION LENTA]
+                                           |
+                                           +--> [P9 - SIN RESPALDO NI SEGURIDAD]
+
+ LEYENDA:
+   ---->    relacion causa -> efecto (la flecha apunta al efecto).
+   <======> ciclo de retroalimentacion: citas caoticas hacen olvidar al
+            paciente, y los olvidos generan mas reprogramaciones que vuelven
+            a caotizar la agenda.
+
+ NIVELES DEL GRAFO:
+
+   NIVEL 0 (factor humano)       : P14 - Personal no capacitado en informatica
+   NIVEL 1 (CAUSA RAIZ)          : P1 - Registro manual en papel
+   NIVEL 2 (efectos intermedios) : P2 - Perdida y duplicidad, P3 - historia clinica
+                                   desorganizada, P4 - citas en conflicto, P5 - pagos
+                                   sin control, P6 - informacion solo presencial,
+                                   P7 - presupuestos con errores, P8 - turnos por
+                                   telefono, P10 - archivos desordenados, P9 -
+                                   sin respaldo ni seguridad
+   NIVEL 3 (efectos finales)     : P11 - Atencion lenta, P13 - seguimiento deficiente,
+                                   P12 - sin informacion gerencial
+
+ LECTURA DEL GRAFO:
+ - El P1 (REGISTRO MANUAL EN PAPEL) es la CAUSA RAIZ: origina o agrava 10
+   problemas directamente.
+ - El P14 (PERSONAL NO CAPACITADO) es el factor de refuerzo que mantiene vigente
+   el registro manual (nivel 0).
+ - El P12 (SIN INFORMACION GERENCIAL) es el efecto que mas flechas recibe (3): sin
+   datos confiables no se puede decidir.
+ - El P11 (ATENCION LENTA) es el efecto visible hacia el cliente: recibe 2 flechas
+   (directa del registro manual y por la perdida de datos).
+ - El P13 (SEGUIMIENTO DEFICIENTE) recibe 2 flechas (citas en conflicto y turnos por
+   telefono) y devuelve 1, cerrando el ciclo "agenda caotica <-> paciente
+   que olvida".
+ - El P9 (SIN RESPALDO NI SEGURIDAD) es un efecto terminal: representa el riesgo de
+   perder toda la informacion de golpe.
+
+
+--------------------------------------------------------------------------------
+ 1.6) ESTIMACION Y CUANTIFICACION DE PROBLEMAS
+--------------------------------------------------------------------------------
+
+Las estimaciones son referenciales, construidas a partir de los relatos de las
+entrevistas y de la observacion de la operacion actual de la clinica.
+
+| Problema                            | Estimacion | Justificacion breve      |
+|-------------------------------------|------------|--------------------------|
+| P1  - Registro manual en papel      | ALTA       | 100% de los procesos     |
+|                                     |            | (citas, historias,       |
+|                                     |            | pagos) estan en papel    |
+|                                     |            | segun declaracion del    |
+|                                     |            | propietario.             |
+| P2  - Perdida y duplicidad de       | ALTA       | "Pierdo informacion"     |
+|     informacion                     |            | (Dr. Rojas); se estima   |
+|                                     |            | 30% de registros         |
+|                                     |            | incompletos o            |
+|                                     |            | irrecuperables.          |
+| P3  - Historia clinica              | ALTA       | El antecedente medico    |
+|     desorganizada                   |            | (alergias) es critico    |
+|                                     |            | para la salud del        |
+|                                     |            | paciente y no hay ficha  |
+|                                     |            | estructurada.            |
+| P4  - Citas en conflicto            | ALTA       | 2 a 3 conflictos de      |
+|                                     |            | agenda por semana        |
+|                                     |            | (aprox. 10 al mes);      |
+|                                     |            | "se pisan citas"         |
+|                                     |            | (Maria Lopez).           |
+| P5  - Pagos sin control             | MEDIA-ALTA | Aprox. 20% de cobros con |
+|                                     |            | descuadre o retraso; no  |
+|                                     |            | se puede responder al    |
+|                                     |            | instante cuanto debe un  |
+|                                     |            | paciente.                |
+| P6  - Informacion solo presencial   | ALTA       | 0% de acceso remoto; el  |
+|                                     |            | doctor no consulta datos |
+|                                     |            | desde casa (requisito    |
+|                                     |            | explicito del usuario).  |
+| P7  - Presupuestos con errores      | MEDIA      | 1 de cada 10 presupues-  |
+|                                     |            | tos presenta error de    |
+|                                     |            | calculo al sumarse a     |
+|                                     |            | mano.                    |
+| P8  - Turnos solo por telefono      | MEDIA      | 100% de reservas pasan   |
+|                                     |            | por llamada; fuera de    |
+|                                     |            | horario no se puede      |
+|                                     |            | agendar.                 |
+| P9  - Sin respaldo ni seguridad     | ALTA       | Un incidente fisico      |
+|     de datos                        |            | implicaria perder TODA   |
+|                                     |            | la informacion y no hay  |
+|                                     |            | control de quien cambia  |
+|                                     |            | que (riesgo legal).      |
+| P10 - Archivos clinicos             | MEDIA      | 10 a 15 minutos para     |
+|     desordenados                    |            | ubicar una radiografia o |
+|                                     |            | consentimiento antiguo.  |
+| P11 - Atencion lenta                | MEDIA-ALTA | 10 a 15 minutos          |
+|                                     |            | adicionales por consulta |
+|                                     |            | buscando datos; "los     |
+|                                     |            | pacientes se             |
+|                                     |            | impacientan".            |
+| P12 - Sin informacion gerencial     | ALTA       | 0 reportes disponibles;  |
+|                                     |            | no se sabe cuanto cobro  |
+|                                     |            | el mes ni cuantos        |
+|                                     |            | tratamientos van en      |
+|                                     |            | curso.                   |
+| P13 - Seguimiento deficiente al     | MEDIA      | Se estima que 3 de cada  |
+|     paciente                        |            | 10 pacientes no vuelve a |
+|                                     |            | su control porque olvida |
+|                                     |            | la fecha anotada en      |
+|                                     |            | papel.                   |
+| P14 - Personal no capacitado en     | MEDIA      | Al menos 2 de 4          |
+|     informatica                     |            | integrantes requieren    |
+|                                     |            | capacitacion ("no son    |
+|                                     |            | expertos en              |
+|                                     |            | computadora").           |
+
+ ESCALA UTILIZADA:
+   ALTA  = impacto critico en la operacion y/o en el paciente.
+   MEDIA = impacto significativo pero tolerable en el corto plazo.
+
+
+--------------------------------------------------------------------------------
+ 1.7) ALTERNATIVAS DE CAMBIO
+--------------------------------------------------------------------------------
+
+ ALTERNATIVA 1: NO HACER NADA
+    Continuar con el esquema actual de cuadernos y papeles.
+    Costo: bajo aparente; riesgo creciente de perdida total y fuga de
+    pacientes.
+
+ ALTERNATIVA 2: DIGITALIZACION PARCIAL CON HOJAS DE CALCULO
+    Migrar citas y control de pagos a planillas electronicas locales.
+    Costo: bajo. Mejora el orden basico pero NO resuelve acceso multiple,
+    seguridad por roles, respaldo ni historial clinico/odontograma.
+
+ ALTERNATIVA 3: SOFTWARE DE ESCRITORIO A MEDIDA (UNA SOLA PC)
+    Desarrollar un programa local instalado en una computadora.
+    Costo: medio-alto. Centraliza datos pero sigue limitando el acceso
+    remoto, requiere mantenimiento local y backups manuales.
+
+ ALTERNATIVA 4: IMPLEMENTAR MIDENTISTA (SAAS WEB MULTI-TENANT EN LA NUBE)
+                                                                << RECOMENDADA
+     Sistema web accesible desde cualquier navegador, con modulos de
+     pacientes, historia clinica, odontograma, diagnostico y tratamiento,
+     evolucion clinica, agenda y citas, presupuestos y pagos; aislamiento de
+     datos por clinica, roles y permisos, respaldo automatico en la nube y
+     busqueda de clinicas afiliadas por nombre. Para ajustarse al plazo de
+     3 meses se implementa primero un MVP (9 modulos / 15 tablas); quedan
+     para una version 2: archivos e imagenes, consentimientos, dashboard
+     gerencial avanzado, exportacion a PDF y busqueda geografica (radio de
+     5 km).
+
+ ALTERNATIVA 5: CONTRATAR MAS PERSONAL ADMINISTRATIVO
+    Sumar una segunda recepcionista para controlar la agenda y cobranzas.
+    No elimina la causa raiz (registro manual): solo reparte el trabajo en
+    papel entre mas personas, con costo recurrente alto.
+
+ COMPARATIVA RAPIDA:
+
+| Alternativa | Resuelve el registro manual? | Acceso remoto? | Seguridad? | Costo |
+|-------------|------------------------------|----------------|------------|-------|
+| 1           | No                           | No             | No         | -     |
+| 2           | Parcial                      | No             | No         | Bajo  |
+| 3           | Parcial                      | No             | Parcial    | Medio |
+| 4           | SI                           | SI             | SI         | Medio |
+| 5           | No                           | No             | No         | Alto  |
+
+
+--------------------------------------------------------------------------------
+ 1.8) CONCLUSION Y RECOMENDACION
+--------------------------------------------------------------------------------
+
+ CONCLUSION:
+
+  El analisis evidencia que los 14 problemas identificados (P1 a P14) convergen en una
+  causa raiz comun: la gestion manual de la informacion (P1), reforzada por la
+  brecha digital del personal (P14). Esta situacion genera efectos en cadena:
+  P2 - perdida de datos, P4 - agendas en conflicto, P5 - cobros sin control,
+  P11 - atenciones lentas y P12 - toma de decisiones a ciegas, deteriorando la
+  calidad del servicio y poniendo en riesgo la continuidad del negocio ante
+  cualquier incidente fisico (incendio, robo, deterioro de papeles).
+
+RECOMENDACION:
+
+ Se recomienda implementar la ALTERNATIVA 4: el sistema MiDentista (SaaS web
+ multi-tenant), por ser la unica alternativa que ataca simultaneamente la
+ causa raiz y sus efectos. Para ajustarse al plazo de 3 meses se construye
+ primero el MVP (9 modulos / 15 tablas):
+
+   - Centraliza pacientes, historias clinicas, odontogramas, citas,
+     presupuestos y pagos en una sola plataforma en la nube (resuelve:
+     P1 - registro manual, P2 - perdida de datos y P3 - historia clinica
+     desorganizada).
+   - Habilita agenda con disponibilidad por odontologo y autogestion del
+     paciente desde su celular (resuelve: P4 - citas en conflicto y P8 -
+     turnos solo por telefono).
+   - Incorpora control de pagos (efectivo, transferencia o QR estatico del
+     odontologo), saldos y estados de cuenta (resuelve: P5 - pagos sin
+     control).
+   - Ofrece acceso desde cualquier lugar y navegador, y presupuestos con
+     calculo automatico (resuelve: P6 - informacion solo presencial y P7 -
+     presupuestos con errores).
+   - Garantiza respaldo automatico, roles y aislamiento por clinica
+     (resuelve: P9 - falta de respaldo y seguridad).
+
+  PROBLEMAS CON SOLUCION DIFERIDA A VERSION 2 (no resueltos por el MVP):
+   - P10 - Archivos clinicos desordenados (radiografias y fotos): la carga
+     de archivos e imagenes queda para la version 2.
+   - P12 - Sin informacion gerencial: el MVP cubre lo basico; el dashboard
+     con indicadores avanzados queda para la version 2.
+   - Búsqueda geografica (radio de 5 km) y exportacion a PDF: version 2.
+
+  Estos problemas se mantienen en el MVP pero su solucion informatica se
+  agrega en una fase posterior, sin bloquear los modulos nucleo.
+
+ ADICIONALMENTE se recomienda un plan de capacitacion basico para el personal
+ (mitiga la brecha digital) y una migracion gradual por fases comenzando por
+ el MVP (autenticacion, pacientes, historia clinica, odontograma, diagnostico
+ y evolucion, agenda, presupuestos y pagos).
+
+
+--------------------------------------------------------------------------------
+ 1.9) DISENO DEL DIAGRAMA DE ISHIKAWA
+--------------------------------------------------------------------------------
+
+ PROBLEMA (EFECTO / CABEZA DEL PESCADO):
+ "Gestion ineficiente de la informacion clinica y administrativa por manejo
+  manual"
+
+ CATEGORIAS (6M): Metodo, Mano de Obra, Maquinaria (Tecnologia),
+                  Material (Informacion), Medicion (Control),
+                  Medio Ambiente (Entorno)
+
+ DIAGRAMA:
+
+      MATERIAL (Informacion)      METODO (Procesos)         MAQUINARIA (Tec.)
+             \                          \                          \
+              \ Perdida y duplicidad     \ Registro manual         \ Info solo
+              / de datos                 / en papel                / presencial
+             /  \ Historia clinica      /  \ Citas en conflicto  /
+            /      desorganizada       /      y bloqueos       /
+           /                         /                       /
+  ==================================>=========================>[ PROBLEMA ]
+           \                         /                       \\          CENTRAL
+            \                       /                         \\
+             / Atencion lenta,     / Sin respaldo ni           / Personal no
+            / pacientes impacien-/     seguridad de datos     / capacitado en
+           /     tados          /    \ Pagos sin control    /  informatica
+          /                    /      \ Sin info gerencial /
+         /                    /        \ Seguimiento     /
+         /                    /          deficiente     /
+ MEDIO AMBIENTE (Entorno)      MEDICION (Control)
+
+ REPRESENTACION POR LISTA (detalle por espiga):
+
+ ESPIGA 1 - METODO (Procesos):
+    - P1 - Registro manual en cuadernos y papeles.
+    - P4 - Citas en conflicto (doble agenda, bloqueos no registrados,
+      odontologos desinformados).
+    - P7 - Presupuestos calculados a mano con errores.
+    - P13 - Seguimiento deficiente al paciente (olvida sus controles).
+
+ ESPIGA 2 - MANO DE OBRA (Personas):
+    - P14 - Personal no capacitado en informatica (odontologos y recepcionista no
+      son expertos en computadoras).
+
+ ESPIGA 3 - MAQUINARIA (Tecnologia / Equipos):
+    - P6 - Informacion solo presencial: sin infraestructura tecnologica, los
+      datos existen unicamente como papel en el consultorio.
+
+ ESPIGA 4 - MATERIAL (Informacion / Insumos):
+    - P2 - Perdida y duplicidad de informacion de pacientes.
+    - P3 - Historia clinica desorganizada e incompleta.
+    - P10 - Archivos clinicos (radiografias, fotos, consentimientos) desordenados
+      y dificiles de ubicar.
+
+ ESPIGA 5 - MEDICION (Control / Indicadores):
+    - P5 - Pagos sin control centralizado ni saldos al dia.
+    - P9 - Sin respaldo, sin permisos por rol y sin trazabilidad de cambios.
+    - P12 - Sin informacion gerencial consolidada para decidir.
+
+ ESPIGA 6 - MEDIO AMBIENTE (Entorno):
+    - P11 - Atencion lenta frente a pacientes cada vez menos tolerantes a la
+      espera (expectativas de inmediatez del entorno).
+
+
+================================================================================
+ 2) IDENTIFICAR LAS PRINCIPALES CATEGORIAS
+================================================================================
+
+ Del diagrama de Ishikawa, las categorias (espigas) priorizadas por su peso en
+ el problema central son:
+
+ RANKING  CATEGORIA                PROBLEMAS QUE AGRUPA        JUSTIFICACION
+ --------+------------------------+---------------------------+-----------------
+ 1        METODO (Procesos)        P1 - Registro manual, P4 - Contiene la CAUSA
+                                    citas en conflicto, P7 -  RAIZ y los procesos
+                                    presupuestos con errores,  nucleo del negocio
+                                    P13 - seguimiento          que fallan.
+                                    deficiente
+ 2        MEDICION (Control)       P5 - Pagos sin control,    Sin control de
+                                    P9 - sin respaldo ni       pagos, sin seguridad
+                                    seguridad, P12 - sin       y sin indicadores,
+                                    info gerencial             la clinica opera y
+                                                               decide a ciegas.
+ 3        MATERIAL (Informacion)   P2 - Perdida y duplicidad, El "insumo"
+                                    P3 - historia              principal del
+                                    desorganizada, P10 -       negocio (la
+                                    archivos desordenados      informacion clinica)
+                                                               se pierde, se
+                                                               duplica y se
+                                                               desordena.
+ 4        MAQUINARIA (Tecnologia)  P6 - Informacion solo      La ausencia de
+                                    presencial                 plataforma
+                                                               tecnologica impide
+                                                               el acceso remoto
+                                                               exigido por el
+                                                               usuario.
+ 5        MEDIO AMBIENTE (Entorno) P11 - Atencion lenta       Las expectativas de
+                                                               inmediatez del
+                                                               entorno convierten
+                                                               la lentitud en
+                                                               perdida de
+                                                               pacientes.
+ 6        MANO DE OBRA (Personas)  P14 - Personal no          Actua como factor
+                                    capacitado                 reforzador de la
+                                                               causa raiz; se
+                                                               mitiga con
+                                                               capacitacion.
+
+ CONCLUSION DE CATEGORIAS:
+ Las tres categorias principales son METODO, MEDICION y MATERIAL, pues agrupan
+ 10 de los 14 problemas finales (P1 a P14, 71%) e incluyen tanto la causa
+ raiz (P1) como los efectos criticos (P2, P3, P4, P5, P7, P9, P12, P13).
+ Cualquier solucion debe, por lo tanto, rediseniar los procesos (digitalizando
+ el metodo), establecer controles e indicadores (medicion) y asegurar la
+ integridad de la informacion (material), tal como lo propone la alternativa
+ recomendada: implementar MiDentista.
+
+================================================================================
+ FIN DEL DOCUMENTO
+================================================================================

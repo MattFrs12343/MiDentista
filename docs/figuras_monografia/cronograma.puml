@@ -1,0 +1,41 @@
+@startuml cronograma
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam componentStyle rectangle
+
+title Cronograma general del proyecto (3 meses)
+
+package "Mes 1" {
+  [Setup del proyecto y SQL MVP] as m1_t1
+  [M01 Auth y Onboarding] as m1_1
+  [M02 Pacientes] as m1_2
+  [M03 Historia Clinica] as m1_3
+  [M04 Odontograma] as m1_4
+}
+
+package "Mes 2" {
+  [M05 Diagnostico y Tratamiento] as m2_1
+  [M06 Evolucion Clinica] as m2_2
+  [M07 Agenda y Citas] as m2_3
+}
+
+package "Mes 3" {
+  [M08 Presupuestos] as m3_1
+  [M09 Pagos y Cuentas] as m3_2
+  [Testing integral y capacitacion] as m3_3
+  [Deploy en HostGator] as m3_4
+}
+
+m1_t1 --> m1_1
+m1_1 --> m2_1
+m2_1 --> m3_1
+m3_1 --> m3_3
+m3_3 --> m3_4
+
+note bottom
+  Fase 1 (nucleo clinico): Auth, Pacientes, Historia,
+  Odontograma. Fase 2: Diagnostico/Tratamiento, Evolucion,
+  Agenda. Fase 3: Presupuestos, Pagos, Testing y Deploy.
+  6 desarrolladores trabajan en paralelo.
+end note
+@enduml

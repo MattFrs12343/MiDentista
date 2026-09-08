@@ -1,0 +1,2069 @@
+﻿================================================================================
+ MONOGRAFIA DEL SISTEMA
+================================================================================
+
+    MIDENTISTA
+    SISTEMA WEB DE GESTION ODONTOLOGICA (SAAS MULTI-TENANT)
+    VERSION MVP - 3 MESES
+
+    Modalidad: Trabajo de grado - Ingenieria de Sistemas
+    Organizacion piloto: Clinica Dental "Dental Cristo Rey"
+    Elaborado a partir de la documentacion del proyecto (analisis de
+    problemas, entrevistas, especificacion funcional, modelo de datos y
+    arquitectura tecnica).
+
+    -------------
+    NOTA SOBRE ESTA MONOGRAFIA
+    -------------
+    Este documento desarrolla de forma desglosada la tabla de contenido del
+    trabajo, integrando en cada capitulo el contenido real del proyecto
+    MiDentista: problematica (Ishikawa), entrevistas, requisitos, disenio,
+    base de datos, implementacion, costos, beneficios y clientes. Todo el
+    contenido proviene de los documentos del proyecto: ANALISIS_ISHIKAWA.txt,
+    ENTREVISTAS_USUARIO.txt, DEFINICION_DEL_SISTEMA.txt y docs/ (SPEC.md,
+    DATABASE.md, ARCHITECTURE.md, SETUP.md y los modulos con sus historias
+    de usuario y tareas).
+
+    NOTA DE ALCANCE: por decision del equipo, el proyecto se ajusto de un
+    plan de 5 meses / 25 tablas / 15 modulos a un PLAN MVP DE 3 MESES /
+    15 tablas / 9 modulos. Lo que quedo fuera (archivos, consentimientos,
+    dashboard avanzado, configuracion extensa, super-admin, busqueda
+    geografica) se documenta como version 2 futura.
+
+================================================================================
+ 1) PERFIL
+================================================================================
+
+--------------------------------------------------------------------------------
+ 1.1) INTRODUCCION
+--------------------------------------------------------------------------------
+
+La clinica dental "Dental Cristo Rey" atiende hoy con un sistema de gestion
+100% manual: las citas se anotan en cuadernos, las historias clinicas se
+guardan en fichas en papel, las radiografias y fotografias se archivan
+sueltas y los pagos se registran a mano, sin consolidar saldos. Este esquema
+produce perdida de informacion, citas que se pisan, pagos que se descuadran,
+busquedas lentas (10 a 15 minutos por paciente) y riesgo de perderlo todo ante
+un incendio, robo o deterioro de los papeles.
+
+Para resolver esta situacion se desarrolla MiDentista: un sistema web de
+gestion odontologica tipo SaaS (software como servicio), multi-tenant
+(varias clinicas usan la misma plataforma sin mezclar sus datos), accesible
+desde cualquier navegador sin instalar programas. El sistema centraliza en la
+nube (Supabase) la gestion de pacientes, historia clinica, odontograma,
+diagnosticos, planes de tratamiento, evolucion clinica, agenda de citas,
+presupuestos y pagos (9 modulos funcionales del MVP).
+
+El proyecto se construye con tecnologias libres y gratuitas (React 18,
+Vite, TypeScript, Tailwind CSS + shadcn/ui, Node.js y Supabase sobre
+PostgreSQL), con un equipo de 6 desarrolladores y un plazo de 3 meses, bajo
+el Proceso Unificado de Desarrollo de Software (PUDS/RUP) adaptado con
+practicas agiles (tablero Jira y entregas frecuentes).
+
+--------------------------------------------------------------------------------
+ 1.2) ANTECEDENTE
+--------------------------------------------------------------------------------
+
+La organizacion "Dental Cristo Rey" cuenta con 3 odontologos, 1 recepcionista
+(Maria Lopez) y una cartera de pacientes. El propietario, el Dr. Ayrthon
+Rojas Orellana, declaro en las entrevistas: "Actualmente manejo todo en
+cuadernos y papeles. Pierdo informacion, no tengo un historial organizado de
+mis pacientes, y me es muy dificil llevar el control de las citas, pagos y
+tratamientos."
+
+Situacion actual detectada:
+
+  GESTION DE CITAS
+  - La recepcionista anota las citas en un cuaderno.
+  - Se presentan entre 2 y 3 conflictos de agenda por semana (doble agenda).
+  - El odontologo no siempre se entera de la cita asignada.
+  - Los bloqueos de horario (consultas externas, viajes) no quedan
+    registrados y se asignan citas en dias no disponibles.
+
+  HISTORIA CLINICA
+  - No existe una ficha ordenada por paciente con antecedentes.
+  - Las alergias y medicamentos (dato critico de salud) se anotan sin
+    estructura y se pierden.
+
+  PAGOS Y PRESUPUESTOS
+  - No hay un registro unico de cuanto pago y cuanto debe cada paciente.
+  - Aproximadamente el 20% de los cobros presenta descuadre o retraso.
+  - Los presupuestos se calculan a mano, procedimiento por procedimiento,
+    con errores en aproximadamente 1 de cada 10 casos.
+
+  ARCHIVOS
+  - Radiografias, fotografias y consentimientos se guardan sueltos; ubicar
+    uno toma 10 a 15 minutos.
+  - No existe respaldo: un incidente fisico perderia toda la informacion.
+
+  ACCESO E INFORMACION
+  - La informacion solo existe presencialmente, en papel, dentro del
+    consultorio; no se puede consultar desde casa ni del celular.
+  - No hay resumen gerencial: el propietario no sabe cuanto cobro el mes ni
+    cuantos tratamientos van en curso sin revisar papeles uno por uno.
+  - Cualquier persona puede ver o alterar la informacion sin permisos por
+    rol y sin trazabilidad de cambios.
+
+  RECURSOS HUMANOS
+  - Los odontologos y la recepcionista no son expertos en computadoras
+    (regla de oro del disenio: facil de usar, mensajes claros y rapidez).
+
+--------------------------------------------------------------------------------
+ 1.3) JUSTIFICACION
+--------------------------------------------------------------------------------
+
+El proyecto se justifica por los siguientes motivos:
+
+  a) MOTIVO OPERATIVO: elimina la perdida de informacion, las dobles agendas,
+     el descuadre de cobros y las busquedas lentas (10 a 15 horas de trabajo
+     administrativo ahorradas por semana).
+
+  b) MOTIVO ECONOMICO: recupera aproximadamente el 20% de los cobros que hoy
+     se descuadran o retrasan, por la visibilidad de saldos y estados de
+     cuenta. La infraestructura anual (~Bs 2.900) es pequenia frente al ahorro
+     de horas-hombre; el sistema se paga solo desde el primer trimestre.
+
+  c) MOTIVO TECNOLOGICO: toda la informacion viaja cifrada por internet
+     (HTTPS), se guarda en la nube con respaldo automatico y usa reglas de
+     seguridad a nivel de base de datos (RLS) que garantizan que cada clinica
+     solo vea sus propios datos.
+
+  d) MOTIVO HUMANO: responde a la necesidad expresa del Dr. Rojas de acceder
+     a sus datos desde cualquier lugar y de dejar atras los cuadernos, con
+     una interfaz pensada para personas no expertas en computadoras.
+
+  e) MOTIVO COMERCIAL: el sistema es SaaS multi-tenant: incorporar una
+     clinica nueva solo requiere darla de alta (datos, catalogo, moneda), sin
+     tocar el programa, lo que habilita la expansion del negocio (5 a 10
+     clinicas el primer ano, 25 a 40 el segundo).
+
+--------------------------------------------------------------------------------
+ 1.4) DESCRIPCION DEL PROBLEMA
+--------------------------------------------------------------------------------
+
+    "Gestion ineficiente de la informacion clinica y administrativa de la
+     clinica dental debido al manejo 100% manual (cuadernos y papeles), lo
+     que provoca perdida de informacion, conflicto de citas, falta de
+     control de pagos y demoras en la atencion."
+
+El diagnostico surge de las entrevistas: el Dr. Rojas indica "manejo todo en
+cuadernos y papeles. Pierdo informacion, no tengo un historial organizado de
+mis pacientes, y me es muy dificil llevar el control de las citas, pagos y
+tratamientos". Maria Lopez confirma el desorden de agenda: "los pacientes
+llaman, ella anota, pero a veces se pisan citas, o el odontologo no se entera
+de que tiene cita".
+
+--------------------------------------------------------------------------------
+ 1.5) FORMULACION DEL PROBLEMA
+--------------------------------------------------------------------------------
+
+Del analisis de problemas (modelo de Ishikawa) se identificaron 22 problemas
+iniciales que, depurados, quedaron en 14 problemas finales. Todos convergen
+en una causa raiz comun:
+
+    P1 - REGISTRO MANUAL EN PAPEL: toda la informacion (citas, historias,
+         pagos) se anota en cuadernos y papeles.
+
+reforzada por un factor humano:
+
+    P14 - PERSONAL NO CAPACITADO EN INFORMATICA: los odontologos y la
+          recepcionista no manejan herramientas digitales.
+
+PREGUNTA DE INVESTIGACION: ?como digitalizar la gestion clinica y
+administrativa de la clinica dental de modo que se elimine la causa raiz
+(registro manual), se garanticen la seguridad y el respaldo de los datos, y
+se permita el acceso remoto, sin que el personal deba ser experto en
+computadoras?
+
+RESPUESTA PROPUESTA: implementar MiDentista, un sistema web SaaS multi-tenant
+cuyas 15 tablas aisladas por clinica, sus 9 modulos funcionales (MVP) y su
+disenio centrado en el usuario resuelven simultaneamente la causa raiz y sus
+efectos en cadena, dejando para la version 2 los modulos complementarios.
+
+--------------------------------------------------------------------------------
+ 1.6) OBJETIVOS
+--------------------------------------------------------------------------------
+
+ 1.6.1) OBJETIVO GENERAL
+        -----------------
+        Desarrollar MiDentista, un sistema web de gestion odontologica
+        multi-tenant (SaaS) que centralice la informacion clinica y
+        administrativa de la clinica "Dental Cristo Rey", elimine el registro
+        manual en papel y permita la expansion del servicio a otras clinicas,
+        dentro de un plazo de 3 meses (MVP).
+
+ 1.6.2) OBJETIVOS ESPECIFICOS
+        ----------------------
+       1. Analizar la situacion actual de la clinica mediante el modelo de
+          Ishikawa, identificando problemas, propietarios, causas y
+          alternativas de cambio.
+       2. Capturar los requisitos funcionales y no funcionales mediante
+          entrevistas con el propietario y la recepcionista, definiendo los
+          9 modulos del MVP.
+       3. Diseniar la arquitectura tecnica en tres capas (frontend React,
+          backend Supabase y hosting) con aislamiento de datos por clinica
+          (RLS).
+       4. Diseniar el modelo de base de datos de 15 tablas (disenio logico y
+          fisico) con claves UUID, indices, triggers y politicas de
+          seguridad.
+       5. Implementar los 9 modulos funcionales del MVP en 3 meses,
+          empezando por autenticacion, pacientes, historia clinica,
+          odontograma, diagnostico/tratamiento y evolucion.
+       6. Poblar y probar la base de datos (inserciones, modificaciones,
+          consultas, subconsultas, procedimientos almacenados y triggers).
+       7. Publicar el sistema en un hosting compartido con HTTPS y capacitar
+          al personal de la clinica.
+       8. Validar el funcionamiento con el usuario clave (Dr. Rojas).
+
+--------------------------------------------------------------------------------
+ 1.7) ALCANCE
+--------------------------------------------------------------------------------
+
+  DENTRO DEL ALCANCE DEL MVP (9 modulos funcionales):
+  1. Autenticacion y onboarding      6. Evolucion clinica
+  2. Gestion de pacientes            7. Agenda y citas
+  3. Historia clinica                8. Presupuestos
+  4. Odontograma                     9. Pagos y cuentas
+  5. Diagnostico y tratamiento
+
+  VERSION 2 (FUTURA, FUERA DEL MVP DE 3 MESES):
+  - Archivos e imagenes (radiografias, fotos, PDF).
+  - Consentimientos informados digitales.
+  - Dashboard con estadisticas avanzadas.
+  - Configuracion extensa de clinica.
+  - Modulos 11 a 15 del plan original (usuarios avanzados, gestion de
+    clinica ampliada, etc.).
+
+  FUERA DEL ALCANCE (protegido por escrito para cuidar el plazo de 3 meses):
+  - Aplicacion movil nativa (se accede via navegador movil).
+  - Inteligencia artificial para diagnostico.
+  - Integracion con WhatsApp / notificaciones automaticas.
+  - Facturacion electronica (se realiza aparte).
+  - Integraciones bancarias.
+  - Teleodontologia.
+  - Integracion directa con equipos de radiografia.
+  - Reportes avanzados y estadisticas complejas.
+  - Busqueda geografica de clinicas (radio de 5 km): en el MVP el paciente
+    busca su clinica por nombre.
+
+  RESTRICCIONES TECNICAS GENERALES:
+  - Compatible con Chrome, Firefox, Edge y Safari (requisito del Dr. Rojas).
+  - Tiempo de carga inicial menor a 3 segundos.
+  - Soporte de al menos 100 usuarios concurrentes por clinica.
+  - Disenio responsive (desktop first, compatible con tablet y celular).
+  - Moneda configurable por clinica (Bs por defecto; admite USD y otras).
+
+================================================================================
+ 2) ELEMENTOS DEL SISTEMA BASADO EN COMPUTADORAS
+================================================================================
+
+MiDentista es un sistema al que se accede por internet, sin instalar nada en
+la computadora del usuario. Funciona con tres partes que se comunican entre
+si:
+
+    [LA PC O CELULAR DEL USUARIO]  <--internet-->  [EL SERVIDOR WEB]
+                                                            |
+                                                            v
+                                           [LA NUBE DONDE VIVEN LOS DATOS
+                                                      Y LAS CUENTAS]
+
+--------------------------------------------------------------------------------
+ 2.1) HARDWARE
+--------------------------------------------------------------------------------
+
+Una ventaja importante del proyecto: NO hace falta comprar servidores. El
+hardware necesario se contrata a empresas especializadas, y el cliente solo
+necesita computadoras o celulares comunes con internet.
+
+ 2.1.1) SERVIDOR
+        -------------
+        a) HOSTING COMPARTIDO (empresa HostGator): es donde "vive" la pagina
+           web.
+           - Computadora del proveedor siempre encendida, compartida entre
+             varios clientes.
+           - Espacio en disco: 10 GB (la aplicacion ocupa pocos megabytes;
+             el peso esta en los datos).
+           - Disponibilidad garantizada del 99.9% del tiempo.
+           - Candado de seguridad HTTPS incluido.
+           - Administracion sencilla mediante cPanel.
+
+        b) SUPABASE CLOUD (servicio en la nube para datos y cuentas):
+           - Base de datos PostgreSQL administrada por el proveedor, con
+             copias de seguridad automaticas.
+           - Espacio para archivos: en el MVP solo se almacenan datos y
+             texto (logo e imagen QR); el almacenamiento de radiografias y
+             documentos se incorpora en la version 2.
+           - Capacidad para soportar al menos 100 personas usando el sistema
+             al mismo tiempo dentro de una clinica.
+           - Crece por planes: se empieza gratis y se pasa a plan pago cuando
+             la cantidad de clinicas lo justifique.
+
+ 2.1.2) CLIENTE
+        ---------
+        Es lo que necesita cada persona que usa el sistema (recepcionista,
+        odontologo o paciente).
+
+        COMPONENTE         REQUISITO MINIMO
+        ------------------ --------------------------------------------------
+        Computadora        PC de escritorio o notebook de los ultimos anos
+                           (procesador doble nucleo, 4 GB de memoria RAM).
+        Pantalla           Desde 1366 x 768; disenio optimizado para
+                           escritorio, funciona tambien en tablet y celular.
+        Internet           Banda ancha comun (5 Mbps recomendados).
+        Adicional          Teclado, mouse y navegador actualizado.
+
+ 2.1.3) MEDIOS DE COMUNICACION
+        ---------------------------
+        - INTERNET: el medio principal. Toda comunicacion viaja CIFRADA por
+          HTTPS (puerto 443); nadie puede leer los datos en el camino
+          (importante por ser datos medicos).
+        - EMAIL: para la recuperacion de contrasena y avisos basicos.
+        - RED INTERNA DE LA CLINICA: el WiFi/Ethernet conecta las PCs de
+          recepcion y consultorios al modem con salida a internet.
+        - FTP: se usa UNA vez por fase, solo para subir la version terminada
+          de la pagina al hosting.
+
+ 2.1.4) OTROS DISPOSITIVOS
+        ----------------------
+        - Impresora: para imprimir presupuestos.
+        - Camara fotografica (o la del celular): fotos de la boca antes y
+          despues del tratamiento (para la version 2 con el modulo de
+          archivos).
+        - Celular del paciente: le permite ver su informe y pagar escaneando
+          el codigo QR del odontologo, y usar el sistema desde el navegador
+          movil.
+        - Router/modem WiFi: conectividad a internet de la clinica.
+        - UPS (opcional): bateria de respaldo breve para la PC de recepcion.
+
+--------------------------------------------------------------------------------
+ 2.2) SOFTWARE
+--------------------------------------------------------------------------------
+
+ 2.2.1) SERVIDOR
+        -------------
+        a) EN EL HOSTING (donde vive la pagina):
+           - Sistema operativo Linux administrado por HostGator.
+           - Servidor web Apache: recibe las visitas y entrega la pagina.
+           - Certificado SSL: habilita el candado HTTPS.
+
+        b) EN LA NUBE (Supabase, "el cerebro del sistema"):
+           - Base de datos PostgreSQL: las 15 tablas ordenadas del sistema
+             (pacientes, citas, pagos, etc.).
+           - Reglas de seguridad RLS integradas en la base: cada clinica SOLO
+             ve sus propios datos aunque todos compartan el almacen central.
+             Es el corazon de la privacidad del sistema.
+           - Gestor de cuentas y contrasenas (Supabase Auth): valida el
+             ingreso y entrega una credencial digital temporal (JWT) que dice
+             quien es el usuario, de que clinica es y que puede hacer.
+
+ 2.2.2) CLIENTE
+        -------------
+        Lo unico que la persona necesita en su dispositivo es un NAVEGADOR
+        actualizado: Google Chrome, Mozilla Firefox, Microsoft Edge o Safari
+        (requisito explicito del Dr. Rojas). No se instala ningun programa.
+
+        Dentro del navegador se ejecuta la aplicacion, construida con estas
+        tecnologias libres y gratuitas:
+
+        | Tecnologia       | Para que sirve (en palabras simples)              |
+        |------------------|----------------------------------------------------|
+        | React 18 + Vite  | La base con la que esta construida la pantalla y   |
+        |                  | su rapidez al cambiar de seccion                    |
+        | TypeScript       | Evita errores de programacion al escribir codigo   |
+        | Tailwind CSS +   | El aspecto visual: botones, formularios y tablas   |
+        | shadcn/ui        | con aspecto moderno y profesional                   |
+        | React Router     | Permite moverse entre modulos sin recargar la       |
+        |                  | pagina                                             |
+        | Zustand          | Estado global de la aplicacion                      |
+
+        Funciona en Windows, macOS, Linux, Android e iOS (siempre via
+        navegador).
+
+ 2.2.3) OTRO SOFTWARE ADICIONAL
+        ------------------------------
+        Herramientas para CONSTRUIR y ADMINISTRAR el sistema (el usuario
+        final no las necesita):
+        - Visual Studio Code: editor de codigo.
+        - Node.js 20 + npm: motor que prepara y empaqueta la aplicacion.
+        - Git + GitHub: historial del codigo y trabajo en paralelo.
+        - Jira: tablero con epicos, historias de usuario y tareas.
+        - Supabase CLI: aplica cambios controlados a la base de datos.
+        - ESLint + Prettier: revisores de calidad y orden del codigo.
+        - draw.io / PlantUML: para dibujar los diagramas UML.
+
+--------------------------------------------------------------------------------
+ 2.3) DATOS
+--------------------------------------------------------------------------------
+
+Toda la informacion del sistema vive organizada en 15 TABLAS (planillas
+ordenadas en la base de datos). Agrupadas por tema:
+
+  QUIEN ES QUIEN (datos maestros):
+  - clinicas            : cada clinica cliente (nombre, direccion, moneda,
+                          logo).
+  - perfiles            : cada persona con cuenta, su rol, su clinica y su
+                          especialidad/consultorio (texto libre).
+  - servicios           : servicios ofrecidos con precio por defecto.
+
+  LOS PACIENTES Y SU SALUD:
+  - pacientes           : datos personales, contacto de emergencia, alergias,
+                          tipo de sangre.
+  - historiales_clinicos: motivo de consulta, antecedentes, alergias,
+                          medicamentos, enfermedades, habitos.
+  - odontogramas        : el "mapa de la boca" con la condicion de cada
+                          diente (sano, caries, restauracion, ausente, corona,
+                          implante, endodoncia, extraccion, protesis,
+                          fractura, mancha, otro); las piezas se guardan
+                          dentro del mismo registro en formato JSONB.
+  - diagnosticos        : condiciones diagnosticadas por paciente y pieza.
+  - planes_tratamiento y procedimientos_tratamiento: que se le va a hacer al
+                          paciente, con prioridad, costo y estado.
+  - evoluciones_clinicas: la bitacora cronologica de cada consulta.
+
+  LA OPERACION DIARIA:
+  - horarios            : disponibilidad semanal de cada odontologo (dia,
+                          inicio, fin).
+  - citas               : fecha, hora y estado (reservada, confirmada,
+                          atendida, cancelada).
+  - presupuestos y items_presupuesto: encabezado + procedimientos con montos
+                          y descuentos.
+  - pagos               : cuanto pago, cuanto debe y con que metodo
+                          (efectivo, QR o transferencia).
+
+  REGLAS IMPORTANTES DE LOS DATOS:
+  - Cada registro sabe a que clinica pertenece (columna clinica_id): permite
+    que varias clinicas usen el mismo sistema sin mezclarse.
+  - Identificadores unicos UUID y fechas automaticas de creacion/modificacion
+    (trazabilidad).
+  - Moneda configurable por clinica (Bolivianos por defecto; admite dolares
+    u otras).
+  - Volumen estimado por clinica: 500 a 2.000 pacientes y 20 a 40 citas por
+    dia.
+
+--------------------------------------------------------------------------------
+ 2.4) PROCESOS
+--------------------------------------------------------------------------------
+
+Son los "recorridos" que la informacion sigue dentro del sistema:
+
+ 1) ALTA Y AFILIACION
+    El odontologo se registra y crea su clinica con sus datos y su catalogo
+    de servicios; dara de alta a sus recepcionistas y otros odontologos.
+    Por otro lado, el paciente se registra solo, ingresa al sistema y ELIGE
+    su clinica buscandola por nombre (el MVP no usa ubicacion GPS). A partir
+    de ahi ya puede agendar y ser atendido.
+
+ 2) FLUJO CLINICO (el proceso principal)
+    Historia clinica -> evaluacion -> odontograma (mapa de la boca) ->
+    diagnostico -> plan de tratamiento -> presupuesto -> el paciente acepta
+    -> cita -> se realiza el procedimiento -> evolucion -> seguimiento hasta
+    terminar el tratamiento.
+
+ 3) GESTION DE AGENDA
+    Cada odontologo carga sus horarios semanales. El paciente reserva turno
+    eligiendo entre los horarios libres (o agenda la recepcionista por
+    telefono). La cita pasa por estados: reservada -> confirmada -> atendida
+    (o cancelada / no asistio).
+
+ 4) COBRO
+    Se genera un cobro ligado al presupuesto -> el paciente paga en efectivo,
+    con QR (imagen fija del odontologo) o por transferencia -> se registra el
+    pago (total o parcial) -> el sistema muestra cuanto falta pagar (estado
+    de cuenta: total, pagado, pendiente).
+
+ 5) CONTROL Y ADMINISTRACION
+    Cada rol ve su resumen al entrar (citas del dia, cuanto se cobro, que
+    tratamientos van en curso); el odontologo configura precios, moneda y
+    horarios de su propia clinica; da de alta y de baja a su equipo.
+
+--------------------------------------------------------------------------------
+ 2.5) GENTE / USUARIO
+--------------------------------------------------------------------------------
+
+  USUARIOS FINALES (3 roles en el MVP):
+
+  | Rol           | Quien es                | Que hace en el sistema             |
+  |---------------|-------------------------|------------------------------------|
+  | ODONTOLOGO    | Profesional de la salud | Todo lo clinico: historia,         |
+  |               | Y administra su clinica | odontograma, diagnostico,          |
+  |               |                         | tratamiento, evolucion; ademas     |
+  |               |                         | agenda, presupuestos, cobros y la  |
+  |               |                         | configuracion de su clinica.       |
+  | RECEPCIONISTA | Apoyo operativo         | Registra pacientes, maneja la      |
+  |               |                         | agenda y ayuda con presupuestos    |
+  |               |                         | y pagos.                           |
+  | PACIENTE      | Cliente de la clinica   | Se registra, afilia a una          |
+  |               |                         | clinica, saca turnos y consulta    |
+  |               |                         | su tratamiento y pagos.            |
+
+  (En el MVP se elimino el rol SUPER_ADMIN: el odontologo puede administrar
+  su propia clinica.)
+
+  USUARIOS DE REFERENCIA (quienes ensenianon como se trabaja hoy):
+  - Dr. Ayrthon Rojas Orellana: propietario y odontologo de "Dental Cristo
+    Rey"; valida que el sistema resuelva sus necesidades reales.
+  - Maria Lopez: recepcionista; usuaria intensiva del dia a dia.
+
+  EQUIPO CONSTRUCTOR:
+  - 6 desarrolladores, cada uno responsable de modulos especificos durante
+    los 3 meses del proyecto, coordinados por Jira y Git/GitHub.
+  - Analista de sistemas: entrevistas, especificaciones y modelado.
+
+  DETALLE CLAVE A RECORDAR: los odontologos "no son expertos en computadoras"
+  (palabras del propio Dr. Rojas). Regla de oro del disenio: facil de usar,
+  mensajes claros y rapidez (menos de 3 segundos en cargar).
+
+--------------------------------------------------------------------------------
+ 2.6) DOCUMENTO
+--------------------------------------------------------------------------------
+
+  QUE EMITE EL SISTEMA:
+  - Presupuesto en pantalla listo para imprimir; la exportacion a PDF se
+    deja para la version 2 del MVP.
+  - Historial de pagos y saldo pendiente de cada paciente.
+  - Resumenes e indicadores por rol (citas del dia, cobrado del mes,
+    tratamientos en curso, pacientes atendidos por mes).
+
+  QUE ARCHIVA EL SISTEMA:
+  - La informacion de pacientes, tratamientos y pagos en la base de datos.
+  - El logo e imagen QR de pago de la clinica/odontologo (el archivo de
+    imagenes tipo radiografia se incorpora en la version 2).
+
+  DOCUMENTOS DEL PROYECTO (los de ingenieria):
+  - Especificacion funcional (docs/SPEC.md).
+  - Modelo de datos de 15 tablas (docs/DATABASE.md y supabase_schema_mvp.sql).
+  - Arquitectura tecnica (docs/ARCHITECTURE.md).
+  - Guia de instalacion (docs/SETUP.md).
+  - Historias de usuario y tareas por modulo (docs/modules/).
+  - Backlog para Jira (docs/jira-export.csv y epic-map.json).
+  - Entrevistas al usuario (ENTREVISTAS_USUARIO.txt).
+  - Analisis de problemas Ishikawa (ANALISIS_ISHIKAWA.txt).
+  - Definicion del sistema (DEFINICION_DEL_SISTEMA.txt).
+
+
+================================================================================
+ 3) TECNOLOGIA PARA EL DESARROLLO DEL SOFTWARE
+================================================================================
+
+--------------------------------------------------------------------------------
+ 3.1) ESTRATEGIA PARA EL DESARROLLO DEL SOFTWARE
+--------------------------------------------------------------------------------
+
+Cuatro decisiones guian todo el proyecto:
+
+ 1. PRIMERO PENSAR, DESPUES PROGRAMAR.
+    Cada modulo se documenta ANTES de codearse: que debe hacer, para quien,
+    con que criterios de aceptacion. Asi los 6 desarrolladores trabajan en
+    paralelo sin malentendidos, y el tablero Jira refleja exactamente que
+    falta y que esta hecho.
+
+ 2. EMPEZAR POR LO ESENCIAL (MVP).
+    Primero lo que la clinica no puede vivir sin eso (pacientes, historia
+    clinica, odontograma, tratamientos) y despues lo complementario (agenda,
+    presupuestos, pagos). Al cierre de cada semana hay una parte del sistema
+    funcionando de verdad, no solo promesas.
+
+ 3. NO REINVENTAR LA RUEDA.
+    Cuentas de usuario y base de datos se contratan a Supabase en lugar de
+    construirse desde cero. Esto ahorro aproximadamente la mitad del esfuerzo
+    de backend y permite concentrarse en lo que el doctor y su paciente ven y
+    usan.
+
+ 4. TRABAJO EN EQUIPO CONTROLADO.
+    Cada desarrollador trabaja en su propia rama del codigo; nadie sube nada
+    sin que otro lo revise. Al final de cada fase, lo probado se publica en
+    internet (deploy).
+
+--------------------------------------------------------------------------------
+ 3.2) METODOLOGIA PARA EL DESARROLLO DEL SOFTWARE
+--------------------------------------------------------------------------------
+
+Se usa el PROCESO UNIFICADO DE DESARROLLO DE SOFTWARE (PUDS, tambien conocido
+como RUP), adaptado con practicas agiles de seguimiento (tablero Jira y
+entregas frecuentes). El PUDS organiza el trabajo en 4 fases que pueden
+solaparse:
+
+    FASE PUDS      PERIODO             QUE SE LOGRA
+    -------------- ------------------- ------------------------------------
+    Inicio         Semana 1            Entrevistas, analisis de problemas
+                                       (Ishikawa), especificacion general y
+                                       definicion del alcance.
+    Elaboracion    Semanas 1-2         Disenio de la solucion: arquitectura
+                                       simplificada y modelo de la base de
+                                       datos (15 tablas).
+    Construccion   Semanas 2-10        Construccion por iteraciones de los
+                                       9 modulos del MVP, empezando por
+                                       autenticacion, pacientes, historia
+                                       clinica, odontograma, diagnostico/
+                                       tratamiento, evolucion y continuando
+                                       con agenda, presupuestos y pagos.
+    Transicion     Semanas 11-12       Pruebas generales, integracion,
+                                       capacitacion del personal y
+                                       publicacion final.
+
+ 3.2.1) CARACTERISTICAS DEL PUDS
+        -----------------------------
+        a) ITERATIVO E INCREMENTAL: ciclos cortos; al terminar cada ciclo
+           existe una parte del sistema FUNCIONANDO y probada.
+        b) DIRIGIDO POR CASOS DE USO: todo arranca de "que hara el usuario"
+           (historias de usuario), y esas descripciones guian la programacion
+           y las pruebas.
+        c) CENTRADO EN LA ARQUITECTURA: lo mas riesgoso (que cada clinica vea
+           solo sus datos - RLS) se definio y valido AL PRINCIPIO.
+        d) FASES CON METAS CLARAS: cada fase termina con un hito concreto
+           (ej.: "MVP integrado y publicado").
+        e) TRABAJO CON DISCIPLINAS: requerimientos, disenio, construccion,
+           pruebas y despliegue, apoyados por Git y Jira.
+        f) ROLES DEFINIDOS: cada desarrollador es duenio de sus modulos; el
+           analista mantiene la documentacion; el Dr. Rojas valida como
+           usuario clave.
+        g) ALCANCE PROTEGIDO: se dejo por escrito que NO se hara (app movil,
+           IA, facturacion electronica, etc.), para proteger los 3 meses de
+           plazo.
+
+ 3.2.2) CARACTERISTICAS DE UML
+        ----------------------------
+        UML (Lenguaje Unificado de Modelado) es el "idioma de dibujos" para
+        modelar el sistema:
+        - ES UN ESTANDAR MUNDIAL: todos los ingenieros leen un diagrama UML
+          igual.
+        - HACE VISIBLE LO COMPLEJO: explica el sistema sin mostrar codigo.
+        - NO DEPENDE DE LA TECNOLOGIA: si cambia la tecnologia, los diagramas
+          siguen validos.
+        - CONECTA LO QUE SE PIDE CON LO QUE SE CONSTRUYE.
+        - TIENE DOS FAMILIAS: diagramas de estructura y de comportamiento.
+
+        Diagramas que se usan en MiDentista:
+
+        | Diagrama          | Familia       | Lo usamos para...               |
+        |-------------------|---------------|---------------------------------|
+        | Casos de uso      | Comportamiento| Mostrar que puede hacer cada    |
+        |                   |               | actor (doctor, recepcionista,   |
+        |                   |               | paciente).                      |
+        | Clases            | Estructura    | Representar entidades           |
+        |                   |               | (Paciente, Cita, Presupuesto)   |
+        |                   |               | y sus relaciones.               |
+        | Secuencia         | Interaccion   | Paso a paso del login, la       |
+        |                   |               | afiliacion a una clinica y el   |
+        |                   |               | pago.                           |
+        | Actividades       | Comportamiento| El recorrido completo del flujo |
+        |                   |               | clinico y del cobro.            |
+        | Estados           | Comportamiento| Los ciclos de vida de una cita, |
+        |                   |               | un tratamiento y un presupuesto.|
+        | Componentes y     | Arquitectura  | Como se conectan la pagina y la |
+        | despliegue        |               | nube.                           |
+        | Entidad-Relacion  | Complementario| El mapa de las 15 tablas de     |
+        |                   |               | datos.                          |
+
+--------------------------------------------------------------------------------
+ 3.3) HERRAMIENTAS DE DESARROLLO
+--------------------------------------------------------------------------------
+
+ 3.3.1) SOFTWARE
+        ----------
+        | Herramienta        | Para que se usa      | Licencia |
+        |--------------------|----------------------|----------|
+        | Node.js 20 LTS     | Motor que ejecuta    | Gratuita |
+        |                    | las herramientas     |          |
+        | Visual Studio Code | Editor de codigo     | Gratuita |
+        | Git + GitHub       | Historial y revision | Gratuita |
+        | Jira (cloud)       | Planificacion y      | Gratuita*|
+        |                    | seguimiento          |          |
+        | React 18 / Vite 5  | Interfaz de usuario  | Gratuita |
+        | Tailwind + shadcn  | Aspecto visual       | Gratuita |
+        | supabase-js / CLI  | Conexion y admin.    | Gratuita |
+        | ESLint + Prettier  | Calidad del codigo   | Gratuita |
+        | draw.io / PlantUML | Diagramas UML        | Gratuita |
+
+        (* plan gratuito para equipos pequenos.)
+        IMPORTANTE: todo el stack es gratuito/open source -> costo de
+        licencias Bs 0.
+
+ 3.3.2) HARDWARE
+        -------------
+        | Recurso                     | Especificacion referencial      |
+        |-----------------------------|---------------------------------|
+        | PC de desarrollo (x6)       | Core i5 o Ryzen 5, 16 GB RAM,   |
+        |                             | SSD 512 GB, monitor 1920x1080   |
+        | Notebook gama media         | Probar velocidad y visualizacion|
+        | Tablet / celular android    | Probar el portal del paciente   |
+        | Impresora multifuncion      | Pruebas de los presupuestos     |
+        | Internet de la oficina      | 50 Mbps recomendado             |
+        | Servidores                  | Contratados: nada que comprar   |
+
+================================================================================
+ 4) POSIBLES COSTOS
+================================================================================
+
+Montos referenciales en Bolivianos (tipo de cambio tomado: 1 USD = 6,96 Bs).
+
+ A) COSTO DE CONSTRUIR EL SISTEMA (se paga una vez)
+
+ | Concepto                       | Detalle                            | Costo (Bs) |
+ |--------------------------------|------------------------------------|------------|
+ | Trabajo del equipo             | 6 desarrolladores x 3 meses        | 90.000*    |
+ |                                | (referencia: Bs 5.000/mes c/u)     |            |
+ | Analisis y documentacion       | Incluido en el trabajo del equipo  | 0          |
+ | Licencias de software          | Todo el stack es gratuito          | 0          |
+ | Capacitacion del personal      | Jornadas de entrenamiento inicial  | 1.500      |
+ | Carga de datos iniciales       | Servicios, precios y pacientes     | 800        |
+ |                                | semilla de la clinica piloto       |            |
+ | ------------------------------------------------------------------------|
+ | SUBTOTAL                                                       | ~92.300    |
+
+ (*Es un valor de mercado referencial. Si el equipo es propio o universitario,
+   el costo real baja al tiempo invertido.)
+
+ B) COSTO DE MANTENER EL SISTEMA ANDANDO (anual)
+
+ | Concepto                       | Detalle                            | Costo (Bs) |
+ |--------------------------------|------------------------------------|------------|
+ | Dominio web (.com)             | Renovacion anual de la direccion   | 90 / ano   |
+ | Hosting de la pagina           | Plan basico con candado HTTPS      | 700 / ano  |
+ | Supabase (datos y cuentas)     | Gratis al inicio; plan pago cuando | 175 / mes  |
+ |                                | haya varias clinicas               | (2.100 ano)|
+ | ------------------------------------------------------------------------|
+ | SUBTOTAL ANUAL                                                 | ~2.890     |
+
+ C) OPCIONALES
+
+ | Concepto                                   | Referencia (Bs)              |
+ |--------------------------------------------|------------------------------|
+ | Una computadora nueva para la clinica      | 5.000 - 7.000 (una sola vez) |
+ | Soporte y mejoras posteriores              | 500 - 800 / mes              |
+
+ RESUMEN: invertir ~Bs 92.300 una vez y ~Bs 2.900 por ano de
+ infraestructura. Destacable: cero dinero en licencias de software.
+
+
+================================================================================
+ 5) POSIBLES BENEFICIOS
+================================================================================
+
+--------------------------------------------------------------------------------
+ 5.1) TIEMPO
+--------------------------------------------------------------------------------
+  - Buscar los datos de un paciente pasa de 10-15 minutos hojeando papeles a
+    unos segundos escribiendo su nombre. Entre recepcion y consultorios se
+    ahorrarian 10 a 15 HORAS de trabajo por semana.
+  - Agenda sin choques: se acaban las dobles agendas (hoy 2-3 por semana) y
+    las llamadas de ida y vuelta para coordinar turnos.
+  - Presupuestos en minutos: el sistema suma los montos y los deja listos
+    para imprimir.
+  - El resumen del negocio (cuanto cobre este mes, que tratamientos siguen
+    pendientes) esta disponible al instante, incluso desde casa.
+
+--------------------------------------------------------------------------------
+ 5.2) ESFUERZO
+--------------------------------------------------------------------------------
+  - Se escribe cada dato UNA sola vez: hoy la misma cita se anota en el
+    cuaderno, en la ficha y en la lista de cobros; manana se carga una vez y
+    aparece en todos lados.
+  - La recepcionista deja de ser "recordadora humana": el sistema muestra
+    estados, saldos y proximas atenciones.
+  - Menos correcciones: los formularios validan los datos y los calculos son
+    automaticos, asi que hay menos errores que reparar.
+  - La clinica puede crecer SIN contratar mas personal administrativo (la
+    alternativa de sumar otra recepcionista costaria ~Bs 3.000-4.000 cada
+    mes, para siempre).
+  - Facil de aprender: una sola capacitacion, pensada para gente no experta
+    en computadoras.
+
+--------------------------------------------------------------------------------
+ 5.3) COSTOS
+--------------------------------------------------------------------------------
+  - Se recobra plata hoy perdida: aprox. el 20% de los cobros presenta
+    descuadre o retraso; con saldos visibles y estados de cuenta, ese dinero
+    vuelve a caja.
+  - Menos consultas vacias: agendas ordenadas y recordatorios reducen los
+    huecos por olvidos y dobles agendas (estimado 10 conflictos/mes hoy).
+  - Ahorro en papel, carpetas, tintas y archivo fisico: todo queda guardado
+    en la nube.
+  - Proteccion contra el desastre: las copias de seguridad automaticas
+    evitan perder TODO ante un incendio o robo (hoy seria irrecuperable).
+  - Decisiones que valgan plata: saber que tratamiento y que mes es rentable
+    permite corregir precios a tiempo.
+
+ BALANCE: la infraestructura anual (~Bs 2.900) es pequenia frente al ahorro
+ de horas-hombre y a la recuperacion de cobros; el sistema se paga solo
+ desde el primer trimestre de uso.
+
+
+================================================================================
+ 6) POSIBLES CLIENTES
+================================================================================
+
+ CLIENTE PILOTO (origen del proyecto):
+  - Clinica Dental "Dental Cristo Rey": 3 odontologos, 1 recepcionista y su
+    cartera de pacientes.
+
+ A QUIEN MAS LE SIRVE:
+  - Consultorios de un solo odontologo que hoy llevan todo en cuadernos.
+  - Clinicas dentales pequenas y medianas (2 a 10 odontologos) con
+    recepcion.
+  - Profesionales que atienden en varios consultorios y necesitan ver sus
+    datos desde cualquier lugar.
+
+ DONDE:
+  - Bolivia primero (La Paz, Santa Cruz, Cochabamba y ciudades del eje),
+    con moneda configurable (Bs/USD).
+  - Luego, cualquier pais hispanohablante: como es un sistema en la nube,
+    incorporar una clinica nueva no requiere tocar el programa, solo darla
+    de alta.
+
+ POR QUE ELEGIRNOS:
+  - Todo el consultorio en un solo lugar: pacientes, historias, odontograma,
+    citas, presupuestos y pagos.
+  - Sin instalaciones ni servidores propios: se paga una suscripcion mensual
+    por clinica.
+  - Privacidad garantizada: cada clinica solo ve sus propios datos.
+  - El paciente encuentra la clinica buscandola por nombre.
+
+ CRECIMIENTO ESPERADO (referencial):
+  - Ano 1: 5 a 10 clinicas piloto.
+  - Ano 2: 25 a 40 clinicas, empujadas por el boca a boca del sector.
+  - El crecimiento esta limitado por las ventas, NO por la tecnologia.
+
+
+================================================================================
+ 7) MARCO TEORICO
+================================================================================
+
+--------------------------------------------------------------------------------
+ 7.1) SISTEMA DE INFORMACION
+--------------------------------------------------------------------------------
+Conjunto ordenado de elementos (hardware, software, datos, procesos,
+personas y documentacion) que captura, almacena, procesa y distribuye
+informacion para apoyar las operaciones y la toma de decisiones de una
+organizacion. MiDentista es un sistema de informacion web para gestion
+odontologica.
+
+--------------------------------------------------------------------------------
+ 7.2) SOFTWARE COMO SERVICIO (SaaS)
+--------------------------------------------------------------------------------
+Modelo de distribucion en el que el software se alquila y se usa por
+internet, sin instalarlo en los equipos del cliente. El cliente paga una
+suscripcion (por clinica) y el proveedor es responsable de los servidores,
+el mantenimiento y las copias de seguridad. Cada clinica se incorpora dandola
+de alta, sin tocar el codigo.
+
+--------------------------------------------------------------------------------
+ 7.3) ARQUITECTURA MULTI-TENANT (MULTI-CLINICA)
+--------------------------------------------------------------------------------
+Un solo proyecto, una sola base de datos (shared schema). Cada clinica
+(tenant) comparte la infraestructura pero solo ve y modifica SUS datos. El
+aislamiento se logra con la columna clinica_id presente en todas las tablas y
+con politicas RLS en Postgres. Beneficio: una clinica nueva = un alta, sin
+cambios de codigo y con costos de infraestructura repartidos.
+
+--------------------------------------------------------------------------------
+ 7.4) ROW LEVEL SECURITY (RLS) - SEGURIDAD A NIVEL DE FILA
+--------------------------------------------------------------------------------
+Mecanismo de PostgreSQL que aplica en la propia base de datos una politica
+(WHERE obligatorio) sobre cada consulta, segun el usuario autenticado. En
+Supabase, las politicas usan funciones helper (obtener_clinica_usuario y
+obtener_rol_usuario) para filtrar automaticamente por clinica_id y rol. Es el
+"corazon de la privacidad" del sistema: aunque todos compartan el almacen
+central, cada usuario solo obtiene las filas que le corresponden.
+
+--------------------------------------------------------------------------------
+ 7.5) AUTENTICACION Y JWT
+--------------------------------------------------------------------------------
+Supabase Auth valida el ingreso con email y contrasena (registro publico para
+pacientes y para odontologos que crean su clinica) y emite un JSON Web Token
+(JWT): credencial digital temporal con firma, que contiene el identificador
+del usuario, su clinica (clinica_id) y su rol. Cada peticion al backend viaja
+con el JWT; las politicas RLS lo usan (auth.uid()) para autorizar. El token
+se guarda en el navegador (localStorage) y se renueva con la sesion.
+
+--------------------------------------------------------------------------------
+ 7.6) BASE DE DATOS RELACIONAL (POSTGRESQL)
+--------------------------------------------------------------------------------
+Modelo de datos estructurado en tablas relacionadas por claves. En este
+proyecto: 15 tablas, claves primarias UUID, claves foraneas con relaciones
+1:N, indices para busquedas frecuentes (pacientes por nombre/CI, citas por
+fecha) y triggers para actualizar actualizado_en. El disenio contempla el
+modelo logico (entidades y relaciones) y el fisico (script SQL de creacion,
+supabase_schema_mvp.sql).
+
+--------------------------------------------------------------------------------
+ 7.7) DATOS SEMIESTRUCTURADOS (JSONB) EN EL ODONTOGRAMA
+--------------------------------------------------------------------------------
+En el MVP, las piezas dentales del odontograma se guardan como un arreglo
+JSONB dentro de la tabla odontogramas (en lugar de una tabla aparte). Esto
+simplifica el modelo a 15 tablas y agiliza el guardado/lectura del "mapa de
+la boca" completo en una sola operacion, manteniendo la condicion, superficie
+y observacion de cada pieza (nomenclatura FDI).
+
+--------------------------------------------------------------------------------
+ 7.8) PROCESO UNIFICADO / RUP
+--------------------------------------------------------------------------------
+Metodologia iterativa e incremental dirigida por casos de uso y centrada en
+la arquitectura. Fases: Inicio, Elaboracion, Construccion y Transicion. En el
+proyecto se adapto con agilidad (Jira, entregas frecuentes) y se mapeo a los
+3 meses del cronograma.
+
+--------------------------------------------------------------------------------
+ 7.9) UML (LENGUAJE UNIFICADO DE MODELADO)
+--------------------------------------------------------------------------------
+Estandar mundial de diagramas para especificar, visualizar, construir y
+documentar los artefactos de un sistema. Familias: estructura (clases,
+componentes, despliegue, entidad-relacion) y comportamiento (casos de uso,
+secuencia, actividades, estados). En el proyecto se usan 7 tipos de diagramas
+(ver punto 3.2.2).
+
+--------------------------------------------------------------------------------
+ 7.10) ODONTOGRAMA Y NOMENCLATURA FDI
+--------------------------------------------------------------------------------
+Representacion grafica del estado de todas las piezas dentales (el "mapa de
+la boca"). Cada pieza tiene un numero estandar internacional (nomenclatura
+FDI) y puede llevar condiciones: sano, caries, restauracion, ausente, corona,
+implante, endodoncia, extraccion, protesis, fractura, mancha u otro. El mapa
+es clickeable: se selecciona la pieza, se marca la condicion por superficie
+(facial, lingual, mesial, distal, oclusal) y se agregan observaciones.
+
+--------------------------------------------------------------------------------
+ 7.11) PAGOS
+--------------------------------------------------------------------------------
+Proceso de cobro en el que se registra un pago (total o parcial) ligado a un
+presupuesto. Los metodos aceptados son efectivo, QR (imagen fija del
+odontologo) o transferencia. El sistema recalcula el saldo pendiente y arma
+el estado de cuenta (total, pagado, pendiente).
+
+--------------------------------------------------------------------------------
+ 7.12) TECNOLOGIAS DE FRONTEND
+--------------------------------------------------------------------------------
+  - React 18: biblioteca de interfaz por componentes reutilizables.
+  - Vite: compilador rapido que prepara y empaqueta la aplicacion.
+  - TypeScript: tipado estatico que detecta errores en tiempo de desarrollo.
+  - Tailwind CSS + shadcn/ui: sistema de estilos y componentes con aspecto
+    moderno y profesional.
+  - React Router: navegacion por modulos sin recargar la pagina.
+  - Zustand: administracion del estado global (sesion, clinica activa).
+  - Supabase JS: cliente para autenticacion y base de datos.
+
+--------------------------------------------------------------------------------
+ 7.13) HOSTING Y DESPLIEGUE DE SPA
+--------------------------------------------------------------------------------
+La aplicacion es una SPA (Single Page Application): el build de Vite genera
+archivos estaticos (index.html + assets) que se suben por FTP al hosting
+compartido HostGator. Una regla de reescritura en .htaccess redirige todas
+las rutas a index.html para que el React Router funcione. La seguridad de los
+datos no depende de la clave publica del frontend (anon key es publica por
+disenio), sino de las politicas RLS en Supabase.
+
+================================================================================
+ CAPITULO 1 - METODO DE ISHIKAWA (ESPINA DE PESCADO)
+================================================================================
+
+ Fuente: ANALISIS_ISHIKAWA.txt (Anexo A)
+
+--------------------------------------------------------------------------------
+ 1) IDENTIFICAR EL PROBLEMA
+--------------------------------------------------------------------------------
+
+ PROBLEMA CENTRAL:
+
+    "Gestion ineficiente de la informacion clinica y administrativa de la
+     clinica dental debido al manejo 100% manual (cuadernos y papeles), lo
+     que provoca perdida de informacion, conflicto de citas, falta de
+     control de pagos y demoras en la atencion."
+
+ 1.1) LISTA DE PROBLEMAS (LLUVIA DE IDEAS)
+      ------------------------------------
+      Se identificaron 22 problemas iniciales a partir de las entrevistas:
+
+        P1.  Toda la informacion se registra en cuadernos y papeles.
+        P2.  Se pierde informacion de los pacientes.
+        P3.  No existe un historial clinico organizado por paciente.
+        P4.  Las citas se anotan en un cuaderno y se pisan (doble agenda).
+        P5.  El odontologo no se entera de que tiene cita asignada.
+        P6.  No hay control centralizado de pagos ni de saldos pendientes.
+        P7.  Es dificil saber cuanto debe y cuanto ha pagado cada paciente.
+        P8.  La informacion solo esta disponible fisicamente en el
+             consultorio.
+        P9.  Los presupuestos se calculan a mano y presentan errores.
+        P10. El paciente no puede elegir su propio turno (todo es por
+             telefono).
+        P11. No existe respaldo de la informacion (riesgo de perdida total).
+        P12. Todos acceden a toda la informacion sin permisos diferenciados
+             por rol.
+        P13. La busqueda de datos de un paciente es lenta (revisar papeles).
+        P14. Radiografias y fotografias se guardan sueltas y es dificil
+             ubicarlas.
+        P15. No existe trazabilidad de quien modifico la informacion ni
+             cuando.
+        P16. Los consentimientos en papel se archivan mal y cuesta
+             recuperarlos.
+        P17. Los bloqueos de horario de los odontologos no quedan
+             registrados.
+        P18. Los pacientes olvidan sus proximas citas y controles.
+        P19. Las atenciones se demoran y los pacientes se impacientan.
+        P20. El personal tiene baja familiaridad con herramientas
+             informaticas.
+        P21. No hay resumen gerencial (cobrado del mes, tratamientos en
+             proceso).
+        P22. Existen registros duplicados del mismo paciente en distintos
+             cuadernos.
+
+ 1.2) DEPURAR PROBLEMAS
+      ------------------
+      Se depuran los 22 problemas iniciales fusionando los duplicados y
+      descartando los vagos, como se detalla en ANALISIS_ISHIKAWA.txt.
+      Resultado: de 22 problemas iniciales se pasa a 14 problemas finales.
+
+ 1.3) LISTA FINAL DE PROBLEMAS
+      -------------------------
+      P1. REGISTRO MANUAL EN PAPEL
+          Toda la informacion (citas, historias, pagos) se anota en
+          cuadernos.
+      P2. PERDIDA Y DUPLICIDAD DE INFORMACION
+          Datos de pacientes que se extravian o quedan repetidos en distintos
+          cuadernos.
+      P3. HISTORIA CLINICA DESORGANIZADA
+          No existe una ficha ordenada por paciente con sus antecedentes.
+      P4. CITAS EN CONFLICTO
+          Doble agenda, bloqueos de horario sin registrar y odontologos que
+          no se enteran de sus citas.
+      P5. PAGOS SIN CONTROL
+          No hay un registro unico de cuanto pago y cuanto debe cada
+          paciente.
+      P6. INFORMACION SOLO PRESENCIAL
+          Los datos existen unicamente como papel dentro del consultorio; no
+          se pueden consultar desde casa o el celular.
+      P7. PRESUPUESTOS CON ERRORES
+          Los calculos se hacen a mano, procedimiento por procedimiento.
+      P8. TURNOS SOLO POR TELEFONO
+          El paciente no puede agendar por si mismo; fuera del horario de
+          recepcion no hay forma de pedir turno.
+      P9. SIN RESPALDO NI SEGURIDAD DE LOS DATOS
+          Un incendio o robo perderia todo; cualquiera puede ver o alterar la
+          informacion y no queda constancia de los cambios.
+      P10. ARCHIVOS CLINICOS DESORDENADOS
+          Radiografias, fotografias y consentimientos guardados sueltos,
+          dificiles de ubicar.
+      P11. ATENCION LENTA
+          Buscar datos entre papeles demora cada consulta y los pacientes se
+          impacientan.
+      P12. SIN INFORMACION GERENCIAL
+          El propietario no sabe cuanto cobro este mes ni cuantos
+          tratamientos van en curso sin revisar papeles uno por uno.
+      P13. SEGUIMIENTO DEFICIENTE AL PACIENTE
+          Las proximas atenciones se anotan en papeles sueltos y el paciente
+          olvida volver a sus controles.
+      P14. PERSONAL NO CAPACITADO EN INFORMATICA
+          Los odontologos y la recepcionista no manejan herramientas
+          digitales.
+
+ 1.4) PROPIETARIOS DE PROBLEMAS
+      ---------------------------
+      El "propietario" es la persona directamente responsable o mas afectada
+      por el problema, quien puede aportar informacion y validar soluciones.
+
+      TABLA DE PROPIETARIOS Y PROBLEMAS
+      +------+-----------------------------------------------+------+------+----------+----------+--------------------+
+      | ID   | Problema                                      | Dr.  | Mar. | Odonto.  | Pers.    | Cargo/Rol          |
+      |      |                                               | Ayrt.| Lop. | clinica  | asist.   |                    |
+      +------+-----------------------------------------------+------+------+----------+----------+--------------------+
+      | P1   | Registro manual en papel                      |  x   |      |          |          | Propietario        |
+      | P2   | Perdida y duplicidad de informacion           |  x   |      |          |          | Propietario        |
+      | P3   | Historia clinica desorganizada                |      |      |    x     |          | Prof. de salud     |
+      | P4   | Citas en conflicto                            |      |  x   |          |          | Recepcionista      |
+      | P5   | Pagos sin control                             |      |  x   |          |          | Recepcionista      |
+      | P6   | Informacion solo presencial                   |  x   |      |          |          | Propietario        |
+      | P7   | Presupuestos con errores                      |      |      |    x     |          | Prof. de salud     |
+      | P8   | Turnos solo por telefono                      |      |  x   |          |          | Recepcionista      |
+      | P9   | Sin respaldo ni seguridad de datos            |  x   |      |          |          | Propietario        |
+      | P10  | Archivos clinicos desordenados                |      |  x   |          |          | Recepcionista      |
+      | P11  | Atencion lenta                                |      |  x   |          |          | Recepcionista      |
+      | P12  | Sin informacion gerencial                     |  x   |      |          |          | Propietario        |
+      | P13  | Seguimiento deficiente al paciente            |      |  x   |          |          | Recepcionista      |
+      | P14  | Personal no capacitado en informatica         |      |      |          |    x     | Todo el equipo     |
+      +------+-----------------------------------------------+------+------+----------+----------+--------------------+
+
+      LEYENDA DE PROPIETARIOS:
+        Dr. Ayrt.  = Dr. Ayrthon Rojas Orellana    (Propietario)
+        Mar. Lop.  = Maria Lopez                    (Recepcionista)
+        Odonto.    = Odontologos de la clinica      (Profesionales de salud)
+        Pers. asist = Personal asistencial          (Todo el equipo)
+
+ 1.5) ANALISIS DE PROBLEMAS (GRAFO DIRIGIDO)
+      ---------------------------------------
+      RELACIONES CAUSA - EFECTO:
+       1. El P14 (personal no capacitado) REFUERZA el P1 (registro manual).
+       2. El P1 provoca la P2 (perdida y duplicidad de datos).
+       3. El P1 deja la P3 (historia clinica desorganizada).
+       4. El P1 genera P4 (citas en conflicto).
+       5. El P1 impide controlar P5 (pagos y saldos).
+       6. El P1 mantiene la P6 (informacion solo presencial).
+       7. El P1 obliga a calcular P7 (presupuestos) a mano.
+       8. El P1 obliga a agendar P8 (turnos solo por telefono).
+       9. El P1 dispersa los P10 (archivos clinicos).
+      10. El P1 vuelve LENTA la P11 (atencion).
+      11. El P1 deja los datos SIN P9 (respaldo ni seguridad).
+      12. La P2 (perdida y duplicidad) vuelve mas lenta la P11 (atencion).
+      13. La P2 impide armar P12 (informacion gerencial).
+      14. La P3 (historia clinica desorganizada) impide armar P12.
+      15. Los P5 (pagos sin control) impiden saber cuanto se cobro (P12).
+      16. Las P4 (citas en conflicto) hacen que el paciente OLVIDE sus
+          controles (P13 - seguimiento deficiente).
+      17. Los P8 (turnos solo por telefono) tambien provocan P13.
+      18. CIERRE DEL CICLO: el P13 (seguimiento deficiente) trae
+          reprogramaciones y olvidos que vuelven a desordenar las P4
+          (citas en conflicto).
+
+      Total: 18 relaciones causa-efecto entre los 14 problemas.
+
+      DIAGRAMA DEL GRAFO DIRIGIDO (ASCII): ver ANALISIS_ISHIKAWA.txt.
+
+      LECTURA DEL GRAFO:
+        - El P1 es la CAUSA RAIZ: origina o agrava 10 problemas directamente.
+        - El P14 es el factor de refuerzo que mantiene vigente el registro
+          manual (nivel 0).
+        - El P12 es el efecto que mas flechas recibe (3): sin datos
+          confiables no se puede decidir.
+        - El P11 es el efecto visible hacia el cliente: recibe 2 flechas.
+        - El P13 recibe 2 flechas (citas en conflicto y turnos por telefono)
+          y devuelve 1, cerrando el ciclo.
+
+ 1.6) ESTIMACION Y CUANTIFICACION DE PROBLEMAS
+      -----------------------------------------
+      Ver el detalle completo en ANALISIS_ISHIKAWA.txt. Los problemas de
+      mayor impacto son P1 (registro manual: 100% de los procesos en papel),
+      P3/P6/P9/P12 (ALTA) y P5 (MEDIA-ALTA, ~20% de cobros con descuadre).
+
+ 1.7) ALTERNATIVAS DE CAMBIO
+      -----------------------
+      ALTERNATIVA 1: NO HACER NADA
+        Continuar con el esquema actual de cuadernos y papeles.
+        Costo: bajo aparente; riesgo creciente de perdida total y fuga de
+        pacientes.
+
+      ALTERNATIVA 2: DIGITALIZACION PARCIAL CON HOJAS DE CALCULO
+        Migrar citas y control de pagos a planillas electronicas locales.
+        Costo: bajo. Mejora el orden basico pero NO resuelve acceso multiple,
+        seguridad por roles, respaldo ni historial clinico/odontograma.
+
+      ALTERNATIVA 3: SOFTWARE DE ESCRITORIO A MEDIDA (UNA SOLA PC)
+        Desarrollar un programa local instalado en una computadora.
+        Costo: medio-alto. Centraliza datos pero limita el acceso remoto,
+        requiere mantenimiento local y backups manuales.
+
+      ALTERNATIVA 4: IMPLEMENTAR MIDENTISTA (SAAS WEB MULTI-TENANT)
+        << RECOMENDADA >>
+        Sistema web accesible desde cualquier navegador, con modulos de
+        pacientes, historia clinica, odontograma, diagnosticos, tratamiento,
+        evolucion, agenda, presupuestos y pagos; aislamiento de datos por
+        clinica, roles y permisos, respaldo automatico en la nube y busqueda
+        de clinicas por nombre.
+
+      ALTERNATIVA 5: CONTRATAR MAS PERSONAL ADMINISTRATIVO
+        Sumar una segunda recepcionista para controlar agenda y cobranzas.
+        No elimina la causa raiz (registro manual): solo reparte el trabajo
+        en papel entre mas personas, con costo recurrente alto.
+
+      COMPARATIVA RAPIDA:
+      | Alternativa | Resuelve registro manual? | Acceso remoto? | Seguridad? | Costo |
+      |-------------|---------------------------|----------------|------------|-------|
+      | 1           | No                        | No             | No         | -     |
+      | 2           | Parcial                   | No             | No         | Bajo  |
+      | 3           | Parcial                   | No             | Parcial    | Medio |
+      | 4           | SI                        | SI             | SI         | Medio |
+      | 5           | No                        | No             | No         | Alto  |
+
+ 1.8) CONCLUSION Y RECOMENDACION
+      -----------------------------
+      CONCLUSION:
+        El analisis evidencia que los 14 problemas (P1 a P14) convergen en
+        una causa raiz comun: la gestion manual de la informacion (P1),
+        reforzada por la brecha digital del personal (P14). Esta situacion
+        genera efectos en cadena: P2 (perdida de datos), P4 (agendas en
+        conflicto), P5 (cobros sin control), P11 (atenciones lentas) y P12
+        (decisiones a ciegas), deteriorando la calidad del servicio.
+
+      RECOMENDACION:
+        Se recomienda implementar la ALTERNATIVA 4 (MiDentista, SaaS web
+        multi-tenant) por ser la unica que ataca simultaneamente la causa
+        raiz y sus efectos, en su alcance MVP de 3 meses:
+          - Centraliza pacientes, historias, odontogramas, citas,
+            presupuestos y pagos (resuelve P1, P2, P3).
+          - Habilita agenda con disponibilidad por odontologo y autogestion
+            del paciente (resuelve P4 y P8).
+          - Incorpora control de pagos con saldos y estados de cuenta
+            (resuelve P5).
+          - Ofrece acceso desde cualquier lugar y presupuestos con calculo
+            automatico (resuelve P6 y P7).
+          - Garantiza respaldo automatico, roles y aislamiento por clinica
+            (resuelve P9).
+          - Reduce tiempos de busqueda y registra proximas atenciones
+            (mitiga P11 y P13).
+        Adicionalmente se recomienda un plan de capacitacion basico para el
+        personal (mitiga la brecha digital). Los problemas complementarios
+        (P10 archivos y consentimientos) se atienden en la version 2.
+
+ 1.9) DISENO DEL DIAGRAMA DE ISHIKAWA
+      ---------------------------------
+      Ver el diagrama completo en ANALISIS_ISHIKAWA.txt (categorias 6M:
+      Metodo, Mano de Obra, Maquinaria, Material, Medicion, Medio Ambiente).
+
+      CONCLUSION DE CATEGORIAS:
+      Las tres categorias principales son METODO, MEDICION y MATERIAL, pues
+      agrupan 10 de los 14 problemas finales (71%) e incluyen tanto la causa
+      raiz (P1) como los efectos criticos. Cualquier solucion debe
+      rediseniar los procesos (digitalizando el metodo), establecer controles
+      e indicadores (medicion) y asegurar la integridad de la informacion
+      (material), tal como propone implementar MiDentista.
+
+
+--------------------------------------------------------------------------------
+ 2) IDENTIFICAR LAS PRINCIPALES CATEGORIAS
+--------------------------------------------------------------------------------
+
+  RANKING  CATEGORIA                PROBLEMAS QUE AGRUPA      JUSTIFICACION
+  --------+------------------------+-------------------------+-----------------
+  1        METODO (Procesos)        P1 - Registro manual, P4- Contiene la CAUSA
+                                    citas en conflicto, P7-   RAIZ y los proce-
+                                    presupuestos con errores, sos nucleo que
+                                    P13 - seguimiento         fallan.
+                                    deficiente
+  2        MEDICION (Control)       P5 - Pagos sin control,   Sin control de
+                                    P9 - sin respaldo ni      pagos, sin seguri-
+                                    seguridad, P12 - sin      dad y sin indica-
+                                    info gerencial            dores, la clinica
+                                                              decide a ciegas.
+  3        MATERIAL (Informacion)   P2 - Perdida y duplicidad, El insumo princi-
+                                    P3 - historia             pal (la informacion
+                                    desorganizada, P10 -      clinica) se pierde,
+                                    archivos desordenados     se duplica y se
+                                                              desordena.
+  4        MAQUINARIA (Tecnologia)  P6 - Informacion solo     La ausencia de
+                                    presencial                plataforma impide
+                                                              el acceso remoto.
+  5        MEDIO AMBIENTE (Entorno) P11 - Atencion lenta      Las expectativas de
+                                                              inmediatez del
+                                                              entorno convierten
+                                                              la lentitud en
+                                                              perdida de
+                                                              pacientes.
+  6        MANO DE OBRA (Personas)  P14 - Personal no         Actua como factor
+                                    capacitado                reforzador de la
+                                                              causa raiz; se
+                                                              mitiga con
+                                                              capacitacion.
+
+--------------------------------------------------------------------------------
+ 3) IDENTIFICAR LAS CAUSAS
+--------------------------------------------------------------------------------
+  - CAUSA RAIZ: registro manual en papel (P1), por el metodo actual.
+  - FACTOR DE REFUERZO: personal no capacitado en informatica (P14).
+  - CAUSAS INTERMEDIAS: procesos sin controles (citas, pagos, presupuestos),
+    informacion sin gestion (perdida, historia desorganizada, archivos),
+    ausencia de tecnologia y de medicion.
+  - CAUSAS AMBIENTALES: pacientes con expectativas de inmediatez (atencion
+    lenta).
+
+--------------------------------------------------------------------------------
+ 4) ANALIZAR Y DISCUTIR EL DIAGRAMA
+--------------------------------------------------------------------------------
+  - El P1 origina o agrava 10 problemas; por eso la solucion debe eliminar el
+    registro manual (digitalizacion total del flujo clinico y administrativo).
+  - Sin medicion (saldos, estados, indicadores) la clinica opera a ciegas
+    (P12); con MiDentista cada rol ve su resumen al entrar.
+  - El ciclo "agenda caotica <-> paciente que olvida" (P4<->P13) se corta con
+    la agenda centralizada y el registro de proximas atenciones.
+  - El riesgo de desastre (P9) se elimina con el respaldo automatico en la
+    nube y las politicas RLS.
+
+ MODELO DE NEGOCIO
+ ------------------
+  MiDentista opera como SaaS multi-tenant con suscripcion mensual por
+  clinica. La clinica piloto es "Dental Cristo Rey". El crecimiento esperado
+  es de 5 a 10 clinicas el primer ano y de 25 a 40 el segundo, apoyado en el
+  boca a boca del sector. El costo de incorporar una clinica nueva se limita
+  a darla de alta (datos, catalogo, precios y moneda configurables), porque
+  la arquitectura multi-tenant no requiere cambios de codigo. La
+  infraestructura (Supabase + HostGator) se comparte entre todas las
+  clinicas, lo que reduce el costo por cliente.
+
+ DIAGRAMA DE ACTIVIDADES
+ ------------------------
+  Recorrido visual de los procesos principales (diagramas UML en el Anexo H,
+  por elaborar). A nivel de flujos de negocio, los recorridos documentados
+  son:
+
+  FLUJO DE AFILIACION (paciente):
+  Paciente ingresa (login o registro) -> Busqueda de clinicas por nombre ->
+  Selecciona clinica -> Confirma afiliacion -> Su perfil queda asociado
+  (clinica_id) y se crea su registro de paciente -> Continua el flujo
+  estandar (dashboard, citas, tratamientos).
+
+  FLUJO CLINICO (proceso principal):
+  Historia clinica -> Evaluacion -> Odontograma -> Diagnostico -> Plan de
+  tratamiento -> Presupuesto -> Aceptacion del paciente -> Cita ->
+  Procedimiento -> Evolucion -> Seguimiento -> Finalizacion.
+
+  FLUJO DE CITAS:
+  Odontologo carga disponibilidad -> Paciente elige fecha/hora -> Cita
+  reservada -> Confirmacion -> Atencion -> Evolucion registrada.
+  (Alternativas: cancelada / no asistio; reprogramacion.)
+
+  FLUJO DE PAGOS:
+  Se genera un cobro ligado al presupuesto -> El paciente paga
+  (efectivo/QR/transferencia) -> Registro del pago (total o parcial) ->
+  Historial y estado de cuenta actualizados (total, pagado, pendiente).
+
+  FLUJO DE ADMINISTRACION:
+  El odontologo registra su clinica (datos, moneda, horarios) -> Alta de
+  recepcionistas y otros odontologos -> Gestion diaria de pacientes,
+  servicios, precios y horarios.
+
+--------------------------------------------------------------------------------
+ CAPITULO 2 - FLUJO DE TRABAJO: CAPTURA DE REQUISITOS
+--------------------------------------------------------------------------------
+
+ Fuentes: ENTREVISTAS_USUARIO.txt (tres entrevistas) y docs/SPEC.md.
+
+ 2.1) ENTREVISTAS CON EL USUARIO
+      ---------------------------
+      Las entrevistas se realizaron al Dr. Ayrthon Rojas Orellana
+      (propietario) y a Maria Lopez (recepcionista). Su contenido completo y
+      sus trascripciones estan en ENTREVISTAS_USUARIO.txt. De ellas se
+      derivaron los 9 modulos del MVP y los requisitos del sistema.
+
+      PRIMERA ENTREVISTA (modulos principales):
+        - Problema que se resuelve: "manejo todo en cuadernos y papeles;
+          pierdo informacion... necesito todo centralizado".
+        - Usuarios: 3 odontologos, 1 recepcionista y pacientes; cada uno con
+          su acceso y permisos.
+        - Modulos basicos: registro de pacientes, historia clinica completa
+          (alergias y medicamentos criticos), odontograma visual con el mapa
+          de la boca, diagnostico y plan de tratamiento con costos, y
+          seguimiento cronologico de cada consulta.
+        - Flujo con paciente nuevo: registro -> historia clinica ->
+          odontograma -> diagnostico -> plan -> aceptacion -> cita ->
+          evolucion -> proxima cita.
+        - Datos obligatorios: para el paciente, nombre, cedula y telefono;
+          para la historia clinica, alergias y medicamentos; en el odontograma
+          cada pieza debe tener una condicion y observaciones si hay algo
+          anormal.
+
+      SEGUNDA ENTREVISTA (gestion y administracion):
+        - Citas: "Mar?a anota en un cuaderno; se pisan citas"; se necesita un
+          calendario organizado donde se vea de quien es cada hora, poder
+          mover y cancelar citas, y que el paciente elija su turno.
+        - Agenda: cada odontologo carga sus horarios y bloquea dias u horas.
+        - Presupuestos: procedimiento por procedimiento, pieza por pieza,
+          con costo; se registra cuanto pago y cuanto falta.
+        - Pagos: se cobra con QR (cada odontologo tiene su QR), efectivo o
+          transferencia.
+        - Clinica: nombre, direccion, telefono y logo; servicios con precios
+          (limpieza, extraccion, empaste, corona, implante).
+
+      TERCERA ENTREVISTA (complementarios y requisitos):
+        - Dashboard: resumen rapido (pacientes, citas del dia, tratamientos
+          en proceso, cobrado del mes, por cobrar).
+        - Configuracion: moneda (Bs, USD, otras), servicios y precios,
+          horarios de atencion y metodos de pago.
+        - Requisitos: seguridad (aislamiento por clinica), rapido, facil de
+          usar, acceso desde cualquier lugar, respaldo en la nube y
+          compatibilidad con Chrome/Firefox/Edge/Safari.
+        - Fuera de alcance del MVP (version 2): archivos e imagenes,
+          consentimientos, dashboard avanzado y configuracion extensa.
+        - Acceso: por internet con email y contrasena; el odontologo da de
+          alta su clinica y las cuentas iniciales.
+        - Trazabilidad: cada consulta genera un registro con fecha, pieza,
+          observaciones y proxima atencion; cada tratamiento tiene estados
+          (propuesto, aceptado, en proceso, completado) y se puede filtrar.
+
+ 2.2) REQUISITOS GENERALES (DERIVADOS DE LAS ENTREVISTAS)
+      ----------------------------------------------------
+      a) SISTEMA WEB accesible mediante una direccion web, sin instalaciones.
+      b) 3 ROLES con permisos diferenciados (odontologo, recepcionista,
+         paciente).
+      c) AISLAMIENTO POR CLINICA (cada clinica solo ve sus datos).
+      d) INTERFAZ INTUITIVA; carga inicial menor a 3 segundos.
+      e) ACCESO REMOTO desde cualquier lugar y dispositivo.
+      f) RESPALDO AUTOMATICO en la nube.
+      g) MULTINAVEGADOR: Chrome, Firefox, Edge y Safari.
+      h) MONEDA configurable por clinica.
+      i) BUSQUEDA DE CLINICAS por nombre.
+      j) FORMULARIOS CON VALIDACION y mensajes de error claros.
+
+ 2.3) REQUISITOS FUNCIONALES POR MODULO (9 MODULOS DEL MVP)
+      -------------------------------------------------
+      Cada modulo tiene descripcion, historias de usuario (con criterios de
+      aceptacion en formato Given/When/Then) y tareas tecnicas, documentadas
+      en docs/SPEC.md y en docs/modules/. Resumen funcional:
+
+      1. AUTENTICACION Y ONBOARDING (Dev 1)
+         Login con email y contrasena; registro de pacientes; registro de
+         odontologos que crean su clinica; recuperacion de contrasena;
+         busqueda de clinicas por nombre; afiliacion del paciente; JWT con
+         clinica_id y rol; gestion de sesiones.
+
+      2. GESTION DE PACIENTES (Dev 2)
+         Registrar, editar y buscar pacientes (nombre, CI, telefono, email);
+         ficha completa con pestanas (Historia, Odontograma, Diagnostico,
+         Tratamiento, Evolucion, Pagos); contacto de emergencia; listado con
+         paginacion; historial de atenciones.
+
+      3. HISTORIA CLINICA (Dev 3)
+         Motivo de consulta; antecedentes medicos y odontologicos; alergias;
+         medicamentos; enfermedades; habitos; observaciones; consulta y
+         actualizacion; trazabilidad de cambios.
+
+      4. ODONTOGRAMA (Dev 4)
+         Mapa visual de piezas dentales (nomenclatura FDI) con zonas
+         clickeables; condiciones por pieza (sano, caries, restauracion,
+         ausente, corona, implante, endodoncia, extraccion, protesis,
+         fractura, mancha, otro); registro por superficie; observaciones;
+         piezas guardadas en JSONB.
+
+      5. DIAGNOSTICO Y PLAN DE TRATAMIENTO (Dev 5)
+         Diagnostico por paciente y pieza con descripcion, observaciones,
+         estados (activo/inactivo/resuelto); plan de tratamiento con
+         procedimientos (pieza, prioridad, costo); estados del plan
+         (propuesto -> aceptado -> en proceso -> completado -> cancelado);
+         filtros por estado; recalculo automatico del total.
+
+      6. EVOLUCION CLINICA (Dev 6)
+         Registro por consulta: fecha, motivo, procedimiento realizado,
+         pieza, diagnostico, observaciones e indicaciones, proxima atencion;
+         consulta cronologica; vinculacion a plan de tratamiento.
+
+      7. AGENDA Y CITAS (Dev 1)
+         Disponibilidad horaria del odontologo; calendario (diario/semanal/
+         mensual) con color por estado; agendamiento por paciente o
+         recepcionista; reprogramacion y cancelacion; estados (reservada ->
+         confirmada -> atendida / cancelada).
+
+      8. PRESUPUESTOS (Dev 2)
+         Crear presupuesto con procedimientos y costos; descuentos; total
+         automatico; consulta y modificacion; estados (borrador -> enviado ->
+         aceptado -> rechazado). (Exportacion a PDF en version 2.)
+
+      9. PAGOS Y CUENTAS (Dev 3)
+         Registro de pagos parciales o totales; metodos efectivo/QR/
+         transferencia; historial de pagos; estado de cuenta (total, pagado,
+         pendiente).
+
+ 2.4) REQUISITOS NO FUNCIONALES
+      --------------------------
+      SEGURIDAD:
+        - Aislamiento multi-tenant por clinica (RLS en todas las tablas).
+        - Autenticacion con email y contrasena; JWT con clinica_id y rol.
+        - El odontologo crea y administra los usuarios de su clinica.
+        - Datos en la nube con respaldo automatico.
+
+      USABILIDAD:
+        - Interfaz intuitiva; carga menor a 3 segundos.
+        - Compatible con computadoras, tablets y celulares.
+        - Funciona en Chrome, Firefox, Edge y Safari.
+
+      RENDIMIENTO:
+        - Soporta al menos 100 usuarios concurrentes por clinica.
+        - Busquedas rapidas y paginacion en todas las listas.
+
+      FIABILIDAD Y VALIDACION:
+        - Formularios con validacion antes de guardar.
+        - Mensajes de error claros.
+        - Operaciones CRUD correctas y consistencia de datos.
+
+ 2.5) CRITERIOS DE ACEPTACION GENERALES
+      -----------------------------------
+      1. Todos los modulos funcionan con datos aislados por clinica (RLS).
+      2. El sistema soporta al menos 100 usuarios concurrentes por clinica.
+      3. Tiempo de carga inicial menor a 3 segundos.
+      4. Responsive design (desktop first, tablet compatible).
+      5. Compatible con Chrome, Firefox, Edge, Safari.
+      6. Todos los formularios tienen validacion client-side.
+      7. Los errores muestran mensajes claros al usuario.
+      8. Las operaciones CRUD funcionan correctamente.
+      9. La paginacion funciona en todas las listas.
+      10. La busqueda funciona en los modulos principales.
+
+ 2.6) ALCANCE EXCLUIDO (MVP) Y VERSION 2
+      --------------------------------------
+      Aplicacion movil nativa; inteligencia artificial para diagnostico;
+      integracion con WhatsApp; notificaciones automaticas por email/SMS;
+      facturacion electronica; integraciones bancarias; teleodontologia;
+      integracion con equipos odontologicos; reportes avanzados y
+      estadisticas complejas; busqueda geografica.
+      VERSION 2 (futura): archivos e imagenes, consentimientos, dashboard
+      avanzado y configuracion extensa.
+
+================================================================================
+ CAPITULO 3 - FLUJO DE TRABAJO: ANALISIS
+================================================================================
+
+ 3.1) CASOS DE USO (POR ACTOR)
+      --------------------------
+      | Actor          | Casos de uso principales                              |
+      |----------------|-------------------------------------------------------|
+      | ODONTOLOGO    | Iniciar sesion; registrar su clinica; registrar        |
+      |                | historia clinica; dibujar el odontograma; crear        |
+      |                | diagnostico; crear plan de tratamiento; registrar      |
+      |                | evolucion; cargar disponibilidad horaria; agendar/      |
+      |                | atender citas; crear presupuestos; registrar pagos;      |
+      |                | configurar su clinica (precios, moneda, horarios); ver   |
+      |                | resumen.                                                |
+      | RECEPCIONISTA | Iniciar sesion; registrar y buscar pacientes; manejar  |
+      |                | la agenda (agendar, reprogramar, cancelar); ayudar con    |
+      |                | presupuestos; registrar pagos; ver estados de cuenta;     |
+      |                | ver resumen (citas del dia, pagos pendientes).            |
+      | PACIENTE      | Registrarse; iniciar sesion; buscar y afiliarse a una   |
+      |                | clinica (por nombre); agendar su propia cita; consultar  |
+      |                | su tratamiento, citas y pagos pendientes.                |
+
+ 3.2) MATRIZ DE PERMISOS
+      ---------------------
+      | Funcionalidad | ODONTOLOGO | RECEPCIONISTA | PACIENTE |
+      |---------------|:----------:|:-------------:|:--------:|
+      | Gestion de clinica| SI     | Lectura       | NO       |
+      | Gest. pacientes| SI         | SI            | NO       |
+      | Historia clin.| SI         | Lectura       | Lectura  |
+      | Odontograma   | SI         | NO            | Lectura  |
+      | Diagnostico   | SI         | NO            | NO       |
+      | Plan tratam.  | SI         | Lectura       | Lectura  |
+      | Evolucion     | SI         | NO            | Lectura  |
+      | Agenda/citas  | SI         | SI            | Lectura  |
+      | Presupuestos  | SI         | SI            | Lectura  |
+      | Pagos/cuentas | SI         | SI            | Lectura  |
+
+      Leyenda: SI = gestion completa; Lectura = consulta; NO = sin acceso.
+
+ 3.3) MODELO DE DATOS EN ANALISIS
+      -----------------------------
+      Las entidades del negocio identificadas durante el analisis son:
+      Clinica, Perfil (usuario), Paciente, Historia Clinica, Odontograma,
+      Diagnostico, Plan de Tratamiento, Procedimiento, Evolucion, Horario,
+      Cita, Presupuesto, Item de Presupuesto, Servicio y Pago. Estas
+      entidades se mapean a 15 tablas en el disenio (ver cap. 4). El
+      odontograma guarda sus piezas en un campo JSONB.
+
+ 3.4) ANALISIS DE FACTIBILIDAD
+      --------------------------
+      - Factibilidad tecnica: el stack es gratuito y maduro (React, Vite,
+        TypeScript, Tailwind, Supabase); contratar Supabase ahorra la mitad
+        del backend.
+      - Factibilidad operativa: el Dr. Rojas y Maria Lopez participaron en
+        las entrevistas y validaran el resultado; la interfaz se disenia para
+        usuarios no expertos.
+      - Factibilidad economica: inversion unica ~Bs 92.300 y ~Bs 2.900
+        anuales, frente a un ahorro mensual significativo de horas-hombre y
+        recuperacion de cobros.
+      - Factibilidad legal: datos medicos protegidos con cifrado HTTPS,
+        respaldo y RLS.
+
+
+================================================================================
+ 4) FLUJO DE TRABAJO: DISENO
+================================================================================
+
+--------------------------------------------------------------------------------
+ 4.1) DISENO DE ARQUITECTURA
+--------------------------------------------------------------------------------
+  Fuente: docs/ARCHITECTURE.md
+
+  ARQUITECTURA EN TRES CAPAS:
+    [ FRONTEND ]  React 18+ | Vite | TypeScript | Tailwind CSS | shadcn/ui
+                  React Router | Zustand
+         |
+         |  (peticiones con JWT)
+         v
+    [ BACKEND (BaaS) ]  Supabase
+                  |-- Auth (autenticacion + JWT)
+                  |-- PostgreSQL (base de datos, 15 tablas)
+                  |-- Row Level Security (aislamiento multi-tenant)
+         |
+         v
+    [ DEPLOY ]  HostGator (archivos estaticos)
+                Build de Vite -> index.html + assets estaticos
+                Regla .htaccess para SPA (todas las rutas a index.html)
+
+  ESTRUCTURA DEL PROYECTO (resumen de carpetas):
+    midentista/
+    +-- public/                 (favicon, imagenes del odontograma)
+    +-- src/
+    |   +-- app/                (rutas, providers, layout raiz)
+    |   +-- components/         (ui/ shadcn, layout/, shared/, forms/)
+    |   +-- features/           (auth, patients, medical-records, odontogram,
+    |   |                        diagnoses, treatments, evolutions,
+    |   |                        appointments, budgets, payments, clinic)
+    |   +-- lib/                (supabase.ts, utils, constants, validations)
+    |   +-- hooks/              (use-clinic, use-pagination, use-debounce)
+    |   +-- stores/             (auth.store, clinic.store)
+    |   +-- types/              (database.ts, index.ts)
+    +-- supabase/
+    |   +-- migrations/         (001_initial_schema.sql, 002_rls_policies.sql,
+    |   |                        003_triggers.sql)
+    |   +-- seed.sql            (datos de prueba)
+    |   +-- config.toml
+    +-- docs/, scripts/, .env.example, configuraciones (eslint, prettier,
+       tailwind, tsconfig, vite)
+
+  VARIABLES DE ENTORNO:
+    VITE_SUPABASE_URL=https://xxxxx.supabase.co
+    VITE_SUPABASE_ANON_KEY=eyJxxxxxxx
+    VITE_APP_NAME=MiDentista
+    VITE_APP_URL=https://midentista.tudominio.com
+
+  COMPONENTES PRINCIPALES DE LA INTERFAZ:
+    - Layout con Header (logo, notificaciones, perfil) + Sidebar (mendi segun
+      rol) + area de contenido.
+    - Sidebar recepcionista: Dashboard, Pacientes, Agenda, Presupuestos,
+      Pagos.
+    - Sidebar odontologo: Dashboard, Pacientes (Historia, Odontograma,
+      Diagnosticos, Plan de Tratamiento, Evolucion), Agenda, Presupuestos,
+      Pagos, Configuracion.
+    - Sidebar paciente: Inicio, Mi Perfil, Mis Citas, Mi Tratamiento, Mis
+      Pagos.
+    - Ficha del paciente con pestanas: Historia, Odontograma, Diagnostico,
+      Tratamiento, Evolucion, Pagos.
+
+  FLUJO DE AUTENTICACION:
+    Ingreso email+contrasena -> Supabase Auth valida -> JWT con user_id,
+    clinica_id y rol -> se guarda en localStorage -> cada peticion incluye el
+    JWT -> RLS filtra por clinica_id -> el frontend renderiza segun el rol.
+
+  FLUJO MULTI-TENANT (ejemplo con la tabla pacientes):
+    - La tabla almacena pacientes de todas las clinicas con su clinica_id.
+    - La politica RLS aplica WHERE clinica_id = (SELECT clinica_id FROM
+      perfiles WHERE id = auth.uid()).
+    - Resultado: el usuario de la clinica A solo ve los pacientes de la
+      clinica A; el de la clinica B solo los suyos.
+
+--------------------------------------------------------------------------------
+ 4.2) DISENO DE DATOS
+--------------------------------------------------------------------------------
+
+ 4.2.1) DISENO DE DATOS LOGICO
+        -----------------------
+  CONVENCIONES:
+    - Motor: PostgreSQL (Supabase).
+    - Multi-tenant: shared schema con clinica_id en cada tabla.
+    - RLS habilitado en todas las tablas.
+    - Claves primarias UUID.
+    - Timestamps creado_en y actualizado_en en las tablas modificables.
+
+  DIAGRAMA DE CLASE (ENTIDADES Y RELACIONES PRINCIPALES):
+
+  clinicas (1) ----- (N) perfiles
+  clinicas (1) ----- (N) pacientes
+  clinicas (1) ----- (N) servicios
+
+  perfiles (1) ----- (N) pacientes
+  perfiles (1) ----- (N) odontogramas
+  perfiles (1) ----- (N) diagnosticos
+  perfiles (1) ----- (N) planes_tratamiento
+  perfiles (1) ----- (N) evoluciones_clinicas
+  perfiles (1) ----- (N) horarios
+  perfiles (1) ----- (N) citas
+  perfiles (1) ----- (N) presupuestos
+
+  pacientes (1) ---- (1) historiales_clinicos
+  pacientes (1) ---- (N) odontogramas
+  pacientes (1) ---- (N) diagnosticos
+  pacientes (1) ---- (N) planes_tratamiento
+  pacientes (1) ---- (N) evoluciones_clinicas
+  pacientes (1) ---- (N) citas
+  pacientes (1) ---- (N) presupuestos
+  pacientes (1) ---- (N) pagos
+
+  planes_tratamiento (1) ---- (N) procedimientos_tratamiento
+  presupuestos (1) ---- (N) items_presupuesto
+  citas (1) ---- (N) evoluciones_clinicas
+  planes_tratamiento (1) ---- (N) evoluciones_clinicas
+
+  NORMALIZACION:
+    El modelo se disenia en tercera forma normal (3FN) con las tablas enlace
+    para las relaciones uno a muchos (items_presupuesto y
+    procedimientos_tratamiento). El odontograma usa un campo JSONB para sus
+    piezas, simplificando el modelo a 15 tablas.
+
+ 4.2.2) DISENO DE DATOS FISICO
+        -----------------------
+  TABLA DE VOLUMEN (ESTIMACION POR CLINICA):
+    - Pacientes: entre 500 y 2.000 registros.
+    - Citas: 20 a 40 por dia (con historial de estados).
+    - Usuarios concurrentes: al menos 100.
+    - El volumen y los indices aseguran busquedas rapidas y paginacion.
+
+  SCRIPT SQL (ESQUEMA DE LAS 15 TABLAS):
+    Las tablas y sus columnas se definen en docs/DATABASE.md y en
+    supabase_schema_mvp.sql. Las 15 tablas:
+      1.  clinicas                 9.  evoluciones_clinicas
+      2.  perfiles                10. horarios
+      3.  pacientes               11. citas
+      4.  historiales_clinicos    12. servicios
+      5.  odontogramas (JSONB)    13. presupuestos
+      6.  diagnosticos            14. items_presupuesto
+      7.  planes_tratamiento      15. pagos
+      8.  procedimientos_tratam.
+
+  EJEMPLOS DE ESTRUCTURA (columnas representativas):
+    clinicas: id (UUID PK), nombre, slug, email, telefono, direccion, ciudad,
+              pais, moneda, simbolo_moneda, activo, creado_en, actualizado_en.
+    perfiles: id (PK -> auth.users), email, nombre_completo, telefono,
+              avatar_url, rol (check: odontologo, recepcionista, paciente),
+              clinica_id (FK), especialidad, consultorio, activo, creado_en,
+              actualizado_en.
+    pacientes: id, clinica_id, perfil_id, ci, nombre_completo,
+              fecha_nacimiento, genero, telefono, email, direccion, ocupacion,
+              contacto_emergencia_nombre/telefono/parentesco, tipo_sangre,
+              alergias, notas, activo, creado_en, actualizado_en.
+    odontogramas: id, clinica_id, paciente_id, odontologo_id, fecha_examen,
+              piezas (JSONB), notas, creado_en, actualizado_en.
+    citas: id, clinica_id, paciente_id, odontologo_id, plan_tratamiento_id,
+              fecha_cita, hora_inicio, hora_fin, estado (check: reservada,
+              confirmada, atendida, cancelada), motivo_consulta, notas,
+              creado_en, actualizado_en.
+    pagos: id, clinica_id, paciente_id, presupuesto_id, monto, metodo_pago
+              (efectivo, qr, transferencia, otro), fecha_pago,
+              codigo_referencia, notas, estado (pendiente, confirmado,
+              rechazado), registrado_por, creado_en.
+
+  INDICES:
+    - idx_pacientes_clinica, idx_pacientes_nombre, idx_pacientes_ci.
+    - idx_historiales_paciente, idx_diagnosticos_paciente,
+      idx_evoluciones_paciente/fecha.
+    - idx_horarios_odontologo, idx_citas_clinica_fecha, idx_citas_odontologo,
+      idx_citas_paciente, idx_citas_estado.
+    - idx_pagos_paciente, idx_pagos_clinica, idx_pagos_estado.
+    - idx_pacientes_busqueda (GIN sobre tsvector en espanol).
+    - idx_planes_tratamiento_estado, idx_perfiles_clinica, idx_perfiles_email.
+
+  SEGURIDAD RLS:
+    - Funciones helper: obtener_clinica_usuario() y obtener_rol_usuario()
+      (SECURITY DEFINER STABLE).
+    - Politica de busqueda publica de clinicas activas (para la pestana de
+      afiliacion).
+    - Por tabla: politica "{tabla}_acceso_clinica" FOR ALL USING
+      (clinica_id = obtener_clinica_usuario()).
+    - Paciente solo ve sus propios datos: politica "{tabla}_datos_paciente"
+      FOR SELECT con su perfil_id o rol en (recepcionista, odontologo).
+
+  DIAGRAMA RELACIONAL:
+    Documentado en texto en el punto 4.2.1 y en docs/DATABASE.md (punto 21);
+    los diagramas UML por elaborar en el Anexo H.
+
+
+================================================================================
+ 5) FLUJO DE TRABAJO: IMPLEMENTACION (POBLACION Y PRUEBAS DE LA BASE DE DATOS)
+================================================================================
+
+ 5.1) ACTUALIZACION DE TUPLAS (POBLACION DE DATOS)
+      ---------------------------------------------
+  Se puebla la base de datos con datos de prueba de la clinica piloto usando
+  el archivo supabase/seed.sql (definido en docs/ARCHITECTURE.md). Las
+  operaciones de manipulacion cubren el ciclo de vida de la informacion:
+
+  INSERT() - ALTAS:
+    - Crear la clinica piloto (nombre, direccion, moneda Bs).
+    - Crear perfiles de usuarios de ejemplo (odontologos y recepcionista)
+      vinculados a la clinica.
+    - Registrar pacientes de ejemplo (nombre, CI, telefono, contacto de
+      emergencia, alergias, tipo de sangre).
+    - Cargar el catalogo de servicios con precios por defecto.
+    - Crear presupuestos y sus items; crear citas de ejemplo con sus estados.
+
+  UPDATE() - MODIFICACIONES:
+    - Cambiar el estado de una cita (reservada -> confirmada -> atendida).
+    - Avanzar el estado de un plan de tratamiento (propuesto -> aceptado ->
+      en proceso -> completado).
+    - Registrar un pago parcial y dejar el nuevo saldo pendiente.
+    - Actualizar datos de contacto del paciente o precios de un servicio.
+    - El trigger actualizar_fecha_modificacion mantiene actualizado_en al
+      dia.
+
+  DELETE() - BAJAS:
+    - Eliminar o desactivar un paciente (baja con conservacion de historial a
+      traves de perfiles.activo / pacientes.activo).
+    - Revocar acceso de un usuario desactivandolo (perfiles.activo=false).
+    - Las bajas fisicas se limitan a tablas secundarias; las tablas clinicas
+      nucleo se protegen por FK (ON DELETE CASCADE controlado).
+
+ 5.2) CONSULTAS (30 SQL)
+      --------------------
+  El modelo debe responder a 30 consultas de referencia agrupadas en tres
+  niveles (las consultas se construyen sobre el esquema de docs/DATABASE.md):
+
+  CONSULTAS SIMPLES (10 ejemplos referenciales):
+    1. Listar todos los pacientes de una clinica (por clinica_id).
+    2. Listar los servicios activos de una clinica con su precio.
+    3. Listar las citas de un dia especifico con su estado.
+    4. Listar los odontologos y su especialidad.
+    5. Listar los pagos confirmados de un mes.
+    6. Listar los planes de tratamiento en estado "en_proceso".
+    7. Listar las citas de un paciente.
+    8. Listar las piezas del odontograma de un paciente (del JSONB).
+    9. Listar los presupuestos de un paciente con su total.
+    10. Listar los horarios de un odontologo.
+
+  CONSULTAS MULTIPLES / COMBINACION DE TABLAS (10 ejemplos referenciales):
+    11. Paciente con su historia clinica (pacientes + historiales_clinicos).
+    12. Citas con datos del paciente y del odontologo
+        (citas + pacientes + perfiles).
+    13. Presupuesto con sus items y el servicio asociado
+        (presupuestos + items_presupuesto + servicios).
+    14. Pago con el presupuesto al que corresponde (pagos + presupuestos).
+    15. Plan de tratamiento con sus procedimientos y sus costos
+        (planes_tratamiento + procedimientos_tratamiento).
+    16. Evoluciones de un plan de tratamiento en orden cronologico.
+    17. Detalle del odontograma y las condiciones de cada pieza.
+    18. Pacientes con su saldo pendiente (suma de pagos vs presupuestos).
+    19. Disponibilidad horaria de cada odontologo (horarios).
+    20. Citas del dia con paciente y tratamiento.
+
+  SUBCONSULTAS (10 ejemplos referenciales):
+    21. Pacientes que tienen plan de tratamiento "propuesto" (subconsulta en
+        WHERE).
+    22. Odontologos con mas de N citas en el mes (subconsulta con COUNT).
+    23. Pacientes cuyo saldo pendiente supera un monto (subconsulta
+        correlacionada sobre pagos).
+    24. Presupuestos aceptados con total mayor al promedio de la clinica
+        (subconsulta con AVG).
+    25. Ultima evolucion de cada paciente (subconsulta con MAX(fecha)).
+    26. Usuarios de la clinica que nunca registraron una cita (NOT EXISTS).
+    27. Servicios mas solicitados en presupuestos (subconsulta con GROUP BY).
+    28. Pacientes sin historia clinica registrada (NOT EXISTS sobre
+        historiales_clinicos).
+    29. Estado de cuenta consolidado: total, pagado y pendiente por paciente
+        (subconsultas en la lista SELECT).
+    30. Citas confirmadas de la semana por odontologo (subconsulta con
+        filtrado por fecha).
+
+ 5.3) PROCEDIMIENTOS ALMACENADOS
+      -----------------------------
+    - obtener_clinica_usuario(): devuelve el clinica_id del usuario
+      autenticado a partir de perfiles (se usa en todas las politicas RLS).
+    - obtener_rol_usuario(): devuelve el rol del usuario autenticado.
+    - actualizar_fecha_modificacion(): funcion disparadora (trigger) que
+      actualiza actualizado_en automaticamente en cada UPDATE.
+    - (Patron disponible para el calculo del estado de cuenta por paciente.)
+
+ 5.4) TRIGGERS (DISPARADORES)
+      -------------------------
+    - trigger_clinicas_actualizar: BEFORE UPDATE ON clinicas.
+    - trigger_perfiles_actualizar: BEFORE UPDATE ON perfiles.
+    - trigger_pacientes_actualizar: BEFORE UPDATE ON pacientes.
+    - Aplicar el mismo patron a todas las tablas relevantes para mantener la
+      columna actualizado_en (trazabilidad del sistema).
+
+ 5.5) DISENO DE CASOS DE USO
+      -------------------------
+  Los casos de uso por actor se detallan en el capitulo 3 (punto 3.1) y se
+  representaran como diagramas UML en el Anexo H: casos de uso, clases,
+  secuencia, actividades, estados, componentes/despliegue y entidad-relacion.
+
+
+================================================================================
+ 6) FLUJO DE TRABAJO: IMPLEMENTACION (CONSTRUCCION Y DESPLIEGUE)
+================================================================================
+
+ 6.1) PLAN DE CONSTRUCCION POR MODULOS
+      ----------------------------------
+  Los 9 modulos del MVP se construyen en 3 meses y se asignan a los 6
+  desarrolladores para trabajar en paralelo:
+
+  MES 1 (semanas 1-4):
+    Dev 1 -> Setup proyecto + Modulo 01 (Auth y Onboarding)
+    Dev 2 -> Modulo 02 (Pacientes)
+    Dev 3 -> Modulo 03 (Historia Clinica)
+    Dev 4 -> Modulo 04 (Odontograma)
+    Dev 5 -> Modulo 05 (Diagnostico y Tratamiento)
+    Dev 6 -> Modulo 06 (Evolucion Clinica)
+
+  MES 2 (semanas 5-8):
+    Dev 1 -> Modulo 07 (Agenda y Citas)
+    Dev 2 -> Mas Funcionalidades de Modulo 02/05
+    Dev 3 -> Testing de Mes 1
+    Dev 4 -> Testing de Mes 1
+    Dev 5 -> Modulo 05 (completar)
+    Dev 6 -> Modulo 06 (completar)
+
+  MES 3 (semanas 9-12):
+    Dev 1 -> Modulo 08 (Presupuestos) + Testing
+    Dev 2 -> Modulo 09 (Pagos y Cuentas)
+    Dev 3, 4, 5 -> Testing integral
+    Dev 6 -> Deploy
+
+  Cada modulo cuenta con historias de usuario (con criterios de aceptacion
+  Given/When/Then) y tareas tecnicas (con estimaciones S/M/L/XL), listas
+  para importar a Jira (docs/jira-export.csv y docs/epic-map.json).
+
+ 6.2) CRONOGRAMA GENERAL
+      -------------------
+    MES 1: Arquitectura + Auth + Pacientes + Historia Clinica + Odontograma.
+    MES 2: Diagnostico + Tratamiento + Evolucion + Agenda y Citas.
+    MES 3: Presupuestos + Pagos + Testing + Deploy.
+
+ 6.3) INSTALACION Y DESARROLLO LOCAL (docs/SETUP.md)
+      -------------------------------------------------
+    Requisitos previos: Node.js 18+ (recomendado 20 LTS), npm o yarn, Git,
+    cuenta en Supabase y VS Code.
+    Pasos: clonar repositorio -> npm install -> copiar .env.example a .env ->
+    configurar Supabase (crear proyecto, ejecutar migraciones, habilitar RLS)
+    -> npm run dev (http://localhost:5173).
+    Comandos: npm run dev | build | preview | lint | typecheck |
+    db:generate | db:push | db:seed.
+
+ 6.4) DESPLIEGUE EN PRODUCCION (HOSTING COMPARTIDO)
+      ------------------------------------------------
+    1. Ejecutar npm run build (genera dist/).
+    2. Acceder al cPanel de HostGator > File Manager.
+    3. Subir el contenido de dist/ por FTP al subdominio.
+    4. Crear/configurar .htaccess para SPA:
+       RewriteEngine On
+       RewriteCond %{REQUEST_FILENAME} !-f
+       RewriteCond %{REQUEST_FILENAME} !-d
+       RewriteRule ^ index.html [L]
+    5. Compilar las variables de entorno de produccion en el build (la anon
+       key es publica por disenio; la seguridad depende de RLS).
+    La publicacion con HTTPS queda garantizada por el certificado SSL del
+    hosting compartido.
+
+ 6.5) PRUEBAS Y CAPACITACION
+      ------------------------
+    - Pruebas funcionales por modulo (criterios de aceptacion de cada
+      historia de usuario) y prueba integral al cierre de cada fase.
+    - Verificacion de los criterios generales (carga < 3 s, aislamiento RLS,
+      compatibilidad de navegadores, paginacion y busqueda).
+    - Capacitacion del personal de la clinica en una sola jornada (pensada
+      para usuarios no expertos en computadoras) y validacion por el Dr.
+      Rojas.
+    - Migracion gradual de datos: cargar servicios, precios y pacientes
+      semilla de la clinica piloto.
+
+
+================================================================================
+ 7) CONCLUSION
+================================================================================
+
+El proyecto resuelve el problema central identificado en el analisis de
+Ishikawa: la gestion manual de la informacion clinica y administrativa (P1),
+reforzada por la brecha digital del personal (P14). MiDentista centraliza en
+un solo sistema web en la nube los pacientes, las historias clinicas, los
+odontogramas, los diagnosticos, los planes de tratamiento, las citas, los
+presupuestos y los pagos, con datos aislados por clinica (RLS), acceso remoto
+desde cualquier navegador, respaldo automatico, moneda configurable y una
+interfaz pensada para usuarios no expertos.
+
+Los 9 modulos del MVP implementados cubren el flujo clinico completo
+(historia -> evaluacion -> odontograma -> diagnostico -> plan -> presupuesto
+-> cita -> evolucion -> seguimiento) y la operacion diaria (agenda y pagos).
+La arquitectura multi-tenant con 15 tablas en PostgreSQL, indices, triggers y
+politicas RLS garantiza privacidad, trazabilidad y rendimiento (100 usuarios
+concurrentes, carga menor a 3 segundos).
+
+Economicamente, la inversion unica (~Bs 92.300) y la infraestructura anual
+(~Bs 2.900) son ampliamente justificables: se ahorran 10 a 15 horas de
+trabajo por semana, se recupera aproximadamente el 20% de los cobros que se
+descuadran o retrasan, y el sistema se paga solo desde el primer trimestre.
+Ademas, al ser SaaS multi-tenant, la solucion no queda limitada a la clinica
+piloto: incorporar nuevas clinicas solo requiere darlas de alta.
+
+Se dejan documentados como version 2 los modulos complementarios (archivos e
+imagenes, consentimientos, dashboard avanzado y configuracion extensa) para
+no comprometer el plazo de 3 meses del MVP.
+
+
+================================================================================
+ 8) RECOMENDACION
+================================================================================
+
+ 1. IMPLEMENTAR LA ALTERNATIVA 4 (SaaS web multi-tenant) por ser la unica que
+    ataca simultaneamente la causa raiz y sus efectos, tal como se detallo en
+    el capitulo 1 (punto 1.8).
+ 2. IMPLEMENTAR POR FASES empezando por el MVP (autenticacion, pacientes,
+    historia clinica, odontograma, diagnostico/tratamiento y evolucion) para
+    tener valor funcionando al cierre de cada fase.
+ 3. CAPACITAR AL PERSONAL en una sola jornada, con material sencillo, para
+    mitigar la brecha digital (P14) y asegurar la adopcion.
+ 4. MIGRAR LOS DATOS DE FORMA GRADUAL: cargar primero servicios, precios y
+    pacientes semilla de la clinica piloto; verificar con el Dr. Rojas.
+ 5. MANTENER EL ALCANCE PROTEGIDO: no incorporar funciones excluidas (IA,
+    app movil, facturacion electronica, etc.) durante los 3 meses previstos,
+    y diferir a la version 2 los modulos complementarios.
+ 6. HACER COPIA Y MONITOREO: usar el plan de Supabase adecuado cuando la
+    cantidad de clinicas justifique el plan pago, y publicar cada fase por
+    FTP tras la revision por pares.
+ 7. ACOMPANAR LA PUESTA EN MARCHA con una revision del estado de cuenta y del
+    cobro durante el primer mes, para normalizar los saldos historicos.
+
+
+================================================================================
+ 9) BIBLIOGRAFIA
+================================================================================
+
+ Documentos del proyecto MiDentista:
+  - ANALISIS_ISHIKAWA.txt (Anexo A: analisis de problemas con modelo de
+    Ishikawa, grafo dirigido, estimaciones y alternativas).
+  - ENTREVISTAS_USUARIO.txt (Anexo B: tres entrevistas al Dr. Rojas y Maria
+    Lopez).
+  - DEFINICION_DEL_SISTEMA.txt (elementos del sistema basado en computadoras
+    y tecnologia para el desarrollo).
+  - docs/SPEC.md (Anexo C: vision, roles, 9 modulos del MVP, matriz de
+    permisos, flujos y cronograma).
+  - docs/DATABASE.md (Anexo D: modelo de base de datos, 15 tablas con SQL,
+    RLS, indices, triggers y relaciones).
+  - supabase_schema_mvp.sql (schema SQL del MVP de 15 tablas).
+  - docs/ARCHITECTURE.md (Anexo E: arquitectura tecnica, estructura del
+    proyecto y flujos internos).
+  - docs/SETUP.md (Anexo G: guia de instalacion y publicacion).
+  - docs/jira-export.csv y docs/epic-map.json (Anexo F: plan de trabajo para
+    Jira).
+  - docs/modules/ (README, user-stories y tasks de los modulos).
+
+ Referencias metodologicas y tecnicas (marco teorico):
+  - Proceso Unificado de Desarrollo de Software (RUP/PUDS).
+  - UML - Lenguaje Unificado de Modelado.
+  - PostgreSQL y Row Level Security (documentacion de Supabase).
+  - JSON Web Tokens (RFC 7519).
+  - React, Vite, TypeScript, Tailwind CSS y shadcn/ui (documentacion oicial).
+  - Kaoru Ishikawa - Diagrama causa-efecto (espina de pescado).
+
+
+================================================================================
+ ANEXOS
+================================================================================
+
+ ANEXO A - ENTREVISTAS
+  Archivo fuente: ENTREVISTAS_USUARIO.txt
+  Tres entrevistas al Dr. Ayrthon Rojas Orellana y a Maria Lopez
+  (recepcionista), de donde salieron los 9 modulos del MVP, los requisitos
+  generales (seguridad, usabilidad, rendimiento, moneda) y el alcance
+  excluido. Resumen: ver capitulo 2 (punto 2.1).
+
+ ANEXO B - ANALISIS DE PROBLEMAS (ISHIKAWA)
+  Archivo fuente: ANALISIS_ISHIKAWA.txt
+  Problema central, 22 problemas depurados a 14, propietarios, grafo
+  dirigido con 18 relaciones, estimaciones, 5 alternativas de cambio y
+  diagrama de Ishikawa con las 6M. Ver capitulo 1 completo.
+
+ ANEXO C - GLOSARIO DE ROLES Y PERMISOS
+  Los 3 roles del MVP y la matriz de permisos completa (ver capitulo 3,
+  puntos 3.1 y 3.2). Leyenda: gestion completa, lectura o sin acceso.
+
+ ANEXO D - DESGLOSE DE HISTORIAS DE USUARIO Y TAREAS POR MODULO
+  (Ver capitulo 2, punto 2.3, y la documentacion en docs/modules/).
+
+ ANEXO E - TABLA DE VOLUMEN Y DATOS DE PRUEBA
+  Volumen estimado por clinica (500-2.000 pacientes, 20-40 citas/dia) y
+  poblacion de datos de ejemplo (seed) para insert/update/delete y las 30
+  consultas SQL (ver capitulo 5).
+
+ ANEXO F - DOCUMENTACION DEL PROYECTO
+  Todos los documentos del proyecto: especificacion funcional, modelo de
+  datos (15 tablas), arquitectura tecnica, guia de instalacion, plan de
+  trabajo Jira y los modulos con sus README, historias de usuario y tareas.
+
+ ANEXO G - DIAGRAMAS UML (POR ELABORAR)
+  Segun el punto 3.2.2: casos de uso por actor, clases, secuencia,
+  actividades, estados, componentes/despliegue y entidad-relacion de las 15
+  tablas.
+
+
+================================================================================
+ FIN DEL DOCUMENTO
+================================================================================

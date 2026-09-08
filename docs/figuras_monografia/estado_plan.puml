@@ -1,0 +1,21 @@
+@startuml estado_plan
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Ciclo de vida de un plan de tratamiento
+
+[*] --> Propuesto : odontologo elabora el plano
+Propuesto --> Aceptado : paciente acepta el plan
+Propuesto --> Cancelado : paciente lo rechaza
+Aceptado --> En_Proceso : inicia el tratamiento
+En_Proceso --> En_Proceso : evoluciones y procedimientos
+En_Proceso --> Completado : ultimo procedimiento realizado
+En_Proceso --> Cancelado : abandono o decisión clinica
+Completado --> [*]
+Cancelado --> [*]
+
+note right of Propuesto
+  CHECK: propuesto, aceptado,
+  en_proceso, completado, cancelado.
+end note
+@enduml

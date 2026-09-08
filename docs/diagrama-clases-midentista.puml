@@ -1,0 +1,244 @@
+@startuml MiDentista - Diagrama de Clases (Base de Datos MVP)
+'Diagrama de clases de la BD de MiDentista (MVP reducido)
+'15 tablas - multi-tenant con clinica_id - 9 modulos
+'Convencion: 1 = un solo registro, 0..1 = opcional, * = muchos
+'Composicion (rombo relleno) para procedimientos_tratamiento e items_presupuesto
+'(odontograma_piezas se elimino: las piezas van en JSONB dentro de odontogramas)
+
+!theme cerulean-outline
+hide circle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam defaultFontName "Segoe UI"
+skinparam classFontStyle bold
+
+' ============================================================
+' DATOS MAESTROS Y USUARIOS
+' ============================================================
+
+class clinicas {
+  + id : UUID <<PK>>
+  + nombre : TEXT
+  + slug : TEXT <<UNIQUE>>
+  + email : TEXT
+  + telefono : TEXT
+  + direccion : TEXT
+  + ciudad : TEXT
+  + pais : TEXT
+  + moneda : TEXT
+  + simbolo_moneda : TEXT
+  + activo : BOOLEAN
+}
+
+class perfiles {
+  + id : UUID <<PK, FK auth.users>>
+  + email : TEXT
+  + nombre_completo : TEXT
+  + telefono : TEXT
+  + avatar_url : TEXT
+  + rol : TEXT <<odontologo|recepcionista|paciente>>
+  + clinica_id : UUID <<FK>>
+  + especialidad : TEXT
+  + consultorio : TEXT
+  + activo : BOOLEAN
+}
+
+class servicios {
+  + id : UUID <<PK>>
+  + nombre : TEXT
+  + descripcion : TEXT
+  + precio_por_defecto : NUMERIC
+  + duracion_minutos : INTEGER
+  + activo : BOOLEAN
+}
+
+' ============================================================
+' PACIENTE Y SALUD CLINICA
+' ============================================================
+
+class pacientes {
+  + id : UUID <<PK>>
+  + ci : TEXT
+  + nombre_completo : TEXT
+  + fecha_nacimiento : DATE
+  + genero : TEXT <<M|F|Otro>>
+  + telefono : TEXT
+  + email : TEXT
+  + direccion : TEXT
+  + contacto_emergencia_* : TEXT
+  + tipo_sangre : TEXT
+  + alergias : TEXT
+  + activo : BOOLEAN
+}
+
+class historiales_clinicos {
+  + id : UUID <<PK>>
+  + motivo_consulta : TEXT
+  + antecedentes_medicos : TEXT
+  + antecedentes_odontologicos : TEXT
+  + alergias : TEXT
+  + medicamentos : TEXT
+  + enfermedades : TEXT
+  + habitos : TEXT
+  + observaciones : TEXT
+}
+
+class odontogramas {
+  + id : UUID <<PK>>
+  + fecha_examen : DATE
+  + piezas : JSONB <<[]>>
+  + notas : TEXT
+}
+
+class diagnosticos {
+  + id : UUID <<PK>>
+  + numero_pieza : INTEGER
+  + descripcion : TEXT
+  + observaciones : TEXT
+  + estado : TEXT <<activo|inactivo|resuelto>>
+  + fecha_diagnostico : DATE
+}
+
+class planes_tratamiento {
+  + id : UUID <<PK>>
+  + titulo : TEXT
+  + estado : TEXT <<propuesto|aceptado|en_proceso|completado|cancelado>>
+  + costo_total : NUMERIC
+  + notas : TEXT
+}
+
+class procedimientos_tratamiento {
+  + id : UUID <<PK>>
+  + numero_pieza : INTEGER
+  + descripcion : TEXT
+  + prioridad : TEXT <<urgente|alta|normal|baja>>
+  + costo : NUMERIC
+  + estado : TEXT <<pendiente|en_proceso|completado|cancelado>>
+}
+
+class evoluciones_clinicas {
+  + id : UUID <<PK>>
+  + numero_pieza : INTEGER
+  + fecha_consulta : DATE
+  + motivo_consulta : TEXT
+  + procedimiento_realizado : TEXT
+  + observaciones : TEXT
+  + indicaciones : TEXT
+  + proxima_atencion : DATE
+}
+
+' ============================================================
+' OPERACION DIARIA
+' ============================================================
+
+class horarios {
+  + id : UUID <<PK>>
+  + dia_semana : INTEGER <<0..6>>
+  + hora_inicio : TIME
+  + hora_fin : TIME
+  + activo : BOOLEAN
+}
+
+class citas {
+  + id : UUID <<PK>>
+  + fecha_cita : DATE
+  + hora_inicio : TIME
+  + hora_fin : TIME
+  + estado : TEXT <<reservada|confirmada|atendida|cancelada>>
+  + motivo_consulta : TEXT
+  + notas : TEXT
+}
+
+class presupuestos {
+  + id : UUID <<PK>>
+  + titulo : TEXT
+  + descuento : NUMERIC
+  + total : NUMERIC
+  + estado : TEXT <<borrador|enviado|aceptado|rechazado>>
+  + valido_hasta : DATE
+  + notas : TEXT
+}
+
+class items_presupuesto {
+  + id : UUID <<PK>>
+  + descripcion : TEXT
+  + numero_pieza : INTEGER
+  + cantidad : INTEGER
+  + precio_unitario : NUMERIC
+  + subtotal : NUMERIC
+}
+
+class pagos {
+  + id : UUID <<PK>>
+  + monto : NUMERIC
+  + metodo_pago : TEXT <<efectivo|qr|transferencia|otro>>
+  + fecha_pago : DATE
+  + codigo_referencia : TEXT
+  + estado : TEXT <<pendiente|confirmado|rechazado>>
+}
+
+' ============================================================
+' RELACIONES - CLINICAS (TENANT) 1 ---> N
+' ============================================================
+clinicas "1" --> "0..*" perfiles
+clinicas "1" --> "0..*" pacientes
+clinicas "1" --> "0..*" historiales_clinicos
+clinicas "1" --> "0..*" odontogramas
+clinicas "1" --> "0..*" diagnosticos
+clinicas "1" --> "0..*" planes_tratamiento
+clinicas "1" --> "0..*" procedimientos_tratamiento
+clinicas "1" --> "0..*" evoluciones_clinicas
+clinicas "1" --> "0..*" horarios
+clinicas "1" --> "0..*" citas
+clinicas "1" --> "0..*" servicios
+clinicas "1" --> "0..*" presupuestos
+clinicas "1" --> "0..*" items_presupuesto
+clinicas "1" --> "0..*" pagos
+
+' ============================================================
+' RELACIONES - PERFILES (USUARIOS)
+' ============================================================
+perfiles "0..1" --> "0..1" pacientes : es paciente
+perfiles "1" --> "0..*" odontogramas : odontologo
+perfiles "1" --> "0..*" diagnosticos : odontologo
+perfiles "1" --> "0..*" planes_tratamiento : odontologo
+perfiles "1" --> "0..*" evoluciones_clinicas : odontologo
+perfiles "1" --> "0..*" horarios : odontologo
+perfiles "1" --> "0..*" citas : odontologo
+perfiles "1" --> "0..*" presupuestos : odontologo
+perfiles "1" --> "0..*" pagos : registrado_por
+
+' ============================================================
+' RELACIONES - PACIENTES
+' ============================================================
+pacientes "1" --> "0..1" historiales_clinicos
+pacientes "1" --> "0..*" odontogramas
+pacientes "1" --> "0..*" diagnosticos
+pacientes "1" --> "0..*" planes_tratamiento
+pacientes "1" --> "0..*" evoluciones_clinicas
+pacientes "1" --> "0..*" citas
+pacientes "1" --> "0..*" presupuestos
+pacientes "1" --> "0..*" pagos
+
+' ============================================================
+' RELACIONES - COMPOSICION Y OTRAS
+' ============================================================
+planes_tratamiento "1" *-- "0..*" procedimientos_tratamiento
+presupuestos "1" *-- "0..*" items_presupuesto
+
+planes_tratamiento "1" --> "0..*" evoluciones_clinicas : plan
+planes_tratamiento "1" --> "0..*" citas : plan
+procedimientos_tratamiento "1" --> "0..1" servicios : servicio
+items_presupuesto "1" --> "0..1" servicios : servicio
+
+presupuestos "1" --> "0..*" pagos
+evoluciones_clinicas "1" --> "0..1" procedimientos_tratamiento : procedimiento
+
+' ============================================================
+' COMENTARIO DE MULTIPLICIDADES
+' ============================================================
+note bottom of clinicas : "multi-tenant: toda tabla tiene clinica_id\n1 clinica -> N registros de cada dominio"
+note bottom of pacientes : "1 paciente -> 1 historial (0..1)\n1 paciente -> N odontogramas/diagnosticos/planes/citas/pagos\notroganas: piezas en JSONB (sin tabla hijas)"
+note bottom of planes_tratamiento : "composicion: 1 plan -> N procedimientos\n1 plan -> N evoluciones/citas"
+
+@enduml
