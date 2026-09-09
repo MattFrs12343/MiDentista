@@ -44,12 +44,26 @@ create table if not exists public.clinicas (
     direccion       text,
     ciudad          text,
     pais            text default 'Bolivia',
+    latitud         numeric(9,6),
+    longitud        numeric(9,6),
     moneda          text default 'Bs',
     simbolo_moneda  text default 'Bs',
     activo          boolean default true,
     creado_en       timestamptz default now(),
     actualizado_en  timestamptz default now()
 );
+
+-- Migración para bases existentes: agrega coordenadas a clinicas
+alter table public.clinicas
+    add column if not exists latitud  numeric(9,6),
+    add column if not exists longitud numeric(9,6);
+
+-- Rellena coordenadas de clínicas ya cargadas (por slug)
+update public.clinicas set latitud = -16.499000, longitud = -68.145000 where slug = 'dental-cristo-rey';
+update public.clinicas set latitud = -16.537500, longitud = -68.086500 where slug = 'dental-los-andes';
+update public.clinicas set latitud = -16.492000, longitud = -68.196000 where slug = 'sonrisa-perfecta';
+update public.clinicas set latitud = -17.392000, longitud = -66.152000 where slug = 'dental-vida';
+update public.clinicas set latitud = -17.771700, longitud = -63.174000 where slug = 'dr-sonrisa';
 
 -- 2.2 perfiles (en Supabase se vincula a auth.users; aquí autónomo)
 create table if not exists public.perfiles (
@@ -307,6 +321,7 @@ create index if not exists idx_pagos_clinica on public.pagos (clinica_id, fecha_
 create index if not exists idx_pagos_estado on public.pagos (estado);
 create index if not exists idx_perfiles_clinica on public.perfiles (clinica_id);
 create index if not exists idx_perfiles_email on public.perfiles (email);
+create index if not exists idx_clinicas_geo on public.clinicas (latitud, longitud);
 
 -- ============================================================================
 -- 4. TRIGGERS (actualizado_en automático)
@@ -362,12 +377,12 @@ create trigger trigger_servicios_actualizar
 -- ----------------------------------------------------------------------------
 -- 5.1 CLÍNICAS
 -- ----------------------------------------------------------------------------
-insert into public.clinicas (nombre, slug, email, telefono, direccion, ciudad, pais, moneda, simbolo_moneda, activo) values
-('Dental Cristo Rey',             'dental-cristo-rey', 'contacto@dentalcristorey.com', '+591 2 2445678', 'Av. 6 de Agosto Nº 2240, Edif. Torre Azul, Piso 3', 'La Paz',                 'Bolivia', 'Bs', 'Bs', true),
-('Clínica Dental Los Andes',      'dental-los-andes',  'contacto@dentalandes.com',     '+591 2 2791234', 'Calacoto, Av. Costanera Nº 100, Edif. Alborada',      'La Paz',                 'Bolivia', 'Bs', 'Bs', true),
-('Sonrisa Perfecta Dental',       'sonrisa-perfecta',  'info@sonrisaperfecta.com',      '+591 2 2834567', 'Ceja de El Alto, Av. Juan Pablo II Nº 1450',          'El Alto',                'Bolivia', 'Bs', 'Bs', true),
-('Dental Vida',                   'dental-vida',       'contacto@dentalvida.com',       '+591 4 4501234', 'Av. América Oeste Nº 356',                            'Cochabamba',             'Bolivia', 'Bs', 'Bs', true),
-('Dr. Sonrisa',                   'dr-sonrisa',        'hola@drsonrisa.com',            '+591 3 3335678', 'Av. Monseñor Rivero Nº 780, Zona Equipetrol',         'Santa Cruz de la Sierra', 'Bolivia', 'Bs', 'Bs', true);
+insert into public.clinicas (nombre, slug, email, telefono, direccion, ciudad, pais, latitud, longitud, moneda, simbolo_moneda, activo) values
+('Dental Cristo Rey',             'dental-cristo-rey', 'contacto@dentalcristorey.com', '+591 2 2445678', 'Av. 6 de Agosto Nº 2240, Edif. Torre Azul, Piso 3', 'La Paz',                 'Bolivia', -16.499000, -68.145000, 'Bs', 'Bs', true),
+('Clínica Dental Los Andes',      'dental-los-andes',  'contacto@dentalandes.com',     '+591 2 2791234', 'Calacoto, Av. Costanera Nº 100, Edif. Alborada',      'La Paz',                 'Bolivia', -16.537500, -68.086500, 'Bs', 'Bs', true),
+('Sonrisa Perfecta Dental',       'sonrisa-perfecta',  'info@sonrisaperfecta.com',      '+591 2 2834567', 'Ceja de El Alto, Av. Juan Pablo II Nº 1450',          'El Alto',                'Bolivia', -16.492000, -68.196000, 'Bs', 'Bs', true),
+('Dental Vida',                   'dental-vida',       'contacto@dentalvida.com',       '+591 4 4501234', 'Av. América Oeste Nº 356',                            'Cochabamba',             'Bolivia', -17.392000, -66.152000, 'Bs', 'Bs', true),
+('Dr. Sonrisa',                   'dr-sonrisa',        'hola@drsonrisa.com',            '+591 3 3335678', 'Av. Monseñor Rivero Nº 780, Zona Equipetrol',         'Santa Cruz de la Sierra', 'Bolivia', -17.771700, -63.174000, 'Bs', 'Bs', true);
 
 -- ----------------------------------------------------------------------------
 -- 5.2 PERFILES (odontólogos, recepcionistas y un paciente-usuario)
