@@ -17,7 +17,7 @@ Dev 1
 - Gestión de sesiones
 
 ## Flujo de afiliación
-Al ingresar, los pacientes sin clínica asignada acceden a una pestaña de búsqueda de clínicas afiliadas al sistema y pueden buscar por nombre. Al seleccionar una clínica, el paciente se afilia y continúa con el flujo estándar del sistema. *(La búsqueda por ubicación con radio de 5 km queda para la versión 2.)*
+Al ingresar, los pacientes sin clínica asignada acceden a una pestaña de búsqueda de clínicas afiliadas al sistema y pueden buscar por nombre o por cercanía (radio de 5 km, mediante geolocalización). Al seleccionar una clínica, el paciente se afilia y continúa con el flujo estándar del sistema.
 
 ## Tablas relacionadas
 - `perfiles` - Datos del usuario autenticado

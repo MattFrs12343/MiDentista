@@ -4,7 +4,7 @@
 Módulo para registrar las actividades realizadas durante cada consulta del paciente.
 
 ## Responsable
-Dev 6
+Dev 6 (apoyo: Dev 3)
 
 ## Funcionalidades
 - Registrar fecha de atención

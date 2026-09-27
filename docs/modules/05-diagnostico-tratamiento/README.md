@@ -4,7 +4,7 @@
 Módulo para registrar diagnósticos y definir planes de tratamiento con procedimientos.
 
 ## Responsable
-Dev 5
+Dev 5 (apoyo: Dev 2 en cálculo de costos y consultas SQL)
 
 ## Funcionalidades
 **Diagnóstico:**

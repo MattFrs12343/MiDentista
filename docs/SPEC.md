@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **Nombre** | MiDentista |
-| **Tipo** | Software SaaS (single-tenant simplificado) |
+| **Tipo** | Software SaaS (multi-tenant / multiinquilino) |
 | **Plataforma** | Web (React) |
 | **Backend** | Supabase (Auth + DB) |
 | **Duración** | 3 meses |
@@ -20,7 +20,7 @@
 
 MiDentista es una plataforma web para la gestión de consultorios y clínicas odontológicas. Permite centralizar información clínica y administrativa: pacientes, historias clínicas, odontogramas, diagnósticos, tratamientos, citas, presupuestos y pagos.
 
-**Versión MVP:** Single-tenant simplificado. Cada odontólogo administra su propia clínica. Sin super-admin, sin invitaciones complejas, sin búsqueda geográfica.
+**Versión MVP:** Multi-tenant (multiinquilino) simplificado. Cada odontólogo administra su propia clínica dentro de una base de datos compartida, aislada por `clinica_id` mediante RLS. Sin super-admin, sin invitaciones complejas.
 
 ---
 
@@ -85,7 +85,7 @@ Eliminadas (10 tablas):
 
 - Sin invitaciones formales (el odontólogo da de alta a su equipo)
 - Sin super-admin (el odontólogo administra su clínica)
-- Sin búsqueda geográfica (el paciente busca por nombre de clínica)
+- El paciente busca la clínica por nombre o por cercanía (radio de 5 km, mediante geolocalización y fórmula de Haversine)
 
 ---
 
@@ -122,7 +122,7 @@ Eliminadas (10 tablas):
 - Registro de pacientes (formulario público)
 - Registro de odontólogo (crea su cuenta + su clínica)
 - Recuperación de contraseña
-- Selección de clínica por nombre (pacientes)
+- Selección de clínica por nombre o por cercanía (radio de 5 km) para pacientes
 - JWT con `clinic_id` y `role`
 - Gestión de sesiones
 
@@ -264,7 +264,6 @@ Genera cobro por presupuesto → Paciente paga (efectivo/QR/transferencia)
 ## 11. Fuera del Alcance (MVP)
 
 - Super-admin y sistema de invitaciones
-- Búsqueda geográfica de clínicas
 - Sistema de QR dinámico por odontólogo
 - Exportación a PDF de presupuestos
 - Archivos e imágenes (radiografías, fotos)
