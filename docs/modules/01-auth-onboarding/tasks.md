@@ -14,8 +14,8 @@
 | T-1.10 | Configurar RLS para perfiles | M | T-1.2 |
 | T-1.11 | Implementar cierre de sesión | S | T-1.3 |
 | T-1.12 | Crear hooks de autenticación (useAuth, useUser) | M | T-1.3 |
-| T-1.13 | Agregar columnas latitud/longitud a clinicas + índice geo *(VERSIÓN 2 - fuera del MVP)* | S | - |
-| T-1.14 | Implementar pestaña de búsqueda de clínicas *(MVP: solo por nombre; sin radio 5 km)* | M | T-1.3 |
+| T-1.13 | Agregar columnas latitud/longitud a clinicas + índice geo | S | - |
+| T-1.14 | Implementar pestaña de búsqueda de clínicas (por nombre y por cercanía, radio 5 km) | M | T-1.3, T-1.13 |
 | T-1.15 | Implementar flujo de afiliación del paciente a una clínica | M | T-1.14 |
 
 ---
@@ -69,16 +69,17 @@
 - Redirección según rol
 - Manejo de sesión expirada
 
-### T-1.13: Columnas de geolocalización en clinicas *(VERSIÓN 2 - fuera del MVP)*
+### T-1.13: Columnas de geolocalización en clinicas
 - Agregar `latitud` y `longitud` a la tabla `clinicas`
-- Crear índice para búsqueda por proximidad
+- Crear índice `idx_clinicas_geo` para búsqueda por proximidad
 - Cargar coordenadas en el onboarding/registro de la clínica
 
 ### T-1.14: Pestaña de búsqueda de clínicas (MVP)
 - Pantalla que se muestra al paciente sin clínica asignada luego de ingresar
 - Búsqueda por nombre entre clínicas afiliadas activas
+- Solicitar geolocalización del navegador y, si se autoriza, listar clínicas activas dentro de un radio de 5 km ordenadas por distancia (fórmula de Haversine)
+- Si no se autoriza la ubicación, mantener la búsqueda por nombre como alternativa
 - Mostrar resultados con nombre, dirección y teléfono
-- *(La búsqueda por ubicación con radio de 5 km queda para la versión 2)*
 
 ### T-1.15: Afiliación a clínica
 - Botón "Afiliarme" en cada resultado de búsqueda

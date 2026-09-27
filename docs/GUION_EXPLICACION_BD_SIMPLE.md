@@ -61,11 +61,12 @@ Es un atributo que puede tener **más de un valor a la vez** para un mismo regis
 | `slug`  | TEXT | Nombre corto para la URL (único) |
 | `email`, `telefono` | TEXT | Contacto |
 | `direccion`, `ciudad`, `pais` | TEXT | Ubicación administrativa |
+| `latitud`, `longitud` | NUMERIC | Coordenadas para la búsqueda por cercanía (radio 5 km) |
 | `moneda`, `simbolo_moneda` | TEXT | Moneda de cobro (Bs, USD, EUR) |
 | `activo` | BOOLEAN | Si la clínica está en servicio |
 | `creado_en`, `actualizado_en` | TIMESTAMPTZ | Fechas de creación y última modificación |
 
-**¿Por qué esos atributos?** Para que el sistema sepa a qué clínica pertenece todo lo demás. Se eliminaron `latitud`/`longitud` (la búsqueda geográfica de 5 km es versión 2; en el MVP el paciente busca por nombre). También se eliminaron `logo_url`, `almacenamiento_maximo_mb` y `plan` (archivos y planes avanzados son versión 2).
+**¿Por qué esos atributos?** Para que el sistema sepa a qué clínica pertenece todo lo demás. Se incluyen `latitud`/`longitud` porque el MVP sí tiene búsqueda geográfica: el paciente puede buscar su clínica por nombre o por cercanía (radio de 5 km). También se eliminaron `logo_url`, `almacenamiento_maximo_mb` y `plan` (archivos y planes avanzados son versión 2).
 
 **Relaciones:**
 | Relación | Tipo |

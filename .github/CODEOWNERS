@@ -1,0 +1,11 @@
+# Matías (Product Owner) debe revisar cualquier cambio a la base de datos,
+# arquitectura o alcance del proyecto. Ver CONTRIBUTING.md.
+# Esta lista solo se aplica una vez que actives "Require review from Code
+# Owners" en la protección de la rama main (Settings > Branches).
+
+/bd_5clinicas_midentista.sql   @MattFrs12343
+/supabase/                     @MattFrs12343
+/docs/DATABASE.md              @MattFrs12343
+/docs/ARCHITECTURE.md          @MattFrs12343
+/docs/SPEC.md                  @MattFrs12343
+/CONTRIBUTING.md               @MattFrs12343

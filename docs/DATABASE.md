@@ -1,9 +1,12 @@
 # DATABASE - Diseño de Base de Datos (MVP 3 meses)
 
 > **Nota:** Este documento describe el **MVP reducido** (15 tablas) que se
-> ajusta al nuevo plazo de 3 meses. El schema SQL correspondiente está en
-> `supabase_schema_mvp.sql`. El schema original de 25 tablas quedó como
-> referencia en `supabase_schema.sql`.
+> ajusta al nuevo plazo de 3 meses. El script SQL ejecutable correspondiente
+> está en [`bd_5clinicas_midentista.sql`](../bd_5clinicas_midentista.sql), que
+> incluye el esquema, los índices, los triggers y datos semilla de 5 clínicas.
+> Ese script es autónomo (sin `auth.users`) para PostgreSQL puro; en Supabase,
+> `perfiles` se vincula a `auth.users` y se agregan las políticas RLS
+> documentadas en la sección 18 de este archivo.
 
 ## 1. Convenciones
 
@@ -67,6 +70,8 @@ CREATE TABLE clinicas (
     direccion       TEXT,
     ciudad          TEXT,
     pais            TEXT DEFAULT 'Bolivia',
+    latitud         NUMERIC(9,6),
+    longitud        NUMERIC(9,6),
     moneda          TEXT DEFAULT 'Bs',
     simbolo_moneda  TEXT DEFAULT 'Bs',
     activo          BOOLEAN DEFAULT true,
@@ -76,7 +81,7 @@ CREATE TABLE clinicas (
 ```
 
 **Notas:**
-- En el MVP **sin búsqueda geográfica** (se eliminaron `latitud`/`longitud` y el índice geo). El paciente busca la clínica por nombre.
+- El MVP **incluye búsqueda geográfica**: el paciente puede buscar su clínica por nombre o por cercanía, dentro de un radio de 5 km, usando `latitud`/`longitud` y la fórmula de Haversine. Si no autoriza la ubicación, la búsqueda por nombre sigue disponible.
 - Solo las clínicas con `activo = true` aparecen en la búsqueda de afiliación.
 
 ---
@@ -482,13 +487,14 @@ CREATE INDEX idx_perfiles_email ON perfiles(email);
 CREATE INDEX idx_citas_estado ON citas(estado);
 CREATE INDEX idx_pagos_estado ON pagos(estado);
 CREATE INDEX idx_planes_tratamiento_estado ON planes_tratamiento(estado);
+CREATE INDEX idx_clinicas_geo ON clinicas(latitud, longitud);
 
 -- Búsqueda de texto en pacientes
 CREATE INDEX idx_pacientes_busqueda ON pacientes
     USING gin(to_tsvector('spanish', nombre_completo || ' ' || COALESCE(ci, '')));
 ```
 
-**Nota:** se eliminó `idx_clinicas_geo` (búsqueda por radio de la versión original) y los índices de las tablas eliminadas.
+**Nota:** se conservan los índices de las 15 tablas del MVP; solo se eliminaron los índices de las 10 tablas removidas del esquema original de 25.
 
 ---
 

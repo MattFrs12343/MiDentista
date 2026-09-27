@@ -8,7 +8,7 @@
 | US-1.4 | Invitación de clínica *(VERSIÓN 2 - fuera del MVP)* | P0 | L |
 | US-1.5 | Registro de clínica y equipo (MVP) | P0 | M |
 | US-1.6 | Cierre de sesión | P1 | S |
-| US-1.7 | Búsqueda de clínicas afiliadas *(MVP: solo por nombre; sin radio 5 km)* | P0 | S |
+| US-1.7 | Búsqueda de clínicas afiliadas (por nombre o por cercanía, radio 5 km) | P0 | M |
 | US-1.8 | Afiliación a clínica | P0 | S |
 
 ---
@@ -92,16 +92,18 @@
 
 ---
 
-## US-1.7: Búsqueda de clínicas afiliadas  *(MVP: solo por nombre, sin ubicación/radio 5 km)*
-**Como** paciente sin clínica asignada, **quiero** buscar clínicas afiliadas al sistema por nombre, **para** elegir dónde atenderme.
+## US-1.7: Búsqueda de clínicas afiliadas (por nombre o por cercanía)
+**Como** paciente sin clínica asignada, **quiero** buscar clínicas afiliadas al sistema por nombre o por cercanía a mi ubicación, **para** elegir dónde atenderme.
 
 - **Prioridad:** P0
-- **Estimación:** S
+- **Estimación:** M
 - **Criterios de aceptación:**
   - Given que el paciente ingresa y no tiene clínica asignada
   - When inicia sesión (o completa su registro)
   - Then se abre la pestaña de búsqueda de clínicas afiliadas al sistema
   - And puede buscar clínicas por nombre entre todas las afiliadas activas
+  - And, si autoriza la geolocalización, el sistema muestra las clínicas activas dentro de un radio de 5 km ordenadas por distancia (fórmula de Haversine)
+  - And si no autoriza la ubicación, la búsqueda por nombre sigue disponible
 
 ---
 
