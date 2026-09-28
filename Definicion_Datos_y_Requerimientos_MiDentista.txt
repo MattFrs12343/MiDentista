@@ -1,0 +1,389 @@
+================================================================================
+ MIDENTISTA - ANALISIS DEL DIAGRAMA DE CLASES
+ DEFINICION DE LA EMPRESA, DATOS DE LA EMPRESA Y
+ LEVANTAMIENTO DE REQUERIMIENTOS
+================================================================================
+ Fuente analizada : docs/diagrama-bd-midentista-uml.mdj (StarUML)
+                    "Diagrama de BD MiDentista (UML)" - 15 clases / tablas
+ Complementos      : docs/diagrama-clases-midentista.puml
+                    INTRODUCCION_MIDENTISTA.docx
+                    ENTREVISTAS_USUARIO.txt
+                    ANALISIS_ISHIKAWA.txt
+ Fecha             : Septiembre 2026
+================================================================================
+
+
+================================================================================
+ 1) DEFINICION DE LA EMPRESA
+================================================================================
+
+La empresa destino es la CLINICA DENTAL "CRISTO REY", una clinica
+odontologica de atencion ambulatoria particular ubicada en Bolivia, propiedad
+del Dr. Ayrthon Rojas Orellana. Ofrece servicios de consulta general y
+tratamientos odontologicos: profilaxis dental (limpieza), radiografia
+panoramica, obturaccion de caries, endodoncia, extraccion dental,
+blanqueamiento, coronas de porcelana, ortodoncia e implantes dentales, en un
+total de tres consultorios.
+
+Situacion actual (problema): la clinica gestiona TODA su informacion clinica y
+administrativa de forma 100% manual, a traves de cuadernos y papeles. Esto
+genera perdida y duplicidad de registros, historias clinicas desorganizadas,
+conflicto de citas (doble agenda), ausencia de control de pagos y saldos,
+presupuestos calculados a mano con errores e imposibilidad de acceder a la
+informacion desde cualquier lugar.
+
+Solucion propuesta: el sistema MIDENTISTA, un sistema web de gestion
+odontologica tipo SaaS (Software como Servicio), multi-tenant, que centraliza
+y digitaliza toda la operacion de la clinica: pacientes, historia clinica,
+odontograma, diagnostico, plan de tratamiento, evolucion clinica, agenda de
+citas, presupuestos y pagos. Cada clinica registrada ve unicamente sus propios
+datos (aislamiento multi-tenant), con roles y permisos por usuario y respaldo
+automatico en la nube. Se desarrollo en el marco de las asignaturas Sistemas
+de Informacion y Base de Datos 1, avanzando desde el modelo conceptual de
+clases hasta una base de datos PostgreSQL con un MVP de 15 tablas.
+
+
+================================================================================
+ 2) DATOS DE LA EMPRESA
+================================================================================
+
+ DATOS GENERALES:
+ +--------------------------+-----------------------------------------------+
+ | Razon social             | Dental Cristo Rey (Clinica Dental "Cristo Rey") |
+ | Actividad                | Servicios odontologicos y salud bucal           |
+ | Direccion                | Av. Monseñor Santiestevan 279, Montero, Bolivia|
+ | Ciudad / Pais            | Montero, Bolivia                                 |
+ | Telefono                 | +591 78029692                                    |
+ | Correo                   | dentalcristorey@gmail.com                        |
+ | Moneda de operacion      | Bolivianos (Bs)                                  |
+ | Consultorios             | 3 consultorios odontologicos                     |
+ | Modelo de negocio        | Atencion odontologica ambulatoria particular     |
+ +--------------------------+-----------------------------------------------+
+
+ PERSONAL DE LA CLINICA (4 colaboradores):
+ +---------------------------+----------------+---------------------+-----------+--------------------------------------+
+ | Nombre                    | Cargo          | Especialidad        | Consult.  | Rol en el sistema MiDentista         |
+ +---------------------------+----------------+---------------------+-----------+--------------------------------------+
+ | Dr. Ayrthon Rojas Orellana| Odontologo -   | Endodoncia y        | 1         | Propietario y odontologo administra- |
+ |                           | Propietario    | Odontologia General |           | dor: crea usuarios, define horarios, |
+ |                           |                |                     |           | elabora diagnosticos, planes y       |
+ |                           |                |                     |           | presupuestos, supervisa pagos.       |
+ | Dr. Carlos Vargas Pinto   | Odontologo     | Ortodoncia          | 2         | Atiende ortodoncia; ve solo sus      |
+ |                           |                |                     |           | propios pacientes y citas.           |
+ | Dra. Luisa Mendoza Ruiz   | Odontologa     | Periodoncia         | 3         | Registra historia clinica y evolucion|
+ |                           |                |                     |           | de sus pacientes.                    |
+ | Maria Lopez Cardenas      | Recepcionista  | -                   | Recepcion | Apoyo operativo: registra pacientes, |
+ |                           |                |                     |           | agenda/reprograma/cancela citas y    |
+ |                           |                |                     |           | registra pagos (sin administracion). |
+ +---------------------------+----------------+---------------------+-----------+--------------------------------------+
+
+ ACTORES ADICIONALES DEL SISTEMA:
+  - Pacientes: se registran con correo y contrasena, eligen sus turnos y
+    consultan sus tratamientos y pagos pendientes.
+  - Creadores del software (equipo desarrollador): dan de alta las clinicas y
+    crean las cuentas iniciales de odontologos y recepcionista.
+
+
+================================================================================
+ 3) LEVANTAMIENTO DE REQUERIMIENTOS EN BASE AL DIAGRAMA DE CLASES
+================================================================================
+
+ El diagrama de clases modela la base de datos del MVP con 15 tablas, todas
+ con id UUID como clave primaria y la mayoria con clinica_id (multi-tenant) y
+ los campos de auditoria creado_en / actualizado_en (TIMESTAMPTZ). A partir de
+ los atributos, identificadores y relaciones de cada clase se derivan los
+ siguientes requerimientos funcionales (RF) y no funcionales (RNF).
+
+ CONVENCION DE MULTIPLICIDADES DEL DIAGRAMA:
+   - 1 clinica -> 0..* de cada dominio (multi-tenant: clinica_id en casi toda tabla)
+   - 1 perfil (usuario) -> 0..* odontogramas/diagnosticos/planes/evoluciones/horarios/citas/presupuestos/pagos (odontologo)
+   - 1 paciente -> 0..1 historial clinico; 0..* odontogramas/diagnosticos/planes/evoluciones/citas/presupuestos/pagos
+   - 1 plan de tratamiento -> 0..* procedimientos (composicion)
+   - 1 presupuesto -> 0..* items (composicion)
+   - 1 procedimiento / item -> 0..1 servicio (servicio_id opcional)
+   - 1 plan -> 0..* evoluciones y citas (plan_tratamiento_id)
+   - 1 presupuesto -> 0..* pagos (presupuesto_id)
+
+ --------------------------------------------------------------------------------
+ 3.1 CLASE "clinicas" (entidad raiz / tenant)
+ --------------------------------------------------------------------------------
+ Atributos: id, nombre, slug (UNIQUE), email, telefono, direccion, ciudad,
+ pais, latitud, longitud, moneda, simbolo_moneda, activo, creado_en, actualizado_en.
+ Relaciones: 1 clinica -> 0..* de las demas tablas.
+
+ RF-01. El sistema debe permitir dar de alta una clinica con nombre, slug,
+        email, telefono, direccion, ciudad y pais (funcion del creador del
+        software).
+ RF-02. Debe configurarse la moneda y su simbolo (p. ej. Bs, $, S/.) por
+        clinica y usarla en todos los precios, presupuestos y pagos.
+ RF-03. Debe almacenarse la ubicacion geografica (latitud/longitud) para
+        busqueda geografica futura (version 2).
+ RF-04. La clinica debe poder desactivarse (activo=false) sin borrar sus datos.
+ RF-05. Toda tabla del sistema quedara aislada por clinica_id (no se puede
+        leer ni modificar informacion de otra clinica).
+ RF-06. El slug de la clinica debe ser UNICO en todo el sistema.
+
+ --------------------------------------------------------------------------------
+ 3.2 CLASE "perfiles" (usuarios del sistema)
+ --------------------------------------------------------------------------------
+ Atributos: id (FK auth.users), email, nombre_completo, telefono, avatar_url,
+ rol (odontologo | recepcionista | paciente), clinica_id, especialidad,
+ consultorio, activo, creado_en, actualizado_en.
+ Relaciones: 0..1 perfil es 0..1 paciente; 1 odontologo -> 0..* odontogramas,
+ diagnosticos, planes, evoluciones, horarios, citas, presupuestos, pagos.
+
+ RF-07. El sistema debe permitir autenticacion con email y contrasena.
+ RF-08. El odontologo administrador (propietario) crea cuentas de odontologos
+        y recepcionista asignando rol, especialidad y consultorio.
+ RF-09. Debe existir un perfil por usuario con datos completos y fotografia
+        (avatar_url).
+ RF-10. Los roles definen permisos: odontologo administrador (gestion total de
+        su clinica), odontologo (solo sus pacientes/citas), recepcionista (apoyo
+        operativo sobre todos los pacientes de la clinica, sin administracion),
+        paciente (autogestion).
+ RF-11. Cada odontologo se asocia a su consultorio; esto condiciona horarios y
+        la asignacion de citas.
+ RF-12. Un perfil con rol "paciente" se vincula (0..1) a su ficha de paciente
+        para ver su historia, tratamientos y pagos.
+
+ --------------------------------------------------------------------------------
+ 3.3 CLASE "pacientes"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, perfil_id, ci, nombre_completo, fecha_nacimiento,
+ genero (M|F|Otro), telefono, email, direccion, ocupacion,
+ contacto_emergencia_nombre/telefono/parentesco, tipo_sangre, alergias, notas,
+ activo, creado_en, actualizado_en.
+ Relaciones: 1 paciente -> 0..1 historial clinico; 0..* odontogramas,
+ diagnosticos, planes, evoluciones, citas, presupuestos, pagos.
+
+ RF-13. Registro rapido de paciente nuevo con datos basicos obligatorios:
+        nombre, cedula (ci) y telefono; el resto opcional.
+ RF-14. Registrar datos de contacto de emergencia (nombre, telefono, parentesco).
+ RF-15. Registrar informacion medica relevante inicial: ocupacion, tipo de
+        sangre y alergias.
+ RF-16. Busqueda de pacientes por nombre, ci, telefono o email; listas con
+        paginacion.
+ RF-17. Edicion de la ficha del paciente y desactivacion (activo=false) en vez
+        de borrado fisico.
+ RF-18. La recepcionista puede registrar a un paciente no registrado en la web;
+        si el paciente ya tiene cuenta (perfil_id), queda vinculada.
+
+ --------------------------------------------------------------------------------
+ 3.4 CLASE "historiales_clinicos"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, paciente_id, motivo_consulta, antecedentes_medicos,
+ antecedentes_odontologicos, alergias, medicamentos, enfermedades, habitos,
+ observaciones, creado_en, actualizado_en.
+ Relaciones: 1 paciente -> 0..1 historial clinico.
+
+ RF-19. Existe UNA historia clinica por paciente (0..1): al crear al paciente
+        el sistema debe permitir abrir su historial.
+ RF-20. Registrar motivo de consulta, antecedentes medicos y odontologicos,
+        alergias, medicamentos, enfermedades, habitos y observaciones.
+ RF-21. Las alergias y los medicamentos deben ser campos criticos (prioridad
+        de validacion): se solicitan si o si en la primera consulta.
+ RF-22. La historia clinica debe poder consultarse y editarse a lo largo del
+        tiempo, manteniendo creado_en y actualizado_en.
+
+ --------------------------------------------------------------------------------
+ 3.5 CLASE "odontogramas"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, paciente_id, odontologo_id, fecha_examen, piezas
+ (JSONB []), notas, creado_en, actualizado_en.
+ Relaciones: 1 paciente -> 0..* odontogramas; 1 odontologo -> 0..*.
+
+ RF-23. Generar odontograma visual por paciente y odontologo con la fecha del
+        examen.
+ RF-24. Registrar el estado de cada pieza dental en el campo piezas (JSONB):
+        sano, caries, restauracion, ausente, corona, implante, endodoncia,
+        extraccion, y estado por superficie (facial, lingual, mesial, distal,
+        oclusal), con nomenclatura FDI.
+ RF-25. Guardar notas/observaciones por examen y permitir historial de
+        odontogramas para comparar examenes anteriores.
+ RF-26. Cada pieza marcada con una condicion anormal debe exigir observaciones
+        (regla de negocio del usuario).
+
+ --------------------------------------------------------------------------------
+ 3.6 CLASE "diagnosticos"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, paciente_id, odontologo_id, numero_pieza,
+ descripcion, observaciones, estado (activo | inactivo | resuelto),
+ fecha_diagnostico, creado_en, actualizado_en.
+ Relaciones: 1 paciente -> 0..* diagnosticos; 1 odontologo -> 0..*.
+
+ RF-27. Crear diagnostico asociado a paciente, odontologo y numero de pieza.
+ RF-28. Registrar descripcion, observaciones y fecha del diagnostico.
+ RF-29. Cambiar estado del diagnostico (activo, inactivo, resuelto) y consultar
+        diagnosticos anteriores por paciente.
+
+ --------------------------------------------------------------------------------
+ 3.7 CLASE "planes_tratamiento" + CLASE "procedimientos_tratamiento"
+ --------------------------------------------------------------------------------
+ planes_tratamiento: id, clinica_id, paciente_id, odontologo_id, titulo,
+ estado (propuesto | aceptado | en_proceso | completado | cancelado),
+ costo_total, notas, creado_en, actualizado_en.
+ procedimientos_tratamiento: id, clinica_id, plan_tratamiento_id, servicio_id,
+ numero_pieza, descripcion, prioridad (urgente|alta|normal|baja), costo,
+ estado (pendiente|en_proceso|completado|cancelado), creado_en, actualizado_en.
+ Relaciones: 1 plan *-- 0..* procedimientos (COMPOSICION); 1 procedimiento ->
+ 0..1 servicio; 1 plan -> 0..* evoluciones y citas.
+
+ RF-30. Crear un plan de tratamiento por paciente y odontologo con titulo,
+        notas y estado inicial "propuesto".
+ RF-31. El plan DEBE contener uno o mas procedimientos (composicion); al
+        eliminar el plan se eliminan sus procedimientos.
+ RF-32. Cada procedimiento registra numero de pieza, descripcion, prioridad,
+        costo y estado (pendiente -> en_proceso -> completado | cancelado).
+ RF-33. El costo_total del plan debe calcularse a partir de la suma de los
+        costos de sus procedimientos (preferiblemente de forma automatica).
+ RF-34. Mantener la maquina de estados del plan: propuesto -> aceptado ->
+        en_proceso -> completado (o cancelado), permitiendo filtrar por estado.
+ RF-35. Un procedimiento puede referenciar un servicio del catalogo
+        (servicio_id) para heredar descripcion y precio.
+ RF-36. El paciente (via su cuenta) debe poder ver el plan y aceptarlo o
+        rechazarlo.
+
+ --------------------------------------------------------------------------------
+ 3.8 CLASE "evoluciones_clinicas"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, paciente_id, odontologo_id, plan_tratamiento_id,
+ procedimiento_id, numero_pieza, fecha_consulta, motivo_consulta,
+ procedimiento_realizado, observaciones, indicaciones, proxima_atencion,
+ creado_en.
+ Relaciones: 1 plan -> 0..* evoluciones; 1 evolucion -> 0..1 procedimiento.
+
+ RF-37. Registrar cada atencion cronologicamente: fecha, motivo, procedimiento
+        realizado y numero de pieza.
+ RF-38. Vincular la evolucion al plan de tratamiento y, opcionalmente, a un
+        procedimiento especifico del plan.
+ RF-39. Registrar observaciones, indicaciones al paciente y proxima fecha de
+        atencion (para seguimiento).
+ RF-40. Consultar la linea de evolucion del paciente en orden cronologico.
+
+ --------------------------------------------------------------------------------
+ 3.9 CLASE "horarios"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, odontologo_id, dia_semana (0..6), hora_inicio,
+ hora_fin, activo, creado_en.
+ Relaciones: 1 odontologo -> 0..* horarios.
+
+ RF-41. El odontologo carga su disponibilidad semanal: dia de la semana
+        (0=Domingo ... 6=Sabado), hora de inicio y hora de fin.
+ RF-42. El odontologo puede bloquear dias/horas (desactivando o no creando
+        horario) para que no se asignen citas.
+ RF-43. El horario activo se usa como base para ofrecer citas disponibles al
+        paciente y a la recepcionista.
+
+ --------------------------------------------------------------------------------
+ 3.10 CLASE "citas"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, paciente_id, odontologo_id, plan_tratamiento_id,
+ fecha_cita, hora_inicio, hora_fin, estado (reservada | confirmada | atendida |
+ cancelada), motivo_consulta, notas, creado_en, actualizado_en.
+ Relaciones: 1 paciente -> 0..* citas; 1 odontologo -> 0..*; 1 plan -> 0..* citas.
+
+ RF-44. Agendar cita con fecha y hora de inicio/fin, validando que no exista
+        conflicto (doble agenda) con el horario del odontologo.
+ RF-45. El paciente puede elegir turno desde los horarios disponibles; la
+        recepcionista tambien agenda por telefono.
+ RF-46. Estados de la cita: reservada -> confirmada -> atendida; con opciones
+        cancelada y (segun entrevista) no asistio / en espera en vistas.
+ RF-47. Permitir reprogramar y cancelar citas.
+ RF-48. Visualizar la agenda en calendario diario, semanal y mensual por
+        odontologo.
+ RF-49. Vincular la cita a un plan de tratamiento (plan_tratamiento_id) y
+        registrar motivo de consulta y notas.
+
+ --------------------------------------------------------------------------------
+ 3.11 CLASE "servicios" (catalogo)
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, nombre, descripcion, precio_por_defecto,
+ duracion_minutos, activo, creado_en, actualizado_en.
+ Relaciones: 0..1 servicio por procedimiento e item de presupuesto.
+
+ RF-50. Configurar el catalogo de servicios de la clinica (limpieza,
+        extraccion, empaste, corona, implante, etc.) con nombre, descripcion,
+        precio por defecto y duracion en minutos.
+ RF-51. Agregar, editar o desactivar servicios (activo = false), sin borrado
+        para no romper historicos.
+ RF-52. Cada servicio puede usarse como base de costo/duracion en
+        procedimientos de tratamiento y en items de presupuesto.
+
+ --------------------------------------------------------------------------------
+ 3.12 CLASE "presupuestos" + CLASE "items_presupuesto"
+ --------------------------------------------------------------------------------
+ presupuestos: id, clinica_id, paciente_id, odontologo_id, titulo, descuento,
+ total, estado (borrador | enviado | aceptado | rechazado), valido_hasta, notas,
+ creado_en, actualizado_en.
+ items_presupuesto: id, clinica_id, presupuesto_id, servicio_id, descripcion,
+ numero_pieza, cantidad, precio_unitario, subtotal, creado_en.
+ Relaciones: 1 presupuesto *-- 0..* items (COMPOSICION); 1 item -> 0..1 servicio.
+
+ RF-53. Crear presupuesto por paciente y odontologo, con titulo, descuento,
+        validez y notas.
+ RF-54. El presupuesto DEBE contener uno o mas items (composicion): descripcion,
+        numero de pieza, cantidad, precio unitario y subtotal.
+ RF-55. El subtotal de cada item = cantidad * precio_unitario; el total del
+        presupuesto se calcula automaticamente descontando el descuento.
+ RF-56. Estados del presupuesto: borrador -> enviado -> aceptado / rechazado;
+        puede vencer segun valido_hasta.
+ RF-57. Un item puede tomar precio/descripcion de un servicio del catalogo.
+ RF-58. Preparar la salida del presupuesto para el paciente (envio/visualizacion;
+        exportacion a PDF en version 2).
+
+ --------------------------------------------------------------------------------
+ 3.13 CLASE "pagos"
+ --------------------------------------------------------------------------------
+ Atributos: id, clinica_id, paciente_id, presupuesto_id, monto, metodo_pago
+ (efectivo | qr | transferencia | otro), fecha_pago, codigo_referencia, notas,
+ estado (pendiente | confirmado | rechazado), registrado_por, creado_en.
+ Relaciones: 1 presupuesto -> 0..* pagos; 1 paciente -> 0..*; registrado_por
+ apunta a un perfil (quien registro).
+
+ RF-59. Registrar pagos parciales o totales vinculados a un presupuesto,
+        con monto, metodo (efectivo, QR, transferencia, otro), fecha y codigo
+        de referencia.
+ RF-60. Registrar quien realizo el cobro (registrado_por = perfil del
+        odontologo o recepcionista).
+ RF-61. Estados del pago: pendiente -> confirmado / rechazado.
+ RF-62. Calcular y consultar el saldo pendiente de un presupuesto/paciente
+        (suma de pagos vs. total del presupuesto).
+ RF-63. Consultar historial de pagos por paciente y por presupuesto.
+ RF-64. El odontologo sube su codigo QR para que el paciente pague; el sistema
+        guarda el codigo_referencia de la operacion.
+
+ --------------------------------------------------------------------------------
+ 3.14 REQUERIMIENTOS NO FUNCIONALES (RNF)
+ --------------------------------------------------------------------------------
+ RNF-01. Seguridad multi-tenant: cada clinica solo ve sus propios datos;
+         toda consulta a tablas con clinica_id debe filtrarse por tenant.
+ RNF-02. Autenticacion con email y contrasena, y autorizacion por rol
+         (odontologo administrador, odontologo, recepcionista, paciente).
+ RNF-03. Trazabilidad: campos creado_en/actualizado_en en las entidades; no
+         existe borrado fisico, se usa activo (BOOLEAN) / estados.
+ RNF-04. Rendimiento: soporte de al menos 100 usuarios concurrentes por
+         clinica, busquedas rapidas y paginacion en todas las listas.
+ RNF-05. Usabilidad: interfaz intuitiva (personal con poca experiencia
+         informatica), carga inicial menor a 3 segundos.
+ RNF-06. Disponibilidad: acceso desde cualquier navegador (Chrome, Firefox,
+         Edge, Safari) y dispositivo (pc, tablet, celular).
+ RNF-07. Respaldo automatico de la informacion en la nube.
+ RNF-08. Consistencia e integridad referencial: FK (clinica_id, paciente_id,
+         odontologo_id/perfil_id, plan_tratamiento_id, presupuesto_id,
+         servicio_id..) respetadas con reglas de restriccion.
+ RNF-09. Moneda configurable por clinica; todos los importes usan la moneda
+         configurada (Bs, USD, etc.).
+ RNF-10. Validacion de formularios antes de guardar y mensajes de error
+         claros.
+
+ --------------------------------------------------------------------------------
+ 3.15 FUERA DEL ALCANCE (por el diagrama / MVP)
+ --------------------------------------------------------------------------------
+ - Movil nativo, IA para diagnosticos, WhatsApp, facturacion electronica,
+   integracion bancaria, teleodontologia y reportes avanzados (no modelados).
+ - Archivos/imagenes (modulo 10), dashboard avanzado (13), configuracion
+   completa (14) y consentimientos (15) quedan para la version 2 y por lo
+   tanto no aparecen como tablas en el diagrama de clases del MVP.
+================================================================================
+ FIN DEL DOCUMENTO
+================================================================================

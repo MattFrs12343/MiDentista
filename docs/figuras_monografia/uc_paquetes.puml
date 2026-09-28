@@ -1,0 +1,93 @@
+@startuml uc_paquetes
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam {
+  PackageBorderColor 1F2D3D
+  PackageFontColor 1F2D3D
+  PackageFontStyle bold
+  PackageBackgroundColor FFFFFF
+  UseCaseFontSize 11
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+}
+
+rectangle "MiDentista" {
+  package "PK-01\nAcceso y onboarding" as PK01 {
+    usecase "UC-01\nIniciar sesion" as U01
+    usecase "UC-02\nAfiliarse a una clinica" as U02
+    usecase "UC-03\nRegistrarse en el sistema" as U03
+    usecase "UC-04\nCrear la clinica" as U04
+    usecase "UC-05\nBuscar clinica por nombre o cercania" as U05
+    usecase "UC-06\nRecuperar la contrasena" as U06
+    usecase "UC-07\nDar de alta al personal" as U07
+    usecase "UC-08\nConfigurar moneda y datos" as U08
+    usecase "UC-09\nCerrar sesion" as U09
+  }
+
+  package "PK-02\nGestion de pacientes" as PK02 {
+    usecase "UC-10\nRegistrar paciente" as U10
+    usecase "UC-11\nBuscar paciente" as U11
+    usecase "UC-12\nEditar datos personales" as U12
+    usecase "UC-13\nRegistrar contacto de emergencia" as U13
+    usecase "UC-14\nConsultar ficha e historial" as U14
+    usecase "UC-15\nListar y filtrar pacientes" as U15
+  }
+
+  package "PK-03\nHistoria clinica" as PK03 {
+    usecase "UC-16\nRegistrar motivo de consulta" as U16
+    usecase "UC-17\nRegistrar antecedentes" as U17
+    usecase "UC-18\nRegistrar alergias y enfermedades" as U18
+    usecase "UC-19\nRegistrar observaciones" as U19
+    usecase "UC-20\nConsultar y actualizar" as U20
+  }
+
+  package "PK-04\nOdontograma" as PK04 {
+    usecase "UC-21\nRegistrar odontograma (FDI)" as U21
+    usecase "UC-22\nVisualizar piezas dentales" as U22
+    usecase "UC-23\nRegistrar condicion por pieza" as U23
+    usecase "UC-24\nRegistrar observaciones por pieza" as U24
+    usecase "UC-25\nComparar odontogramas" as U25
+  }
+
+  package "PK-05\nDiagnostico y plan de tratamiento" as PK05 {
+    usecase "UC-26\nRegistrar diagnostico" as U26
+    usecase "UC-27\nCambiar estado del diagnostico" as U27
+    usecase "UC-28\nProponer plan de tratamiento" as U28
+    usecase "UC-29\nAgregar procedimientos y costos" as U29
+    usecase "UC-30\nAceptar y activar el plan" as U30
+  }
+
+  package "PK-06\nEvolucion clinica" as PK06 {
+    usecase "UC-31\nRegistrar evolucion" as U31
+    usecase "UC-32\nRegistrar proxima atencion" as U32
+    usecase "UC-33\nConsultar evolucion cronologica" as U33
+  }
+
+  package "PK-07\nAgenda y citas" as PK07 {
+    usecase "UC-34\nAsignar horarios" as U34
+    usecase "UC-35\nConsultar disponibilidad" as U35
+    usecase "UC-36\nAgendar una cita" as U36
+    usecase "UC-37\nConfirmar la cita" as U37
+    usecase "UC-38\nReprogramar o cancelar" as U38
+    usecase "UC-39\nAtender la agenda del dia" as U39
+  }
+
+  package "PK-08\nPresupuestos" as PK08 {
+    usecase "UC-40\nGestionar catalogo de servicios" as U40
+    usecase "UC-41\nElaborar presupuesto" as U41
+    usecase "UC-42\nAplicar descuentos y calcular total" as U42
+    usecase "UC-43\nEnviar y cambiar estado" as U43
+    usecase "UC-44\nConsultar y modificar" as U44
+  }
+
+  package "PK-09\nPagos y cuentas" as PK09 {
+    usecase "UC-45\nRegistrar pago y estado de cuenta" as U45
+    usecase "UC-46\nConsultar historial de pagos" as U46
+    usecase "UC-47\nConsultar saldo pendiente" as U47
+    usecase "UC-48\nMostrar codigo QR estatico" as U48
+  }
+}
+@enduml
