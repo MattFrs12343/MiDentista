@@ -11,7 +11,7 @@ import {
   LockSimple,
   SignOut,
 } from "@phosphor-icons/react";
-import logoMark from "@/assets/banners/logo-mark.jpg";
+import logoMark from "@/assets/banners/logo-mark-hd.jpg";
 import { Avatar } from "@/components/ui/avatar";
 import { useAuth, ROLE_LABEL } from "@/features/auth/AuthContext";
 import { cn } from "@/lib/cn";
@@ -41,7 +41,7 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-white/40 bg-white/55 backdrop-blur-xl">
       <div className="flex h-16 items-center border-b border-line bg-white px-5">
-        <img src={logoMark} alt="Mi Dentista" className="h-8 w-auto object-contain" />
+        <img src={logoMark} alt="Mi Dentista" className="h-[50px] w-auto object-contain" />
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">

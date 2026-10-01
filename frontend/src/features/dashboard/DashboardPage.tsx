@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   SquaresFour,
   UsersThree,
@@ -7,14 +7,36 @@ import {
   ClipboardText,
   ArrowRight,
   Sparkle,
+  Syringe,
+  Scissors,
+  Pill,
+  Thermometer,
+  Notebook,
 } from "@phosphor-icons/react";
-import heroDashboard from "@/assets/banners/hero-dashboard.jpg";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { SectionHero } from "@/components/ui/section-hero";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useClinicaData } from "@/data/store";
+import heroDashboard from "@/assets/banners/hero-dashboard.jpg";
+import "./dashboard.css";
+
+type StatTone = "patients" | "diagnosis" | "treatment";
+
+const STAT_TONE_CLASS: Record<StatTone, string> = {
+  patients: "dashboard-stat-patients",
+  diagnosis: "dashboard-stat-diagnosis",
+  treatment: "dashboard-stat-treatment",
+};
+
+function iniciales(nombre: string) {
+  return (
+    nombre
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join("") || "—"
+  );
+}
 
 export function DashboardPage() {
   usePageHeader({
@@ -42,98 +64,135 @@ export function DashboardPage() {
   }, [pacientes, diagnosticosDe, planDe]);
 
   const recientes = pacientes.slice(0, 4);
+  const irAPacientes = () => navigate("/app/pacientes");
 
   return (
-    <div className="flex flex-col gap-6">
-      <SectionHero
-        icon={Tooth}
-        tone="blue"
-        kicker="Dental Cristo Rey"
-        heading={`Hola, ${primerNombre}.`}
-        description="Pacientes, historia clínica, odontograma y planes de tratamiento en un solo lugar."
-        photo={heroDashboard}
-        photoPosition="60% center"
-        className="fade-in-up"
-      />
+    <div className="dashboard-page">
+      <section className="dashboard-hero">
+        <img
+          src={heroDashboard}
+          alt=""
+          aria-hidden
+          className="dashboard-hero-photo"
+        />
+        <div className="dashboard-hero-scrim" />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="dashboard-hero-content">
+          <span className="dashboard-hero-label">BIENVENIDO, DOCTOR</span>
+          <h2>Hola, {primerNombre}.</h2>
+          <span className="dashboard-hero-motto">Tu trabajo transforma sonrisas.</span>
+          <p>Aquí tienes un resumen rápido de lo más importante de hoy en tu clínica.</p>
+        </div>
+
+        <div className="dashboard-hero-decoration" aria-hidden>
+          <div className="dashboard-hero-tools">
+            <Syringe size={30} weight="duotone" />
+            <Scissors size={26} weight="duotone" />
+            <Pill size={28} weight="duotone" />
+            <Thermometer size={26} weight="duotone" />
+          </div>
+          <div className="dashboard-tooth-decoration">
+            <Tooth size={132} weight="duotone" />
+          </div>
+        </div>
+      </section>
+
+      <section className="dashboard-stats">
         <StatCard
           icon={UsersThree}
           label="Pacientes registrados"
           value={pacientes.length}
-          tone="blue"
+          tone="patients"
+          to="/app/pacientes"
         />
         <StatCard
           icon={ClipboardText}
           label="Diagnósticos registrados"
           value={stats.diagnosticosActivos}
-          tone="violet"
+          tone="diagnosis"
+          to="/app/pacientes"
         />
         <StatCard
           icon={Tooth}
           label="Ítems en planes de tratamiento"
           value={stats.tratamientosPropuestos}
-          tone="green"
+          tone="treatment"
+          to="/app/pacientes"
         />
-        <Card className="flex flex-col justify-between border-dashed p-5">
-          <div className="flex items-center gap-2 text-ink-soft">
-            <Sparkle size={16} weight="fill" className="text-brand-400" />
-            <span className="text-xs font-semibold uppercase tracking-wide">Siguiente paso</span>
-          </div>
-          <p className="mt-2 text-sm text-ink-soft">
+
+        <article className="dashboard-next-card">
+          <span className="dashboard-next-label">
+            <Sparkle size={13} weight="fill" />
+            SIGUIENTE PASO
+          </span>
+          <p>
             Registra un paciente nuevo para abrir su historia clínica y odontograma.
           </p>
-          <Button size="sm" variant="secondary" className="mt-3 w-fit" onClick={() => navigate("/app/pacientes")}>
-            Ir a pacientes <ArrowRight size={14} />
-          </Button>
-        </Card>
-      </div>
+          <button className="dashboard-primary-button" type="button" onClick={irAPacientes}>
+            Ir a pacientes
+            <ArrowRight size={14} />
+          </button>
+        </article>
+      </section>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle>Pacientes recientes</CardTitle>
-              <CardDescription>Los últimos ingresados al sistema</CardDescription>
+      <section className="dashboard-bottom">
+        <article className="dashboard-recent-card">
+          <header className="dashboard-card-header">
+            <div className="dashboard-card-title">
+              <div className="dashboard-card-icon">
+                <UsersThree size={17} weight="bold" />
+              </div>
+              <div>
+                <h3>Pacientes recientes</h3>
+                <p>Los últimos ingresados al sistema</p>
+              </div>
             </div>
-            <Button size="sm" variant="ghost" onClick={() => navigate("/app/pacientes")}>
+            <button className="dashboard-view-all" type="button" onClick={irAPacientes}>
               Ver todos
-            </Button>
-          </CardHeader>
-          <CardContent className="flex flex-col divide-y divide-line">
+              <ArrowRight size={12} />
+            </button>
+          </header>
+
+          <div className="dashboard-patient-list">
             {recientes.map((p) => (
               <button
                 key={p.id}
+                type="button"
+                className="dashboard-patient-row"
                 onClick={() => navigate(`/app/pacientes/${p.id}`)}
-                className="flex items-center justify-between py-3 text-left transition-colors duration-150 ease-out hover:text-brand-700 focus-visible:outline-none"
               >
-                <div>
-                  <p className="text-sm font-medium text-ink">
-                    {p.nombres} {p.apellidos}
-                  </p>
-                  <p className="text-xs text-ink-muted">CI {p.ci}</p>
+                <div className="dashboard-patient-avatar">
+                  {iniciales(`${p.nombres} ${p.apellidos}`)}
                 </div>
-                <ArrowRight size={15} className="text-ink-muted" />
+                <div className="dashboard-patient-info">
+                  <strong>
+                    {p.nombres} {p.apellidos}
+                  </strong>
+                  <span>CI {p.ci}</span>
+                </div>
+                <ArrowRight size={17} className="dashboard-patient-arrow" />
               </button>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </article>
 
-        <div className="relative flex flex-col justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#123a26] via-[#2f6b48] to-[#6fb890] p-6">
-          <ClipboardText
-            weight="duotone"
-            className="pointer-events-none absolute -bottom-8 -right-6 text-white/10"
-            style={{ width: 150, height: 150, transform: "rotate(10deg)" }}
-          />
-          <p className="relative z-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
-            Expediente completo
-          </p>
-          <p className="relative z-10 mt-2 text-sm leading-relaxed text-white/90">
-            Cada paciente queda documentado de principio a fin: registro, historia clínica,
-            odontograma y plan de tratamiento en un solo lugar.
-          </p>
-        </div>
-      </div>
+        <article className="dashboard-record-card">
+          <div className="dashboard-record-decoration" aria-hidden>
+            <Notebook size={112} weight="duotone" />
+          </div>
+          <div className="dashboard-record-content">
+            <span className="dashboard-record-label">EXPEDIENTE COMPLETO</span>
+            <p>
+              Cada paciente queda documentado de principio a fin: registro, historia clínica,
+              odontograma y plan de tratamiento en un solo lugar.
+            </p>
+            <button className="dashboard-record-button" type="button" onClick={irAPacientes}>
+              Ver detalles
+              <ArrowRight size={12} />
+            </button>
+          </div>
+        </article>
+      </section>
     </div>
   );
 }
@@ -143,25 +202,27 @@ function StatCard({
   label,
   value,
   tone,
+  to,
 }: {
   icon: typeof UsersThree;
   label: string;
   value: number;
-  tone: "blue" | "violet" | "green";
+  tone: StatTone;
+  to: string;
 }) {
-  const toneClasses = {
-    blue: "bg-pastel-blue-bg text-pastel-blue-fg",
-    violet: "bg-pastel-violet-bg text-pastel-violet-fg",
-    green: "bg-pastel-green-bg text-pastel-green-fg",
-  }[tone];
-
   return (
-    <Card className="lift-hover p-5 transition-[transform,box-shadow] duration-200 ease-out hover:shadow-diffuse">
-      <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${toneClasses}`}>
+    <Link
+      to={to}
+      className={`dashboard-stat-card ${STAT_TONE_CLASS[tone]}`}
+      aria-label={`Ver ${label.toLowerCase()}`}
+    >
+      <div className="dashboard-stat-icon">
         <Icon size={18} weight="bold" />
       </div>
-      <p className="mt-4 text-2xl font-semibold text-ink">{value}</p>
-      <p className="text-sm text-ink-muted">{label}</p>
-    </Card>
+      <div className="dashboard-stat-content">
+        <strong>{value}</strong>
+        <span>{label}</span>
+      </div>
+    </Link>
   );
 }
