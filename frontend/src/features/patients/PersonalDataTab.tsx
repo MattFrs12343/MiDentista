@@ -1,0 +1,84 @@
+import { useState } from "react";
+import { PencilSimple, CheckCircle } from "@phosphor-icons/react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useClinicaData } from "@/data/store";
+import { PatientForm } from "@/features/patients/PatientForm";
+import type { Paciente } from "@/types";
+
+const SEXO_LABEL: Record<Paciente["sexo"], string> = {
+  femenino: "Femenino",
+  masculino: "Masculino",
+  otro: "Otro",
+};
+
+export function PersonalDataTab({ paciente }: { paciente: Paciente }) {
+  const { actualizarPaciente } = useClinicaData();
+  const [editando, setEditando] = useState(false);
+  const [guardado, setGuardado] = useState(false);
+
+  if (editando) {
+    return (
+      <Card className="p-6">
+        <CardHeader className="p-0 pb-5">
+          <CardTitle>Editar datos personales</CardTitle>
+          <CardDescription>Los cambios se reflejan de inmediato en la ficha.</CardDescription>
+        </CardHeader>
+        <PatientForm
+          inicial={paciente}
+          textoBoton="Guardar cambios"
+          onSubmit={(datos) => {
+            actualizarPaciente(paciente.id, datos);
+            setEditando(false);
+            setGuardado(true);
+            setTimeout(() => setGuardado(false), 3000);
+          }}
+        />
+      </Card>
+    );
+  }
+
+  const campos: [string, string][] = [
+    ["Nombres", paciente.nombres],
+    ["Apellidos", paciente.apellidos],
+    ["Carnet de identidad", paciente.ci],
+    ["Fecha de nacimiento", paciente.fechaNacimiento],
+    ["Sexo", SEXO_LABEL[paciente.sexo]],
+    ["Teléfono", paciente.telefono],
+    ["Correo electrónico", paciente.email || "—"],
+    ["Dirección", paciente.direccion || "—"],
+  ];
+
+  return (
+    <Card>
+      <CardHeader className="flex-row items-center justify-between space-y-0">
+        <div>
+          <CardTitle>Datos personales</CardTitle>
+          <CardDescription>Información de contacto e identificación</CardDescription>
+        </div>
+        <div className="flex items-center gap-3">
+          {guardado ? (
+            <span className="flex items-center gap-1.5 text-xs font-medium text-pastel-green-fg fade-in-up">
+              <CheckCircle size={14} weight="fill" /> Guardado
+            </span>
+          ) : null}
+          <Button size="sm" variant="secondary" onClick={() => setEditando(true)}>
+            <PencilSimple size={14} /> Editar
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+          {campos.map(([label, valor]) => (
+            <div key={label}>
+              <dt className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+                {label}
+              </dt>
+              <dd className="mt-1 text-sm text-ink">{valor}</dd>
+            </div>
+          ))}
+        </dl>
+      </CardContent>
+    </Card>
+  );
+}
