@@ -105,7 +105,8 @@ export function useAuth() {
 }
 
 export const ROLE_LABEL: Record<Role, string> = {
-  odontologo_admin: "Odontólogo administrador",
   odontologo: "Odontólogo",
+  odontologo_admin: "Odontólogo administrador",
   recepcionista: "Recepcionista",
+  paciente: "Paciente",
 };

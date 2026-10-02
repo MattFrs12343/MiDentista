@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { useAuth } from "@/features/auth/AuthContext";
 import type {
   Paciente,
   HistoriaClinica,
@@ -24,14 +25,25 @@ function nuevoId(prefijo: string) {
   return `${prefijo}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function datosActualizacion(responsable?: string) {
+  return {
+    actualizadoEl: new Date().toISOString(),
+    actualizadoPor: responsable,
+  };
+}
+
 function historiaVacia(pacienteId: string): HistoriaClinica {
   return {
     pacienteId,
     motivoConsulta: "",
     antecedentesPersonales: "",
     antecedentesFamiliares: "",
+    antecedentesOdontologicos: "",
     enfermedadesBase: [],
+    medicamentosActuales: [],
     alergias: [],
+    habitos: [],
+    observacionesGenerales: "",
   };
 }
 
@@ -71,6 +83,8 @@ interface ClinicaStore {
 const StoreContext = createContext<ClinicaStore | null>(null);
 
 export function ClinicaDataProvider({ children }: { children: ReactNode }) {
+  const { sesion } = useAuth();
+  const responsable = sesion?.nombre;
   const [pacientes, setPacientes] = useState<Paciente[]>(pacientesSeed);
   const [historias, setHistorias] = useState<Record<string, HistoriaClinica>>(historiasSeed);
   const [odontogramas, setOdontogramas] =
@@ -100,12 +114,21 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
 
       historiaDe: (pacienteId) => historias[pacienteId] ?? historiaVacia(pacienteId),
       actualizarHistoria: (pacienteId, cambios) => {
-        setHistorias((prev) => ({
-          ...prev,
-          [pacienteId]: { ...(prev[pacienteId] ?? historiaVacia(pacienteId)), ...cambios },
-        }));
+        const actualizacion = datosActualizacion(responsable);
+        setHistorias((prev) => {
+          const actual = prev[pacienteId] ?? historiaVacia(pacienteId);
+          const sinCambios = Object.entries(cambios).every(
+            ([campo, valor]) => actual[campo as keyof HistoriaClinica] === valor,
+          );
+          if (sinCambios) return prev;
+          return {
+            ...prev,
+            [pacienteId]: { ...actual, ...cambios, ...actualizacion },
+          };
+        });
       },
       agregarAlergia: (pacienteId, alergia) => {
+        const actualizacion = datosActualizacion(responsable);
         setHistorias((prev) => {
           const actual = prev[pacienteId] ?? historiaVacia(pacienteId);
           return {
@@ -113,11 +136,13 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
             [pacienteId]: {
               ...actual,
               alergias: [...actual.alergias, { ...alergia, id: nuevoId("a") }],
+              ...actualizacion,
             },
           };
         });
       },
       quitarAlergia: (pacienteId, alergiaId) => {
+        const actualizacion = datosActualizacion(responsable);
         setHistorias((prev) => {
           const actual = prev[pacienteId] ?? historiaVacia(pacienteId);
           return {
@@ -125,6 +150,7 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
             [pacienteId]: {
               ...actual,
               alergias: actual.alergias.filter((a) => a.id !== alergiaId),
+              ...actualizacion,
             },
           };
         });
@@ -220,7 +246,16 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
         return permitida;
       },
     }),
-    [pacientes, historias, odontogramas, diagnosticos, planes, citas, horarios],
+[
+      pacientes,
+      historias,
+      odontogramas,
+      diagnosticos,
+      planes,
+      citas,
+      horarios,
+      responsable,
+    ],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

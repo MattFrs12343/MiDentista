@@ -1,4 +1,4 @@
-export type Role = "odontologo_admin" | "odontologo" | "recepcionista";
+export type Role = "odontologo" | "odontologo_admin" | "recepcionista" | "paciente";
 
 export interface Sesion {
   nombre: string;
@@ -36,8 +36,14 @@ export interface HistoriaClinica {
   motivoConsulta: string;
   antecedentesPersonales: string;
   antecedentesFamiliares: string;
+  antecedentesOdontologicos: string;
   enfermedadesBase: string[];
+  medicamentosActuales: string[];
   alergias: Alergia[];
+  habitos: string[];
+  observacionesGenerales: string;
+  actualizadoEl?: string;
+  actualizadoPor?: string;
 }
 
 export type CondicionDiente =
