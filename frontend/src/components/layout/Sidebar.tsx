@@ -9,9 +9,12 @@ import {
   ReceiptX,
   Wallet,
   LockSimple,
+  SignOut,
   X,
 } from "@phosphor-icons/react";
-import logoMark from "@/assets/banners/logo-mark.jpg";
+import logoMark from "@/assets/banners/logo-mark-hd.jpg";
+import { Avatar } from "@/components/ui/avatar";
+import { useAuth, ROLE_LABEL } from "@/features/auth/AuthContext";
 import { cn } from "@/lib/cn";
 
 const principal = [
@@ -40,6 +43,8 @@ export function Sidebar({
   menuAbierto: boolean;
   onClose: () => void;
 }) {
+  const { sesion, cerrarSesion } = useAuth();
+
   return (
     <>
       {/* velo del cajón: solo en pantallas donde el sidebar está oculto */}
@@ -123,6 +128,24 @@ export function Sidebar({
             </ul>
           </div>
         </nav>
+
+        {sesion ? (
+          <div className="flex items-center gap-2.5 border-t border-line px-4 py-4">
+            <Avatar nombre={sesion.nombre} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-ink">{sesion.nombre}</p>
+              <p className="truncate text-xs text-ink-muted">{ROLE_LABEL[sesion.rol]}</p>
+            </div>
+            <button
+              type="button"
+              onClick={cerrarSesion}
+              aria-label="Cerrar sesión"
+              className="rounded-md p-2 text-ink-muted transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
+            >
+              <SignOut size={16} weight="bold" />
+            </button>
+          </div>
+        ) : null}
       </aside>
     </>
   );
