@@ -23,3 +23,17 @@ export function nombrePieza(pieza: number): string {
   const descriptor = DESCRIPTOR_CUADRANTE[cuadrante] ?? "";
   return descriptor ? `${nombre} ${descriptor}` : nombre;
 }
+
+/**
+ * Clase anatomica segun la posicion FDI (1..8). Decide que silueta se dibuja
+ * en el odontograma: los molares son los mas anchos y con mas cuspides.
+ */
+export type ClaseDiente = "incisivo" | "canino" | "premolar" | "molar";
+
+export function claseDePieza(pieza: number): ClaseDiente {
+  const posicion = Math.abs(pieza) % 10;
+  if (posicion === 1 || posicion === 2) return "incisivo";
+  if (posicion === 3) return "canino";
+  if (posicion === 4 || posicion === 5) return "premolar";
+  return "molar";
+}

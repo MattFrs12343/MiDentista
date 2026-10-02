@@ -43,6 +43,66 @@ export const pacientesSeed: Paciente[] = [
     direccion: "Zona Miraflores, calle 4 #221, La Paz",
     creadoEl: "2026-09-02",
   },
+  {
+    id: "p4",
+    nombres: "Gonzalo",
+    apellidos: "Aparicio Rivera",
+    ci: "4120985 LP",
+    fechaNacimiento: "1981-09-19",
+    sexo: "masculino",
+    telefono: "+591 761 33490",
+    email: "gonzalo.aparicio@outlook.com",
+    direccion: "Av. 6 de Agosto #245, La Paz",
+    creadoEl: "2026-07-09",
+  },
+  {
+    id: "p5",
+    nombres: "Camila",
+    apellidos: "Zeballos Patty",
+    ci: "8294417 LP",
+    fechaNacimiento: "1997-01-08",
+    sexo: "femenino",
+    telefono: "+591 715 62073",
+    email: "camila.zeballos@gmail.com",
+    direccion: "Calle Max Paredes #1108, La Paz",
+    creadoEl: "2026-09-11",
+  },
+  {
+    id: "p6",
+    nombres: "Wilson",
+    apellidos: "Choque Mamani",
+    ci: "3655228 LP",
+    fechaNacimiento: "1968-05-30",
+    sexo: "masculino",
+    telefono: "+591 708 90512",
+    email: "wilsonchoque67@yahoo.es",
+    direccion: "Av. Achocalla #45, El Alto",
+    creadoEl: "2026-06-17",
+  },
+  {
+    id: "p7",
+    nombres: "Fernanda",
+    apellidos: "Loayza Salvatierra",
+    ci: "9012663 LP",
+    fechaNacimiento: "1999-12-14",
+    sexo: "femenino",
+    telefono: "+591 684 11740",
+    email: "fernanda.loayza@gmail.com",
+    direccion: "Zona San Antonio, calle 8 #377, La Paz",
+    creadoEl: "2026-09-24",
+  },
+  {
+    id: "p8",
+    nombres: "Iván",
+    apellidos: "Menacho Rojas",
+    ci: "4788301 LP",
+    fechaNacimiento: "1985-08-03",
+    sexo: "masculino",
+    telefono: "+591 733 25681",
+    email: "ivan.menacho@hotmail.com",
+    direccion: "Calle Ballivián #802, La Paz",
+    creadoEl: "2026-08-29",
+  },
 ];
 
 export const historiasSeed: Record<string, HistoriaClinica> = {
@@ -70,19 +130,109 @@ export const historiasSeed: Record<string, HistoriaClinica> = {
     enfermedadesBase: [],
     alergias: [{ id: "a2", sustancia: "Látex", severidad: "leve" }],
   },
+  p4: {
+    pacienteId: "p4",
+    motivoConsulta: "Dolor al masticar en premolar superior derecho. Tercer molar inferior con impacto.",
+    antecedentesPersonales: "Hipertensión arterial controlada. Anticoagulación oral.",
+    antecedentesFamiliares: "Padre diabético.",
+    enfermedadesBase: ["Hipertensión arterial", "Fibrilación auricular"],
+    alergias: [{ id: "a3", sustancia: "Ibuprofeno", severidad: "moderada" }],
+  },
+  p5: {
+    pacienteId: "p5",
+    motivoConsulta: "Molestias en premolar superior derecho y falta de piezas posteriores.",
+    antecedentesPersonales: "Embarazo de 5 meses. Embarazada primigravida.",
+    antecedentesFamiliares: "Madre diabética.",
+    enfermedadesBase: ["Gestación de 5 meses"],
+    alergias: [],
+  },
+  p6: {
+    pacienteId: "p6",
+    motivoConsulta: "Dolor en molar superior izquierdo. Dientes que ya no le sirven para masticar.",
+    antecedentesPersonales: "Edentulismo parcial. Usa prótesis removible mal ajustada. Fumador de 30 paquetes-año.",
+    antecedentesFamiliares: "Sin antecedentes relevantes.",
+    enfermedadesBase: ["Diabetes mellitus tipo 2"],
+    alergias: [{ id: "a4", sustancia: "Metformina", severidad: "leve" }],
+  },
+  p7: {
+    pacienteId: "p7",
+    motivoConsulta: "Limpieza y caries nuevas en zona posterior.",
+    antecedentesPersonales: "Ortodoncia removible en curso.",
+    antecedentesFamiliares: "Hermana con brackets.",
+    enfermedadesBase: [],
+    alergias: [],
+  },
+  p8: {
+    pacienteId: "p8",
+    motivoConsulta: "Dolor intermitente en incisivo central superior.",
+    antecedentesPersonales: "Reflujo gastroesofágico. Amalgama en premolar inferior derecho.",
+    antecedentesFamiliares: "Sin antecedentes relevantes.",
+    enfermedadesBase: ["Reflujo gastroesofágico"],
+    alergias: [],
+  },
 };
 
+/**
+ * Odontogramas de la semilla.
+ *
+ * Se reparten de forma que el mapa de calor del panel general tenga variacion
+ * real: terceros molares ausentes o por extraer, caries concentradas en
+ * molares inferiores, y tratamientos ya terminados (obturaciones, coronas,
+ * implantes) como contexto de fondo. Ocho piezas quedan sin condicion registrada
+ * a proposito, para que se distinga "sin dato" de "sano".
+ */
 export const odontogramasSeed: Record<string, CondicionPieza[]> = {
   p1: [
     { pieza: 46, condicion: "caries", nota: "Caries oclusal profunda", actualizadoEl: "2026-09-25" },
     { pieza: 36, condicion: "obturado", actualizadoEl: "2024-02-10" },
     { pieza: 16, condicion: "corona", actualizadoEl: "2022-07-01" },
+    { pieza: 15, condicion: "caries", nota: "Fractura de cúspide por bruxismo", actualizadoEl: "2026-09-25" },
   ],
   p2: [
     { pieza: 18, condicion: "ausente", actualizadoEl: "2020-01-01" },
     { pieza: 28, condicion: "ausente", actualizadoEl: "2020-01-01" },
+    { pieza: 17, condicion: "ausente", actualizadoEl: "2020-01-01" },
+    { pieza: 48, condicion: "extraccion_indicada", nota: "Pericoronitis recurrente", actualizadoEl: "2026-09-28" },
+    { pieza: 34, condicion: "caries", nota: "Caries cervical", actualizadoEl: "2026-09-28" },
   ],
-  p3: [{ pieza: 26, condicion: "caries", nota: "Sensibilidad al frío", actualizadoEl: "2026-09-27" }],
+  p3: [
+    { pieza: 26, condicion: "caries", nota: "Sensibilidad al frío", actualizadoEl: "2026-09-27" },
+    { pieza: 21, condicion: "endodoncia", actualizadoEl: "2023-04-18" },
+  ],
+  p4: [
+    { pieza: 16, condicion: "obturado", actualizadoEl: "2021-11-05" },
+    { pieza: 23, condicion: "ausente", actualizadoEl: "2015-03-22" },
+    { pieza: 38, condicion: "extraccion_indicada", nota: "Impactación horizontal", actualizadoEl: "2026-08-02" },
+    { pieza: 42, condicion: "implante", actualizadoEl: "2024-06-11" },
+    { pieza: 12, condicion: "implante", actualizadoEl: "2024-06-11" },
+  ],
+  p5: [
+    { pieza: 18, condicion: "extraccion_indicada", nota: "Resto radicular", actualizadoEl: "2026-09-15" },
+    { pieza: 15, condicion: "endodoncia", actualizadoEl: "2025-12-09" },
+    { pieza: 21, condicion: "caries", nota: "Caries interproximal", actualizadoEl: "2026-09-15" },
+    { pieza: 27, condicion: "caries", nota: "Lesión incipiente", actualizadoEl: "2026-09-15" },
+    { pieza: 35, condicion: "caries", nota: "Caries oclusal", actualizadoEl: "2026-09-15" },
+    { pieza: 46, condicion: "caries", nota: "Caries proximal profunda", actualizadoEl: "2026-09-15" },
+  ],
+  p6: [
+    { pieza: 28, condicion: "extraccion_indicada", nota: "Resto radicular con comunicación al piso de la boca", actualizadoEl: "2026-07-21" },
+    { pieza: 24, condicion: "extraccion_indicada", nota: "Movilidad grado III", actualizadoEl: "2026-07-21" },
+    { pieza: 37, condicion: "caries", nota: "Caries en cara distal", actualizadoEl: "2026-07-21" },
+    { pieza: 45, condicion: "caries", nota: "Caries oclusal con sorbida", actualizadoEl: "2026-07-21" },
+    { pieza: 16, condicion: "obturado", actualizadoEl: "2020-10-14" },
+  ],
+  p7: [
+    { pieza: 22, condicion: "caries", nota: "Caries interproximal", actualizadoEl: "2026-09-26" },
+    { pieza: 43, condicion: "caries", nota: "Manchas blancas, lesiones iniciales", actualizadoEl: "2026-09-26" },
+    { pieza: 38, condicion: "extraccion_indicada", nota: "Impactación en curso de erupción", actualizadoEl: "2026-09-26" },
+    { pieza: 16, condicion: "obturado", actualizadoEl: "2025-05-30" },
+  ],
+  p8: [
+    { pieza: 47, condicion: "ausente", actualizadoEl: "2018-08-19" },
+    { pieza: 24, condicion: "caries", nota: "Caries proximal", actualizadoEl: "2026-09-06" },
+    { pieza: 41, condicion: "corona", actualizadoEl: "2022-01-27" },
+    { pieza: 21, condicion: "caries", nota: "Caries de superficie lisa", actualizadoEl: "2026-09-06" },
+  ],
 };
 
 export const diagnosticosSeed: Record<string, Diagnostico[]> = {
@@ -93,14 +243,91 @@ export const diagnosticosSeed: Record<string, Diagnostico[]> = {
       pieza: 46,
       registradoEl: "2026-09-25",
     },
-  ],
-  p2: [],
-  p3: [
     {
       id: "d2",
+      descripcion: "Fractura de cúspide por bruxismo en pieza 15. Requiere valoración de vitalidad.",
+      pieza: 15,
+      registradoEl: "2026-09-25",
+    },
+  ],
+  p2: [
+    {
+      id: "d3",
+      descripcion: "Pericoronitis recurrente en pieza 48. Indicación de extracción quirúrgica.",
+      pieza: 48,
+      registradoEl: "2026-09-28",
+    },
+    {
+      id: "d4",
+      descripcion: "Caries cervical en pieza 34, sin compromiso pulpar.",
+      pieza: 34,
+      registradoEl: "2026-09-28",
+    },
+  ],
+  p3: [
+    {
+      id: "d5",
       descripcion: "Caries incipiente interproximal en pieza 26.",
       pieza: 26,
       registradoEl: "2026-09-27",
+    },
+  ],
+  p4: [
+    {
+      id: "d6",
+      descripcion: "Tercer molar inferior impactado horizontal, con relación cercana al nervio alveolar inferior. Requiere CBCT.",
+      pieza: 38,
+      registradoEl: "2026-08-02",
+    },
+    {
+      id: "d7",
+      descripcion: "Pérdida de pieza 23 por trauma en infancia.",
+      pieza: 23,
+      registradoEl: "2026-08-02",
+    },
+  ],
+  p5: [
+    {
+      id: "d8",
+      descripcion: "Caries proximal profunda en pieza 46 y lesiones incipientes en 21, 27 y 35. Embarazo: priorizar el control de placa y evitar radiografías intraorales.",
+      pieza: 46,
+      registradoEl: "2026-09-15",
+    },
+  ],
+  p6: [
+    {
+      id: "d9",
+      descripcion: "Resto radicular en 28 con comunicación al piso de la boca. Pieza 24 con movilidad grado III y enfermedad periodontal progresiva.",
+      pieza: 28,
+      registradoEl: "2026-07-21",
+    },
+    {
+      id: "d10",
+      descripcion: "Caries en 37 y 45. Paciente diabético: elevar el umbral de protección antibiótica en caso de extracción.",
+      pieza: 37,
+      registradoEl: "2026-07-21",
+    },
+  ],
+  p7: [
+    {
+      id: "d11",
+      descripcion: "Caries interproximales en 22 y 43 durante tratamiento de ortodoncia. Reforzar técnica de hilo dental.",
+      pieza: 22,
+      registradoEl: "2026-09-26",
+    },
+    {
+      id: "d12",
+      descripcion: "Tercer molar inferior en curso de erupción, con riesgo de pericoronitis.",
+      pieza: 38,
+      registradoEl: "2026-09-26",
+    },
+  ],
+  p8: [
+    {
+      id: "d13",
+      descripcion: "Caries proximal en pieza 24 y caries de superficie lisa en 21. Reflujo como factor etiológico de la pieza 21.",
+      pieza: 24,
+      registradoEl: "2026-09-06",
     },
   ],
 };
@@ -136,6 +363,116 @@ export const planesSeed: Record<string, PlanTratamiento> = {
         procedimiento: "Obturación resina compuesta",
         pieza: 26,
         costoEstimado: 320,
+        prioridad: "media",
+      },
+    ],
+  },
+  p4: {
+    pacienteId: "p4",
+    observaciones:
+      "Anticoagulación oral: coordinación con cardiología antes de extracción. CBCT de pieza 38 pendiente de informe.",
+    items: [
+      {
+        id: "t4",
+        procedimiento: "Extracción quirúrgica",
+        pieza: 38,
+        costoEstimado: 1400,
+        prioridad: "alta",
+      },
+      {
+        id: "t5",
+        procedimiento: "Implante dentario",
+        pieza: 42,
+        costoEstimado: 3200,
+        prioridad: "baja",
+      },
+      {
+        id: "t6",
+        procedimiento: "Implante dentario",
+        pieza: 12,
+        costoEstimado: 3200,
+        prioridad: "baja",
+      },
+    ],
+  },
+  p5: {
+    pacienteId: "p5",
+    observaciones:
+      "Embarazada de 5 meses: sin radiografías intraorales salvo necesidad clínica. Priorizar control de placa y obturaciones con resina.",
+    items: [
+      {
+        id: "t7",
+        procedimiento: "Extracción simple",
+        pieza: 18,
+        costoEstimado: 600,
+        prioridad: "media",
+      },
+      {
+        id: "t8",
+        procedimiento: "Endodoncia",
+        pieza: 15,
+        costoEstimado: 850,
+        prioridad: "media",
+      },
+      {
+        id: "t9",
+        procedimiento: "Obturación resina compuesta",
+        pieza: 46,
+        costoEstimado: 380,
+        prioridad: "alta",
+      },
+    ],
+  },
+  p6: {
+    pacienteId: "p6",
+    observaciones:
+      "Diabetes tipo 2 descompensada. Coordinar con medicina interna. Prótesis removible desadaptada: rebase posterior a exodoncias.",
+    items: [
+      {
+        id: "t10",
+        procedimiento: "Extracción simple",
+        pieza: 28,
+        costoEstimado: 700,
+        prioridad: "alta",
+      },
+      {
+        id: "t11",
+        procedimiento: "Extracción simple",
+        pieza: 24,
+        costoEstimado: 700,
+        prioridad: "alta",
+      },
+    ],
+  },
+  p7: {
+    pacienteId: "p7",
+    observaciones: "Mantener controles quincenales durante el tratamiento de ortodoncia.",
+    items: [
+      {
+        id: "t12",
+        procedimiento: "Extracción simple",
+        pieza: 38,
+        costoEstimado: 600,
+        prioridad: "media",
+      },
+      {
+        id: "t13",
+        procedimiento: "Obturación resina compuesta",
+        pieza: 22,
+        costoEstimado: 320,
+        prioridad: "media",
+      },
+    ],
+  },
+  p8: {
+    pacienteId: "p8",
+    observaciones: "Tratar el reflujo en coordinación con medicina; la remineralización de la pieza 21 depende de eso.",
+    items: [
+      {
+        id: "t14",
+        procedimiento: "Obturación resina compuesta",
+        pieza: 21,
+        costoEstimado: 340,
         prioridad: "media",
       },
     ],

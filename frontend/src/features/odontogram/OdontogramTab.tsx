@@ -49,6 +49,7 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
             etiqueta="Arcada superior"
             derecha={CUADRANTE_SUPERIOR_DERECHO}
             izquierda={CUADRANTE_SUPERIOR_IZQUIERDO}
+            arcada="superior"
             condicionDe={condicionDe}
             seleccionada={seleccionada}
             onSelect={setSeleccionada}
@@ -58,6 +59,7 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
             etiqueta="Arcada inferior"
             derecha={CUADRANTE_INFERIOR_DERECHO}
             izquierda={CUADRANTE_INFERIOR_IZQUIERDO}
+            arcada="inferior"
             condicionDe={condicionDe}
             seleccionada={seleccionada}
             onSelect={setSeleccionada}
@@ -159,6 +161,7 @@ function Arcada({
   etiqueta,
   derecha,
   izquierda,
+  arcada,
   condicionDe,
   seleccionada,
   onSelect,
@@ -166,6 +169,7 @@ function Arcada({
   etiqueta: string;
   derecha: number[];
   izquierda: number[];
+  arcada: "superior" | "inferior";
   condicionDe: (pieza: number) => CondicionPieza | undefined;
   seleccionada: number | null;
   onSelect: (pieza: number) => void;
@@ -181,6 +185,7 @@ function Arcada({
               pieza={pieza}
               condicion={condicionDe(pieza)}
               seleccionada={seleccionada === pieza}
+              arcada={arcada}
               onSelect={onSelect}
             />
           ))}
@@ -192,6 +197,7 @@ function Arcada({
               pieza={pieza}
               condicion={condicionDe(pieza)}
               seleccionada={seleccionada === pieza}
+              arcada={arcada}
               onSelect={onSelect}
             />
           ))}

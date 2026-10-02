@@ -122,8 +122,8 @@ export function TreatmentTab({ pacienteId }: { pacienteId: string }) {
           {plan.items.length === 0 ? (
             <p className="text-sm text-ink-muted">Aún no se propusieron procedimientos.</p>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-line">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto rounded-lg border border-line">
+              <table className="w-full min-w-[34rem] text-left text-sm">
                 <thead>
                   <tr className="border-b border-line bg-surface-sunken text-xs uppercase tracking-wide text-ink-muted">
                     <th className="px-4 py-2.5 font-semibold">Procedimiento</th>

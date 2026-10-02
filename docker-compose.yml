@@ -17,6 +17,20 @@ services:
       timeout: 5s
       retries: 10
 
+  api:
+    build: ./api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-midentista}:${POSTGRES_PASSWORD:-midentista}@db:5432/${POSTGRES_DB:-midentista}
+      PORT: "4000"
+    volumes:
+      - ./api/server.js:/app/server.js
+    ports:
+      - "${API_PORT:-4000}:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+
   frontend:
     build:
       context: ./frontend
@@ -26,6 +40,33 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      api:
+        condition: service_started
+
+  # Desarrollo con hot-reload. Levantar con:
+  #   docker compose --profile dev up -d dev
+  # Luego abrir http://localhost:5173
+  dev:
+    profiles: ["dev"]
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      # Vite corre dentro de la red de Docker, así que la API se alcanza por
+      # el nombre del servicio, no por localhost (que sería el propio dev).
+      API_ORIGIN: "http://api:4000"
+    volumes:
+      - ./frontend:/app
+      - dev_node_modules:/app/node_modules
+    ports:
+      - "${DEV_PORT:-5173}:5173"
+    depends_on:
+      api:
+        condition: service_started
+    stdin_open: true
+    tty: true
 
 volumes:
   db_data:
+  dev_node_modules:

@@ -7,6 +7,8 @@ import type {
   PlanTratamiento,
   ItemTratamiento,
   Alergia,
+  Cita,
+  Horario,
 } from "@/types";
 import {
   pacientesSeed,
@@ -15,6 +17,8 @@ import {
   diagnosticosSeed,
   planesSeed,
 } from "@/data/seed";
+import { citasSeed, horariosSeed } from "@/data/seedAgenda";
+import { puedeTransicionar } from "@/features/agenda/agenda";
 
 function nuevoId(prefijo: string) {
   return `${prefijo}_${Math.random().toString(36).slice(2, 9)}`;
@@ -52,6 +56,16 @@ interface ClinicaStore {
   agregarItemPlan: (pacienteId: string, item: Omit<ItemTratamiento, "id">) => void;
   quitarItemPlan: (pacienteId: string, itemId: string) => void;
   actualizarObservacionesPlan: (pacienteId: string, observaciones: string) => void;
+
+  /** Disponibilidad semanal del odontologo. */
+  horarios: Horario[];
+  /** Todas las citas, para que la vista las filtre por la semana que mostro. */
+  citas: Cita[];
+  citasDe: (pacienteId: string) => Cita[];
+  registrarCita: (cita: Omit<Cita, "id">) => Cita;
+  /** Avanza el estado de una cita. Rechaza saltos hacia atras del ciclo de vida. */
+  cambiarEstadoCita: (citaId: string, estado: Cita["estado"]) => boolean;
+  cancelarCita: (citaId: string) => boolean;
 }
 
 const StoreContext = createContext<ClinicaStore | null>(null);
@@ -64,6 +78,8 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
   const [diagnosticos, setDiagnosticos] =
     useState<Record<string, Diagnostico[]>>(diagnosticosSeed);
   const [planes, setPlanes] = useState<Record<string, PlanTratamiento>>(planesSeed);
+  const [citas, setCitas] = useState<Cita[]>(citasSeed);
+  const [horarios] = useState<Horario[]>(horariosSeed);
 
   const value = useMemo<ClinicaStore>(
     () => ({
@@ -166,8 +182,45 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
           return { ...prev, [pacienteId]: { ...actual, observaciones } };
         });
       },
+
+      horarios,
+      citas,
+      citasDe: (pacienteId) =>
+        citas
+          .filter((c) => c.pacienteId === pacienteId)
+          .sort((a, b) => (a.fechaCita < b.fechaCita ? 1 : a.fechaCita > b.fechaCita ? -1 : 0)),
+      registrarCita: (datos) => {
+        const cita: Cita = { ...datos, id: nuevoId("c") };
+        setCitas((prev) => [...prev, cita]);
+        return cita;
+      },
+      cambiarEstadoCita: (citaId, estado) => {
+        // el estado solo avanza: se valida contra el ciclo de vida documentado y
+        // una transicion invalida se rechaza en silencio devolviendo false, para
+        // que la vista pueda avisar sin tener que duplicar las reglas
+        let permitida = false;
+        setCitas((prev) =>
+          prev.map((c) => {
+            if (c.id !== citaId) return c;
+            permitida = puedeTransicionar(c.estado, estado);
+            return permitida ? { ...c, estado } : c;
+          }),
+        );
+        return permitida;
+      },
+      cancelarCita: (citaId) => {
+        let permitida = false;
+        setCitas((prev) =>
+          prev.map((c) => {
+            if (c.id !== citaId) return c;
+            permitida = puedeTransicionar(c.estado, "cancelada");
+            return permitida ? { ...c, estado: "cancelada" as const } : c;
+          }),
+        );
+        return permitida;
+      },
     }),
-    [pacientes, historias, odontogramas, diagnosticos, planes],
+    [pacientes, historias, odontogramas, diagnosticos, planes, citas, horarios],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

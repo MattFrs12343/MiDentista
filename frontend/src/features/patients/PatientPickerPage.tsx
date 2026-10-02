@@ -4,7 +4,8 @@ import { MagnifyingGlass, ArrowRight, UsersThree, type IconProps } from "@phosph
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
-import { SectionHero } from "@/components/ui/section-hero";
+import { HangingBanner } from "@/components/ui/hanging-banner";
+import { SectionHeroStrip } from "@/components/ui/section-hero";
 import { usePageHeader, type ModuleTone } from "@/components/layout/PageHeaderContext";
 import { useClinicaData } from "@/data/store";
 import type { TabValue } from "@/features/patients/tabValue";
@@ -41,16 +42,15 @@ export function PatientPickerPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <SectionHero
-        icon={icono}
-        tone={tono}
-        kicker="Mi Dentista"
-        heading={titulo}
-        description={`${subtitulo}.`}
-        photo={foto}
-        photoPosition={fotoPosicion}
-        className="fade-in-up"
-      />
+      <HangingBanner className="max-w-3xl">
+        <SectionHeroStrip
+          icon={icono}
+          tone={tono}
+          photo={foto}
+          photoPosition={fotoPosicion}
+          className="hanger-panel fade-in-up"
+        />
+      </HangingBanner>
 
       <div className="relative max-w-sm">
         <MagnifyingGlass

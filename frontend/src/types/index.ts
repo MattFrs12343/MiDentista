@@ -4,6 +4,10 @@ export interface Sesion {
   nombre: string;
   rol: Role;
   clinica: string;
+  clinicaSlug?: string;
+  ciudad?: string | null;
+  email?: string;
+  especialidad?: string | null;
 }
 
 export type Sexo = "femenino" | "masculino" | "otro";
@@ -74,4 +78,43 @@ export interface PlanTratamiento {
   pacienteId: string;
   items: ItemTratamiento[];
   observaciones: string;
+}
+
+/**
+ * Agenda. Estos tipos replican 1:1 las tablas `citas` y `horarios` de
+ * `bd_5clinicas_midentista.sql` (lineas 219-246), incluidos los cuatro estados
+ * del `check`, para que la vista no tenga que traducir nombres al hablar con la
+ * base de datos.
+ *
+ * El ciclo de vida documentado en `docs/figuras_monografia/estado_cita.puml` es:
+ * reservada -> confirmada -> atendida, con salida a cancelada desde reservada o
+ * confirmada. Ningun estado vuelve hacia atras.
+ */
+export type EstadoCita = "reservada" | "confirmada" | "atendida" | "cancelada";
+
+export interface Cita {
+  id: string;
+  pacienteId: string;
+  /** fecha local en formato YYYY-MM-DD, igual que la columna `fecha_cita` */
+  fechaCita: string;
+  /** HH:MM en formato de 24 h, igual que `hora_inicio` */
+  horaInicio: string;
+  /** HH:MM en formato de 24 h, igual que `hora_fin` */
+  horaFin: string;
+  estado: EstadoCita;
+  motivoConsulta: string;
+  notas?: string;
+}
+
+/**
+ * Disponibilidad semanal del odontologo. `diaSemana` usa la convencion de
+ * `Date.getDay()` (0 domingo, 6 sabado), que es la misma que el `check
+ * (dia_semana between 0 and 6)` de la tabla `horarios`.
+ */
+export interface Horario {
+  id: string;
+  diaSemana: number;
+  horaInicio: string;
+  horaFin: string;
+  activo: boolean;
 }

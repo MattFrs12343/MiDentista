@@ -10,8 +10,10 @@ export const TabsList = forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
+    // UISegmentedControl: capsula gris con el segmento activo como pastilla
+    // blanca encima, apoyada en una sombra en vez de un borde.
     className={cn(
-      "inline-flex items-center gap-1 rounded-lg border border-line bg-surface-sunken p-1",
+      "inline-flex max-w-full items-center gap-0.5 overflow-x-auto overscroll-x-contain rounded-full bg-black/[0.05] p-1",
       className,
     )}
     {...props}
@@ -26,7 +28,7 @@ export const TabsTrigger = forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "rounded-md px-3.5 py-1.5 text-sm font-medium text-ink-soft transition-colors duration-150 ease-out data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-diffuse focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200",
+      "press touch-none shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-label-2 transition-colors duration-150 ease-out data-[state=active]:bg-white data-[state=active]:text-label data-[state=active]:shadow-[0_3px_8px_rgba(0,0,0,0.12),0_1px_1px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45",
       className,
     )}
     {...props}
