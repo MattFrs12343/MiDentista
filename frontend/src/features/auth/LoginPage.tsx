@@ -1,15 +1,21 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
+import { ArrowRight, SpinnerGap, Tooth, WarningCircle } from "@phosphor-icons/react";
 import logoBadge from "@/assets/banners/logo-badge.jpg";
-import logoMark from "@/assets/banners/logo-mark.jpg";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
+import { GoogleIcon } from "@/components/ui/google-icon";
 import { Input } from "@/components/ui/input";
 import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { useAuth } from "@/features/auth/AuthContext";
-import { ApiError, listarClinicas, resolverCuenta } from "@/data/api";
+import { ForgotPasswordDialog } from "@/features/auth/ForgotPasswordDialog";
+import { ApiError, resolverCuenta } from "@/data/api";
+import { obtenerSupabase } from "@/lib/supabase";
+
+// Misma validación simple que aplica el servidor: solo atajar formatos
+// claramente inválidos antes de llamar a la API.
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function LoginPage() {
   const { sesion, iniciarSesion } = useAuth();
@@ -19,15 +25,7 @@ export function LoginPage() {
   const [mantener, setMantener] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [clinicas, setClinicas] = useState<string[]>([]);
-
-  useEffect(() => {
-    const control = new AbortController();
-    listarClinicas(control.signal)
-      .then((lista) => setClinicas(lista.map((c) => c.nombre)))
-      .catch(() => setClinicas([]));
-    return () => control.abort();
-  }, []);
+  const [cargandoGoogle, setCargandoGoogle] = useState(false);
 
   if (sesion) return <Navigate to="/app" replace />;
 
@@ -35,11 +33,17 @@ export function LoginPage() {
     e.preventDefault();
     if (cargando) return;
 
-    setCargando(true);
     setError(null);
 
+    if (!EMAIL_REGEX.test(correo.trim())) {
+      setError("El correo no tiene un formato válido");
+      return;
+    }
+
+    setCargando(true);
+
     try {
-      const cuenta = await resolverCuenta(correo);
+      const cuenta = await resolverCuenta(correo.trim(), clave);
       iniciarSesion(cuenta, mantener);
       navigate("/app", { replace: true });
     } catch (fallo) {
@@ -47,6 +51,28 @@ export function LoginPage() {
         fallo instanceof ApiError ? fallo.message : "No se pudo iniciar sesión",
       );
       setCargando(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    if (cargandoGoogle) return;
+    setError(null);
+    setCargandoGoogle(true);
+    try {
+      const supabase = obtenerSupabase();
+      const { error: fallo } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      // Si signInWithOAuth funciona, el navegador ya se está yendo a Google;
+      // este código solo corre si falló antes de llegar a redirigir.
+      if (fallo) {
+        setError(fallo.message || "No se pudo iniciar sesión con Google");
+        setCargandoGoogle(false);
+      }
+    } catch (fallo) {
+      setError(fallo instanceof Error ? fallo.message : "No se pudo iniciar sesión con Google");
+      setCargandoGoogle(false);
     }
   };
 
@@ -65,7 +91,17 @@ export function LoginPage() {
         </div>
 
         <div className="flex flex-col justify-center gap-8 p-8 sm:p-12 lg:p-14">
-          <img src={logoMark} alt="MiDentista" className="fade-in-up h-8 w-auto object-contain lg:hidden" />
+          {/* En desktop el isotipo va en el panel de la izquierda (logoBadge);
+              en móvil, sin ese panel, un JPG con fondo blanco sólido quedaba
+              como una caja fea sobre el fondo con degradé. Este lockup en
+              brand-* no tiene fondo propio, así que se funde con la tarjeta. */}
+          <div className="fade-in-up flex items-center gap-2 lg:hidden">
+            <Tooth size={26} weight="duotone" className="text-brand-600" />
+            <span className="text-lg font-semibold tracking-tight">
+              <span className="text-brand-400">Mi</span>{" "}
+              <span className="text-brand-800">Dentista</span>
+            </span>
+          </div>
 
           <div className="fade-in-up" style={{ animationDelay: "40ms" }}>
             <h2 className="text-[2rem] font-semibold leading-tight tracking-[-0.02em] text-ink">
@@ -120,9 +156,14 @@ export function LoginPage() {
                 />
                 Mantener sesión iniciada
               </label>
-              <a href="#" className="font-semibold text-brand-700 transition-colors hover:text-brand-800">
-                ¿Olvidaste tu contraseña?
-              </a>
+              <ForgotPasswordDialog>
+                <button
+                  type="button"
+                  className="font-semibold text-brand-700 transition-colors hover:text-brand-800"
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </ForgotPasswordDialog>
             </div>
 
             <div className="fade-in-up" style={{ animationDelay: "200ms" }}>
@@ -152,17 +193,38 @@ export function LoginPage() {
                   </>
                 )}
               </Button>
+
+              <div className="my-4 flex items-center gap-3 text-xs text-ink-muted">
+                <div className="h-px flex-1 bg-line" />
+                o
+                <div className="h-px flex-1 bg-line" />
+              </div>
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                disabled={cargandoGoogle}
+                onClick={handleGoogle}
+                // Replica el boton oficial "Sign in with Google": fondo
+                // blanco, borde gris sutil, esquinas poco redondeadas,
+                // texto gris oscuro y elevacion suave solo al hover.
+                className="h-11 w-full gap-3 rounded-lg border border-[#dadce0] bg-white text-[15px] font-medium text-[#3c4043] shadow-none hover:bg-[#f8f9fa] hover:shadow-[0_1px_2px_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)] active:bg-[#f1f3f4]"
+              >
+                {cargandoGoogle ? (
+                  <SpinnerGap size={16} className="animate-spin text-[#3c4043]" />
+                ) : (
+                  <GoogleIcon size={18} />
+                )}
+                Continuar con Google
+              </Button>
             </div>
 
             <p
               className="fade-in-up text-center text-xs text-ink-soft"
               style={{ animationDelay: "230ms" }}
             >
-              {clinicas.length > 0 ? (
-                clinicas.join(" · ")
-              ) : (
-                "El rol y los permisos quedan definidos por la cuenta de tu clínica."
-              )}
+              El rol y los permisos quedan definidos por la cuenta de tu clínica.
             </p>
           </form>
         </div>

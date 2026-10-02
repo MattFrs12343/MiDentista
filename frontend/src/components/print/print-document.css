@@ -1,0 +1,281 @@
+.print-document {
+  display: none;
+}
+
+@page print-document {
+  size: letter portrait;
+  margin: 16mm;
+}
+
+@media print {
+  /* El portal es hermano de la aplicación: evita imprimir su layout y controles. */
+  body:has(> .print-document) > :not(.print-document) {
+    display: none !important;
+  }
+
+  html:has(.print-document),
+  body:has(> .print-document) {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  body:has(> .print-document) {
+    margin: 0;
+    padding: 0;
+  }
+
+  .print-document {
+    display: block;
+    page: print-document;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #1f3a4d;
+    font-family: var(--font-sans);
+    font-size: 10.5pt;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .print-document * {
+    box-sizing: border-box;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print-doc-header {
+    margin-bottom: 7mm;
+    padding: 4mm 0 5mm;
+    border-top: 2pt solid #bfe4f5;
+    border-bottom: 0.5pt solid #bfe4f5;
+    break-inside: avoid;
+  }
+
+  .print-doc-brand {
+    display: flex;
+    align-items: center;
+    gap: 2.5mm;
+    margin: 0 0 2.5mm;
+  }
+
+  .print-doc-logo {
+    height: 11mm;
+    width: auto;
+    object-fit: contain;
+    border-radius: 1mm;
+  }
+
+  .print-doc-brand span {
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #52758a;
+  }
+
+  .print-doc-header h1 {
+    margin: 0 0 2mm;
+    font-size: 18pt;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: #1f3a4d;
+  }
+
+  .print-doc-clinic {
+    margin: 0;
+    font-size: 10pt;
+    color: #52758a;
+  }
+
+  .print-doc-section {
+    margin-bottom: 6mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-doc-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 2.5mm;
+    margin: 0 0 3mm;
+    padding: 0 0 2mm;
+    border-bottom: 0.5pt solid #bfe4f5;
+    background: transparent;
+    color: #1f3a4d;
+    font-size: 10pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .print-doc-number {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    min-width: 7mm;
+    height: 6mm;
+    padding: 0 1mm;
+    border-radius: 3mm;
+    background: #dff3fc;
+    color: #52758a;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .print-document p,
+  .print-document dd {
+    margin: 0;
+    orphans: 3;
+    widows: 3;
+  }
+
+  .print-doc-text {
+    white-space: pre-wrap;
+  }
+
+  .print-doc-empty {
+    color: #52758a;
+    font-size: 9.5pt;
+  }
+
+  .print-doc-patient-section {
+    padding: 4mm 5mm;
+    border: 0.5pt solid #bfe4f5;
+    border-radius: 3mm;
+    background: #f2fafe;
+  }
+
+  .print-doc-patient-section h2 {
+    padding-bottom: 2.5mm;
+  }
+
+  .print-doc-patient {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3.5mm 10mm;
+    margin: 0;
+  }
+
+  .print-doc-patient dt {
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    font-weight: 500;
+    color: #52758a;
+  }
+
+  .print-doc-patient dd {
+    color: #1f3a4d;
+  }
+
+  .print-doc-box {
+    padding: 3mm 4mm;
+    border: 0.5pt solid #bfe4f5;
+    border-radius: 3mm;
+    background: #fff;
+  }
+
+  .print-doc-infobox {
+    padding: 3mm 4mm;
+    border-radius: 3mm;
+    background: #f2fafe;
+    font-size: 9pt;
+  }
+
+  .print-doc-infobox h2 {
+    font-size: 9pt;
+  }
+
+  .print-doc-infobox .print-doc-patient {
+    gap: 3mm 8mm;
+  }
+
+  .print-document ul {
+    margin: 0;
+    padding-left: 4.5mm;
+    list-style: disc;
+  }
+
+  .print-document li {
+    margin-bottom: 1.5mm;
+    white-space: pre-wrap;
+    break-inside: avoid;
+  }
+
+  .print-document li::marker {
+    color: #8abbd2;
+    font-size: 8pt;
+  }
+
+  .print-document strong {
+    font-weight: 700;
+  }
+
+  .print-doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+  }
+
+  .print-doc-table th,
+  .print-doc-table td {
+    padding: 2.2mm 3mm;
+    border-bottom: 0.5pt solid #bfe4f5;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .print-doc-table thead th {
+    border-bottom: 0.75pt solid #92b6c9;
+    color: #52758a;
+    font-size: 8.5pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .print-doc-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .print-doc-total {
+    margin-top: 3mm;
+    font-weight: 600;
+  }
+
+  .print-doc-signature {
+    width: 80mm;
+    max-width: 100%;
+    margin-top: 22mm;
+    break-inside: avoid;
+    font-size: 9pt;
+    text-align: center;
+    color: #52758a;
+  }
+
+  .print-doc-signature p span {
+    display: block;
+  }
+
+  .print-doc-signature p span:first-child {
+    margin-bottom: 1mm;
+    color: #1f3a4d;
+  }
+
+  .print-doc-signature-line {
+    width: 80mm;
+    max-width: 100%;
+    margin-bottom: 3mm;
+    border-top: 0.5pt solid #92b6c9;
+  }
+}

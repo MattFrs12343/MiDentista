@@ -12,6 +12,10 @@
   --color-surface-sunken: #f5f3ef;
   --color-line: #e8e5df;
   --color-line-strong: #d9d5cc;
+  /* borde de campos de formulario en reposo: mas oscuro que line-strong a
+     proposito, para que un input sea identificable sin pasar el mouse ni
+     enfocarlo. Sigue siendo neutro/calido, sin tinte celeste. */
+  --color-line-field: #aea89a;
 
   --color-ink: #16233a;
   --color-ink-soft: #4a5568;

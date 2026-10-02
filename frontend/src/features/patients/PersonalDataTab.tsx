@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { PencilSimple, CheckCircle } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { PencilSimple, CheckCircle, Printer } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useClinicaData } from "@/data/store";
+import { useAuth } from "@/features/auth/AuthContext";
 import { PatientForm } from "@/features/patients/PatientForm";
+import { PersonalDataPrint } from "@/features/patients/PersonalDataPrint";
 import type { Paciente } from "@/types";
 
 const SEXO_LABEL: Record<Paciente["sexo"], string> = {
@@ -14,8 +17,20 @@ const SEXO_LABEL: Record<Paciente["sexo"], string> = {
 
 export function PersonalDataTab({ paciente }: { paciente: Paciente }) {
   const { actualizarPaciente } = useClinicaData();
+  const { sesion } = useAuth();
   const [editando, setEditando] = useState(false);
   const [guardado, setGuardado] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Llegar con ?print=1 (desde el botón "Imprimir" de la tabla de pacientes)
+  // dispara la impresión automáticamente al entrar a la ficha.
+  useEffect(() => {
+    if (searchParams.get("print") !== "1") return;
+    window.print();
+    searchParams.delete("print");
+    setSearchParams(searchParams, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (editando) {
     return (
@@ -62,6 +77,9 @@ export function PersonalDataTab({ paciente }: { paciente: Paciente }) {
               <CheckCircle size={14} weight="fill" /> Guardado
             </span>
           ) : null}
+          <Button size="sm" variant="secondary" onClick={() => window.print()}>
+            <Printer size={14} /> Imprimir
+          </Button>
           <Button size="sm" variant="secondary" onClick={() => setEditando(true)}>
             <PencilSimple size={14} /> Editar
           </Button>
@@ -79,6 +97,7 @@ export function PersonalDataTab({ paciente }: { paciente: Paciente }) {
           ))}
         </dl>
       </CardContent>
+      <PersonalDataPrint paciente={paciente} clinica={sesion?.clinica} />
     </Card>
   );
 }

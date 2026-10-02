@@ -12,7 +12,7 @@ const AuthContext = createContext<AuthState | null>(null);
 
 const CLAVE = "midentista:sesion";
 
-const ROLES: readonly Role[] = ["odontologo_admin", "odontologo", "recepcionista"];
+const ROLES: readonly Role[] = ["odontologo_admin", "odontologo", "recepcionista", "superadmin"];
 
 function esSesion(valor: unknown): valor is Sesion {
   if (typeof valor !== "object" || valor === null) return false;
@@ -109,4 +109,5 @@ export const ROLE_LABEL: Record<Role, string> = {
   odontologo_admin: "Odontólogo administrador",
   recepcionista: "Recepcionista",
   paciente: "Paciente",
+  superadmin: "Administrador",
 };

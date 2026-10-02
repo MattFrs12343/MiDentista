@@ -11,9 +11,9 @@ const buttonVariants = cva(
       variant: {
         // filled: la accion principal, un solo color solido por pantalla
         primary:
-          "bg-brand-600 text-white shadow-diffuse hover:bg-brand-700 active:bg-brand-800",
+          "bg-ink text-white shadow-diffuse hover:bg-ink-soft active:bg-ink-muted",
         // tinted: accion secundaria, color diluido (como UIButton tinted)
-        secondary: "bg-brand-50 text-brand-700 hover:bg-brand-100 active:bg-brand-200",
+        secondary: "bg-surface-sunken text-ink hover:bg-line active:bg-line-strong",
         // plain: sin fondo hasta que se toca
         ghost: "text-label-2 hover:bg-black/[0.04] hover:text-ink active:bg-black/[0.08]",
         danger: "bg-ios-red text-white hover:brightness-95 active:brightness-90",

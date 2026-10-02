@@ -1,10 +1,14 @@
-import { lazy, Suspense, useState } from "react";
-import { ArrowsClockwise, HandTap } from "@phosphor-icons/react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { ArrowsClockwise, HandTap, Printer, SpinnerGap } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ErrorBoundary, TarjetaError } from "@/components/ui/error-boundary";
 import { useClinicaData } from "@/data/store";
+import { useAuth } from "@/features/auth/AuthContext";
 import { ToothButton } from "@/features/odontogram/ToothButton";
 import { ToothEditorCard } from "@/features/odontogram/ToothEditorCard";
+import { OdontogramPrint } from "@/features/odontogram/OdontogramPrint";
 import {
   CUADRANTE_SUPERIOR_DERECHO,
   CUADRANTE_SUPERIOR_IZQUIERDO,
@@ -20,9 +24,28 @@ const DentalArch3D = lazy(() =>
 );
 
 export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
-  const { odontogramaDe, registrarCondicion } = useClinicaData();
+  const { odontogramaDe, registrarCondicion, obtenerPaciente } = useClinicaData();
+  const { sesion } = useAuth();
+  const paciente = obtenerPaciente(pacienteId);
   const piezas = odontogramaDe(pacienteId);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
+  // Cambiar esta key remonta el ErrorBoundary + Suspense desde cero, lo que
+  // permite reintentar la carga del modelo 3D tras limpiar su caché (ver
+  // limpiarCacheVista3D en DentalArch3D.tsx).
+  const [intentoVista3d, setIntentoVista3d] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Llegar con ?print=1 (desde el botón "Imprimir" de la tabla de pacientes)
+  // dispara la impresión automáticamente. El odontograma se carga async desde
+  // la API, así que se espera un instante breve a que llegue antes de imprimir.
+  useEffect(() => {
+    if (searchParams.get("print") !== "1") return;
+    const id = setTimeout(() => window.print(), 600);
+    searchParams.delete("print");
+    setSearchParams(searchParams, { replace: true });
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const condicionDe = (pieza: number) => piezas.find((c) => c.pieza === pieza);
 
@@ -37,6 +60,12 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="flex justify-end">
+        <Button type="button" variant="secondary" onClick={() => window.print()} disabled={!paciente}>
+          <Printer size={15} /> Imprimir
+        </Button>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Odontograma (notación FDI)</CardTitle>
@@ -78,12 +107,25 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
           </CardHeader>
           <CardContent>
             <ErrorBoundary
+              key={intentoVista3d}
               fallback={
-                <TarjetaError mensaje="No se pudo cargar la vista 3D. Puedes seguir trabajando con el odontograma 2D de arriba mientras lo revisamos." />
+                <TarjetaError
+                  mensaje="No se pudo cargar la vista 3D. Puedes seguir trabajando con el odontograma 2D de arriba mientras lo revisamos."
+                  onRetry={async () => {
+                    const mod = await import("@/features/odontogram/DentalArch3D");
+                    mod.limpiarCacheVista3D();
+                    setIntentoVista3d((n) => n + 1);
+                  }}
+                />
               }
             >
               <Suspense
-                fallback={<div className="h-80 w-full animate-pulse rounded-xl bg-brand-100/50" />}
+                fallback={
+                  <div className="flex h-80 w-full flex-col items-center justify-center gap-2 rounded-xl bg-brand-100/50">
+                    <SpinnerGap size={28} className="animate-spin text-brand-700" />
+                    <p className="text-sm text-ink-muted">Cargando vista 3D…</p>
+                  </div>
+                }
               >
                 <DentalArch3D
                   piezas={piezas}
@@ -152,6 +194,10 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
               ))}
           </CardContent>
         </Card>
+      ) : null}
+
+      {paciente ? (
+        <OdontogramPrint paciente={paciente} piezas={piezas} clinica={sesion?.clinica} />
       ) : null}
     </div>
   );

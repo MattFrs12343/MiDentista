@@ -9,12 +9,11 @@ import {
   ReceiptX,
   Wallet,
   LockSimple,
-  SignOut,
+  ShieldCheck,
   X,
 } from "@phosphor-icons/react";
 import logoMark from "@/assets/banners/logo-mark-hd.jpg";
-import { Avatar } from "@/components/ui/avatar";
-import { useAuth, ROLE_LABEL } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/AuthContext";
 import { cn } from "@/lib/cn";
 
 const principal = [
@@ -43,7 +42,8 @@ export function Sidebar({
   menuAbierto: boolean;
   onClose: () => void;
 }) {
-  const { sesion, cerrarSesion } = useAuth();
+  const { sesion } = useAuth();
+  const esSuperadmin = sesion?.rol === "superadmin";
 
   return (
     <>
@@ -83,16 +83,18 @@ export function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-          <div>
-            <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
-              Atención clínica
-            </p>
-            <ul className="space-y-0.5">
-              {principal.map(({ to, label, icon: Icon, end }) => (
-                <li key={to}>
+          {esSuperadmin ? (
+            // El superadmin no es personal de una clínica: no tiene pacientes
+            // propios, así que su vista queda totalmente separada de la
+            // operativa clínica (nada de Pacientes/Historia/Odontograma/etc.).
+            <div>
+              <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+                Administración
+              </p>
+              <ul className="space-y-0.5">
+                <li>
                   <NavLink
-                    to={to}
-                    end={end}
+                    to="/app/admin"
                     onClick={onClose}
                     className={({ isActive }) =>
                       cn(
@@ -103,49 +105,61 @@ export function Sidebar({
                       )
                     }
                   >
-                    <Icon size={17} weight="bold" />
-                    {label}
+                    <ShieldCheck size={17} weight="bold" />
+                    Panel de administración
                   </NavLink>
                 </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
-              Próximamente
-            </p>
-            <ul className="space-y-0.5">
-              {proximamente.map(({ label, icon: Icon }) => (
-                <li key={label}>
-                  <div className="flex cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-ink-muted/70">
-                    <Icon size={17} weight="bold" />
-                    <span className="flex-1">{label}</span>
-                    <LockSimple size={13} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
-
-        {sesion ? (
-          <div className="flex items-center gap-2.5 border-t border-line px-4 py-4">
-            <Avatar nombre={sesion.nombre} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-ink">{sesion.nombre}</p>
-              <p className="truncate text-xs text-ink-muted">{ROLE_LABEL[sesion.rol]}</p>
+              </ul>
             </div>
-            <button
-              type="button"
-              onClick={cerrarSesion}
-              aria-label="Cerrar sesión"
-              className="rounded-md p-2 text-ink-muted transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
-            >
-              <SignOut size={16} weight="bold" />
-            </button>
-          </div>
-        ) : null}
+          ) : (
+            <>
+              <div>
+                <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+                  Atención clínica
+                </p>
+                <ul className="space-y-0.5">
+                  {principal.map(({ to, label, icon: Icon, end }) => (
+                    <li key={to}>
+                      <NavLink
+                        to={to}
+                        end={end}
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                          cn(
+                            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-150 ease-out",
+                            isActive
+                              ? "bg-brand-50 text-brand-700"
+                              : "text-ink-soft hover:bg-surface-sunken hover:text-ink",
+                          )
+                        }
+                      >
+                        <Icon size={17} weight="bold" />
+                        {label}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+                  Próximamente
+                </p>
+                <ul className="space-y-0.5">
+                  {proximamente.map(({ label, icon: Icon }) => (
+                    <li key={label}>
+                      <div className="flex cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-ink-muted/70">
+                        <Icon size={17} weight="bold" />
+                        <span className="flex-1">{label}</span>
+                        <LockSimple size={13} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
+        </nav>
       </aside>
     </>
   );

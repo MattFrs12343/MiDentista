@@ -12,9 +12,8 @@
 
 .dashboard-page {
   /* Sin fondo propio: deja ver el canvas global con sus dientes
-     flotantes. El margen sube la pagina para acercar el hero al Topbar. */
-  margin: -1.25rem 0 0;
-
+     flotantes. El `HangingBanner` del hero ya cancela el pt-5/6/8 del
+     <main> con su propio -mt-*, asi que esta pagina no necesita repetirlo. */
   box-sizing: border-box;
   padding-bottom: 0.5rem;
 }
@@ -27,7 +26,19 @@
 .dashboard-hero {
   position: relative;
 
-  min-height: 224px;
+  /* Antes el hero ocupaba todo el ancho del area de contenido (hasta
+     ~1600px); ahora cuelga del header igual que las demas pantallas, con
+     el mismo tope de max-w-3xl (768px) del `HangingBanner`. A ese ancho ya
+     no entra el layout "de escritorio" (texto al 58% + decoracion entera),
+     asi que se usa directamente el layout angosto que antes vivia en los
+     media queries de 980px/1180px.
+
+     El tamano (ancho + alto) lo dan las utilidades de Tailwind en el JSX
+     (aspect-[1600/600] min-h-[9.5rem] sm:min-h-[11rem]), el mismo
+     contrato de `HeroBackdrop` que usan los banners de las demas
+     secciones (Pacientes, Historia clinica, Odontograma, Tratamiento),
+     para que el panel general cuelgue exactamente del mismo ancho y alto
+     que ellas. No fijar min-height/height aca o pisa esas utilidades. */
 
   display: flex;
   align-items: center;
@@ -41,7 +52,8 @@
   /* Color plano de respaldo si la foto no llegara a cargar. */
   background: #173456;
 
-  box-shadow: 0 8px 25px rgba(34, 77, 110, 0.10);
+  /* La sombra la pone `.hanger-panel` (hanging-banner), igual que en las
+     demas pantallas: no se duplica aca. */
 }
 
 /* Foto real a sangre, igual que los heroes de las otras pantallas. */
@@ -76,10 +88,10 @@
   position: relative;
   z-index: 2;
 
-  width: 58%;
-  max-width: 640px;
+  width: 100%;
+  max-width: none;
 
-  padding: 32px 40px;
+  padding: 30px 34px;
 
   color: #ffffff;
 }
@@ -134,7 +146,7 @@
 .dashboard-hero-decoration {
   position: absolute;
 
-  right: 3%;
+  right: 1%;
   bottom: -34px;
 
   z-index: 1;
@@ -144,6 +156,9 @@
   gap: 26px;
 
   color: #ffffff;
+
+  transform: scale(0.66);
+  transform-origin: bottom right;
 }
 
 /* El diente sigue siendo la seña principal. */
@@ -152,19 +167,14 @@
   align-items: center;
   justify-content: center;
 
-  opacity: 0.26;
+  opacity: 0.16;
 }
 
-/* Instrumentos repartidos en horizontal a lo largo del rectangulo,
-   mas discretos que el diente. */
+/* Instrumentos repartidos en horizontal a lo largo del rectangulo, mas
+   discretos que el diente. A 768px (tope del hero colgante) no entran
+   junto al texto a pantalla completa, asi que quedan ocultos siempre. */
 .dashboard-hero-tools {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-
-  color: #ffffff;
-
-  opacity: 0.15;
+  display: none;
 }
 
 
@@ -353,331 +363,11 @@
 
 
 /* ============================================================
-   SECCION INFERIOR
-   ============================================================ */
-
-.dashboard-bottom {
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 1.55fr)
-    minmax(290px, 1fr);
-
-  gap: 20px;
-}
-
-
-/* ============================================================
-   PACIENTES RECIENTES
-   ============================================================ */
-
-.dashboard-recent-card {
-  overflow: hidden;
-
-  border-radius: 18px;
-
-  background: #ffffff;
-  border: 1px solid #edf2f6;
-
-  box-shadow: 0 5px 18px rgba(31, 68, 96, 0.06);
-}
-
-.dashboard-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 20px 22px 16px;
-
-  border-bottom: 1px solid #edf1f4;
-}
-
-.dashboard-card-title {
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-}
-
-.dashboard-card-icon {
-  width: 38px;
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 11px;
-
-  background: #e5f3fb;
-  color: #1683c7;
-}
-
-.dashboard-card-title h3 {
-  margin: 0;
-
-  color: #2b3c54;
-
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.dashboard-card-title p {
-  margin: 4px 0 0;
-
-  color: #8a96a5;
-
-  font-size: 12px;
-}
-
-.dashboard-view-all {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-
-  border: none;
-  background: transparent;
-
-  color: #2878a8;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.dashboard-view-all:hover {
-  text-decoration: underline;
-}
-
-
-/* ============================================================
-   FILAS DE PACIENTES
-   ============================================================ */
-
-.dashboard-patient-list {
-  padding: 0 22px;
-}
-
-.dashboard-patient-row {
-  width: 100%;
-
-  min-height: 68px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  padding: 10px 8px;
-
-  border: none;
-  border-bottom: 1px solid #edf1f4;
-
-  border-radius: 10px;
-
-  background: transparent;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition: background-color 120ms ease-out;
-}
-
-.dashboard-patient-row:last-child {
-  border-bottom: none;
-}
-
-.dashboard-patient-row:hover {
-  background: #f9fbfd;
-}
-
-.dashboard-patient-avatar {
-  flex-shrink: 0;
-
-  width: 40px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background: #e1f1fb;
-  color: #24658d;
-
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.dashboard-patient-info {
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-patient-info strong {
-  color: #33445b;
-
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.dashboard-patient-info span {
-  margin-top: 3px;
-
-  color: #8b96a4;
-
-  font-size: 11px;
-}
-
-.dashboard-patient-arrow {
-  margin-left: auto;
-
-  color: #71879a;
-
-  flex-shrink: 0;
-}
-
-
-/* ============================================================
-   EXPEDIENTE COMPLETO
-   ============================================================ */
-
-.dashboard-record-card {
-  position: relative;
-
-  overflow: hidden;
-
-  min-height: 100%;
-
-  box-sizing: border-box;
-
-  padding: 30px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-
-  border-radius: 18px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #1d6a51 0%,
-      #2b8060 45%,
-      #4aa49c 100%
-    );
-
-  color: #ffffff;
-
-  box-shadow: 0 8px 22px rgba(39, 104, 81, 0.13);
-}
-
-.dashboard-record-card::after {
-  content: "";
-
-  position: absolute;
-
-  width: 220px;
-  height: 220px;
-
-  right: -80px;
-  bottom: -90px;
-
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dashboard-record-decoration {
-  position: absolute;
-
-  right: 22px;
-  bottom: 8px;
-
-  color: #ffffff;
-
-  opacity: 0.15;
-}
-
-.dashboard-record-content {
-  position: relative;
-
-  z-index: 2;
-
-  max-width: 440px;
-
-  display: flex;
-  flex-direction: column;
-
-  flex: 1;
-}
-
-.dashboard-record-label {
-  display: block;
-
-  margin-bottom: 12px;
-
-  font-size: 11px;
-  font-weight: 700;
-
-  letter-spacing: 1.7px;
-
-  opacity: 0.9;
-}
-
-.dashboard-record-content p {
-  margin: 0;
-
-  color: rgba(255, 255, 255, 0.9);
-
-  font-size: 14px;
-
-  line-height: 1.65;
-}
-
-.dashboard-record-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  align-self: flex-start;
-
-  margin-top: auto;
-
-  padding: 13px 20px;
-
-  border: none;
-  border-radius: 20px;
-
-  background: #ffffff;
-  color: #276b58;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: background-color 120ms ease-out;
-}
-
-.dashboard-record-button:hover {
-  background: #f3f8f6;
-}
-
-
-/* ============================================================
    FOCO VISIBLE
    ============================================================ */
 
 .dashboard-stat-card:focus-visible,
-.dashboard-primary-button:focus-visible,
-.dashboard-record-button:focus-visible,
-.dashboard-view-all:focus-visible,
-.dashboard-patient-row:focus-visible {
+.dashboard-primary-button:focus-visible {
   outline: 2px solid #1683c7;
   outline-offset: 2px;
 }
@@ -693,41 +383,6 @@
 
   .dashboard-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-bottom {
-    grid-template-columns: 1fr;
-  }
-
-  /* Sin ancho suficiente los instrumentos chocan con el texto. */
-  .dashboard-hero-tools {
-    display: none;
-  }
-}
-
-@media (max-width: 980px) {
-
-  .dashboard-hero {
-    min-height: 0;
-  }
-
-  .dashboard-hero-content {
-    width: 100%;
-    padding: 30px 34px;
-
-    max-width: none;
-  }
-
-  /* El texto ocupa todo el ancho: la marca de agua se aparta. */
-  .dashboard-hero-decoration {
-    right: 1%;
-
-    transform: scale(0.66);
-    transform-origin: bottom right;
-  }
-
-  .dashboard-tooth-decoration {
-    opacity: 0.16;
   }
 }
 
@@ -763,9 +418,5 @@
 
   .dashboard-hero-motto {
     font-size: 15px;
-  }
-
-  .dashboard-card-header {
-    align-items: flex-start;
   }
 }

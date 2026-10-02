@@ -31,7 +31,7 @@ export const DialogContent = forwardRef<
             </DialogPrimitive.Description>
           ) : null}
         </div>
-        <DialogPrimitive.Close className="rounded-full p-1.5 text-ink-muted transition-colors duration-150 hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200">
+        <DialogPrimitive.Close className="rounded-full p-1.5 text-ink-muted transition-colors duration-150 hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/30">
           <X size={16} weight="bold" />
         </DialogPrimitive.Close>
       </div>

@@ -3,4 +3,8 @@ dist
 .git
 .env
 .env.*
+# .env.local solo tiene VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY: son valores
+# públicos pensados para ir en el bundle del navegador (la anon key no es un
+# secreto), así que sí tienen que entrar al build de Docker.
+!.env.local
 npm-debug.log*

@@ -21,7 +21,20 @@ services:
     build: ./api
     restart: unless-stopped
     environment:
+      # Si PGHOST está definido (p. ej. en .env, apuntando a Supabase u otra
+      # base externa), server.js lo prioriza sobre DATABASE_URL.
       DATABASE_URL: postgres://${POSTGRES_USER:-midentista}:${POSTGRES_PASSWORD:-midentista}@db:5432/${POSTGRES_DB:-midentista}
+      PGHOST: ${PGHOST:-}
+      PGPORT: ${PGPORT:-}
+      PGUSER: ${PGUSER:-}
+      PGPASSWORD: ${PGPASSWORD:-}
+      PGDATABASE: ${PGDATABASE:-}
+      PGSSL: ${PGSSL:-}
+      # Supabase Auth: credenciales y envío de correos de recuperación.
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
       PORT: "4000"
     volumes:
       - ./api/server.js:/app/server.js

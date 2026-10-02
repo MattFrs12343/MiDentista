@@ -1,13 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  MagnifyingGlass,
-  Plus,
-  ArrowRight,
-  UsersThree,
-  CaretLeft,
-  CaretRight,
-} from "@phosphor-icons/react";
+import { MagnifyingGlass, Plus, UsersThree, CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import bannerPacientes from "@/assets/banners/banner-pacientes.jpg";
 import { HangingBanner } from "@/components/ui/hanging-banner";
@@ -15,19 +8,10 @@ import { SectionHeroStrip } from "@/components/ui/section-hero";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Avatar } from "@/components/ui/avatar";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useClinicaData } from "@/data/store";
 import { PatientForm } from "@/features/patients/PatientForm";
-
-function calcularEdad(fechaNacimiento: string) {
-  const nacimiento = new Date(fechaNacimiento);
-  const hoy = new Date();
-  let edad = hoy.getFullYear() - nacimiento.getFullYear();
-  const m = hoy.getMonth() - nacimiento.getMonth();
-  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
-  return edad;
-}
+import { PatientsTable } from "@/features/patients/PatientsTable";
 
 const POR_PAGINA = 10;
 
@@ -109,8 +93,8 @@ export function PatientsListPage() {
             description="Datos mínimos para abrir el expediente clínico."
           >
             <PatientForm
-              onSubmit={(datos) => {
-                const creado = registrarPaciente(datos);
+              onSubmit={async (datos) => {
+                const creado = await registrarPaciente(datos);
                 setDialogoAbierto(false);
                 navigate(`/app/pacientes/${creado.id}`);
               }}
@@ -129,51 +113,7 @@ export function PatientsListPage() {
       ) : (
         <>
           <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[42rem] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-line bg-surface-sunken text-xs uppercase tracking-wide text-ink-muted">
-                    <th className="px-5 py-3 font-semibold">Paciente</th>
-                    <th className="px-5 py-3 font-semibold">CI</th>
-                    <th className="px-5 py-3 font-semibold">Edad</th>
-                    <th className="px-5 py-3 font-semibold">Teléfono</th>
-                    <th className="px-5 py-3 font-semibold">Registrado</th>
-                    <th className="px-5 py-3" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
-                  {visibles.map((p, i) => (
-                    <tr
-                      key={p.id}
-                      onClick={() => navigate(`/app/pacientes/${p.id}`)}
-                      style={{ animationDelay: `${i * 40}ms` }}
-                      className="fade-in-up cursor-pointer transition-colors duration-150 ease-out hover:bg-surface-sunken"
-                    >
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-3">
-                          <Avatar nombre={`${p.nombres} ${p.apellidos}`} />
-                          <div>
-                            <p className="font-medium text-ink">
-                              {p.nombres} {p.apellidos}
-                            </p>
-                            <p className="text-xs text-ink-muted">{p.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3 text-ink-soft">{p.ci}</td>
-                      <td className="px-5 py-3 text-ink-soft">
-                        {calcularEdad(p.fechaNacimiento)} años
-                      </td>
-                      <td className="px-5 py-3 text-ink-soft">{p.telefono}</td>
-                      <td className="px-5 py-3 text-ink-soft">{p.creadoEl}</td>
-                      <td className="px-5 py-3 text-right">
-                        <ArrowRight size={15} className="ml-auto text-ink-muted" />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <PatientsTable pacientes={visibles} tab="datos" />
           </Card>
 
           {filtrados.length > POR_PAGINA && (

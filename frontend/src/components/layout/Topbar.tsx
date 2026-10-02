@@ -1,7 +1,8 @@
-import { List, SignOut } from "@phosphor-icons/react";
+import { List, LockKey, SignOut } from "@phosphor-icons/react";
 import logoMark from "@/assets/banners/logo-mark.jpg";
 import { Avatar } from "@/components/ui/avatar";
 import { useAuth, ROLE_LABEL } from "@/features/auth/AuthContext";
+import { ChangePasswordDialog } from "@/features/auth/ChangePasswordDialog";
 
 export function Topbar({
   menuAbierto,
@@ -51,6 +52,15 @@ export function Topbar({
                 </p>
               </div>
               <Avatar nombre={sesion.nombre} />
+              <ChangePasswordDialog>
+                <button
+                  type="button"
+                  aria-label="Cambiar contraseña"
+                  className="press touch-none rounded-full p-2.5 text-label-2 hover:bg-black/[0.04] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45"
+                >
+                  <LockKey size={18} weight="bold" />
+                </button>
+              </ChangePasswordDialog>
               <button
                 type="button"
                 onClick={cerrarSesion}

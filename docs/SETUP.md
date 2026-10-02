@@ -56,6 +56,36 @@ npm run dev
 
 La app estará disponible en `http://localhost:5173`
 
+### 2.6 Login del panel (API propia, no Supabase Auth)
+
+> **Nota:** a pesar de lo que indican las secciones de Supabase de esta guía
+> (pensadas para una fase posterior), el login del **panel de clínica**
+> (odontólogo/recepcionista) hoy no usa Supabase Auth. Lo resuelve una API
+> Express + Postgres propia (`api/server.js`, ver `docker-compose.yml`) contra
+> la tabla `public.perfiles` de `bd_5clinicas_midentista.sql`, con la
+> contraseña guardada como hash `bcrypt` en la columna `password_hash`.
+
+Pasos para que el login funcione tras levantar los contenedores:
+
+```bash
+docker compose up -d
+cd api
+npm install                      # instala la nueva dependencia bcryptjs
+node scripts/set-demo-passwords.js   # asigna la contraseña demo a odontólogos/recepcionistas
+```
+
+- Contraseña demo para **todas** las cuentas de odontólogo/recepcionista de
+  los datos semilla: `midentista123`.
+- Esto es **solo para el entorno de demo/desarrollo**. No es una credencial
+  de producción: en un entorno real, cada clínica debe definir sus propias
+  contraseñas (el admin de la clínica las fija directamente en la BD,
+  insertando el hash bcrypt en `password_hash`).
+- `scripts/set-demo-passwords.js` lee `DATABASE_URL` del entorno; si no se
+  define, usa el mismo valor por defecto que `server.js`
+  (`postgres://midentista:midentista@localhost:5432/midentista`).
+- Las cuentas con rol `paciente` no reciben esta contraseña demo (no tienen
+  acceso al panel).
+
 ---
 
 ## 3. Comandos Disponibles

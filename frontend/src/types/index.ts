@@ -1,4 +1,4 @@
-export type Role = "odontologo" | "odontologo_admin" | "recepcionista" | "paciente";
+export type Role = "odontologo" | "odontologo_admin" | "recepcionista" | "paciente" | "superadmin";
 
 export interface Sesion {
   nombre: string;

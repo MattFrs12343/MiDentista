@@ -23,8 +23,15 @@ import {
   type Franja,
 } from "@/features/agenda/agenda";
 
-/** Alto de la rejilla por hora de jornada, en px. */
-const ALTO_POR_HORA = 15;
+/**
+ * Alto de la rejilla por hora de jornada, en px.
+ *
+ * Con 15px por hora la semana entera medía 150px y una cita de 45 minutos
+ * quedaba en 11px: dos lineas de texto no caben y el nombre se cortaba a media
+ * palabra. 34px por hora deja 340px para una jornada de 10 horas y da 17px a
+ * una cita de 30 minutos, que es lo mas corto que se agenda en la practica.
+ */
+const ALTO_POR_HORA = 34;
 
 /** Separacion en px entre franjas que se pisan, para que se vean separadas. */
 const CANAL = 2;
@@ -365,9 +372,6 @@ function FranjaCita({
       title={`${nombre} · ${rangoHorario(cita.horaInicio, cita.horaFin)} · ${cita.motivoConsulta}`}
     >
       <p className="truncate text-[11px] font-semibold leading-tight">{nombre}</p>
-      <p className="truncate text-[10px] leading-tight opacity-80">
-        {formatoHora(cita.horaInicio)}
-      </p>
     </div>
   );
 }
