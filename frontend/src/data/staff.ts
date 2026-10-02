@@ -6,7 +6,7 @@ interface StaffRecord {
 }
 
 const staffDirectory: Record<string, StaffRecord> = {
-  "ayrthon.rojas@dentalcristorey.bo": { nombre: "Ayrthon Rojas", rol: "odontologo_admin" },
+  "ayrthon.rojas@dentalcristorey.bo": { nombre: "Ayrthon Rojas", rol: "odontologo" },
   "carla.fernandez@dentalcristorey.bo": { nombre: "Carla Fernández", rol: "odontologo" },
   "maria.lopez@dentalcristorey.bo": { nombre: "María López", rol: "recepcionista" },
 };
