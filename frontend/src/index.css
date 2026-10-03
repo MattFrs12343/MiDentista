@@ -12,10 +12,17 @@
   --color-surface-sunken: #f5f3ef;
   --color-line: #e8e5df;
   --color-line-strong: #d9d5cc;
+  /* borde de campos de formulario en reposo: mas oscuro que line-strong a
+     proposito, para que un input sea identificable sin pasar el mouse ni
+     enfocarlo. Sigue siendo neutro/calido, sin tinte celeste. */
+  --color-line-field: #aea89a;
 
   --color-ink: #16233a;
   --color-ink-soft: #4a5568;
   --color-ink-muted: #6b6659;
+
+  --color-rope: #b6a284;
+  --color-rope-deep: #8d7a5c;
 
   --color-brand-50: #eef6fb;
   --color-brand-100: #dcedf8;
@@ -42,6 +49,38 @@
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 
+  /* --- Lenguaje iOS: colores semanticos del sistema (light) ---
+     Los tonos de marca se conservan para la identidad; estos son los colores
+     que iOS usa para *significado* (exito, aviso, error) y para superficies. */
+  --color-ios-blue: #007aff;
+  --color-ios-green: #34c759;
+  --color-ios-indigo: #5856d6;
+  --color-ios-orange: #ff9500;
+  --color-ios-pink: #ff2d55;
+  --color-ios-purple: #af52de;
+  --color-ios-red: #ff3b30;
+  --color-ios-teal: #30b0c7;
+
+  /* etiquetas: negro puro con pesos, no gris plano (vibrancy) */
+  --color-label: #000000;
+  --color-label-2: rgba(60, 60, 67, 0.62);
+  --color-label-3: rgba(60, 60, 67, 0.35);
+
+  /* superficies agrupadas de Settings/Forms */
+  --color-grouped-bg: #f2f2f7;
+  --color-grouped-card: #ffffff;
+
+  /* material translucido: la "vibrancia" de las barras de iOS */
+  --color-material: rgba(249, 249, 251, 0.72);
+  --color-material-strong: rgba(249, 249, 251, 0.88);
+  --color-material-line: rgba(255, 255, 255, 0.55);
+  --color-scrim: rgba(0, 0, 0, 0.28);
+
+  /* radios: iOS usa curvas amplias y casi constantes */
+  --radius-ios: 12px;
+  --radius-ios-lg: 16px;
+  --radius-ios-xl: 22px;
+
   --shadow-diffuse: 0 1px 2px rgba(22, 35, 58, 0.03), 0 8px 24px rgba(22, 35, 58, 0.04);
 }
 
@@ -53,6 +92,9 @@
   html {
     font-family: var(--font-sans);
     color-scheme: light;
+    /* iOS Safari ignora el tamano de texto del navegador si no se fija esto */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -60,6 +102,26 @@
     color: var(--color-ink);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* sin destello gris al tocar: iOS no lo tiene */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    tap-highlight-color: rgba(0, 0, 0, 0);
+    /* `manipulation` quita los 300ms de retardo del tap sin quitar el zoom
+       pinch-to-zoom, que en iOS es esperado */
+    touch-action: manipulation;
+  }
+
+  /* iOS no muestra contorno de foco al tocar, solo al navegar con teclado */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* respeta el area segura: notch en landscape y barra de inicio en portrait */
+  :root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
   }
 
   ::selection {
@@ -68,7 +130,77 @@
   }
 }
 
-@layer utilities {
+@layer components {
+  /* --- 1. Feedback al presionar -------------------------------------
+     En iOS la UI responde en pointer-DOWN, no al soltar. Este es el gesto
+     mas caracteristico del sistema: si falta, la app se siente "muerta". */
+  .press {
+    transition:
+      transform 120ms cubic-bezier(0.23, 1, 0.32, 1),
+      opacity 120ms cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+  }
+
+  .press:active {
+    transform: scale(0.94);
+    opacity: 0.72;
+  }
+
+  /* variante para superficies grandes (cards, filas): menosople, mas cambio
+     de color, como el highlight gris de UITableView */
+  .press-row {
+    transition: background-color 100ms ease-out;
+  }
+
+  .press-row:active {
+    background-color: rgba(120, 120, 128, 0.12);
+  }
+
+  /* --- 2. Materiales translucidos -----------------------------------
+     Barras y hojas flotantes dejan pasar el contenido con blur. El borde
+     superior mas claro es la luz que pega en el material. */
+  .material {
+    background-color: var(--color-material);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-color: var(--color-material-line);
+  }
+
+  .material-strong {
+    background-color: var(--color-material-strong);
+    backdrop-filter: saturate(180%) blur(30px);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    border-color: var(--color-material-line);
+  }
+
+  /* --- 3. Scroll edge effect -----------------------------------------
+     En vez de un borde de 1px bajo un header pegajoso, un desvanecido que
+     difumina el contenido justo donde se cruza con el cromo flotante. */
+  .scroll-edge-top {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14px);
+  }
+
+  /* --- 4. Safe area --------------------------------------------------- */
+  .pt-safe {
+    padding-top: calc(var(--safe-top) + 0.25rem);
+  }
+  .pb-safe {
+    padding-bottom: calc(var(--safe-bottom) + 1rem);
+  }
+
+  /* --- 5. Tipografia con optical sizing ------------------------------- */
+  .title-ios {
+    letter-spacing: -0.021em;
+    line-height: 1.12;
+  }
+  .text-ios {
+    letter-spacing: -0.012em;
+  }
+  .label-ios {
+    letter-spacing: 0.006em;
+  }
+
   .fade-in-up {
     animation: fade-in-up 600ms var(--ease-out-strong) both;
   }
@@ -88,6 +220,90 @@
     .fade-in-up {
       animation: none;
       opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Spinner de carga: el diente del logo queda quieto y el ARCO del contorno gira.
+     Se define con un keyframe propio (y no con `animate-spin`) porque el
+     shorthand de `animate-spin` pisa el longhand de duracion y lo deja en 1s. */
+  .anillo-cargando {
+    animation: anillo-cargando 1100ms linear infinite;
+    /* los SVG usan el viewBox como reference box: sin esto el arco rotaria
+       alrededor del origen (0,0) y no del centro de la circunferencia */
+    transform-box: view-box;
+    transform-origin: center;
+  }
+
+  @keyframes anillo-cargando {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* sin rotacion: el arco respira, para no perder la senal de "cargando" */
+    .anillo-cargando {
+      animation: opacidad-cargando 1.4s ease-in-out infinite;
+    }
+
+    @keyframes opacidad-cargando {
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+  }
+
+  /* Banner colgante: soga + bandera balancean como un pendulo Around el
+     anclaje superior (transform-origin en el borde del header). */
+  .hanger {
+    animation: hanger-sway 7s var(--ease-out-strong) infinite;
+    transform-origin: 50% 0%;
+    will-change: transform;
+  }
+
+  @keyframes hanger-sway {
+    0%,
+    100% {
+      transform: rotate(-0.32deg);
+    }
+    50% {
+      transform: rotate(0.32deg);
+    }
+  }
+
+  .hanger-rope-strand path {
+    fill: none;
+    stroke: url(#hanger-rope);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .hanger-rope-shadow path {
+    fill: none;
+    stroke: rgba(22, 35, 58, 0.16);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .hanger-panel {
+    box-shadow:
+      0 1px 2px rgba(22, 35, 58, 0.1),
+      0 18px 34px -18px rgba(22, 35, 58, 0.45);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hanger {
+      animation: none;
       transform: none;
     }
   }
@@ -215,6 +431,38 @@
   @media (prefers-reduced-motion: reduce) {
     .drift-tooth {
       animation: none;
+    }
+
+    /* el feedback de presion sigue existiendo, pero sin escalar: solo color */
+    .press:active {
+      transform: none;
+      opacity: 0.85;
+    }
+
+    .press-row:active {
+      background-color: rgba(120, 120, 128, 0.18);
+    }
+  }
+
+  /* --- Accesibilidad: menos transparencia y mas contraste --------------
+     Un material translucido es ilegible si el usuario pidio menos
+     transparencia; por eso el sistema lo vuelve solido, no solo menos borroso. */
+  @media (prefers-reduced-transparency: reduce) {
+    .material,
+    .material-strong {
+      background-color: rgb(249, 249, 251);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    .material,
+    .material-strong {
+      background-color: #ffffff;
+      border-color: var(--color-line-strong);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
   }
 }

@@ -25,8 +25,14 @@ interface HeaderState extends HeaderData {
 const PageHeaderContext = createContext<HeaderState | null>(null);
 
 export function PageHeaderProvider({ children }: { children: ReactNode }) {
-  const [header, setHeader] = useState<HeaderData>({ title: "Mi Dentista" });
+  const [header, setHeader] = useState<HeaderData>({ title: "MiDentista" });
   const value = useMemo(() => ({ ...header, setHeader }), [header]);
+
+  // el título ya no se pinta en el header, pero sigue sirviendo como
+  // identidad de la sección en el título del documento
+  useEffect(() => {
+    document.title = header.title ? `${header.title} · MiDentista` : "MiDentista";
+  }, [header.title]);
 
   return <PageHeaderContext.Provider value={value}>{children}</PageHeaderContext.Provider>;
 }

@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from "react";
-import { Plus, Trash, Stethoscope } from "@phosphor-icons/react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Plus, Trash, Stethoscope, Printer } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Field } from "@/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClinicaData } from "@/data/store";
+import { useAuth } from "@/features/auth/AuthContext";
+import { TreatmentPrint } from "@/features/treatment/TreatmentPrint";
 import type { PrioridadTratamiento } from "@/types";
 
 const PRIORIDAD_TONE: Record<PrioridadTratamiento, "red" | "yellow" | "green"> = {
@@ -24,10 +27,26 @@ export function TreatmentTab({ pacienteId }: { pacienteId: string }) {
     agregarItemPlan,
     quitarItemPlan,
     actualizarObservacionesPlan,
+    obtenerPaciente,
   } = useClinicaData();
+  const { sesion } = useAuth();
 
+  const paciente = obtenerPaciente(pacienteId);
   const diagnosticos = diagnosticosDe(pacienteId);
   const plan = planDe(pacienteId);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Llegar con ?print=1 (desde el botón "Imprimir" de la tabla de pacientes)
+  // dispara la impresión automáticamente. Diagnósticos/plan cargan async
+  // desde la API, así que se espera un instante breve antes de imprimir.
+  useEffect(() => {
+    if (searchParams.get("print") !== "1") return;
+    const id = setTimeout(() => window.print(), 600);
+    searchParams.delete("print");
+    setSearchParams(searchParams, { replace: true });
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [descripcion, setDescripcion] = useState("");
   const [piezaDx, setPiezaDx] = useState("");
@@ -65,6 +84,12 @@ export function TreatmentTab({ pacienteId }: { pacienteId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="flex justify-end">
+        <Button type="button" variant="secondary" onClick={() => window.print()} disabled={!paciente}>
+          <Printer size={15} /> Imprimir
+        </Button>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Diagnóstico</CardTitle>
@@ -122,8 +147,8 @@ export function TreatmentTab({ pacienteId }: { pacienteId: string }) {
           {plan.items.length === 0 ? (
             <p className="text-sm text-ink-muted">Aún no se propusieron procedimientos.</p>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-line">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto rounded-lg border border-line">
+              <table className="w-full min-w-[34rem] text-left text-sm">
                 <thead>
                   <tr className="border-b border-line bg-surface-sunken text-xs uppercase tracking-wide text-ink-muted">
                     <th className="px-4 py-2.5 font-semibold">Procedimiento</th>
@@ -219,6 +244,15 @@ export function TreatmentTab({ pacienteId }: { pacienteId: string }) {
           </Field>
         </CardContent>
       </Card>
+
+      {paciente ? (
+        <TreatmentPrint
+          paciente={paciente}
+          diagnosticos={diagnosticos}
+          plan={plan}
+          clinica={sesion?.clinica}
+        />
+      ) : null}
     </div>
   );
 }

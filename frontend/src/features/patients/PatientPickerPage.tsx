@@ -1,12 +1,12 @@
 import { useMemo, useState, type ComponentType } from "react";
-import { useNavigate } from "react-router-dom";
-import { MagnifyingGlass, ArrowRight, UsersThree, type IconProps } from "@phosphor-icons/react";
+import { MagnifyingGlass, UsersThree, type IconProps } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Avatar } from "@/components/ui/avatar";
-import { SectionHero } from "@/components/ui/section-hero";
+import { HangingBanner } from "@/components/ui/hanging-banner";
+import { SectionHeroStrip } from "@/components/ui/section-hero";
 import { usePageHeader, type ModuleTone } from "@/components/layout/PageHeaderContext";
 import { useClinicaData } from "@/data/store";
+import { PatientsTable } from "@/features/patients/PatientsTable";
 import type { TabValue } from "@/features/patients/tabValue";
 
 export function PatientPickerPage({
@@ -29,7 +29,6 @@ export function PatientPickerPage({
   usePageHeader({ title: titulo, subtitle: subtitulo, icon: icono, tone: tono });
   const { pacientes } = useClinicaData();
   const [busqueda, setBusqueda] = useState("");
-  const navigate = useNavigate();
 
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -41,16 +40,15 @@ export function PatientPickerPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <SectionHero
-        icon={icono}
-        tone={tono}
-        kicker="Mi Dentista"
-        heading={titulo}
-        description={`${subtitulo}.`}
-        photo={foto}
-        photoPosition={fotoPosicion}
-        className="fade-in-up"
-      />
+      <HangingBanner className="max-w-3xl">
+        <SectionHeroStrip
+          icon={icono}
+          tone={tono}
+          photo={foto}
+          photoPosition={fotoPosicion}
+          className="hanger-panel fade-in-up"
+        />
+      </HangingBanner>
 
       <div className="relative max-w-sm">
         <MagnifyingGlass
@@ -74,28 +72,7 @@ export function PatientPickerPage({
         </Card>
       ) : (
         <Card className="overflow-hidden">
-          <ul className="divide-y divide-line">
-            {filtrados.map((p, i) => (
-              <li key={p.id}>
-                <button
-                  onClick={() => navigate(`/app/pacientes/${p.id}?tab=${tab}`)}
-                  style={{ animationDelay: `${i * 40}ms` }}
-                  className="fade-in-up flex w-full items-center justify-between px-5 py-3 text-left transition-colors duration-150 ease-out hover:bg-surface-sunken"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar nombre={`${p.nombres} ${p.apellidos}`} />
-                    <div>
-                      <p className="text-sm font-medium text-ink">
-                        {p.nombres} {p.apellidos}
-                      </p>
-                      <p className="text-xs text-ink-muted">CI {p.ci}</p>
-                    </div>
-                  </div>
-                  <ArrowRight size={15} className="text-ink-muted" />
-                </button>
-              </li>
-            ))}
-          </ul>
+          <PatientsTable pacientes={filtrados} tab={tab} />
         </Card>
       )}
     </div>

@@ -21,6 +21,16 @@ const MODEL_URL = "/models/dental-arch.glb";
 const GUM_COLOR = "#e3a79c";
 const SELECCION_COLOR = new THREE.Color("#3d84b8");
 
+// `useLoader` cachea la promesa del modelo fuera de React (en un Map global
+// de `suspend-react`). Si la primera carga falla por algo transitorio (red
+// lenta, descarga cortada), esa promesa rechazada queda cacheada para
+// siempre y cualquier intento posterior de montar <DentalArch3D> vuelve a
+// fallar al instante, sin reintentar la descarga. Hay que limpiar esta
+// entrada explícitamente antes de reintentar.
+export function limpiarCacheVista3D() {
+  useLoader.clear(GLTFLoader, MODEL_URL);
+}
+
 interface Interaction {
   dragging: boolean;
   pendingDeltaX: number;

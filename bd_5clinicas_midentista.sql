@@ -73,14 +73,49 @@ create table if not exists public.perfiles (
     telefono        text,
     avatar_url      text,
     rol             text not null default 'paciente'
-                    check (rol in ('odontologo', 'recepcionista', 'paciente')),
+                    check (rol in ('odontologo', 'recepcionista', 'paciente', 'superadmin')),
     clinica_id      uuid references public.clinicas(id),
     especialidad    text,
     consultorio     text,
+    -- Hash bcrypt (nunca texto plano) de la contraseña de acceso al panel.
+    -- Null hasta que se asigne una contraseña (p. ej. vía script de datos
+    -- semilla o por un admin de clínica); POST /api/sesion rechaza el login
+    -- si este campo está vacío para el correo recibido.
+    password_hash     text,
+    -- Bloqueo por intentos fallidos: al 3er intento fallido seguido se fija
+    -- bloqueado_hasta y el login se rechaza hasta esa fecha sin volver a
+    -- verificar la contraseña (ver POST /api/sesion).
+    intentos_fallidos integer default 0,
+    bloqueado_hasta   timestamptz,
     activo          boolean default true,
     creado_en       timestamptz default now(),
     actualizado_en  timestamptz default now()
 );
+
+-- Red de seguridad para bases ya inicializadas con una versión anterior de
+-- este esquema (el `create table if not exists` de arriba no las alcanza).
+alter table public.perfiles add column if not exists password_hash text;
+alter table public.perfiles add column if not exists intentos_fallidos integer default 0;
+alter table public.perfiles add column if not exists bloqueado_hasta timestamptz;
+alter table public.pacientes add column if not exists nombres text;
+alter table public.pacientes add column if not exists apellidos text;
+alter table public.perfiles drop constraint if exists perfiles_rol_check;
+alter table public.perfiles add constraint perfiles_rol_check
+    check (rol in ('odontologo', 'recepcionista', 'paciente', 'superadmin'));
+alter table public.perfiles add column if not exists auth_user_id uuid references auth.users(id);
+
+-- Códigos de recuperación de contraseña (de un solo uso, con expiración).
+-- No hay envío de correo real todavía: el endpoint que genera el código lo
+-- devuelve directamente en la respuesta (ver nota de seguridad en server.js).
+create table if not exists public.perfiles_recuperacion (
+    id          uuid primary key default gen_random_uuid(),
+    perfil_id   uuid not null references public.perfiles(id) on delete cascade,
+    codigo_hash text not null,
+    expira_en   timestamptz not null,
+    usado       boolean default false,
+    creado_en   timestamptz default now()
+);
+create index if not exists idx_recuperacion_perfil on public.perfiles_recuperacion (perfil_id);
 
 -- 2.3 pacientes
 create table if not exists public.pacientes (
@@ -89,6 +124,8 @@ create table if not exists public.pacientes (
     perfil_id                       uuid references public.perfiles(id),
     ci                              text,
     nombre_completo                 text not null,
+    nombres                         text,
+    apellidos                       text,
     fecha_nacimiento                date,
     genero                          text check (genero in ('M', 'F', 'Otro')),
     telefono                        text,
@@ -135,6 +172,10 @@ create table if not exists public.historiales_clinicos (
     creado_en                     timestamptz default now(),
     actualizado_en                timestamptz default now()
 );
+
+-- Red de seguridad para bases ya inicializadas con una version anterior.
+alter table public.historiales_clinicos add column if not exists antecedentes_familiares text;
+alter table public.historiales_clinicos add column if not exists actualizado_por text;
 
 -- 2.6 odontogramas (piezas en JSONB)
 create table if not exists public.odontogramas (

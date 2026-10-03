@@ -1,13 +1,5 @@
 import { cn } from "@/lib/cn";
-
-function iniciales(nombre: string) {
-  return nombre
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
-}
+import { iniciales } from "@/lib/nombre";
 
 export function Avatar({ nombre, className }: { nombre: string; className?: string }) {
   return (

@@ -1,0 +1,47 @@
+/*
+ * Estilos propios de Historia Clínica que no forman parte del layout genérico
+ * de impresión (ver src/components/print/print-document.css): el resalte
+ * especial de alergias graves.
+ */
+@media print {
+  .print-document .clinical-print-allergies {
+    padding: 0;
+    list-style: none;
+  }
+
+  .clinical-print-allergies li {
+    padding: 2mm 3mm;
+    border-left: 1pt solid #bfe4f5;
+  }
+
+  .clinical-print-allergy-name {
+    display: block;
+    margin-bottom: 1mm;
+    font-weight: 600;
+  }
+
+  .clinical-print-allergy-level {
+    display: block;
+    font-size: 9pt;
+    color: #52758a;
+  }
+
+  .clinical-print-allergies .clinical-print-allergy-severe {
+    padding: 3mm 4mm;
+    border: 0.5pt solid #e6b8bc;
+    border-left: 1.5pt solid #d99fa7;
+    border-radius: 2mm;
+    background: #fff5f6;
+  }
+
+  .clinical-print-allergy-severe strong {
+    color: #93424c;
+  }
+
+  .clinical-print-caution {
+    display: block;
+    margin-top: 1mm;
+    font-size: 9pt;
+    color: #93424c;
+  }
+}
