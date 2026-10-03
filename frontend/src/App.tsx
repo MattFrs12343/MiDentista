@@ -26,6 +26,12 @@ const PatientProfilePage = lazy(() =>
 const PatientPickerPage = lazy(() =>
   import("@/features/patients/PatientPickerPage").then((m) => ({ default: m.PatientPickerPage })),
 );
+// La planta carga su 3D en un segundo nivel de lazy(): entrar a la ruta no
+// descarga three, solo cuando se pulsa el modo 3D.
+const PlantaPage = lazy(() =>
+  import("@/features/planta/PlantaPage").then((m) => ({ default: m.PlantaPage })),
+);
+
 const AdminPage = lazy(() =>
   import("@/features/admin/AdminPage").then((m) => ({ default: m.AdminPage })),
 );
@@ -135,6 +141,14 @@ export default function App() {
                       foto={bannerTratamiento}
                       fotoPosicion="60% center"
                     />
+                  </RequireStaff>
+                }
+              />
+              <Route
+                path="planta"
+                element={
+                  <RequireStaff>
+                    <PlantaPage />
                   </RequireStaff>
                 }
               />

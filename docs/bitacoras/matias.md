@@ -84,4 +84,8 @@ cambio de esquema antes de que el equipo lo aplique.
 
 | Fecha | ID | Qué hice | Estado | Horas |
 |-------|----|----|--------|-------|
-| | | | | |
+| 2026-10-03 | Planta-0 | Módulos puros de la planta: `tipos.ts`, `plantaLayout.ts`, `plantaAgenda.ts`, `plantaMapper.ts` y `plantaService.ts`, con 29 pruebas | Hecho | 3 |
+| 2026-10-03 | Planta-1 | Vistas 2D (`PlantaSvg`, `OverlayAgenda`, `DetalleZona`, `LeyendaZonas`, `SelectorModo`), sin three | Hecho | 2 |
+| 2026-10-03 | Planta-3 | Vista 3D procedural (`geometria.ts`, `useOrbitaManual.ts`, `ZonasInstanciadas.tsx`, `Vista3DBase.tsx`) con presupuesto de 12K triángulos y 25 draw calls | Hecho | 3 |
+| 2026-10-03 | Planta-4 | `AgendaPlantaMini` en el módulo de agenda y SQL propuesto de `zonas_clinica` + `citas.zona_id` | Hecho | 1 |
+| 2026-10-03 | Planta-5 | Ruta `/app/planta`, entrada en el Sidebar, `README.md` del módulo y fila en `AGENTS.md` | Hecho | 1 |

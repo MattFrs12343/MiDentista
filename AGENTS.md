@@ -33,6 +33,7 @@ Es permisible —y necesario— **leer** archivos de otros. Es incorrecto **escr
 | `frontend/src/features/archivos/` | Angélica | 10 Archivos e Imágenes |
 | `frontend/src/features/agenda/` | Matías | 07 Agenda/Citas |
 | `frontend/src/features/odontogram/` | Matías | 04 Odontograma 3D |
+| `frontend/src/features/planta/` | Matías | 12 Gestión de Clínica (planta 2D + 3D) |
 | `frontend/src/features/clinical/` | — ya construido | 03 Historia Clínica |
 | `frontend/src/features/treatment/` | — ya construido | 05 Diagnóstico/Tratamiento |
 
