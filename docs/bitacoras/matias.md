@@ -89,3 +89,4 @@ cambio de esquema antes de que el equipo lo aplique.
 | 2026-10-03 | Planta-3 | Vista 3D procedural (`geometria.ts`, `useOrbitaManual.ts`, `ZonasInstanciadas.tsx`, `Vista3DBase.tsx`) con presupuesto de 12K triángulos y 25 draw calls | Hecho | 3 |
 | 2026-10-03 | Planta-4 | `AgendaPlantaMini` en el módulo de agenda y SQL propuesto de `zonas_clinica` + `citas.zona_id` | Hecho | 1 |
 | 2026-10-03 | Planta-5 | Ruta `/app/planta`, entrada en el Sidebar, `README.md` del módulo y fila en `AGENTS.md` | Hecho | 1 |
+| 2026-10-03 | Planta-6 | Baja del módulo Planta: no aporta valor porque cada clínica tiene una arquitectura distinta y muchas no tienen varios profesionales. Se eliminan `features/planta/`, `AgendaPlantaMini`, la ruta, la entrada del Sidebar y la fila en `AGENTS.md` | Hecho | 1 |

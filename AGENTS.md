@@ -33,7 +33,6 @@ Es permisible —y necesario— **leer** archivos de otros. Es incorrecto **escr
 | `frontend/src/features/archivos/` | Angélica | 10 Archivos e Imágenes |
 | `frontend/src/features/agenda/` | Matías | 07 Agenda/Citas |
 | `frontend/src/features/odontogram/` | Matías | 04 Odontograma 3D |
-| `frontend/src/features/planta/` | Matías | 12 Gestión de Clínica (planta 2D + 3D) |
 | `frontend/src/features/clinical/` | — ya construido | 03 Historia Clínica |
 | `frontend/src/features/treatment/` | — ya construido | 05 Diagnóstico/Tratamiento |
 
@@ -66,7 +65,7 @@ Nadie debe crear ni modificar nada de esto sin autorización explícita del PO:
 - `frontend/public/models/dental-arch.glb`
 - cualquier componente 2.5D, isométrico o con `OrbitControls`
 
-La odontología 3D, la planta de consultorios y los mapas de calor son de Matías.
+La odontología 3D y los mapas de calor son de Matías.
 Si un módulo necesita un gráfico, usa SVG con los componentes de
 `components/ui/` y `mapa-calor.tsx` (que ya es SVG puro).
 

@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom";
 import {
   SquaresFour,
-  MapTrifold,
   UsersThree,
   ClipboardText,
   Tooth,
@@ -19,7 +18,6 @@ import { cn } from "@/lib/cn";
 
 const principal = [
   { to: "/app", label: "Panel general", icon: SquaresFour, end: true },
-  { to: "/app/planta", label: "Planta", icon: MapTrifold, end: false },
   { to: "/app/pacientes", label: "Pacientes", icon: UsersThree, end: false },
   { to: "/app/historia-clinica", label: "Historia clínica", icon: ClipboardText, end: false },
   { to: "/app/odontograma", label: "Odontograma", icon: Tooth, end: false },
