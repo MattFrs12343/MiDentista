@@ -1,0 +1,40 @@
+# Fijos de fin de línea y tratamiento de binarios para todo el equipo.
+#
+# Los seis desarrolladores trabajan en Windows y antes no existía .gitattributes,
+# con core.autocrlf configurado de forma GLOBAL y distinta en cada máquina. Eso
+# dejó finales de línea mezclados en archivos ya versionados: types/index.ts
+# estaba en CRLF, App.tsx en LF y agenda.ts tenía finales mezclados DENTRO del
+# mismo archivo. Con esa configuración, un cambio de una línea puede mostrar el
+# archivo entero como modificado y generar conflictos fantasma.
+#
+# * text=auto eol=lf hace que el repositorio almacene siempre LF y que el checkout
+#   en Windows convierta a CRLF solo al escribir. Hay que hacer una sola vez
+#   `git add --renormalize .` para normalizar los archivos de la rama actual.
+
+* text=auto eol=lf
+
+# ---------------------------------------------------------------- binarios ---
+# Estos archivos NO deben normalizarse: si git los tratara como texto, un
+# checkout en Windows podría corromperlos sin avisar.
+#
+# dental-arch.glb (1.37 MB) es el modelo 3D del odontograma. Si se corrompe, el
+# odontograma deja de renderizar sin mostrar ningún error.
+*.glb   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.pdf   binary
+*.docx  binary
+*.xlsx  binary
+*.pptx  binary
+
+# Los .mdj de draw.io pueden llevar el diagrama comprimido en base64 dentro del
+# XML. Marcarlo binario evita que se normalice y se dane el contenido.
+*.mdj   binary
