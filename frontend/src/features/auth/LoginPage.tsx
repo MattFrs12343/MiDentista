@@ -10,7 +10,7 @@ import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ForgotPasswordDialog } from "@/features/auth/ForgotPasswordDialog";
-import { ApiError, resolverCuenta } from "@/data/api";
+import { ApiError, iniciarSesionApi } from "@/data/api";
 import { obtenerSupabase } from "@/lib/supabase";
 
 // Misma validación simple que aplica el servidor: solo atajar formatos
@@ -22,7 +22,6 @@ export function LoginPage() {
   const navigate = useNavigate();
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
-  const [mantener, setMantener] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cargandoGoogle, setCargandoGoogle] = useState(false);
@@ -43,8 +42,11 @@ export function LoginPage() {
     setCargando(true);
 
     try {
-      const cuenta = await resolverCuenta(correo.trim(), clave);
-      iniciarSesion(cuenta, mantener);
+      const { sesion, session } = await iniciarSesionApi(correo.trim(), clave);
+      // Establece la sesión real de Supabase (access/refresh token) para que
+      // las consultas protegidas por RLS se autentiquen como este usuario.
+      await obtenerSupabase().auth.setSession(session);
+      iniciarSesion(sesion);
       navigate("/app", { replace: true });
     } catch (fallo) {
       setError(
@@ -81,7 +83,7 @@ export function LoginPage() {
       <MeshBackground />
       <AnimatedTeeth />
 
-      <div className="relative z-10 grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl lg:grid-cols-[1fr_1.1fr]">
+      <div className="relative z-10 grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl lg:min-h-[640px] lg:grid-cols-[1fr_1.1fr]">
         <div className="relative hidden lg:block">
           <img
             src={logoBadge}
@@ -144,18 +146,9 @@ export function LoginPage() {
             </div>
 
             <div
-              className="fade-in-up flex items-center justify-between text-xs"
+              className="fade-in-up flex items-center justify-end text-xs"
               style={{ animationDelay: "160ms" }}
             >
-              <label className="flex items-center gap-2 text-ink-soft">
-                <input
-                  type="checkbox"
-                  checked={mantener}
-                  onChange={(e) => setMantener(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-line-strong"
-                />
-                Mantener sesión iniciada
-              </label>
               <ForgotPasswordDialog>
                 <button
                   type="button"
@@ -167,15 +160,24 @@ export function LoginPage() {
             </div>
 
             <div className="fade-in-up" style={{ animationDelay: "200ms" }}>
-              {error && (
-                <p
-                  role="alert"
-                  className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg"
-                >
-                  <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
-                  <span>{error}</span>
-                </p>
-              )}
+              {/* Siempre montado (incluso sin error) para que el alto de esta
+                  columna no cambie al aparecer/desaparecer: en desktop esta
+                  tarjeta es un grid de 2 columnas y la foto de la izquierda
+                  se estira para igualar el alto de este lado, así que un
+                  cambio de alto acá se sentía como que "toda la tarjeta
+                  cambiaba de forma" al tipear o enviar el form. */}
+              <p
+                role="alert"
+                aria-hidden={!error}
+                className={`flex items-start gap-2 rounded-xl border px-3.5 py-3 text-sm transition-opacity duration-150 ${
+                  error
+                    ? "border-pastel-red-fg/25 bg-pastel-red-bg text-pastel-red-fg opacity-100"
+                    : "pointer-events-none select-none border-transparent bg-transparent text-transparent opacity-0"
+                }`}
+              >
+                <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
+                <span>{error || "placeholder"}</span>
+              </p>
 
               <Button type="submit" size="lg" disabled={cargando} className="mt-1 w-full group">
                 {cargando ? (

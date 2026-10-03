@@ -1,12 +1,50 @@
 # Bitácora - Angélica (Dev 5)
 
-## Asignación (INDEX.md)
+## Asignación vigente
 
-| Fase | Mes | Responsabilidad |
-|------|-----|------------------|
-| 1 | Septiembre | Setup BD/Auth: configuración de la base de datos, migraciones SQL y RLS |
-| 2 | Octubre | Módulo 05: [Diagnóstico y Plan de Tratamiento](../modules/05-diagnostico-tratamiento/) (dueña del módulo; apoyo de Bianca/Dev 2 en cálculo de costos y consultas SQL) |
-| 3 | Nov-Dic | Testing e integración final de los 9 módulos, en pareja con Melissa, + población de datos |
+| Módulo | Carpeta exclusiva | Bitácora de referencia |
+|--------|-------------------|------------------------|
+| **10: [Archivos e Imágenes](../modules/10-archivos/)** | `frontend/src/features/archivos/` | esta |
+
+> ⚠️ Este módulo **cambió respecto al `INDEX.md` original**, que te asignaba el
+> Módulo 05 Diagnóstico y el setup de base de datos. Si tienes trabajo del 05
+> empezado, no lo borres: dímelo y se decide a qué módulo pasa.
+
+## Propiedad de archivos — Angélica
+
+**Creas archivos dentro de `features/archivos/` y dentro de nada más.**
+
+**No editas**, aunque los leas: `App.tsx`, `Sidebar.tsx`, `store.tsx`,
+`types/index.ts`, `PatientProfilePage.tsx`, `tabValue.ts`, `components/ui/*`,
+`index.css`, ni las carpetas de Lucas, Bianca, Carlos o Melissa.
+
+**Y lo más importante: no editas `bd_5clinicas_midentista.sql` ni `supabase/`.**
+Son de Matías. Tu SQL va en un archivo propio:
+
+```
+docs/modules/10-archivos/sql.sql
+```
+
+Ahí ya está el DDL de la tabla `archivos` reactivada, con sus índices, el RLS
+siguiendo el patrón de `docs/DATABASE.md` sección 18.3, y el bucket de Storage
+con sus políticas. Matías lo pega en el archivo principal durante el merge.
+
+Mientras tanto **tu UI y tu servicio pueden avanzar**: lo único que queda
+bloqueado es la persistencia.
+
+En tu PR, **pide** lo que necesites: "necesito el tab `archivos` en
+`PatientProfilePage`".
+
+## Aviso sobre datos clínicos
+
+La tabla `archivos` almacena radiografías y documentos de pacientes. El bucket es
+**privado** y las URLs **caducan** (`createSignedUrl`, 5 minutos). Nunca
+conviertas el bucket en público ni guardes URLs en la base: filtraría información
+clínica con un enlace adivinable. Y como en el resto del proyecto, no se borran
+datos de producción sin confirmación de Matías.
+
+Lee [`../../AGENTS.md`](../../AGENTS.md) y el
+[`README.md`](../../frontend/src/features/archivos/README.md) de tu módulo.
 
 ## Historias y tareas asignadas
 

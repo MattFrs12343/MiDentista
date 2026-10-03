@@ -28,7 +28,7 @@ import {
   reenviarInvitacionApi,
   cancelarInvitacionApi,
   eliminarPersonalApi,
-  cambiarContrasenaPersonalApi,
+  restablecerContrasenaPersonalApi,
   type Clinica,
   type PerfilAdmin,
 } from "@/data/api";
@@ -57,7 +57,7 @@ export function AdminPage() {
   const cargar = () => {
     setCargando(true);
     setErrorLista(null);
-    Promise.all([listarPersonalApi(correo), listarClinicas()])
+    Promise.all([listarPersonalApi(), listarClinicas()])
       .then(([p, c]) => {
         setPersonal(p);
         setClinicas(c);
@@ -74,7 +74,7 @@ export function AdminPage() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex min-w-0 justify-end">
-        <InvitarDialog correo={correo} clinicas={clinicas} onInvitado={cargar} />
+        <InvitarDialog clinicas={clinicas} onInvitado={cargar} />
       </div>
 
       <Card>
@@ -109,7 +109,7 @@ export function AdminPage() {
                 </thead>
                 <tbody className="divide-y divide-line">
                   {personal.map((p) => (
-                    <FilaPersonal key={p.id} perfil={p} correo={correo} esPropio={p.email === correo} onCambio={cargar} />
+                    <FilaPersonal key={p.id} perfil={p} esPropio={p.email === correo} onCambio={cargar} />
                   ))}
                 </tbody>
               </table>
@@ -123,25 +123,22 @@ export function AdminPage() {
 
 function FilaPersonal({
   perfil,
-  correo,
   esPropio,
   onCambio,
 }: {
   perfil: PerfilAdmin;
-  correo: string;
   esPropio: boolean;
   onCambio: () => void;
 }) {
   const [accion, setAccion] = useState<"reenviar" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [confirmando, setConfirmando] = useState<"cancelar" | "eliminar" | null>(null);
-  const [cambiandoClave, setCambiandoClave] = useState(false);
+  const [confirmando, setConfirmando] = useState<"cancelar" | "eliminar" | "restablecer" | null>(null);
 
   const reenviar = async () => {
     setAccion("reenviar");
     setError(null);
     try {
-      await reenviarInvitacionApi(correo, perfil.id);
+      await reenviarInvitacionApi(perfil.id);
       onCambio();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "No se pudo reenviar la invitación");
@@ -157,7 +154,10 @@ function FilaPersonal({
       </td>
       <td className="px-5 py-3 text-ink-soft">{perfil.email}</td>
       <td className="px-5 py-3 text-ink-soft">{ROLE_LABEL[perfil.rol]}</td>
-      <td className="px-5 py-3 text-ink-soft">{perfil.clinica}</td>
+      <td className="px-5 py-3 text-ink-soft">
+        {/* El superadmin no pertenece a ninguna clínica: solo audita el sistema. */}
+        {perfil.clinica ?? <span className="italic text-ink-muted">Todas (auditor)</span>}
+      </td>
       <td className="px-5 py-3">
         {perfil.invitacionPendiente ? (
           <Badge tone="yellow">Invitación pendiente</Badge>
@@ -200,10 +200,10 @@ function FilaPersonal({
             <>
               <button
                 type="button"
-                aria-label="Cambiar contraseña"
-                title="Cambiar contraseña"
+                aria-label="Restablecer contraseña"
+                title="Restablecer contraseña"
                 className={ACCION_BTN}
-                onClick={() => setCambiandoClave(true)}
+                onClick={() => setConfirmando("restablecer")}
               >
                 <LockKey size={16} weight="bold" />
               </button>
@@ -224,7 +224,6 @@ function FilaPersonal({
 
       <ConfirmarDialog
         tipo={confirmando}
-        correo={correo}
         perfil={perfil}
         onClose={() => setConfirmando(null)}
         onConfirmado={() => {
@@ -232,40 +231,44 @@ function FilaPersonal({
           onCambio();
         }}
       />
-      <CambiarClaveDialog
-        abierto={cambiandoClave}
-        correo={correo}
-        perfil={perfil}
-        onClose={() => setCambiandoClave(false)}
-      />
     </tr>
   );
 }
 
 function ConfirmarDialog({
   tipo,
-  correo,
   perfil,
   onClose,
   onConfirmado,
 }: {
-  tipo: "cancelar" | "eliminar" | null;
-  correo: string;
+  tipo: "cancelar" | "eliminar" | "restablecer" | null;
   perfil: PerfilAdmin;
   onClose: () => void;
   onConfirmado: () => void;
 }) {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exito, setExito] = useState(false);
+
+  const cerrarYResetear = () => {
+    onClose();
+    setError(null);
+    setExito(false);
+  };
 
   const confirmar = async () => {
     if (!tipo) return;
     setCargando(true);
     setError(null);
     try {
-      if (tipo === "cancelar") await cancelarInvitacionApi(correo, perfil.id);
-      else await eliminarPersonalApi(correo, perfil.id);
-      onConfirmado();
+      if (tipo === "cancelar") await cancelarInvitacionApi(perfil.id);
+      else if (tipo === "eliminar") await eliminarPersonalApi(perfil.id);
+      else await restablecerContrasenaPersonalApi(perfil.id);
+
+      // Restablecer no cambia nada visible en la fila: mostramos un estado
+      // de éxito en vez de cerrar de una, para confirmar que el correo salió.
+      if (tipo === "restablecer") setExito(true);
+      else onConfirmado();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "No se pudo completar la acción");
     } finally {
@@ -273,130 +276,52 @@ function ConfirmarDialog({
     }
   };
 
+  const titulo =
+    tipo === "cancelar" ? "Cancelar invitación" : tipo === "eliminar" ? "Eliminar cuenta" : "Restablecer contraseña";
+
   return (
     <Dialog
       open={tipo !== null}
       onOpenChange={(open) => {
-        if (!open) {
-          onClose();
-          setError(null);
-        }
+        if (!open) cerrarYResetear();
       }}
     >
-      <DialogContent
-        title={tipo === "cancelar" ? "Cancelar invitación" : "Eliminar cuenta"}
-        description="Esta acción no se puede deshacer."
-      >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-ink-soft">
-            {tipo === "cancelar" ? (
-              <>
-                ¿Cancelar la invitación de <strong className="text-ink">{perfil.email}</strong>? No va a
-                poder usar ese link para entrar.
-              </>
-            ) : (
-              <>
-                ¿Eliminar la cuenta de <strong className="text-ink">{perfil.nombre}</strong>? Deja de poder
-                iniciar sesión en el panel.
-              </>
-            )}
-          </p>
-
-          {error && (
-            <p className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg">
-              <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
-              <span>{error}</span>
-            </p>
-          )}
-
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="secondary" onClick={onClose} disabled={cargando}>
-              Cancelar
-            </Button>
-            <Button type="button" variant="danger" onClick={confirmar} disabled={cargando}>
-              {cargando ? <SpinnerGap size={16} className="animate-spin" /> : "Confirmar"}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function CambiarClaveDialog({
-  abierto,
-  correo,
-  perfil,
-  onClose,
-}: {
-  abierto: boolean;
-  correo: string;
-  perfil: PerfilAdmin;
-  onClose: () => void;
-}) {
-  const [claveNueva, setClaveNueva] = useState("");
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [exito, setExito] = useState(false);
-
-  const cerrarYResetear = () => {
-    onClose();
-    setClaveNueva("");
-    setCargando(false);
-    setError(null);
-    setExito(false);
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (cargando) return;
-    setError(null);
-
-    if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(claveNueva)) {
-      setError("La contraseña debe tener al menos 8 caracteres, con letras y números");
-      return;
-    }
-
-    setCargando(true);
-    try {
-      await cambiarContrasenaPersonalApi(correo, perfil.id, claveNueva);
-      setExito(true);
-    } catch (e) {
-      setError(e instanceof ApiError ? e.message : "No se pudo cambiar la contraseña");
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  return (
-    <Dialog open={abierto} onOpenChange={(open) => !open && cerrarYResetear()}>
-      <DialogContent
-        title="Cambiar contraseña"
-        description={exito ? undefined : `Nueva contraseña para ${perfil.email}`}
-      >
+      <DialogContent title={titulo} description={exito ? undefined : "Esta acción no se puede deshacer."}>
         {exito ? (
           <div className="flex flex-col items-center gap-4 py-2 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-pastel-green-bg text-pastel-green-fg">
               <CheckCircle size={26} weight="fill" />
             </span>
-            <p className="text-sm font-semibold text-ink">Contraseña actualizada</p>
-            <Button type="button" onClick={cerrarYResetear} className="w-full">
+            <div>
+              <p className="text-sm font-semibold text-ink">Correo enviado</p>
+              <p className="mt-1 text-sm text-ink-muted">
+                <strong>{perfil.email}</strong> va a recibir un link para elegir su contraseña nueva.
+              </p>
+            </div>
+            <Button type="button" onClick={() => { cerrarYResetear(); onConfirmado(); }} className="w-full">
               Listo
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Field label="Contraseña nueva" htmlFor="admin-clave-nueva" hint="Mínimo 8 caracteres, con letras y números">
-              <Input
-                id="admin-clave-nueva"
-                type="password"
-                required
-                autoFocus
-                value={claveNueva}
-                onChange={(e) => setClaveNueva(e.target.value)}
-                placeholder="••••••••"
-              />
-            </Field>
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-ink-soft">
+              {tipo === "cancelar" ? (
+                <>
+                  ¿Cancelar la invitación de <strong className="text-ink">{perfil.email}</strong>? No va a
+                  poder usar ese link para entrar.
+                </>
+              ) : tipo === "eliminar" ? (
+                <>
+                  ¿Eliminar la cuenta de <strong className="text-ink">{perfil.nombre}</strong>? Deja de poder
+                  iniciar sesión en el panel.
+                </>
+              ) : (
+                <>
+                  ¿Enviar un correo de restablecimiento a <strong className="text-ink">{perfil.email}</strong>?
+                  Va a poder elegir su propia contraseña nueva desde ahí; vos no la ves en ningún momento.
+                </>
+              )}
+            </p>
 
             {error && (
               <p className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg">
@@ -405,10 +330,26 @@ function CambiarClaveDialog({
               </p>
             )}
 
-            <Button type="submit" disabled={cargando} className="w-full">
-              {cargando ? <SpinnerGap size={16} className="animate-spin" /> : "Guardar contraseña"}
-            </Button>
-          </form>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={cerrarYResetear} disabled={cargando}>
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                variant={tipo === "restablecer" ? "primary" : "danger"}
+                onClick={confirmar}
+                disabled={cargando}
+              >
+                {cargando ? (
+                  <SpinnerGap size={16} className="animate-spin" />
+                ) : tipo === "restablecer" ? (
+                  "Enviar correo"
+                ) : (
+                  "Confirmar"
+                )}
+              </Button>
+            </div>
+          </div>
         )}
       </DialogContent>
     </Dialog>
@@ -416,11 +357,9 @@ function CambiarClaveDialog({
 }
 
 function InvitarDialog({
-  correo,
   clinicas,
   onInvitado,
 }: {
-  correo: string;
   clinicas: Clinica[];
   onInvitado: () => void;
 }) {
@@ -455,18 +394,19 @@ function InvitarDialog({
     if (cargando) return;
     setError(null);
 
-    if (!clinicaId) {
+    // El superadmin no pertenece a ninguna clínica: solo audita el sistema.
+    if (rol !== "superadmin" && !clinicaId) {
       setError("Elegí una clínica");
       return;
     }
 
     setCargando(true);
     try {
-      await invitarPersonalApi(correo, {
+      await invitarPersonalApi({
         email: email.trim(),
         nombreCompleto: nombreCompleto.trim(),
         rol: rol as "odontologo" | "recepcionista" | "superadmin",
-        clinicaId,
+        clinicaId: rol === "superadmin" ? undefined : clinicaId,
         especialidad: especialidad.trim() || undefined,
       });
       setEnviado(true);
@@ -486,7 +426,7 @@ function InvitarDialog({
         </Button>
       </DialogTrigger>
       <DialogContent
-        title="Invitar a la clínica"
+        title="Invitar colaborador"
         description={enviado ? undefined : "Le mandamos un correo con un link para que elija su contraseña."}
       >
         {enviado ? (
@@ -528,7 +468,7 @@ function InvitarDialog({
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className={rol === "superadmin" ? "grid grid-cols-1 gap-3" : "grid grid-cols-2 gap-3"}>
               <Field label="Rol">
                 <Select value={rol} onValueChange={(v) => setRol(v as Role)}>
                   <SelectTrigger>
@@ -544,21 +484,29 @@ function InvitarDialog({
                 </Select>
               </Field>
 
-              <Field label="Clínica">
-                <Select value={clinicaId} onValueChange={setClinicaId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Elegir…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clinicas.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nombre}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
+              {rol !== "superadmin" && (
+                <Field label="Clínica">
+                  <Select value={clinicaId} onValueChange={setClinicaId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Elegir…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clinicas.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
             </div>
+
+            {rol === "superadmin" && (
+              <p className="-mt-1 text-xs text-ink-muted">
+                El administrador no pertenece a ninguna clínica: solo audita el sistema.
+              </p>
+            )}
 
             {rol === "odontologo" && (
               <Field label="Especialidad (opcional)" htmlFor="invitar-especialidad">

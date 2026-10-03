@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { obtenerSupabase } from "@/lib/supabase";
-import { useAuth } from "@/features/auth/AuthContext";
-import { ApiError, resolverCuentaGoogle } from "@/data/api";
+import { useAuth, resolverSesionDesdeUsuario } from "@/features/auth/AuthContext";
 
 export function GoogleCallbackPage() {
   const navigate = useNavigate();
@@ -18,27 +17,32 @@ export function GoogleCallbackPage() {
   useEffect(() => {
     const supabase = obtenerSupabase();
 
-    const procesarSesion = async (accessToken: string) => {
+    const procesarSesion = async (email: string | undefined) => {
       if (procesado.current) return;
       procesado.current = true;
       try {
-        const cuenta = await resolverCuentaGoogle(accessToken);
-        iniciarSesion(cuenta, true);
+        // La política de RLS de "perfiles" ya permite a cualquier usuario
+        // autenticado leer su propia fila, pero esa fila solo existe si el
+        // correo fue dado de alta por un administrador — así nos aseguramos
+        // de que un login de Google con un correo desconocido no entre.
+        const sesion = await resolverSesionDesdeUsuario(email);
+        if (!sesion) throw new Error("Tu correo no está registrado en ninguna clínica");
+        iniciarSesion(sesion);
         navigate("/app", { replace: true });
       } catch (fallo) {
         await supabase.auth.signOut();
-        setError(fallo instanceof ApiError ? fallo.message : "No se pudo iniciar sesión con Google");
+        setError(fallo instanceof Error ? fallo.message : "No se pudo iniciar sesión con Google");
       }
     };
 
     // supabase-js detecta el token en la URL al cargar y dispara este evento
     // (o ya puede haber una sesión lista si el efecto corre después).
     const { data: suscripcion } = supabase.auth.onAuthStateChange((_evento, session) => {
-      if (session?.access_token) procesarSesion(session.access_token);
+      if (session) procesarSesion(session.user?.email);
     });
 
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.access_token) procesarSesion(data.session.access_token);
+      if (data.session) procesarSesion(data.session.user?.email);
     });
 
     const tiempoLimite = setTimeout(() => {

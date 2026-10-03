@@ -3,8 +3,9 @@ export type Role = "odontologo" | "odontologo_admin" | "recepcionista" | "pacien
 export interface Sesion {
   nombre: string;
   rol: Role;
-  clinica: string;
-  clinicaSlug?: string;
+  /** null para superadmin: no pertenece a ninguna clínica, solo audita el sistema. */
+  clinica: string | null;
+  clinicaSlug?: string | null;
   ciudad?: string | null;
   email?: string;
   especialidad?: string | null;

@@ -1,11 +1,51 @@
-# Matías (Product Owner) debe revisar cualquier cambio a la base de datos,
-# arquitectura o alcance del proyecto. Ver CONTRIBUTING.md.
-# Esta lista solo se aplica una vez que actives "Require review from Code
-# Owners" en la protección de la rama main (Settings > Branches).
+# Code owners de MiDentista
+#
+# Estas reglas SOLO se aplican si activas en GitHub:
+#   Settings > Branches > Add rule  ->  rama main
+#   -> "Require review from Code Owners"
+# Sin eso, este archivo es decorativo.
+#
+# La idea: cada persona tiene una carpeta y solo ella la escribe. Los archivos de
+# integracion (App.tsx, store.tsx, types/index.ts, la BD) son de Matias, porque
+# se editan una vez por merge y asi dos personas nunca tocan el mismo archivo.
 
+# ------------------------------------------------ carpetas de modulo (exclusivas) ---
+/frontend/src/features/evolucion/        @lucas-placeholder
+/frontend/src/features/presupuestos/      @bianca-placeholder
+/frontend/src/features/pagos/             @carlos-placeholder
+/frontend/src/features/dashboard/         @melissa-placeholder
+/frontend/src/features/archivos/          @angelica-placeholder
+
+# ------------------------------------------------ modulos ya construidos / 3D ---
+/frontend/src/features/agenda/            @MattFrs12343
+/frontend/src/features/odontogram/        @MattFrs12343
+/frontend/public/models/                  @MattFrs12343
+
+# ------------------------------------------------ archivos de integracion ---
+/frontend/src/App.tsx                     @MattFrs12343
+/frontend/src/data/store.tsx              @MattFrs12343
+/frontend/src/types/index.ts              @MattFrs12343
+/frontend/src/index.css                   @MattFrs12343
+/frontend/src/components/ui/              @MattFrs12343
+/frontend/src/components/layout/          @MattFrs12343
+/frontend/src/features/patients/          @MattFrs12343
+/frontend/src/features/auth/              @MattFrs12343
+
+# ------------------------------------------------ base de datos y arquitectura ---
+# Matias (Product Owner) debe revisar cualquier cambio a la base de datos,
+# arquitectura o alcance del proyecto. Ver CONTRIBUTING.md.
 /bd_5clinicas_midentista.sql   @MattFrs12343
 /supabase/                     @MattFrs12343
 /docs/DATABASE.md              @MattFrs12343
 /docs/ARCHITECTURE.md          @MattFrs12343
 /docs/SPEC.md                  @MattFrs12343
 /CONTRIBUTING.md               @MattFrs12343
+/AGENTS.md                     @MattFrs12343
+/.gitattributes                @MattFrs12343
+
+# ------------------------------------------------ bitacoras (una por persona) ---
+/docs/bitacoras/lucas.md       @lucas-placeholder
+/docs/bitacoras/bianca.md      @bianca-placeholder
+/docs/bitacoras/carlos.md      @carlos-placeholder
+/docs/bitacoras/melissa.md     @melissa-placeholder
+/docs/bitacoras/angelica.md    @angelica-placeholder

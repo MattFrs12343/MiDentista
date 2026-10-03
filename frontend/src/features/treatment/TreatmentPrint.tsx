@@ -10,7 +10,7 @@ export function TreatmentPrint({
   paciente: Paciente;
   diagnosticos: Diagnostico[];
   plan: PlanTratamiento;
-  clinica?: string;
+  clinica?: string | null;
 }) {
   const total = plan.items.reduce((acc, i) => acc + i.costoEstimado, 0);
 

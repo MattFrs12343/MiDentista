@@ -7,7 +7,7 @@ const SEXO_LABEL: Record<Paciente["sexo"], string> = {
   otro: "Otro",
 };
 
-export function PersonalDataPrint({ paciente, clinica }: { paciente: Paciente; clinica?: string }) {
+export function PersonalDataPrint({ paciente, clinica }: { paciente: Paciente; clinica?: string | null }) {
   const campos: [string, string][] = [
     ["Nombres", paciente.nombres],
     ["Apellidos", paciente.apellidos],

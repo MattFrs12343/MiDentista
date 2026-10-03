@@ -5,7 +5,7 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/features/auth/AuthContext";
-import { ApiError, cambiarContrasena } from "@/data/api";
+import { ApiError, cambiarContrasenaPropiaApi } from "@/data/api";
 
 // Misma política que valida el servidor: solo da feedback inmediato, la
 // verificación real ocurre en la API.
@@ -64,7 +64,7 @@ export function ChangePasswordDialog({ children }: { children: ReactNode }) {
     setCargando(true);
 
     try {
-      await cambiarContrasena(sesion.email, claveActual, claveNueva);
+      await cambiarContrasenaPropiaApi(claveActual, claveNueva);
       setExito(true);
       setCargando(false);
     } catch (fallo) {

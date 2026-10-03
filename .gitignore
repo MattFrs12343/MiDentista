@@ -1,1 +1,21 @@
 .env
+
+# --- Configuracion local con secretos -------------------------------------
+# .claude/settings.local.json contiene tokens de Jira y Supabase en texto plano.
+# No debe versionarse nunca.
+.claude/
+.opencode/state/
+
+# Configuracion local de otras herramientas de IA
+.cursor/
+.aider*
+.clinerules.local
+
+# Logs y procesos locales
+frontend/devserver.log
+*.log
+
+# Notas de entorno y archivos .env locales con cualquier nombre
+*.local
+.env.*
+!.env.example

@@ -806,5 +806,162 @@ left join public.presupuestos pr on pr.clinica_id = c.id and pr.titulo = v.presu
 --   where p.clinica_id = (select id from public.clinicas where slug='dental-cristo-rey')
 --   group by p.nombre_completo order by p.nombre_completo;
 -- ============================================================================
+-- 7. ROW LEVEL SECURITY (arquitectura "Supabase puro")
+-- ============================================================================
+-- El frontend consulta Postgres directo via supabase-js, protegido por estas
+-- políticas, en vez de pasar por un backend propio. Las únicas acciones que
+-- siguen necesitando la service_role key (login con bloqueo por intentos,
+-- invitar/gestionar personal) viven en la Edge Function
+-- supabase/functions/api/index.ts, fuera de este archivo.
+
+-- Funcion helper: perfil del usuario autenticado actual (via auth.uid()).
+create or replace function public.current_perfil()
+returns table (perfil_id uuid, clinica_id uuid, rol text)
+language sql security definer stable
+set search_path = public
+as $$
+  select id, clinica_id, rol
+    from public.perfiles
+   where auth_user_id = auth.uid()
+     and activo = true
+   limit 1;
+$$;
+
+create or replace function public.es_superadmin()
+returns boolean
+language sql security definer stable
+set search_path = public
+as $$
+  select exists (select 1 from public.current_perfil() where rol = 'superadmin');
+$$;
+
+create or replace function public.mi_clinica_id()
+returns uuid
+language sql security definer stable
+set search_path = public
+as $$
+  select clinica_id from public.current_perfil();
+$$;
+
+create or replace function public.mi_perfil_id()
+returns uuid
+language sql security definer stable
+set search_path = public
+as $$
+  select perfil_id from public.current_perfil();
+$$;
+
+-- clinicas: lectura publica (nombre de clinica para el selector de login),
+-- sin escritura desde el cliente.
+alter table public.clinicas enable row level security;
+drop policy if exists clinicas_select on public.clinicas;
+create policy clinicas_select on public.clinicas for select using (true);
+
+-- perfiles: cada quien ve su propia fila; superadmin ve y edita todas.
+alter table public.perfiles enable row level security;
+drop policy if exists perfiles_select on public.perfiles;
+create policy perfiles_select on public.perfiles for select
+  using (auth_user_id = auth.uid() or public.es_superadmin());
+drop policy if exists perfiles_update_superadmin on public.perfiles;
+create policy perfiles_update_superadmin on public.perfiles for update
+  using (public.es_superadmin());
+
+-- pacientes
+alter table public.pacientes enable row level security;
+drop policy if exists pacientes_select on public.pacientes;
+create policy pacientes_select on public.pacientes for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists pacientes_insert on public.pacientes;
+create policy pacientes_insert on public.pacientes for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists pacientes_update on public.pacientes;
+create policy pacientes_update on public.pacientes for update
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
+-- historiales_clinicos
+alter table public.historiales_clinicos enable row level security;
+drop policy if exists historiales_select on public.historiales_clinicos;
+create policy historiales_select on public.historiales_clinicos for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists historiales_insert on public.historiales_clinicos;
+create policy historiales_insert on public.historiales_clinicos for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists historiales_update on public.historiales_clinicos;
+create policy historiales_update on public.historiales_clinicos for update
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
+-- odontogramas
+alter table public.odontogramas enable row level security;
+drop policy if exists odontogramas_select on public.odontogramas;
+create policy odontogramas_select on public.odontogramas for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists odontogramas_insert on public.odontogramas;
+create policy odontogramas_insert on public.odontogramas for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists odontogramas_update on public.odontogramas;
+create policy odontogramas_update on public.odontogramas for update
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
+-- diagnosticos
+alter table public.diagnosticos enable row level security;
+drop policy if exists diagnosticos_select on public.diagnosticos;
+create policy diagnosticos_select on public.diagnosticos for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists diagnosticos_insert on public.diagnosticos;
+create policy diagnosticos_insert on public.diagnosticos for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
+-- planes_tratamiento
+alter table public.planes_tratamiento enable row level security;
+drop policy if exists planes_select on public.planes_tratamiento;
+create policy planes_select on public.planes_tratamiento for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists planes_insert on public.planes_tratamiento;
+create policy planes_insert on public.planes_tratamiento for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists planes_update on public.planes_tratamiento;
+create policy planes_update on public.planes_tratamiento for update
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
+-- procedimientos_tratamiento
+alter table public.procedimientos_tratamiento enable row level security;
+drop policy if exists procedimientos_select on public.procedimientos_tratamiento;
+create policy procedimientos_select on public.procedimientos_tratamiento for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists procedimientos_insert on public.procedimientos_tratamiento;
+create policy procedimientos_insert on public.procedimientos_tratamiento for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists procedimientos_delete on public.procedimientos_tratamiento;
+create policy procedimientos_delete on public.procedimientos_tratamiento for delete
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
+-- horarios / citas: acotado al propio odontologo (ademas de la clinica);
+-- superadmin ve todo.
+alter table public.horarios enable row level security;
+drop policy if exists horarios_select on public.horarios;
+create policy horarios_select on public.horarios for select
+  using (
+    (clinica_id = public.mi_clinica_id() and odontologo_id = public.mi_perfil_id())
+    or public.es_superadmin()
+  );
+
+alter table public.citas enable row level security;
+drop policy if exists citas_select on public.citas;
+create policy citas_select on public.citas for select
+  using (
+    (clinica_id = public.mi_clinica_id() and odontologo_id = public.mi_perfil_id())
+    or public.es_superadmin()
+  );
+drop policy if exists citas_insert on public.citas;
+create policy citas_insert on public.citas for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists citas_update on public.citas;
+create policy citas_update on public.citas for update
+  using (
+    (clinica_id = public.mi_clinica_id() and odontologo_id = public.mi_perfil_id())
+    or public.es_superadmin()
+  );
+
+-- ============================================================================
 -- FIN DE LA BASE DE DATOS MIDENTISTA (5 CLÍNICAS)
 -- ============================================================================

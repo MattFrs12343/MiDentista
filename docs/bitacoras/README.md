@@ -6,19 +6,37 @@ IDs de historias de usuario (`US-x.x`) y tareas técnicas (`T-x.x`) definidos en
 
 ## Equipo (6 desarrolladores)
 
-| Dev | Nombre | Mes 1 | Mes 2 | Mes 3 | Bitácora |
-|-----|--------|-------|-------|-------|----------|
-| Dev 1 | **Matías (PO)** | Módulo 01: Auth/Onboarding | Módulo 07: Agenda/Citas | Testing final + **Deploy** + aprobación de cambios/migraciones | [matias.md](matias.md) |
-| Dev 2 | Bianca | Módulo 02: Pacientes | Apoyo Módulo 05 + Testing | Módulos 08 y 09, en pareja con Carlos | [bianca.md](bianca.md) |
-| Dev 3 | Carlos | Módulo 03: Historia Clínica | Apoyo Módulo 06 + Testing | Módulos 08 y 09, en pareja con Bianca | [carlos.md](carlos.md) |
-| Dev 4 | Melissa | Módulo 04: Odontograma | Testing | Testing e integración, en pareja con Angélica | [melissa.md](melissa.md) |
-| Dev 5 | Angélica | Setup BD/Auth (RLS, migraciones) | **Módulo 05: Diagnóstico/Tratamiento** (dueña) | Testing e integración, en pareja con Melissa | [angelica.md](angelica.md) |
-| Dev 6 | Lucas | Setup proyecto (base del despliegue) | **Módulo 06: Evolución Clínica** (dueño) | Cierre y refinamiento del Módulo 06 (solo) | [lucas.md](lucas.md) |
+| Dev | Nombre | Módulo asignado | Carpeta exclusiva | Bitácora |
+|-----|--------|-----------------|-------------------|----------|
+| Dev 1 | **Matías (PO)** | 01 Auth/Onboarding + 07 Agenda/Citas + **Planta 3D** | `features/agenda/`, `features/odontogram/` | [matias.md](matias.md) |
+| Dev 2 | Lucas | **06: Evolución Clínica** | `features/evolucion/` | [lucas.md](lucas.md) |
+| Dev 3 | Bianca | **08: Presupuestos** | `features/presupuestos/` | [bianca.md](bianca.md) |
+| Dev 4 | Carlos | **09: Pagos y Cuentas** | `features/pagos/` | [carlos.md](carlos.md) |
+| Dev 5 | Melissa | **13: Dashboard** (2D, sin 3D) | `features/dashboard/` | [melissa.md](melissa.md) |
+| Dev 6 | Angélica | **10: Archivos e Imágenes** | `features/archivos/` | [angelica.md](angelica.md) |
 
-Esta tabla es la misma asignación de la sección "Asignación de Equipo (MVP)" de
-`INDEX.md`, con nombres reales en vez de "Dev 1..6". Nadie tiene "Deploy" como
-única tarea: el despliegue a producción es responsabilidad del Product Owner
-(Matías), y todos los demás programan en las tres fases.
+> ⚠️ **Esta tabla contradice a propósito la asignación original de
+> [`../INDEX.md`](../INDEX.md)**, que repartía los módulos 02–05 y dejaba 08–13
+> sin dueño. La asignación vigente es la de esta tabla y la de `AGENTS.md`. Hay
+> que actualizar `INDEX.md` para que no se contradigan.
+
+Los módulos ya construidos antes de este reparto —**03 Historia Clínica**,
+**04 Odontograma** y **05 Diagnóstico/Tratamiento**— los mantiene Matías. No tienen
+dueño asignado porque no hay nadie mas que trabajar en ellos.
+
+La tabla de fases por mes de cada persona esta en su propio archivo de bitacora.
+
+## Reglas de no colisión
+
+Cada persona **crea archivos dentro de su carpeta y no toca ninguna otra**. Leer
+archivos ajenos es permisible y necesario; escribirlos es lo que genera los
+conflictos de merge. Los archivos de integración (`App.tsx`, `Sidebar.tsx`,
+`store.tsx`, `types/index.ts`, `PatientProfilePage.tsx`, `tabValue.ts`, el SQL y
+`components/ui/*`) son de Matías y se editan una vez por merge.
+
+Detalle completo en [`../../AGENTS.md`](../../AGENTS.md) y
+[`../../CONTRIBUTING.md`](../../CONTRIBUTING.md).
+
 
 ## Política de cambios y migraciones
 

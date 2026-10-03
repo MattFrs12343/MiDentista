@@ -19,6 +19,54 @@ Es la carga más pesada del proyecto: dos módulos completos (01 y 07) más el
 despliegue a producción y la responsabilidad de revisar cada migración y cada
 cambio de esquema antes de que el equipo lo aplique.
 
+## Tus propiedades exclusivas (además de la de tu módulo)
+
+Eres el único autorizado para estos archivos, y se editan **una vez por merge**:
+
+- `frontend/src/App.tsx` — registro de rutas
+- `frontend/src/components/layout/Sidebar.tsx` — entradas de navegación
+- `frontend/src/features/patients/PatientProfilePage.tsx` — pestañas de la ficha
+- `frontend/src/features/patients/tabValue.ts` — unión de pestañas
+- `frontend/src/data/store.tsx` — store en memoria compartido
+- `frontend/src/types/index.ts` — tipos compartidos
+- `frontend/src/index.css` y `frontend/src/components/ui/*` — tokens y primitivas
+- `bd_5clinicas_midentista.sql`, `supabase/`
+- `docs/DATABASE.md`, `docs/ARCHITECTURE.md`, `docs/SPEC.md`, `CONTRIBUTING.md`
+
+Cada persona **pide** lo que necesita en su PR y tú lo agregas en el commit de
+integración. Por eso los merges son de unas pocas líneas.
+
+**Tus carpetas de módulo:** `features/agenda/` y `features/odontogram/`. Eres el
+único autorizado para 3D: `three`, `@react-three/fiber`, `@react-three/drei` y
+`dental-arch.glb`. Los demás miembros no lo tocan.
+
+**Al integrar `features/dashboard/` de Melissa, no lo abras.** Ella es su dueña y
+usa `CalendarioAgenda`. Crea tu pieza de agenda como archivo nuevo dentro de
+`features/agenda/` y deja el `CalendarioAgenda` actual intacto.
+
+## Orden de merge de los módulos
+
+1. **06 Evolución** (Lucas) — no depende de nadie
+2. **08 Presupuestos** (Bianca)
+3. **09 Pagos** (Carlos) — consume los totales del 08
+4. **13 Dashboard** (Melissa) y **10 Archivos** (Angélica) — independientes
+
+Como el store y los archivos de integración los editas tú en cada merge, nunca
+hay dos personas modificando el mismo archivo.
+
+## Decisiones pendientes de tu lado
+
+- **`odontologo_admin`**: aprobado como rol real, pero el esquema y `SPEC.md`
+  todavía no lo reflejan. `types/index.ts` ya lo declara, la tabla
+  `perfiles` no lo acepta y `SPEC.md:73` fusiona al odontólogo afiliado con el
+  dueño.
+- **RLS por rol**: las políticas actuales permiten a cualquier odontólogo ver los
+  pacientes de toda la clínica, lo que contradice `ENTREVISTAS_USIARIO.txt`
+  ("cada odontólogo solo debería ver sus propios pacientes y citas").
+- **`docs/INDEX.md`**: su tabla de asignación contradice la vigente de
+  `AGENTS.md` y `docs/bitacoras/README.md`. Hay que actualizarla.
+- **Rotar los tokens** de Jira y Supabase que estaban en `.claude/settings.local.json`.
+
 ## Historias y tareas asignadas
 
 **Módulo 01 (MVP):**

@@ -26,8 +26,11 @@ export function PrintDocument({
 }: {
   /** Título del documento, ej. "HISTORIA CLÍNICA ODONTOLÓGICA". */
   titulo: string;
-  /** Nombre de la clínica (sesion?.clinica), se muestra bajo el título. */
-  clinica?: string;
+  /**
+   * Nombre de la clínica (sesion?.clinica), se muestra bajo el título.
+   * Acepta null: el superadmin no pertenece a ninguna clínica.
+   */
+  clinica?: string | null;
   /** Si se pasa, renderiza el bloque "Datos del paciente" reutilizable. */
   paciente?: Paciente;
   ariaLabel?: string;

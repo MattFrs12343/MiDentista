@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { ApiError, solicitarRecuperacion } from "@/data/api";
+import { obtenerSupabase } from "@/lib/supabase";
 
 // Misma validación simple que aplica el servidor: solo atajar formatos
 // claramente inválidos antes de llamar a la API.
@@ -41,12 +41,15 @@ export function ForgotPasswordDialog({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      await solicitarRecuperacion(correo.trim());
+      const { error: fallo } = await obtenerSupabase().auth.resetPasswordForEmail(correo.trim(), {
+        redirectTo: `${window.location.origin}/recuperar-contrasena`,
+      });
+      if (fallo) throw fallo;
       setCargando(false);
       setEnviado(true);
     } catch (fallo) {
       setCargando(false);
-      setError(fallo instanceof ApiError ? fallo.message : "No se pudo solicitar la recuperación");
+      setError(fallo instanceof Error ? fallo.message : "No se pudo solicitar la recuperación");
     }
   };
 

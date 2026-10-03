@@ -9,7 +9,7 @@ export function OdontogramPrint({
 }: {
   paciente: Paciente;
   piezas: CondicionPieza[];
-  clinica?: string;
+  clinica?: string | null;
 }) {
   const ordenadas = piezas.slice().sort((a, b) => a.pieza - b.pieza);
 

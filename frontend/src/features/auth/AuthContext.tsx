@@ -1,98 +1,96 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Session } from "@supabase/supabase-js";
 import type { Sesion, Role } from "@/types";
-import type { Cuenta } from "@/data/api";
+import { obtenerSupabase } from "@/lib/supabase";
 
 interface AuthState {
   sesion: Sesion | null;
-  iniciarSesion: (cuenta: Cuenta, recordar?: boolean) => void;
+  /** true mientras se resuelve la sesión inicial (getSession + lookup de perfil). */
+  cargando: boolean;
+  iniciarSesion: (sesion: Sesion) => void;
   cerrarSesion: () => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
 
-const CLAVE = "midentista:sesion";
+/**
+ * Dado un usuario de Supabase Auth ya autenticado, busca su perfil (nombre,
+ * rol, clínica). RLS permite a cualquier usuario ver su propia fila de
+ * `perfiles` (auth_user_id = auth.uid()), así que esta consulta no necesita
+ * ningún privilegio especial.
+ */
+export async function resolverSesionDesdeUsuario(email: string | undefined): Promise<Sesion | null> {
+  if (!email) return null;
+  const supabase = obtenerSupabase();
+  const { data } = await supabase
+    .from("perfiles")
+    .select("nombre_completo, rol, especialidad, activo, clinicas(nombre, slug, ciudad, activo)")
+    .ilike("email", email)
+    .eq("activo", true)
+    .maybeSingle();
 
-const ROLES: readonly Role[] = ["odontologo_admin", "odontologo", "recepcionista", "superadmin"];
+  if (!data) return null;
+  const clinica = Array.isArray(data.clinicas) ? data.clinicas[0] : data.clinicas;
+  // El superadmin no pertenece a ninguna clínica (solo audita el sistema),
+  // así que para esa cuenta no exigimos una clínica activa.
+  const esSuperadmin = data.rol === "superadmin";
+  if (!esSuperadmin && !clinica?.activo) return null;
 
-function esSesion(valor: unknown): valor is Sesion {
-  if (typeof valor !== "object" || valor === null) return false;
-  const s = valor as Record<string, unknown>;
-  return (
-    typeof s.nombre === "string" &&
-    typeof s.clinica === "string" &&
-    ROLES.includes(s.rol as Role)
-  );
-}
-
-function leerSesion(): Sesion | null {
-  for (const store of [sessionStorage, localStorage]) {
-    try {
-      const crudo = store.getItem(CLAVE);
-      if (!crudo) continue;
-      const parsed: unknown = JSON.parse(crudo);
-      if (esSesion(parsed)) return parsed;
-    } catch {
-      // storage bloqueado: se ignora y se sigue solo con memoria
-    }
-  }
-  return null;
-}
-
-function borrarSesion() {
-  for (const store of [sessionStorage, localStorage]) {
-    try {
-      store.removeItem(CLAVE);
-    } catch {
-      // sin permisos de storage
-    }
-  }
+  return {
+    nombre: data.nombre_completo,
+    rol: data.rol as Role,
+    clinica: esSuperadmin ? null : clinica.nombre,
+    clinicaSlug: esSuperadmin ? null : clinica.slug,
+    ciudad: esSuperadmin ? null : clinica.ciudad,
+    email,
+    especialidad: data.especialidad,
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [sesion, setSesion] = useState<Sesion | null>(leerSesion);
-  const [recordar, setRecordar] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CLAVE) !== null;
-    } catch {
-      return false;
-    }
-  });
+  const [sesion, setSesion] = useState<Sesion | null>(null);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    if (!sesion) return;
-    try {
-      const destino = recordar ? localStorage : sessionStorage;
-      destino.setItem(CLAVE, JSON.stringify(sesion));
-      if (recordar) sessionStorage.removeItem(CLAVE);
-      else localStorage.removeItem(CLAVE);
-    } catch {
-      // modo privado o cuota llena: la sesion sigue viva solo en memoria
-    }
-  }, [sesion, recordar]);
+    const supabase = obtenerSupabase();
+    let activo = true;
 
-  // La clínica y el nombre del profesional llegan resueltos desde la BD: cada
-  // afiliado ve los suyos, no un valor fijo en el bundle.
-  const iniciarSesion = (cuenta: Cuenta, mantener = false) => {
-    setRecordar(mantener);
-    setSesion({
-      nombre: cuenta.nombre,
-      rol: cuenta.rol,
-      clinica: cuenta.clinica,
-      clinicaSlug: cuenta.clinicaSlug,
-      ciudad: cuenta.ciudad,
-      email: cuenta.email,
-      especialidad: cuenta.especialidad,
+    const procesarSesion = async (session: Session | null) => {
+      const resuelta = await resolverSesionDesdeUsuario(session?.user?.email);
+      if (activo) setSesion(resuelta);
+    };
+
+    supabase.auth.getSession().then(({ data }) => {
+      procesarSesion(data.session).finally(() => {
+        if (activo) setCargando(false);
+      });
     });
+
+    // Mantiene la sesión sincronizada ante login/logout en otra pestaña,
+    // refresco de token, etc. El login propio (iniciarSesion) ya actualiza
+    // el estado al toque; esto es la red de seguridad para todo lo demás.
+    const { data: suscripcion } = supabase.auth.onAuthStateChange((_evento, session) => {
+      procesarSesion(session);
+    });
+
+    return () => {
+      activo = false;
+      suscripcion.subscription.unsubscribe();
+    };
+  }, []);
+
+  const iniciarSesion = (nueva: Sesion) => {
+    setSesion(nueva);
+    setCargando(false);
   };
 
   const cerrarSesion = () => {
-    borrarSesion();
-    setRecordar(false);
+    obtenerSupabase().auth.signOut();
     setSesion(null);
   };
 
   return (
-    <AuthContext.Provider value={{ sesion, iniciarSesion, cerrarSesion }}>
+    <AuthContext.Provider value={{ sesion, cargando, iniciarSesion, cerrarSesion }}>
       {children}
     </AuthContext.Provider>
   );

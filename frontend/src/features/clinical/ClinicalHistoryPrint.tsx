@@ -9,7 +9,7 @@ export function ClinicalHistoryPrint({
 }: {
   paciente: Paciente;
   historia: HistoriaClinica;
-  clinica?: string;
+  clinica?: string | null;
 }) {
   const antecedentes: [string, string, string, string][] = [
     ["01", "Motivo de consulta", historia.motivoConsulta, "Sin motivo de consulta registrado."],

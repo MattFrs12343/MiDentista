@@ -1,15 +1,11 @@
-import type {
-  Role,
-  Paciente,
-  HistoriaClinica,
-  Alergia,
-  CondicionPieza,
-  Diagnostico,
-  PlanTratamiento,
-  ItemTratamiento,
-  Cita,
-  Horario,
-} from "@/types";
+import type { Session } from "@supabase/supabase-js";
+import type { Role, Sesion } from "@/types";
+import { obtenerSupabase } from "@/lib/supabase";
+
+/** Base de la Edge Function que concentra las acciones privilegiadas
+ * (login con bloqueo, invitar/gestionar personal) que no pueden resolverse
+ * con una política de RLS porque requieren la service_role key. */
+const FUNCIONES_URL = `${import.meta.env?.VITE_SUPABASE_URL?.trim()}/functions/v1/api`;
 
 export interface Clinica {
   id: string;
@@ -21,15 +17,19 @@ export interface Clinica {
   telefono: string | null;
 }
 
-/** Cuenta de personal resuelta desde la BD, ya con su clínica asociada. */
-export interface Cuenta {
+/** Fila de la tabla "Personal" del panel de administración. El superadmin no
+ * pertenece a ninguna clínica (solo audita el sistema), así que para esas
+ * filas clinica/clinicaSlug vienen null. */
+export interface PerfilAdmin {
+  id: string;
   email: string;
   nombre: string;
   rol: Role;
   especialidad: string | null;
-  clinica: string;
-  clinicaSlug: string;
-  ciudad: string | null;
+  activo: boolean;
+  invitacionPendiente: boolean;
+  clinica: string | null;
+  clinicaSlug: string | null;
 }
 
 export class ApiError extends Error {
@@ -42,302 +42,127 @@ export class ApiError extends Error {
   }
 }
 
-// En local, "/api" alcanza porque nginx hace de proxy hacia la API (mismo
-// origen). En un hosting estático sin ese proxy (p. ej. HostGator) hace
-// falta la URL completa de la API, configurada en build time.
-const API_BASE = import.meta.env?.VITE_API_URL?.trim().replace(/\/$/, "") || "/api";
+export async function listarClinicas(): Promise<Clinica[]> {
+  const supabase = obtenerSupabase();
+  const { data, error } = await supabase
+    .from("clinicas")
+    .select("id, nombre, slug, ciudad, pais, email, telefono")
+    .eq("activo", true)
+    .order("nombre");
 
-async function pedir<T>(ruta: string, init?: RequestInit): Promise<T> {
-  let respuesta: Response;
-  try {
-    respuesta = await fetch(`${API_BASE}${ruta}`, {
-      ...init,
-      headers: { "Content-Type": "application/json", ...init?.headers },
-    });
-  } catch {
-    throw new ApiError("No se pudo conectar con el servidor de la clínica", 0);
+  if (error) throw new ApiError("No se pudieron leer las clínicas", 503);
+  return (data ?? []) as Clinica[];
+}
+
+// ----------------------------------------------------------------------------
+// Edge Function "api": login con bloqueo por intentos, y gestión de personal
+// (invitar/reenviar/cancelar/cambiar contraseña), todo lo que necesita la
+// service_role key y por eso no puede resolverse con una política de RLS.
+// ----------------------------------------------------------------------------
+
+async function llamarFuncion<T>(
+  ruta: string,
+  body?: unknown,
+  accessToken?: string,
+  method: "POST" | "GET" = "POST",
+): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+  const init: RequestInit = { method, headers };
+  if (method !== "GET") {
+    headers["Content-Type"] = "application/json";
+    init.body = JSON.stringify(body ?? {});
   }
 
-  const cuerpo = await respuesta.json().catch(() => null);
-
-  if (!respuesta.ok) {
-    throw new ApiError(
-      (cuerpo as { error?: string } | null)?.error ?? "Ocurrió un error inesperado",
-      respuesta.status,
-    );
+  const resp = await fetch(`${FUNCIONES_URL}/${ruta}`, init);
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new ApiError((data as { error?: string })?.error || "No se pudo completar la acción", resp.status);
   }
-
-  return cuerpo as T;
+  return data as T;
 }
 
-export function listarClinicas(signal?: AbortSignal): Promise<Clinica[]> {
-  return pedir<Clinica[]>("/clinicas", { signal });
+/** Access token de la sesión actual, requerido para las rutas protegidas. */
+async function tokenDeSesion(): Promise<string> {
+  const {
+    data: { session },
+  } = await obtenerSupabase().auth.getSession();
+  if (!session?.access_token) throw new ApiError("No se pudo identificar tu sesión", 401);
+  return session.access_token;
 }
 
-export function resolverCuenta(correo: string, clave: string): Promise<Cuenta> {
-  return pedir<Cuenta>("/sesion", {
-    method: "POST",
-    body: JSON.stringify({ correo, clave }),
-  });
-}
-
-export function resolverCuentaGoogle(accessToken: string): Promise<Cuenta> {
-  return pedir<Cuenta>("/sesion-google", {
-    method: "POST",
-    body: JSON.stringify({ accessToken }),
-  });
-}
-
-export function cambiarContrasena(
-  correo: string,
-  claveActual: string,
-  claveNueva: string,
-): Promise<{ ok: true }> {
-  return pedir<{ ok: true }>("/cambiar-contrasena", {
-    method: "POST",
-    body: JSON.stringify({ correo, claveActual, claveNueva }),
-  });
-}
-
-export function solicitarRecuperacion(correo: string): Promise<{ ok: true; mensaje: string }> {
-  return pedir("/recuperacion/solicitar", {
-    method: "POST",
-    body: JSON.stringify({ correo }),
-  });
-}
-
-// ----------------------------------------------------------------------------
-// Datos de la clínica (pacientes, historia, odontograma, tratamiento, agenda).
-// No hay token de sesión: cada pedido identifica al usuario por su correo,
-// igual que resolverCuenta, y el servidor resuelve su clínica a partir de eso.
-// ----------------------------------------------------------------------------
-
-export function listarPacientes(correo: string): Promise<Paciente[]> {
-  return pedir<Paciente[]>(`/pacientes?correo=${encodeURIComponent(correo)}`);
-}
-
-export function crearPaciente(
-  correo: string,
-  paciente: Omit<Paciente, "id" | "creadoEl">,
-): Promise<Paciente> {
-  return pedir<Paciente>("/pacientes", {
-    method: "POST",
-    body: JSON.stringify({ correo, paciente }),
-  });
-}
-
-export function actualizarPacienteApi(
-  correo: string,
-  id: string,
-  cambios: Partial<Paciente>,
-): Promise<Paciente> {
-  return pedir<Paciente>(`/pacientes/${id}`, {
-    method: "PUT",
-    body: JSON.stringify({ correo, cambios }),
-  });
-}
-
-export function eliminarPacienteApi(correo: string, id: string): Promise<{ ok: true }> {
-  return pedir<{ ok: true }>(`/pacientes/${id}?correo=${encodeURIComponent(correo)}`, {
-    method: "DELETE",
-  });
-}
-
-export function obtenerHistoriaApi(correo: string, pacienteId: string): Promise<HistoriaClinica> {
-  return pedir<HistoriaClinica>(`/pacientes/${pacienteId}/historia?correo=${encodeURIComponent(correo)}`);
-}
-
-export function actualizarHistoriaApi(
-  correo: string,
-  pacienteId: string,
-  cambios: Partial<HistoriaClinica>,
-  responsable?: string,
-): Promise<HistoriaClinica> {
-  return pedir<HistoriaClinica>(`/pacientes/${pacienteId}/historia`, {
-    method: "PUT",
-    body: JSON.stringify({ correo, cambios, responsable }),
-  });
-}
-
-export function agregarAlergiaApi(
-  correo: string,
-  pacienteId: string,
-  alergia: Omit<Alergia, "id">,
-  responsable?: string,
-): Promise<HistoriaClinica> {
-  return pedir<HistoriaClinica>(`/pacientes/${pacienteId}/alergias`, {
-    method: "POST",
-    body: JSON.stringify({ correo, alergia, responsable }),
-  });
-}
-
-export function quitarAlergiaApi(
-  correo: string,
-  pacienteId: string,
-  alergiaId: string,
-): Promise<HistoriaClinica> {
-  return pedir<HistoriaClinica>(
-    `/pacientes/${pacienteId}/alergias/${alergiaId}?correo=${encodeURIComponent(correo)}`,
-    { method: "DELETE" },
-  );
-}
-
-export function obtenerOdontogramaApi(correo: string, pacienteId: string): Promise<CondicionPieza[]> {
-  return pedir<CondicionPieza[]>(`/pacientes/${pacienteId}/odontograma?correo=${encodeURIComponent(correo)}`);
-}
-
-export function registrarCondicionApi(
-  correo: string,
-  pacienteId: string,
-  condicion: CondicionPieza,
-): Promise<CondicionPieza[]> {
-  return pedir<CondicionPieza[]>(`/pacientes/${pacienteId}/odontograma`, {
-    method: "PUT",
-    body: JSON.stringify({ correo, condicion }),
-  });
-}
-
-export function listarDiagnosticosApi(correo: string, pacienteId: string): Promise<Diagnostico[]> {
-  return pedir<Diagnostico[]>(`/pacientes/${pacienteId}/diagnosticos?correo=${encodeURIComponent(correo)}`);
-}
-
-export function registrarDiagnosticoApi(
-  correo: string,
-  pacienteId: string,
-  descripcion: string,
-  pieza?: number,
-): Promise<Diagnostico> {
-  return pedir<Diagnostico>(`/pacientes/${pacienteId}/diagnosticos`, {
-    method: "POST",
-    body: JSON.stringify({ correo, descripcion, pieza }),
-  });
-}
-
-export function obtenerPlanApi(correo: string, pacienteId: string): Promise<PlanTratamiento> {
-  return pedir<PlanTratamiento>(`/pacientes/${pacienteId}/plan?correo=${encodeURIComponent(correo)}`);
-}
-
-export function agregarItemPlanApi(
-  correo: string,
-  pacienteId: string,
-  item: Omit<ItemTratamiento, "id">,
-): Promise<PlanTratamiento> {
-  return pedir<PlanTratamiento>(`/pacientes/${pacienteId}/plan/items`, {
-    method: "POST",
-    body: JSON.stringify({ correo, item }),
-  });
-}
-
-export function quitarItemPlanApi(
-  correo: string,
-  pacienteId: string,
-  itemId: string,
-): Promise<PlanTratamiento> {
-  return pedir<PlanTratamiento>(
-    `/pacientes/${pacienteId}/plan/items/${itemId}?correo=${encodeURIComponent(correo)}`,
-    { method: "DELETE" },
-  );
-}
-
-export function actualizarObservacionesPlanApi(
-  correo: string,
-  pacienteId: string,
-  observaciones: string,
-): Promise<PlanTratamiento> {
-  return pedir<PlanTratamiento>(`/pacientes/${pacienteId}/plan/observaciones`, {
-    method: "PUT",
-    body: JSON.stringify({ correo, observaciones }),
-  });
-}
-
-export function listarHorariosApi(correo: string): Promise<Horario[]> {
-  return pedir<Horario[]>(`/horarios?correo=${encodeURIComponent(correo)}`);
-}
-
-export function listarCitasApi(correo: string): Promise<Cita[]> {
-  return pedir<Cita[]>(`/citas?correo=${encodeURIComponent(correo)}`);
-}
-
-export function registrarCitaApi(correo: string, cita: Omit<Cita, "id">): Promise<Cita> {
-  return pedir<Cita>("/citas", {
-    method: "POST",
-    body: JSON.stringify({ correo, cita }),
-  });
-}
-
-export function cambiarEstadoCitaApi(
-  correo: string,
-  citaId: string,
-  estado: Cita["estado"],
-): Promise<Cita> {
-  return pedir<Cita>(`/citas/${citaId}/estado`, {
-    method: "PUT",
-    body: JSON.stringify({ correo, estado }),
-  });
-}
-
-// ----------------------------------------------------------------------------
-// Administración (solo superadmin)
-// ----------------------------------------------------------------------------
-
-export interface PerfilAdmin {
-  id: string;
+interface RespuestaLogin {
   email: string;
   nombre: string;
   rol: Role;
   especialidad: string | null;
-  activo: boolean;
-  invitacionPendiente: boolean;
-  clinica: string;
-  clinicaSlug: string;
+  // null para superadmin: no pertenece a ninguna clínica, solo audita el sistema.
+  clinica: string | null;
+  clinicaSlug: string | null;
+  ciudad: string | null;
+  session: Session;
 }
 
-export function listarPersonalApi(correo: string): Promise<PerfilAdmin[]> {
-  return pedir<PerfilAdmin[]>(`/admin/perfiles?correo=${encodeURIComponent(correo)}`);
+export async function iniciarSesionApi(correo: string, clave: string): Promise<{ sesion: Sesion; session: Session }> {
+  const data = await llamarFuncion<RespuestaLogin>("login", { correo, clave });
+  return {
+    sesion: {
+      nombre: data.nombre,
+      rol: data.rol,
+      clinica: data.clinica,
+      clinicaSlug: data.clinicaSlug,
+      ciudad: data.ciudad,
+      email: data.email,
+      especialidad: data.especialidad,
+    },
+    session: data.session,
+  };
 }
 
-export function invitarPersonalApi(
-  correo: string,
-  datos: {
-    email: string;
-    nombreCompleto: string;
-    rol: "odontologo" | "recepcionista" | "superadmin";
-    clinicaId: string;
-    especialidad?: string;
-  },
-): Promise<{ ok: true }> {
-  return pedir<{ ok: true }>("/admin/invitar", {
-    method: "POST",
-    body: JSON.stringify({ correo, ...datos }),
-  });
+export async function cambiarContrasenaPropiaApi(claveActual: string, claveNueva: string): Promise<void> {
+  const token = await tokenDeSesion();
+  await llamarFuncion("cambiar-contrasena-propia", { claveActual, claveNueva }, token);
 }
 
-export function reenviarInvitacionApi(correo: string, id: string): Promise<{ ok: true }> {
-  return pedir<{ ok: true }>(`/admin/perfiles/${id}/reenviar-invitacion`, {
-    method: "POST",
-    body: JSON.stringify({ correo }),
-  });
+export async function listarPersonalApi(): Promise<PerfilAdmin[]> {
+  const token = await tokenDeSesion();
+  return llamarFuncion<PerfilAdmin[]>("admin/listar", undefined, token, "GET");
 }
 
-export function cancelarInvitacionApi(correo: string, id: string): Promise<{ ok: true }> {
-  return pedir<{ ok: true }>(`/admin/perfiles/${id}/invitacion?correo=${encodeURIComponent(correo)}`, {
-    method: "DELETE",
-  });
+export async function invitarPersonalApi(datos: {
+  email: string;
+  nombreCompleto: string;
+  rol: Role;
+  /** Obligatoria salvo para rol "superadmin", que no pertenece a ninguna clínica. */
+  clinicaId?: string;
+  especialidad?: string;
+}): Promise<void> {
+  const token = await tokenDeSesion();
+  await llamarFuncion("admin/invitar", datos, token);
 }
 
-export function eliminarPersonalApi(correo: string, id: string): Promise<{ ok: true }> {
-  return pedir<{ ok: true }>(`/admin/perfiles/${id}?correo=${encodeURIComponent(correo)}`, {
-    method: "DELETE",
-  });
+export async function reenviarInvitacionApi(perfilId: string): Promise<void> {
+  const token = await tokenDeSesion();
+  await llamarFuncion("admin/reenviar-invitacion", { perfilId }, token);
 }
 
-export function cambiarContrasenaPersonalApi(
-  correo: string,
-  id: string,
-  claveNueva: string,
-): Promise<{ ok: true }> {
-  return pedir<{ ok: true }>(`/admin/perfiles/${id}/contrasena`, {
-    method: "POST",
-    body: JSON.stringify({ correo, claveNueva }),
-  });
+export async function cancelarInvitacionApi(perfilId: string): Promise<void> {
+  const token = await tokenDeSesion();
+  await llamarFuncion("admin/cancelar-invitacion", { perfilId }, token);
+}
+
+/** El superadmin nunca escribe la contraseña nueva de otra persona: esto
+ * dispara el mismo correo de "recuperar contraseña" del login, y el usuario
+ * elige su propia contraseña nueva desde ahí. */
+export async function restablecerContrasenaPersonalApi(perfilId: string): Promise<void> {
+  const token = await tokenDeSesion();
+  await llamarFuncion("admin/restablecer-contrasena", { perfilId }, token);
+}
+
+/** Pasa por la Edge Function (no un UPDATE de RLS directo) para que el
+ * servidor pueda rechazar que un superadmin se elimine a sí mismo. */
+export async function eliminarPersonalApi(perfilId: string): Promise<void> {
+  const token = await tokenDeSesion();
+  await llamarFuncion("admin/eliminar", { perfilId }, token);
 }
