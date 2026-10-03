@@ -10,11 +10,11 @@
 # se editan una vez por merge y asi dos personas nunca tocan el mismo archivo.
 
 # ------------------------------------------------ carpetas de modulo (exclusivas) ---
-/frontend/src/features/evolucion/        @lucas-placeholder
-/frontend/src/features/presupuestos/      @bianca-placeholder
-/frontend/src/features/pagos/             @carlos-placeholder
-/frontend/src/features/dashboard/         @melissa-placeholder
-/frontend/src/features/archivos/          @angelica-placeholder
+/frontend/src/features/evolucion/        @Lucas
+/frontend/src/features/presupuestos/      @Bianca
+/frontend/src/features/pagos/             @Carlos
+/frontend/src/features/dashboard/         @Melissa
+/frontend/src/features/archivos/          @Angelica
 
 # ------------------------------------------------ modulos ya construidos / 3D ---
 /frontend/src/features/agenda/            @MattFrs12343
@@ -44,8 +44,8 @@
 /.gitattributes                @MattFrs12343
 
 # ------------------------------------------------ bitacoras (una por persona) ---
-/docs/bitacoras/lucas.md       @lucas-placeholder
-/docs/bitacoras/bianca.md      @bianca-placeholder
-/docs/bitacoras/carlos.md      @carlos-placeholder
-/docs/bitacoras/melissa.md     @melissa-placeholder
-/docs/bitacoras/angelica.md    @angelica-placeholder
+/docs/bitacoras/lucas.md       @Lucas
+/docs/bitacoras/bianca.md      @Bianca
+/docs/bitacoras/carlos.md      @Carlos
+/docs/bitacoras/melissa.md     @Melissa
+/docs/bitacoras/angelica.md    @Angelica
