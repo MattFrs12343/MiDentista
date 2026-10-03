@@ -1,32 +1,12 @@
 # Bitácora - Carlos (Dev 3)
 
-## Asignación vigente
+## Asignación (INDEX.md)
 
-| Módulo | Carpeta exclusiva | Bitácora de referencia |
-|--------|-------------------|------------------------|
-| **09: [Pagos y Cuentas](../modules/09-pagos/)** | `frontend/src/features/pagos/` | esta |
-
-## Propiedad de archivos — Carlos
-
-**Creas archivos dentro de `features/pagos/` y dentro de nada más.**
-
-**No editas**, aunque los leas: `App.tsx`, `Sidebar.tsx`, `store.tsx`,
-`types/index.ts`, `PatientProfilePage.tsx`, `tabValue.ts`, `components/ui/*`,
-`index.css`, `bd_5clinicas_midentista.sql`, ni las carpetas de Lucas, Bianca,
-Melissa o Angélica. Esos archivos son de integración y los edita Matías una vez
-por merge.
-
-En tu PR, **pide** lo que necesites: "necesito la ruta `/app/pagos`".
-
-**Sobre Bianca:** tu módulo 09 necesita los totales de su módulo 08 (`T-9.7`),
-pero **`pagoCalculo.ts` no importa nada** de `features/presupuestos/`, solo recibe
-números. Por eso **no te bloquea**: puedes empezar hoy sin esperar su merge. Y no
-dupliques su fórmula del total: si cada uno multiplica por su lado, los dos
-mostréis cifras distintas para el mismo presupuesto.
-
-Lee [`../../AGENTS.md`](../../AGENTS.md) y el
-[`README.md`](../../frontend/src/features/pagos/README.md) de tu módulo antes de
-escribir la primera línea.
+| Fase | Mes | Responsabilidad |
+|------|-----|------------------|
+| 1 | Septiembre | Módulo 03: [Historia Clínica](../modules/03-historia-clinica/) |
+| 2 | Octubre | Apoyo al Módulo 06: [Evolución Clínica](../modules/06-evolucion-clinica/) + testing de la fase |
+| 3 | Nov-Dic | Módulo 08: [Presupuestos](../modules/08-presupuestos/) y Módulo 09: [Pagos y Cuentas](../modules/09-pagos/), en pareja con Bianca |
 
 ## Historias y tareas asignadas
 

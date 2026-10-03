@@ -1,39 +1,12 @@
 # Bitácora - Melissa (Dev 4)
 
-## Asignación vigente
+## Asignación (INDEX.md)
 
-| Módulo | Carpeta exclusiva | Bitácora de referencia |
-|--------|-------------------|------------------------|
-| **13: [Dashboard](../modules/13-dashboard/)** — solo 2D | `frontend/src/features/dashboard/` | esta |
-
-> ⚠️ Este módulo **cambió respecto al `INDEX.md` original**, que te asignaba el
-> Módulo 04 Odontograma. El Odontograma es 3D y la 3D es de Matías, así que ya
-> no es tuyo. Si tienes código del módulo 04 empezado, no lo borres: dímelo y se
-> decide a qué módulo pasa.
-
-## Propiedad de archivos — Melissa
-
-**Escribes dentro de `features/dashboard/` y dentro de nada más.** Los archivos
-que ya hay en esa carpeta son tuyos: `DashboardPage.tsx`, `dashboard.css`,
-`mapa-calor.tsx`, `clinica-calor.ts` y `ClinicalFindingsChart.tsx`.
-
-**No editas**, aunque los leas: `App.tsx`, `Sidebar.tsx`, `store.tsx`,
-`types/index.ts`, `PatientProfilePage.tsx`, `components/ui/*`, `index.css`, ni
-`features/agenda/`, que es de Matías.
-
-**El acuerdo sobre la agenda:** `DashboardPage.tsx` usa la agenda, y Matías
-construye el módulo 07. Para que no se pisen, Matías **no toca** tu carpeta: él
-crea `features/agenda/AgendaDayGrid.tsx` como archivo nuevo y deja el
-`CalendarioAgenda` actual intacto. Si necesitas un dato nuevo para tu dashboard,
-**pídeselo en el PR**, no abras su carpeta.
-
-**Nada de 3D.** Prohibido `three`, `@react-three/fiber`, `@react-three/drei`,
-`OrbitControls` y `dental-arch.glb`. Ya tienes dos gráficos SVG sin conectar:
-`mapa-calor.tsx` y `ClinicalFindingsChart.tsx`. Conéctalos; si necesitas otro,
-escribe SVG con `components/ui/`.
-
-Lee [`../../AGENTS.md`](../../AGENTS.md) y el
-[`README.md`](../../frontend/src/features/dashboard/README.md) de tu módulo.
+| Fase | Mes | Responsabilidad |
+|------|-----|------------------|
+| 1 | Septiembre | Módulo 04: [Odontograma](../modules/04-odontograma/) |
+| 2 | Octubre | Testing / pruebas de integración de la fase |
+| 3 | Nov-Dic | Testing e integración final de los 9 módulos, en pareja con Angélica |
 
 ## Historias y tareas asignadas
 

@@ -1,27 +1,12 @@
 # Bitácora - Bianca (Dev 2)
 
-## Asignación vigente
+## Asignación (INDEX.md)
 
-| Módulo | Carpeta exclusiva | Bitácora de referencia |
-|--------|-------------------|------------------------|
-| **08: [Presupuestos](../modules/08-presupuestos/)** | `frontend/src/features/presupuestos/` | esta |
-
-## Propiedad de archivos — Bianca
-
-**Creas archivos dentro de `features/presupuestos/` y dentro de nada más.**
-
-**No editas**, aunque los leas: `App.tsx`, `Sidebar.tsx`, `store.tsx`,
-`types/index.ts`, `PatientProfilePage.tsx`, `tabValue.ts`, `components/ui/*`,
-`index.css`, `bd_5clinicas_midentista.sql`, ni las carpetas de Lucas, Carlos,
-Melissa o Angélica. Esos archivos son de integración y los edita Matías una vez
-por merge.
-
-En tu PR, **pide** lo que necesites en vez de añadirlo: "necesito la ruta
-`/app/presupuestos`" y "necesito la entrada en el Sidebar".
-
-Lee [`../../AGENTS.md`](../../AGENTS.md) y el
-[`README.md`](../../frontend/src/features/presupuestos/README.md) de tu módulo
-antes de escribir la primera línea: ahí está el contrato de tu carpeta.
+| Fase | Mes | Responsabilidad |
+|------|-----|------------------|
+| 1 | Septiembre | Módulo 02: [Gestión de Pacientes](../modules/02-pacientes/) |
+| 2 | Octubre | Apoyo al Módulo 05: [Diagnóstico y Plan de Tratamiento](../modules/05-diagnostico-tratamiento/) (cálculo de costos, consultas SQL) + testing de la fase |
+| 3 | Nov-Dic | Módulo 08: [Presupuestos](../modules/08-presupuestos/) y Módulo 09: [Pagos y Cuentas](../modules/09-pagos/), en pareja con Carlos |
 
 ## Historias y tareas asignadas
 
