@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Tooth,
@@ -14,6 +14,7 @@ import {
 import heroDashboard from "@/assets/banners/hero-dashboard.jpg";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { HangingBanner } from "@/components/ui/hanging-banner";
+import { StatTile } from "@/components/ui/stat-tile";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useClinicaData } from "@/data/store";
@@ -21,14 +22,6 @@ import { primerNombre as obtenerPrimerNombre } from "@/lib/nombre";
 import { CalendarioAgenda } from "@/features/agenda/CalendarioAgenda";
 import { AtendidosHoy } from "@/features/agenda/AtendidosHoy";
 import "./dashboard.css";
-
-type StatTone = "patients" | "diagnosis" | "treatment";
-
-const STAT_TONE_CLASS: Record<StatTone, string> = {
-  patients: "dashboard-stat-patients",
-  diagnosis: "dashboard-stat-diagnosis",
-  treatment: "dashboard-stat-treatment",
-};
 
 export function DashboardPage() {
   usePageHeader({
@@ -102,27 +95,55 @@ export function DashboardPage() {
       </HangingBanner>
 
       <section className="dashboard-stats">
-        <StatCard
-          icon={UsersThree}
-          label="Pacientes registrados"
-          value={pacientes.length}
-          tone="patients"
+        {/* Cada metrica es un destino: el `Link` aporta el foco y el rol, el
+            `interactive` del tile aporta la elevacion y la presion al tocar. */}
+        <Link
           to="/app/pacientes"
-        />
-        <StatCard
-          icon={ClipboardText}
-          label="Diagnósticos registrados"
-          value={diagnosticosActivos}
-          tone="diagnosis"
+          className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          aria-label="Ver los pacientes registrados"
+        >
+          <StatTile
+            interactive
+            className="h-full"
+            icon={UsersThree}
+            iconTone="blue"
+            label="Pacientes registrados"
+            value={pacientes.length}
+            hint="Fichas clínicas abiertas"
+          />
+        </Link>
+
+        <Link
           to="/app/pacientes"
-        />
-        <StatCard
-          icon={Tooth}
-          label="Ítems en planes de tratamiento"
-          value={tratamientosPropuestos}
-          tone="treatment"
+          className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          aria-label="Ver los diagnósticos registrados"
+        >
+          <StatTile
+            interactive
+            className="h-full"
+            icon={ClipboardText}
+            iconTone="violet"
+            label="Diagnósticos registrados"
+            value={diagnosticosActivos}
+            hint="Piezas con condición distinta de sano"
+          />
+        </Link>
+
+        <Link
           to="/app/pacientes"
-        />
+          className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          aria-label="Ver los ítems en planes de tratamiento"
+        >
+          <StatTile
+            interactive
+            className="h-full"
+            icon={Tooth}
+            iconTone="green"
+            label="Ítems en planes de tratamiento"
+            value={tratamientosPropuestos}
+            hint="Procedimientos propuestos"
+          />
+        </Link>
 
         <article className="dashboard-next-card">
           <span className="dashboard-next-label">
@@ -163,35 +184,5 @@ export function DashboardPage() {
         </div>
       </section>
     </div>
-  );
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-  to,
-}: {
-  icon: typeof UsersThree;
-  label: string;
-  value: number;
-  tone: StatTone;
-  to: string;
-}) {
-  return (
-    <Link
-      to={to}
-      className={`dashboard-stat-card ${STAT_TONE_CLASS[tone]}`}
-      aria-label={`Ver ${label.toLowerCase()}`}
-    >
-      <div className="dashboard-stat-icon">
-        <Icon size={18} weight="bold" />
-      </div>
-      <div className="dashboard-stat-content">
-        <strong>{value}</strong>
-        <span>{label}</span>
-      </div>
-    </Link>
   );
 }

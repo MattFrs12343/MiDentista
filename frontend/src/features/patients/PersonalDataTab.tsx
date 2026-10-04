@@ -53,6 +53,12 @@ export function PersonalDataTab({ paciente }: { paciente: Paciente }) {
     );
   }
 
+  const tieneEmergencia = Boolean(
+    paciente.contactoEmergenciaNombre ||
+      paciente.contactoEmergenciaTelefono ||
+      paciente.contactoEmergenciaParentesco,
+  );
+
   const campos: [string, string][] = [
     ["Nombres", paciente.nombres],
     ["Apellidos", paciente.apellidos],
@@ -62,6 +68,13 @@ export function PersonalDataTab({ paciente }: { paciente: Paciente }) {
     ["Teléfono", paciente.telefono],
     ["Correo electrónico", paciente.email || "—"],
     ["Dirección", paciente.direccion || "—"],
+    ...(tieneEmergencia
+      ? ([
+          ["Contacto de emergencia", paciente.contactoEmergenciaNombre || "—"],
+          ["Teléfono de emergencia", paciente.contactoEmergenciaTelefono || "—"],
+          ["Parentesco", paciente.contactoEmergenciaParentesco || "—"],
+        ] as [string, string][])
+      : []),
   ];
 
   return (

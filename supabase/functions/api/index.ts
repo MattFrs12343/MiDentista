@@ -14,6 +14,8 @@
 //   /admin/cancelar-invitacion   -> { perfilId }
 //   /admin/eliminar              -> { perfilId }  (baja logica; no permite auto-eliminarse)
 //   /admin/restablecer-contrasena -> { perfilId }  (envia el correo de "recuperar contraseña"; el usuario la elige el mismo)
+//   /paciente/registrar          -> { nombreCompleto, telefono? }  (Authorization: cualquier usuario de Auth sin perfil todavia)
+//   /paciente/mi-ficha           -> GET, sin body  (Authorization: paciente; lecturas acotadas a su propia fila)
 //
 // Deploy: supabase functions deploy api
 
@@ -80,6 +82,19 @@ async function requerirSuperadmin(req: Request) {
   const perfil = await perfilDelToken(req);
   if (!perfil || perfil.rol !== "superadmin") return null;
   return perfil;
+}
+
+/** Usuario de Supabase Auth del request (id + email), o null. A diferencia de
+ * `perfilDelToken`, no exige que ya exista una fila en `perfiles`: lo usa el
+ * alta de paciente, que justamente crea esa fila. */
+async function usuarioDelToken(req: Request) {
+  const auth = req.headers.get("Authorization") ?? "";
+  const token = auth.replace(/^Bearer\s+/i, "");
+  if (!token) return null;
+
+  const { data, error } = await admin.auth.getUser(token);
+  if (error || !data.user?.email) return null;
+  return { id: data.user.id, email: data.user.email };
 }
 
 async function enviarInvitacion(email: string, nombreCompleto: string) {
@@ -390,6 +405,219 @@ async function handleAdminRestablecerContrasena(req: Request) {
 }
 
 // ----------------------------------------------------------------------------
+// /paciente/* (portal del paciente)
+// ----------------------------------------------------------------------------
+
+/** Alta inicial: crea el perfil con rol 'paciente' ligado a la cuenta de Auth
+ * (Google). Es idempotente; si el correo ya es de personal de una clínica,
+ * se rechaza. */
+async function handlePacienteRegistrar(req: Request) {
+  const usuario = await usuarioDelToken(req);
+  if (!usuario) return json({ error: "No se pudo identificar tu sesión" }, 401);
+
+  const body = await req.json().catch(() => ({}));
+  const nombreCompleto = String(body?.nombreCompleto ?? "").trim();
+  const telefono = body?.telefono ? String(body.telefono).trim() : "";
+  if (!nombreCompleto) return json({ error: "El nombre completo es obligatorio" }, 400);
+
+  const { data: porAuth } = await admin
+    .from("perfiles")
+    .select("id, rol")
+    .eq("auth_user_id", usuario.id)
+    .maybeSingle();
+  if (porAuth) {
+    if (porAuth.rol === "paciente") return json({ ok: true, perfilId: porAuth.id });
+    return json({ error: "Tu correo ya está registrado como personal de una clínica" }, 409);
+  }
+
+  const { data: porEmail } = await admin
+    .from("perfiles")
+    .select("id, rol")
+    .ilike("email", usuario.email)
+    .maybeSingle();
+  if (porEmail) {
+    if (porEmail.rol !== "paciente") {
+      return json({ error: "Tu correo ya está registrado como personal de una clínica" }, 409);
+    }
+    // Perfil de paciente preexistente sin la cuenta de Auth enlazada (p. ej.
+    // creado antes del alta con Google): se enlaza ahora.
+    await admin.from("perfiles").update({ auth_user_id: usuario.id, activo: true }).eq("id", porEmail.id);
+    return json({ ok: true, perfilId: porEmail.id });
+  }
+
+  const { data: nuevo, error } = await admin
+    .from("perfiles")
+    .insert({
+      email: usuario.email,
+      nombre_completo: nombreCompleto,
+      telefono: telefono || null,
+      rol: "paciente",
+      activo: true,
+      auth_user_id: usuario.id,
+    })
+    .select("id")
+    .single();
+  if (error || !nuevo) return json({ error: "No se pudo crear tu cuenta de paciente" }, 503);
+
+  return json({ ok: true, perfilId: nuevo.id }, 201);
+}
+
+/** Lectura del portal: devuelve SOLO los datos del propio paciente. No se usa
+ * RLS directo porque las políticas clínicas filtran por clínica y expondrían
+ * los datos de todos los pacientes de esa clínica. */
+async function handlePacienteMiFicha(req: Request) {
+  const usuario = await usuarioDelToken(req);
+  if (!usuario) return json({ error: "No se pudo identificar tu sesión" }, 401);
+
+  const { data: perfil } = await admin
+    .from("perfiles")
+    .select("id, nombre_completo, email, telefono, avatar_url, rol, clinica_id")
+    .eq("auth_user_id", usuario.id)
+    .eq("activo", true)
+    .maybeSingle();
+  if (!perfil || perfil.rol !== "paciente") {
+    return json({ error: "Esta cuenta no es de paciente" }, 403);
+  }
+
+  let clinica: Record<string, unknown> | null = null;
+  if (perfil.clinica_id) {
+    const { data } = await admin
+      .from("clinicas")
+      .select("id, nombre, slug, ciudad, direccion, telefono, email")
+      .eq("id", perfil.clinica_id)
+      .maybeSingle();
+    clinica = data ?? null;
+  }
+
+  const { data: paciente } = await admin
+    .from("pacientes")
+    .select(
+      "id, ci, nombre_completo, nombres, apellidos, fecha_nacimiento, genero, telefono, email, direccion, contacto_emergencia_nombre, contacto_emergencia_telefono, contacto_emergencia_parentesco",
+    )
+    .eq("perfil_id", perfil.id)
+    .maybeSingle();
+
+  const base = {
+    perfil: {
+      nombre: perfil.nombre_completo,
+      email: perfil.email,
+      telefono: perfil.telefono,
+      avatarUrl: perfil.avatar_url,
+    },
+    clinica,
+    paciente: paciente ?? null,
+  };
+
+  // Todavía no se afilió a ninguna clínica: el portal muestra el onboarding.
+  if (!paciente) {
+    return json({
+      ...base,
+      historia: null,
+      odontograma: null,
+      diagnosticos: [],
+      planes: [],
+      evoluciones: [],
+      citas: [],
+      presupuestos: [],
+      pagos: [],
+      resumen: { totalPagado: 0, saldoPendiente: 0 },
+    });
+  }
+
+  const pid = paciente.id;
+
+  const [
+    { data: historia },
+    { data: odontograma },
+    { data: diagnosticos },
+    { data: planes },
+    { data: evoluciones },
+    { data: citas },
+    { data: presupuestos },
+    { data: pagos },
+  ] = await Promise.all([
+    admin.from("historiales_clinicos").select("*").eq("paciente_id", pid).maybeSingle(),
+    admin
+      .from("odontogramas")
+      .select("id, fecha_examen, piezas, notas, actualizado_en")
+      .eq("paciente_id", pid)
+      .order("fecha_examen", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    admin
+      .from("diagnosticos")
+      .select("id, descripcion, numero_pieza, estado, fecha_diagnostico")
+      .eq("paciente_id", pid)
+      .order("fecha_diagnostico", { ascending: false }),
+    admin
+      .from("planes_tratamiento")
+      .select("id, titulo, estado, costo_total, notas, creado_en")
+      .eq("paciente_id", pid)
+      .order("creado_en", { ascending: false }),
+    admin
+      .from("evoluciones_clinicas")
+      .select(
+        "id, fecha_consulta, motivo_consulta, procedimiento_realizado, observaciones, indicaciones, proxima_atencion, numero_pieza",
+      )
+      .eq("paciente_id", pid)
+      .order("fecha_consulta", { ascending: false }),
+    admin
+      .from("citas")
+      .select("id, fecha_cita, hora_inicio, hora_fin, estado, motivo_consulta, notas")
+      .eq("paciente_id", pid)
+      .order("fecha_cita", { ascending: false }),
+    admin
+      .from("presupuestos")
+      .select("id, titulo, total, descuento, estado, valido_hasta, creado_en")
+      .eq("paciente_id", pid)
+      .order("creado_en", { ascending: false }),
+    admin
+      .from("pagos")
+      .select("id, monto, metodo_pago, fecha_pago, estado, codigo_referencia, notas")
+      .eq("paciente_id", pid)
+      .order("fecha_pago", { ascending: false }),
+  ]);
+
+  // Los procedimientos cuelgan del plan, no del paciente: se traen solo los de
+  // los planes de este paciente.
+  const planIds = (planes ?? []).map((p) => p.id);
+  let procedimientos: Array<Record<string, unknown>> = [];
+  if (planIds.length > 0) {
+    const { data } = await admin
+      .from("procedimientos_tratamiento")
+      .select("id, plan_tratamiento_id, descripcion, numero_pieza, costo, estado, prioridad")
+      .in("plan_tratamiento_id", planIds);
+    procedimientos = data ?? [];
+  }
+
+  const totalPagado = (pagos ?? [])
+    .filter((p) => p.estado === "confirmado")
+    .reduce((suma, p) => suma + Number(p.monto ?? 0), 0);
+  const totalPresupuestado = (presupuestos ?? [])
+    .filter((p) => p.estado !== "rechazado" && p.estado !== "borrador")
+    .reduce((suma, p) => suma + Number(p.total ?? 0), 0);
+  const saldoPendiente = Math.max(0, totalPresupuestado - totalPagado);
+
+  const planesConItems = (planes ?? []).map((plan) => ({
+    ...plan,
+    items: procedimientos.filter((proc) => proc.plan_tratamiento_id === plan.id),
+  }));
+
+  return json({
+    ...base,
+    historia: historia ?? null,
+    odontograma: odontograma ?? null,
+    diagnosticos: diagnosticos ?? [],
+    planes: planesConItems,
+    evoluciones: evoluciones ?? [],
+    citas: citas ?? [],
+    presupuestos: presupuestos ?? [],
+    pagos: pagos ?? [],
+    resumen: { totalPagado, saldoPendiente },
+  });
+}
+
+// ----------------------------------------------------------------------------
 // Router
 // ----------------------------------------------------------------------------
 Deno.serve(async (req) => {
@@ -408,6 +636,8 @@ Deno.serve(async (req) => {
     if (req.method === "POST" && ruta === "admin/cancelar-invitacion") return await handleAdminCancelarInvitacion(req);
     if (req.method === "POST" && ruta === "admin/eliminar") return await handleAdminEliminar(req);
     if (req.method === "POST" && ruta === "admin/restablecer-contrasena") return await handleAdminRestablecerContrasena(req);
+    if (req.method === "POST" && ruta === "paciente/registrar") return await handlePacienteRegistrar(req);
+    if (req.method === "GET" && ruta === "paciente/mi-ficha") return await handlePacienteMiFicha(req);
     return json({ error: "Ruta no encontrada" }, 404);
   } catch (error) {
     console.error("Error no manejado:", error);

@@ -15,9 +15,9 @@ import { Plus, Minus } from "@phosphor-icons/react";
 import { cn } from "@/lib/cn";
 import { CONDICION_COLOR_3D } from "@/features/odontogram/odontogramLayout";
 import { nombrePieza } from "@/features/odontogram/toothNames";
+import { MODEL_URL } from "@/features/odontogram/modeloArco";
 import type { CondicionPieza } from "@/types";
 
-const MODEL_URL = "/models/dental-arch.glb";
 const GUM_COLOR = "#e3a79c";
 const SELECCION_COLOR = new THREE.Color("#3d84b8");
 
@@ -52,10 +52,17 @@ function useDentalAssets() {
   });
 
   return useMemo(() => {
+    // `useLoader` devuelve la MISMA escena cacheada en cada montaje, pero R3F
+    // re-parenta los dientes y las encías a sus propios grupos al montarlos.
+    // Si se trabajara sobre el original, el siguiente montaje (cambio de
+    // pestaña, StrictMode) recorrería una escena ya vacía: no habría piezas,
+    // la caja quedaría degenerada y la cámara recibiría NaN, disparando la
+    // excepción. Se clona por montaje; el clon comparte geometrías.
+    const escena = gltf.scene.clone(true);
     const dientes = new Map<number, THREE.Object3D>();
     const encias: THREE.Object3D[] = [];
 
-    gltf.scene.traverse((obj) => {
+    escena.traverse((obj) => {
       const dienteMatch = /^tooth-(\d{2})$/.exec(obj.name);
       const esEncia = /^gingiva-/.test(obj.name);
       const esHueso = /mandible|maxilla|sinus/.test(obj.name);
@@ -84,11 +91,12 @@ function useDentalAssets() {
       }
     });
 
-    const caja = new THREE.Box3().setFromObject(gltf.scene);
+    const caja = new THREE.Box3().setFromObject(escena);
     const centro = caja.getCenter(new THREE.Vector3());
-    const radio = caja.getSize(new THREE.Vector3()).length() / 2;
+    const tamano = caja.getSize(new THREE.Vector3()).length() / 2;
+    const radio = Number.isFinite(tamano) && tamano > 0 ? tamano : 1;
 
-    return { escena: gltf.scene, dientes, encias, centro, radio };
+    return { escena, dientes, encias, centro, radio };
   }, [gltf]);
 }
 
@@ -121,7 +129,16 @@ function Diente({
   }, [objeto]);
 
   useEffect(() => {
-    objeto.visible = condicion?.condicion !== "ausente";
+    const ausente = condicion?.condicion === "ausente";
+    objeto.visible = !ausente;
+    // El `Raycaster` de three no mira `visible`: solo prueba `layers`. Sin
+    // esto se puede seleccionar una pieza oculta (un socket vacío) y el editor
+    // aparecería sin nada visible que lo justifique.
+    objeto.traverse((hijo) => {
+      if (hijo instanceof THREE.Mesh) {
+        hijo.raycast = ausente ? () => {} : THREE.Mesh.prototype.raycast;
+      }
+    });
   }, [objeto, condicion?.condicion]);
 
   // El color del material depende ÚNICAMENTE de la condición clínica: la
@@ -185,7 +202,7 @@ function Escena({
 }: {
   piezas: CondicionPieza[];
   seleccionada: number | null;
-  onSelect: (pieza: number) => void;
+  onSelect: (pieza: number | null) => void;
   onHover: (pieza: number | null) => void;
   interaction: MutableRefObject<Interaction>;
 }) {
@@ -246,7 +263,7 @@ export function DentalArch3D({
 }: {
   piezas: CondicionPieza[];
   seleccionada: number | null;
-  onSelect: (pieza: number) => void;
+  onSelect: (pieza: number | null) => void;
   className?: string;
 }) {
   const interaction = useRef<Interaction>({
@@ -259,6 +276,10 @@ export function DentalArch3D({
     zoom: 0.75,
   });
   const lastPos = useRef({ x: 0, y: 0 });
+  // Posición del puntero en todo momento. `lastPos` solo se actualiza mientras
+  // se arrastra (es la base del delta), así que no sirve para colocar el
+  // tooltip cuando lo único que hay es un hover.
+  const posPuntero = useRef({ x: 0, y: 0 });
   const [hover, setHover] = useState<{ pieza: number; x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -270,6 +291,7 @@ export function DentalArch3D({
   };
 
   const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    posPuntero.current = { x: e.clientX, y: e.clientY };
     if (hover && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
       setHover((h) => (h ? { ...h, x: e.clientX - rect.left, y: e.clientY - rect.top } : h));
@@ -304,7 +326,12 @@ export function DentalArch3D({
       setHover(null);
       return;
     }
-    setHover((h) => (h?.pieza === pieza ? h : { pieza, x: h?.x ?? 0, y: h?.y ?? 0 }));
+    // Se usan las coordenadas reales del puntero y no un (0,0) provisional:
+    // si no, el tooltip aparece un frame en la esquina superior izquierda.
+    const rect = containerRef.current?.getBoundingClientRect();
+    const x = rect ? posPuntero.current.x - rect.left : 0;
+    const y = rect ? posPuntero.current.y - rect.top : 0;
+    setHover((h) => (h?.pieza === pieza ? { ...h, x, y } : { pieza, x, y }));
   };
 
   return (
@@ -318,7 +345,21 @@ export function DentalArch3D({
       onWheel={handleWheel}
       onPointerLeave={endDrag}
     >
-      <Canvas camera={{ position: [0, 0, 2.6], fov: 40 }} dpr={[1, 1.75]}>
+      {/* `eventSource` es OBLIGATORIO aquí y no es cosmético: el wrapper es el
+          elemento que llama a `setPointerCapture` para que el arrastre siga
+          funcionando aunque el puntero salga del canvas. La captura retargeta
+          el `click` al wrapper, y los eventos suben, nunca bajan: si R3F
+          escucha en su div interno (el default), el `click` nunca llega y
+          `onClick` de cada diente queda muerto. Apuntando `eventSource` al
+          wrapper, R3F escucha exactamente donde se captura el puntero. */}
+      <Canvas
+        eventSource={containerRef}
+        camera={{ position: [0, 0, 2.6], fov: 40 }}
+        dpr={[1, 1.75]}
+        onPointerMissed={() => {
+          if (!interaction.current.moved) onSelect(null);
+        }}
+      >
         <ambientLight intensity={0.9} />
         <directionalLight position={[2, 3, 4]} intensity={1.1} />
         <pointLight position={[-2, -1, 2]} intensity={0.35} color="#bcdff5" />
@@ -342,6 +383,7 @@ export function DentalArch3D({
 
       <div
         onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         className="absolute bottom-3 right-3 z-10 flex flex-col overflow-hidden rounded-lg border border-line-strong bg-surface shadow-diffuse"
       >
         <button

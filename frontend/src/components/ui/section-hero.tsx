@@ -25,6 +25,16 @@ const OVERLAY: Record<"light" | "strong", string> = {
  * el ratio, object-cover no recorta y las secciones no descoordinan entre sí.
  * En pantallas estrechas el ratio daría ~135px y el texto del panel no cabría,
  * así que un min-height toma el relevo en móvil sin desalinear nada en desktop.
+ *
+ * Sobre la forma: `rounded-panel` (no `rounded-2xl`) para que el recorte de la
+ * bandera coincida con el radio de los paneles nuevos del tema.
+ *
+ * El filo del borde es un `border` de 1px y no un `ring-1 ring-inset` a
+ * propósito: en Tailwind v4 `ring-*` se compone dentro de `box-shadow`, que es
+ * la misma propiedad que usa la clase `.hanger-panel` (en `@layer components`);
+ * como la capa utilities gana, el anillo borraría la sombra de colgado que los
+ * callers pasan por `className`. Con `border` el filo no toca `box-shadow`
+ * (y `box-sizing: border-box` mantiene intacto el aspect-ratio y el alto).
  */
 function HeroBackdrop({
   icon: Icon,
@@ -46,7 +56,7 @@ function HeroBackdrop({
   return (
     <div
       className={cn(
-        "relative flex items-center overflow-hidden rounded-2xl bg-gradient-to-r",
+        "relative flex items-center overflow-hidden rounded-panel border border-ink/10 bg-gradient-to-r",
         "aspect-[1600/600] min-h-[9.5rem] w-full max-w-3xl self-center sm:min-h-[11rem]",
         TONE_GRADIENT[tone],
         className,
@@ -109,13 +119,21 @@ export function SectionHero({
     >
       <div className="relative z-10 flex max-w-md flex-col px-5 sm:px-8">
         {kicker ? (
+          // El kicker conserva su tracking propio: es texto en mayúscula y sin
+          // aire las letras se tocan. La convención de la casa para ese rol es
+          // tracking ancha (`.dashboard-hero-label` usa 3px, `Label`/`Badge`
+          // usan `tracking-wide`); `label-ios` es la clase de optical sizing
+          // para texto de UI y dejaría el kicker apretado contra el heading.
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 sm:text-xs">
             {kicker}
           </p>
         ) : null}
         <h2
           className={cn(
-            "font-semibold leading-tight tracking-[-0.02em] text-white",
+            // `title-ios` ya trae el tracking y el interlineado de las
+            // jerarquías del resto de la app, así que se sacan el `tracking-*`
+            // y el `leading-*` sueltos: son utilities y le ganarían por capa.
+            "title-ios font-semibold text-white",
             "text-[1.5rem] sm:text-[2rem]",
             kicker && "mt-2",
           )}
@@ -123,7 +141,11 @@ export function SectionHero({
           {heading}
         </h2>
         {description ? (
-          <p className="mt-2 text-xs leading-relaxed text-white/80 sm:text-sm">{description}</p>
+          // `text-ios` para que la descripción comparta el ajuste óptico del
+          // resto del texto corrido de la app.
+          <p className="text-ios mt-2 text-xs leading-relaxed text-white/80 sm:text-sm">
+            {description}
+          </p>
         ) : null}
         {children}
       </div>

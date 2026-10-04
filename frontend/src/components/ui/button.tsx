@@ -4,16 +4,20 @@ import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
   // `press` = feedback en pointer-down; `touch-none` evita el retardo de 300ms
-  // del tap en moviles. El foco usa ring como hace el foco de iOS, no outline.
-  "press inline-flex touch-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-colors duration-100 ease-out disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+  // del tap en moviles. El foco usa ring como hace el foco de iOS, no outline,
+  // y el anillo sale del token `focus-ring` para que todos los controles de la
+  // app compartan exactamente el mismo azul y el mismo grosor.
+  "press inline-flex touch-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-colors duration-100 ease-out disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
   {
     variants: {
       variant: {
-        // filled: la accion principal, un solo color solido por pantalla
-        primary:
-          "bg-ink text-white shadow-diffuse hover:bg-ink-soft active:bg-ink-muted",
+        // filled: la accion principal, un solo color solido por pantalla.
+        // `shadow-e2` la despega del fondo; antes usaba la sombra difusa y se
+        // leia al mismo nivel que las superficies.
+        primary: "bg-ink text-white shadow-e2 hover:bg-ink/90 active:bg-ink-muted",
         // tinted: accion secundaria, color diluido (como UIButton tinted)
-        secondary: "bg-surface-sunken text-ink hover:bg-line active:bg-line-strong",
+        secondary:
+          "bg-surface-sunken text-ink border border-ink/[0.08] hover:bg-line active:bg-line-strong",
         // plain: sin fondo hasta que se toca
         ghost: "text-label-2 hover:bg-black/[0.04] hover:text-ink active:bg-black/[0.08]",
         danger: "bg-ios-red text-white hover:brightness-95 active:brightness-90",

@@ -7,8 +7,21 @@ interface AuthState {
   sesion: Sesion | null;
   /** true mientras se resuelve la sesión inicial (getSession + lookup de perfil). */
   cargando: boolean;
+  /** true cuando hay un usuario de Auth autenticado pero todavía no tiene fila
+   * en `perfiles` (primer ingreso del paciente con Google). */
+  necesitaOnboarding: boolean;
+  /** true si hay un usuario autenticado en Supabase Auth, aunque todavía no
+   * tenga fila en `perfiles`. Sirve para no rebotar al login durante el
+   * primer ingreso. */
+  hayUsuarioAuth: boolean;
   iniciarSesion: (sesion: Sesion) => void;
   cerrarSesion: () => void;
+  /** Marca que el usuario autenticado está en su primer ingreso (sin perfil),
+   * para no depender de una resolución asíncrona antes de navegar. */
+  iniciarOnboarding: () => void;
+  /** Vuelve a resolver la sesión actual (p. ej. tras crear el perfil o
+   * afiliarse a una clínica). */
+  refrescarSesion: () => Promise<Sesion | null>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -31,25 +44,39 @@ export async function resolverSesionDesdeUsuario(email: string | undefined): Pro
 
   if (!data) return null;
   const clinica = Array.isArray(data.clinicas) ? data.clinicas[0] : data.clinicas;
-  // El superadmin no pertenece a ninguna clínica (solo audita el sistema),
-  // así que para esa cuenta no exigimos una clínica activa.
+  // El superadmin no pertenece a ninguna clínica (solo audita el sistema) y el
+  // paciente puede no estar afiliado todavía (completa eso en el portal), así
+  // que para ninguno de los dos exigimos una clínica activa.
   const esSuperadmin = data.rol === "superadmin";
-  if (!esSuperadmin && !clinica?.activo) return null;
+  const esPaciente = data.rol === "paciente";
+  if (!esSuperadmin && !esPaciente && !clinica?.activo) return null;
 
+  const sinClinica = !clinica;
   return {
     nombre: data.nombre_completo,
     rol: data.rol as Role,
-    clinica: esSuperadmin ? null : clinica.nombre,
-    clinicaSlug: esSuperadmin ? null : clinica.slug,
-    ciudad: esSuperadmin ? null : clinica.ciudad,
+    clinica: esSuperadmin || sinClinica ? null : clinica.nombre,
+    clinicaSlug: esSuperadmin || sinClinica ? null : clinica.slug,
+    ciudad: esSuperadmin || sinClinica ? null : clinica.ciudad,
     email,
     especialidad: data.especialidad,
   };
 }
 
+/** true si ya existe una fila en `perfiles` para ese correo (RLS solo deja ver
+ * la propia). Sirve para distinguir "correo nuevo" (onboarding) de "cuenta
+ * inactiva" (se rechaza). */
+export async function existePerfilDeUsuario(email: string | undefined): Promise<boolean> {
+  if (!email) return false;
+  const { data } = await obtenerSupabase().from("perfiles").select("id").ilike("email", email).maybeSingle();
+  return Boolean(data);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [sesion, setSesion] = useState<Sesion | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [necesitaOnboarding, setNecesitaOnboarding] = useState(false);
+  const [hayUsuarioAuth, setHayUsuarioAuth] = useState(false);
 
   useEffect(() => {
     const supabase = obtenerSupabase();
@@ -57,7 +84,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const procesarSesion = async (session: Session | null) => {
       const resuelta = await resolverSesionDesdeUsuario(session?.user?.email);
-      if (activo) setSesion(resuelta);
+      let onboarding = false;
+      if (!resuelta && session?.user?.email) {
+        onboarding = !(await existePerfilDeUsuario(session.user.email));
+      }
+      if (activo) {
+        setSesion(resuelta);
+        setNecesitaOnboarding(onboarding);
+        setHayUsuarioAuth(Boolean(session?.user));
+      }
     };
 
     supabase.auth.getSession().then(({ data }) => {
@@ -81,16 +116,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const iniciarSesion = (nueva: Sesion) => {
     setSesion(nueva);
+    setNecesitaOnboarding(false);
+    setHayUsuarioAuth(true);
     setCargando(false);
   };
 
   const cerrarSesion = () => {
     obtenerSupabase().auth.signOut();
     setSesion(null);
+    setNecesitaOnboarding(false);
+    setHayUsuarioAuth(false);
+  };
+
+  const iniciarOnboarding = () => {
+    setSesion(null);
+    setNecesitaOnboarding(true);
+    setHayUsuarioAuth(true);
+    setCargando(false);
+  };
+
+  const refrescarSesion = async (): Promise<Sesion | null> => {
+    const { data } = await obtenerSupabase().auth.getSession();
+    const resuelta = await resolverSesionDesdeUsuario(data.session?.user?.email);
+    setSesion(resuelta);
+    setNecesitaOnboarding(false);
+    setHayUsuarioAuth(Boolean(data.session?.user));
+    return resuelta;
   };
 
   return (
-    <AuthContext.Provider value={{ sesion, cargando, iniciarSesion, cerrarSesion }}>
+    <AuthContext.Provider
+      value={{ sesion, cargando, necesitaOnboarding, hayUsuarioAuth, iniciarSesion, cerrarSesion, iniciarOnboarding, refrescarSesion }}
+    >
       {children}
     </AuthContext.Provider>
   );

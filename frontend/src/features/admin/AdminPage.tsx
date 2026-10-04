@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+﻿import { useEffect, useState, type FormEvent } from "react";
 import {
   Plus,
   ShieldCheck,
@@ -36,7 +36,7 @@ import type { Role } from "@/types";
 
 const ROLES_INVITABLES: Role[] = ["odontologo", "recepcionista", "superadmin"];
 const ACCION_BTN =
-  "rounded-md p-1.5 text-ink-muted transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45 disabled:pointer-events-none disabled:opacity-40";
+  "rounded-md p-1.5 text-ink-muted transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:pointer-events-none disabled:opacity-40";
 
 export function AdminPage() {
   usePageHeader({

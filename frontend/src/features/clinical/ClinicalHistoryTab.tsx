@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+﻿import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Plus, X, Warning, Clock, User, Printer } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,7 +21,7 @@ const SEVERIDAD_TONE: Record<Alergia["severidad"], "yellow" | "red"> = {
 };
 
 const EDITABLE_TEXT_STYLE =
-  "block w-full min-w-0 cursor-pointer rounded-lg p-2 -m-2 text-left transition-colors hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/30";
+  "block w-full min-w-0 cursor-pointer rounded-lg p-2 -m-2 text-left transition-colors hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring";
 
 export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
   const { historiaDe, actualizarHistoria, agregarAlergia, quitarAlergia, obtenerPaciente } = useClinicaData();
@@ -379,7 +379,7 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
                   <button
                     onClick={() => quitarEnfermedad(e)}
                     aria-label={`Quitar ${e}`}
-                    className="shrink-0 rounded-full p-0.5 text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/30"
+                    className="shrink-0 rounded-full p-0.5 text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                   >
                     <X size={11} weight="bold" />
                   </button>
@@ -515,7 +515,7 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
                   <button
                     onClick={() => quitarAlergia(pacienteId, a.id)}
                     aria-label={`Quitar alergia a ${a.sustancia}`}
-                    className="shrink-0 rounded-full p-1.5 text-ink-muted transition-colors duration-150 hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/30"
+                    className="shrink-0 rounded-full p-1.5 text-ink-muted transition-colors duration-150 hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                   >
                     <X size={13} weight="bold" />
                   </button>
@@ -686,7 +686,7 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
       <dl className="grid min-w-0 grid-cols-1 gap-4 rounded-xl border border-line bg-surface-sunken p-4 text-xs text-ink-muted sm:grid-cols-2 sm:p-5 xl:col-span-2">
         <div className="min-w-0">
           <dt className="flex items-center gap-2 font-medium">
-            <Clock size={15} className="text-ink-muted" aria-hidden /> Última actualización
+            <Clock size={15} className="text-ink-muted" aria-hidden /> Öltima actualización
           </dt>
           <dd className="mt-1.5 pl-[23px]">
             {historia.actualizadoEl ? (

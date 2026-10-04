@@ -1,10 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
-import logoMark from "@/assets/banners/logo-mark.jpg";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Logo } from "@/components/ui/logo";
 import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { obtenerSupabase } from "@/lib/supabase";
@@ -80,19 +80,19 @@ export function ResetPasswordPage() {
       <MeshBackground />
       <AnimatedTeeth />
 
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 p-8 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl sm:p-12">
-        <img src={logoMark} alt="MiDentista" className="fade-in-up h-8 w-auto object-contain" />
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 p-6 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl sm:p-10">
+        <Logo size={28} className="fade-in-up" />
 
         {estado === "verificando" && (
-          <div className="mt-8 flex flex-col items-center gap-3 py-6 text-center">
+          <div className="mt-7 flex flex-col items-center gap-3 py-4 text-center">
             <SpinnerGap size={28} className="animate-spin text-ink-soft" />
             <p className="text-sm text-ink-soft">Verificando tu link de recuperación…</p>
           </div>
         )}
 
         {estado === "link-invalido" && (
-          <div className="mt-8 flex flex-col items-center gap-4 py-4 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-pastel-red-bg text-pastel-red-fg">
+          <div className="mt-7 flex flex-col items-center gap-4 py-2 text-center">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pastel-red-bg text-pastel-red-fg">
               <WarningCircle size={26} weight="fill" />
             </span>
             <div>
@@ -110,7 +110,7 @@ export function ResetPasswordPage() {
         {estado === "listo-para-cambiar" && (
           <>
             <div className="fade-in-up mt-6" style={{ animationDelay: "40ms" }}>
-              <h2 className="text-[1.6rem] font-semibold leading-tight tracking-[-0.02em] text-ink">
+              <h2 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.02em] text-ink min-[380px]:text-[1.6rem]">
                 Elegí una contraseña nueva
               </h2>
               <p className="mt-2 text-sm text-ink-soft">
@@ -177,8 +177,8 @@ export function ResetPasswordPage() {
         )}
 
         {estado === "exito" && (
-          <div className="mt-8 flex flex-col items-center gap-4 py-4 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-pastel-green-bg text-pastel-green-fg">
+          <div className="mt-7 flex flex-col items-center gap-4 py-2 text-center">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pastel-green-bg text-pastel-green-fg">
               <CheckCircle size={26} weight="fill" />
             </span>
             <div>

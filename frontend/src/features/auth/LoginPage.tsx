@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight, SpinnerGap, Tooth, WarningCircle } from "@phosphor-icons/react";
-import logoBadge from "@/assets/banners/logo-badge.jpg";
+import { ArrowRight, CheckCircle, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { Input } from "@/components/ui/input";
+import { Logo } from "@/components/ui/logo";
 import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -26,7 +26,7 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [cargandoGoogle, setCargandoGoogle] = useState(false);
 
-  if (sesion) return <Navigate to="/app" replace />;
+  if (sesion) return <Navigate to={sesion.rol === "paciente" ? "/portal" : "/app"} replace />;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -47,7 +47,7 @@ export function LoginPage() {
       // las consultas protegidas por RLS se autentiquen como este usuario.
       await obtenerSupabase().auth.setSession(session);
       iniciarSesion(sesion);
-      navigate("/app", { replace: true });
+      navigate(sesion.rol === "paciente" ? "/portal" : "/app", { replace: true });
     } catch (fallo) {
       setError(
         fallo instanceof ApiError ? fallo.message : "No se pudo iniciar sesión",
@@ -84,29 +84,64 @@ export function LoginPage() {
       <AnimatedTeeth />
 
       <div className="relative z-10 grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl lg:min-h-[640px] lg:grid-cols-[1fr_1.1fr]">
-        <div className="relative hidden lg:block">
-          <img
-            src={logoBadge}
-            alt="MiDentista"
-            className="h-full w-full object-cover"
+        {/* Panel de marca. Antes era `logo-badge.jpg` con `object-cover`: un JPG
+            de 1200x1200 sobre fondo blanco que se leia como un cuadrado blanco
+            recortado contra el degradé de la tarjeta. Ahora es un degradé claro
+            en tokens brand-* con dos manchas suaves y una trama de puntos: el
+            logo (SVG, sin fondo) queda flotando, sin caja detrás. */}
+        <div className="relative hidden overflow-hidden lg:block">
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-50 via-brand-100 to-brand-200" />
+          <div className="mesh-blob-a absolute -left-1/4 -top-1/3 h-[70%] w-[70%] rounded-full bg-brand-300/45 blur-3xl" />
+          <div className="mesh-blob-b absolute -bottom-1/3 -right-1/4 h-[75%] w-[75%] rounded-full bg-brand-400/35 blur-3xl" />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-60"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, rgba(28,60,92,0.16) 1px, transparent 0)",
+              backgroundSize: "22px 22px",
+            }}
           />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/70 to-transparent" />
+
+          <div className="relative flex h-full flex-col justify-between gap-10 p-10 xl:p-12">
+            <Logo size={34} className="fade-in-up" />
+
+            <div className="fade-in-up flex flex-col gap-5" style={{ animationDelay: "60ms" }}>
+              <p className="max-w-[26ch] text-lg font-semibold leading-snug tracking-tight text-brand-900">
+                La consulta de tu clínica, ordenada de punta a punta.
+              </p>
+              <ul className="flex flex-col gap-2.5 text-sm text-ink-soft">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle size={18} weight="fill" className="mt-0.5 shrink-0 text-brand-600" />
+                  Agenda, historia clínica y odontograma del paciente
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle size={18} weight="fill" className="mt-0.5 shrink-0 text-brand-600" />
+                  Presupuestos, pagos y cuentas al día
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle size={18} weight="fill" className="mt-0.5 shrink-0 text-brand-600" />
+                  Portal privado para cada paciente
+                </li>
+              </ul>
+            </div>
+
+            <p className="fade-in-up text-xs text-ink-muted" style={{ animationDelay: "120ms" }}>
+              MiDentista · Software de gestión odontológica
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col justify-center gap-8 p-8 sm:p-12 lg:p-14">
-          {/* En desktop el isotipo va en el panel de la izquierda (logoBadge);
-              en móvil, sin ese panel, un JPG con fondo blanco sólido quedaba
-              como una caja fea sobre el fondo con degradé. Este lockup en
-              brand-* no tiene fondo propio, así que se funde con la tarjeta. */}
-          <div className="fade-in-up flex items-center gap-2 lg:hidden">
-            <Tooth size={26} weight="duotone" className="text-brand-600" />
-            <span className="text-lg font-semibold tracking-tight">
-              <span className="text-brand-400">Mi</span>{" "}
-              <span className="text-brand-800">Dentista</span>
-            </span>
+        <div className="flex flex-col justify-center gap-6 p-5 sm:gap-8 sm:p-10 lg:gap-8 lg:p-12">
+          {/* En desktop el logo va en el panel de branding de la izquierda; acá
+              solo aparece cuando ese panel no se renderiza (movil/tablet). */}
+          <div className="fade-in-up lg:hidden">
+            <Logo size={26} />
           </div>
 
           <div className="fade-in-up" style={{ animationDelay: "40ms" }}>
-            <h2 className="text-[2rem] font-semibold leading-tight tracking-[-0.02em] text-ink">
+            <h2 className="text-[1.6rem] font-semibold leading-tight tracking-[-0.02em] text-ink min-[380px]:text-[2rem]">
               Bienvenido de vuelta
             </h2>
             <p className="mt-2 text-sm text-ink-soft">
@@ -211,7 +246,7 @@ export function LoginPage() {
                 // Replica el boton oficial "Sign in with Google": fondo
                 // blanco, borde gris sutil, esquinas poco redondeadas,
                 // texto gris oscuro y elevacion suave solo al hover.
-                className="h-11 w-full gap-3 rounded-lg border border-[#dadce0] bg-white text-[15px] font-medium text-[#3c4043] shadow-none hover:bg-[#f8f9fa] hover:shadow-[0_1px_2px_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)] active:bg-[#f1f3f4]"
+                className="h-11 w-full gap-3 rounded-lg border border-[#dadce0] bg-white px-4 text-[15px] font-medium text-[#3c4043] shadow-none hover:bg-[#f8f9fa] hover:shadow-[0_1px_2px_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)] active:bg-[#f1f3f4] sm:px-6"
               >
                 {cargandoGoogle ? (
                   <SpinnerGap size={16} className="animate-spin text-[#3c4043]" />

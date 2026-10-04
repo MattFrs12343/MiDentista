@@ -23,8 +23,22 @@ agrega junto con tu entrada en la barra lateral.
 | `pagoCalculo.ts` | `saldoPresupuesto`, `totalConfirmado`, `montoAceptable` |
 | `pagoService.ts` | `cargarPagos`, `registrarPago`, `cambiarEstadoPago`, `calcularEstadoCuenta` |
 
-Los que te faltan crear: `PagosPage.tsx`, `PaymentForm.tsx`, `PartialPayment.tsx`,
-`AccountStatement.tsx`, `PaymentHistory.tsx`, `usePagosSupabase.ts` y sus tests.
+Los que te faltan crear: `PagosPage.tsx`, `PartialPayment.tsx`.
+
+### Ya creados (lectura de la pestaña de pagos)
+
+| Archivo | Qué aporta |
+|---------|-----------|
+| `pagoFormato.ts` | `formatearMoneda`, `formatearFecha`, `hoyIso` (presentación, no aritmética) |
+| `usePagosSupabase.ts` | `cargar` / `registrar` / `cambiarEstado` con estado `{ pagos, cargando, guardando, error }` |
+| `AccountStatement.tsx` | Tarjeta de totales. No recalcula nada |
+| `PaymentHistory.tsx` | Lista de pagos. Distingue "sin pagos" de "error" |
+| `PaymentForm.tsx` | Alta de pago a cuenta, nace `pendiente` |
+| `PagosTab.tsx` | La pestaña entera. Solo lectura si no llega `registradoPor` |
+| `pagoCalculo.test.ts` | Regla de los pagos confirmados (11 casos) |
+
+`cambiarEstado` ya está en el gancho, pero la UI todavía no lo expone: falta el
+paso de confirmar o rechazar (US-9.6) en `PaymentHistory`.
 
 ## Tu dependencia con el módulo 08, y cómo NO te bloquea
 
@@ -40,6 +54,23 @@ una dependencia, pero **están desacoplados a propósito**:
 
 Cuando los dos estén integrados, la capa de UI le pasa a
 `calcularEstadoCuenta` el total que venga del presupuesto.
+
+### Dónde se rompe ese desacople hoy (y es un solo punto)
+
+`PagosTab.tsx` es el único lugar del módulo que llama a `calcularEstadoCuenta`:
+
+```tsx
+const estadoCuenta = useMemo(
+  () => calcularEstadoCuenta(pacienteId, pagos, 0), // <- el 0 es el placeholder
+  [pacienteId, pagos],
+);
+```
+
+Ese `0` es lo único que hay que cambiar cuando llegue el módulo 08. Basta con
+que `PagosTab` reciba una prop `totalPresupuestado?: Decimal` (por defecto `0`),
+que es la costura que resuelve Matías en `PatientProfilePage.tsx`.
+`AccountStatement` ya sabe pintar "Sin presupuesto registrado" cuando ese total
+es `0`, así que hoy no se muestra ningún saldo engañoso.
 
 ## El error clásico de este módulo
 
@@ -68,6 +99,29 @@ o el número de operación.
 Esto viene de `ENTREVISTAS_USIARIO.txt`: *"Yo como recepcionista necesito ver
 cuánto debe cada paciente"*. Por eso el módulo 08 y este son de recepción, y por
 eso `/app/pagos` es una ruta de listado transversal y no una pestaña del paciente.
+
+## Lo que necesita Matías para enganchar la pestaña
+
+Un solo import en `PatientProfilePage.tsx` y una entrada en `tabValue.ts`:
+
+```tsx
+import { PagosTab } from "@/features/pagos/PagosTab";
+
+<TabsContent value="pagos">
+  <PagosTab
+    pacienteId={pacienteId}
+    clinicaId={paciente.clinicaId}
+    registradoPor={sesion?.user.id}   // sin esto la pestaña es solo lectura
+  />
+</TabsContent>
+```
+
+`registradoPor` debe ser el **UUID de Supabase** del usuario de sesión, no su
+nombre: `registrarPago` lo exige como UUID y rechaza los ids de la demo.
+
+`PagosPage.tsx` (la ruta transversal `/app/pagos`, "cuánto debe cada paciente")
+sigue pendiente: es la parte de lectura de esta entrega la que aporta
+`AccountStatement` y `PaymentHistory`.
 
 ## Prohibido 3D
 

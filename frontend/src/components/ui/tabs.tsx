@@ -1,4 +1,4 @@
-import * as TabsPrimitive from "@radix-ui/react-tabs";
+﻿import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from "react";
 import { cn } from "@/lib/cn";
 
@@ -28,7 +28,7 @@ export const TabsTrigger = forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "press touch-none shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-label-2 transition-colors duration-150 ease-out data-[state=active]:bg-white data-[state=active]:text-label data-[state=active]:shadow-[0_3px_8px_rgba(0,0,0,0.12),0_1px_1px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45",
+      "press touch-none shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-label-2 transition-colors duration-150 ease-out data-[state=active]:bg-white data-[state=active]:text-label data-[state=active]:shadow-[0_3px_8px_rgba(0,0,0,0.12),0_1px_1px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
       className,
     )}
     {...props}

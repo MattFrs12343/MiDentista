@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { CaretLeft, CaretRight, Warning } from "@phosphor-icons/react";
 import type { Cita, Horario, Paciente } from "@/types";
 import { cn } from "@/lib/cn";
@@ -122,7 +122,7 @@ export function CalendarioAgenda({
         <p className="text-[12px] text-label-2">
           {totalSemana === 0
             ? "Sin citas esta semana"
-            : `${totalSemana} cita${totalSemana === 1 ? "" : "s"} · ${etiquetaCorta(dias[0])} – ${etiquetaCorta(dias[dias.length - 1])}`}
+            : `${totalSemana} cita${totalSemana === 1 ? "" : "s"} · ${etiquetaCorta(dias[0])} ‏ ${etiquetaCorta(dias[dias.length - 1])}`}
         </p>
       </div>
 
@@ -180,7 +180,7 @@ export function CalendarioAgenda({
                   activo
                     ? "bg-ios-blue text-white shadow-[0_1px_3px_rgba(0,0,0,0.15)]"
                     : "bg-black/[0.03] text-label-2",
-                  esHoy(d, hoy) && !activo && "ring-1 ring-ios-blue/40",
+                  esHoy(d, hoy) && !activo && "ring-1 ring-focus-ring",
                 )}
               >
                 <span className="text-[10px] font-semibold uppercase tracking-wide">
@@ -189,7 +189,7 @@ export function CalendarioAgenda({
                 <span className="text-[15px] font-semibold tabular-nums">
                   {Number(d.slice(-2))}
                 </span>
-                <span className="text-[9px] tabular-nums">{total || "—"}</span>
+                <span className="text-[9px] tabular-nums">{total || "‐"}</span>
               </button>
             );
           })}
@@ -224,7 +224,7 @@ function BotonSemana({
       type="button"
       onClick={onClick}
       aria-label={etiqueta}
-      className="press flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/[0.04] text-label-2 hover:bg-black/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45"
+      className="press flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/[0.04] text-label-2 hover:bg-black/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
     >
       {children}
     </button>

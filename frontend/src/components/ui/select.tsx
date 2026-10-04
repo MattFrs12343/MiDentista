@@ -13,7 +13,10 @@ export const SelectTrigger = forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-11 w-full items-center justify-between rounded-xl border border-line-field bg-surface px-4 text-sm text-ink shadow-[inset_0_1px_2px_rgba(22,35,58,0.04)] transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:border-ios-blue focus-visible:ring-2 focus-visible:ring-ios-blue/15 data-[placeholder]:text-ink-muted",
+      // Mismo contrato que `Input`: `rounded-ios-lg`, `text-[16px]` y el anillo
+      // de `focus-ring`. Antes era `rounded-xl` + `text-sm` + borde azul, por lo
+      // que un select junto a un input se notaba como de otra aplicacion.
+      "flex h-11 w-full items-center justify-between rounded-ios-lg border border-line-field bg-surface px-4 text-[16px] leading-6 text-ink shadow-[inset_0_1px_2px_rgba(22,35,58,0.04)] transition-colors duration-150 ease-out focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring data-[placeholder]:text-ink-muted",
       className,
     )}
     {...props}
@@ -67,10 +70,13 @@ export const SelectContent = forwardRef<
       // ventana (p. ej. en un diálogo largo como "Invitar") se renderiza
       // parcialmente fuera de la pantalla y el último ítem queda
       // inalcanzable — justo lo que le pasaba al rol "Administrador".
-      className={cn(
-        "z-50 max-h-[var(--radix-select-content-available-height)] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border border-white/50 bg-white/85 shadow-diffuse backdrop-blur-xl data-[state=open]:animate-[fade-in-up_150ms_var(--ease-out-strong)_both]",
-        className,
-      )}
+        // El panel del desplegable es una superficie flotante: lleva la misma
+        // elevacion que una tarjeta (`shadow-e2`) y el mismo radio (`rounded-panel`).
+        // Antes usaba `shadow-diffuse`, que la hacia casi invisible sobre el fondo.
+        className={cn(
+          "z-50 max-h-[var(--radix-select-content-available-height)] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-panel border border-ink/[0.08] bg-white/90 shadow-e2 backdrop-blur-xl data-[state=open]:animate-[fade-in-up_150ms_var(--ease-out-strong)_both]",
+          className,
+        )}
       {...props}
     >
       <SelectScrollUpButton />
@@ -87,10 +93,13 @@ export const SelectItem = forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
-    className={cn(
-      "relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-7 pr-3 text-sm text-ink outline-none data-[highlighted]:bg-surface-sunken",
-      className,
-    )}
+      // `rounded-tile` (14px) dentro de un panel de 18px: la jerarquia de radios
+      // separates la fila del contenedor. El tinte de marca al pasar por la fila
+      // hace que la opcion enfocada se distinga de la seleccionada.
+      className={cn(
+        "relative flex cursor-pointer select-none items-center rounded-tile py-2 pl-7 pr-3 text-[15px] text-ink outline-none data-[highlighted]:bg-brand-50",
+        className,
+      )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

@@ -59,6 +59,9 @@ function mapPaciente(r: any): Paciente {
     telefono: r.telefono ?? "",
     email: r.email ?? "",
     direccion: r.direccion ?? "",
+    contactoEmergenciaNombre: r.contacto_emergencia_nombre ?? "",
+    contactoEmergenciaTelefono: r.contacto_emergencia_telefono ?? "",
+    contactoEmergenciaParentesco: r.contacto_emergencia_parentesco ?? "",
     creadoEl: fechaCorta(r.creado_en),
   };
 }
@@ -179,6 +182,8 @@ function mapHorario(r: any): Horario {
 }
 
 interface ClinicaStore {
+  /** Perfil del usuario logueado (id + clinicaId). Lo necesitan los módulos que escriben. */
+  miPerfil: { id: string; clinicaId: string } | null;
   pacientes: Paciente[];
   registrarPaciente: (datos: Omit<Paciente, "id" | "creadoEl">) => Promise<Paciente>;
   actualizarPaciente: (id: string, datos: Partial<Paciente>) => Promise<void>;
@@ -410,6 +415,7 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ClinicaStore>(
     () => ({
+      miPerfil,
       pacientes,
       registrarPaciente: async (datos) => {
         if (!miPerfil) throw new Error("No se pudo identificar tu perfil");
@@ -427,6 +433,9 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
             telefono: datos.telefono,
             email: datos.email,
             direccion: datos.direccion,
+            contacto_emergencia_nombre: datos.contactoEmergenciaNombre ?? null,
+            contacto_emergencia_telefono: datos.contactoEmergenciaTelefono ?? null,
+            contacto_emergencia_parentesco: datos.contactoEmergenciaParentesco ?? null,
           })
           .select("*")
           .single();
@@ -450,6 +459,15 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
         if (datos.telefono !== undefined) payload.telefono = datos.telefono;
         if (datos.email !== undefined) payload.email = datos.email;
         if (datos.direccion !== undefined) payload.direccion = datos.direccion;
+        if (datos.contactoEmergenciaNombre !== undefined) {
+          payload.contacto_emergencia_nombre = datos.contactoEmergenciaNombre;
+        }
+        if (datos.contactoEmergenciaTelefono !== undefined) {
+          payload.contacto_emergencia_telefono = datos.contactoEmergenciaTelefono;
+        }
+        if (datos.contactoEmergenciaParentesco !== undefined) {
+          payload.contacto_emergencia_parentesco = datos.contactoEmergenciaParentesco;
+        }
 
         const { data, error } = await supabase.from("pacientes").update(payload).eq("id", id).select("*").single();
         if (error || !data) throw error ?? new Error("No se pudo actualizar el paciente");
@@ -469,12 +487,21 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
       },
       actualizarHistoria: (pacienteId, cambios) => {
         // Optimista: se ve el cambio al toque; se reconcilia cuando responde.
-        const base = historias[pacienteId] ?? historiaVacia(pacienteId);
+        const previa = historias[pacienteId];
+        const base = previa ?? historiaVacia(pacienteId);
         const combinado = { ...base, ...cambios };
         setHistorias((prev) => ({ ...prev, [pacienteId]: combinado }));
         guardarHistoria(pacienteId, combinado)
           .then((h) => setHistorias((prev) => ({ ...prev, [pacienteId]: h })))
-          .catch((e) => console.error("No se pudo guardar la historia clínica:", e));
+          .catch((e) => {
+            console.error("No se pudo guardar la historia clínica:", e);
+            setHistorias((prev) => {
+              const restaurado = { ...prev };
+              if (previa === undefined) delete restaurado[pacienteId];
+              else restaurado[pacienteId] = previa;
+              return restaurado;
+            });
+          });
       },
       agregarAlergia: (pacienteId, alergia) => {
         const base = historias[pacienteId] ?? historiaVacia(pacienteId);
@@ -497,6 +524,7 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
         return odontogramas[pacienteId] ?? [];
       },
       registrarCondicion: (pacienteId, condicion) => {
+        const previa = odontogramas[pacienteId];
         setOdontogramas((prev) => {
           const actual = prev[pacienteId] ?? [];
           const sinPieza = actual.filter((c) => c.pieza !== condicion.pieza);
@@ -529,7 +557,15 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
             if (error) throw error;
           }
           setOdontogramas((prev) => ({ ...prev, [pacienteId]: piezasNuevas }));
-        })().catch((e) => console.error("No se pudo guardar la condición de la pieza:", e));
+        })().catch((e) => {
+          console.error("No se pudo guardar la condición de la pieza:", e);
+          setOdontogramas((prev) => {
+            const restaurado = { ...prev };
+            if (previa === undefined) delete restaurado[pacienteId];
+            else restaurado[pacienteId] = previa;
+            return restaurado;
+          });
+        });
       },
 
       diagnosticosDe: (pacienteId) => {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { DienteSvg } from "@/features/odontogram/DienteSvg";
 import { nombrePieza } from "@/features/odontogram/toothNames";
 import type { CondicionPieza } from "@/types";
@@ -153,7 +153,7 @@ function Arcada({
                 aria-label={`Pieza ${pieza}, ${nombrePieza(pieza)}. ${color.etiqueta} en ${r.pacientesDominante} de ${r.totalPacientes} pacientes`}
                 className={cn(
                   "press flex w-9 flex-col items-center gap-0.5 rounded-xl p-1 hover:bg-black/[0.04] lg:w-11",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                   activo && "bg-black/[0.06] ring-2 ring-brand-400",
                 )}
               >

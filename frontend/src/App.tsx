@@ -31,6 +31,31 @@ const AdminPage = lazy(() =>
   import("@/features/admin/AdminPage").then((m) => ({ default: m.AdminPage })),
 );
 
+const PatientOnboardingPage = lazy(() =>
+  import("@/features/portal-paciente/PatientOnboardingPage").then((m) => ({ default: m.PatientOnboardingPage })),
+);
+const PortalPacienteLayout = lazy(() =>
+  import("@/features/portal-paciente/PortalPacienteLayout").then((m) => ({ default: m.PortalPacienteLayout })),
+);
+const PortalHomePage = lazy(() =>
+  import("@/features/portal-paciente/PortalHomePage").then((m) => ({ default: m.PortalHomePage })),
+);
+const BuscarClinicaPage = lazy(() =>
+  import("@/features/portal-paciente/BuscarClinicaPage").then((m) => ({ default: m.BuscarClinicaPage })),
+);
+const MiHistoriaPage = lazy(() =>
+  import("@/features/portal-paciente/MiHistoriaPage").then((m) => ({ default: m.MiHistoriaPage })),
+);
+const MiOdontogramaPage = lazy(() =>
+  import("@/features/portal-paciente/MiOdontogramaPage").then((m) => ({ default: m.MiOdontogramaPage })),
+);
+const MisEvolucionesPage = lazy(() =>
+  import("@/features/portal-paciente/MisEvolucionesPage").then((m) => ({ default: m.MisEvolucionesPage })),
+);
+const MisPagosPage = lazy(() =>
+  import("@/features/portal-paciente/MisPagosPage").then((m) => ({ default: m.MisPagosPage })),
+);
+
 /** Además de tener sesión, exige rol 'superadmin'; cualquier otra cuenta vuelve al panel. */
 function RequireSuperadmin({ children }: { children: ReactNode }) {
   const { sesion } = useAuth();
@@ -40,10 +65,27 @@ function RequireSuperadmin({ children }: { children: ReactNode }) {
 
 /** Vistas de operativa clínica (pacientes, historia, etc.): un superadmin no
  * es personal de ninguna clínica, así que no tiene nada que hacer ahí y se
- * lo manda directo a su propio panel. */
+ * lo manda directo a su propio panel. Un paciente usa su propio portal. */
 function RequireStaff({ children }: { children: ReactNode }) {
   const { sesion } = useAuth();
   if (sesion?.rol === "superadmin") return <Navigate to="/app/admin" replace />;
+  if (sesion?.rol === "paciente") return <Navigate to="/portal" replace />;
+  return <>{children}</>;
+}
+
+/** Evita montar el AppShell (navegación de personal) para un paciente. */
+function RequireNoPaciente({ children }: { children: ReactNode }) {
+  const { sesion } = useAuth();
+  if (sesion?.rol === "paciente") return <Navigate to="/portal" replace />;
+  return <>{children}</>;
+}
+
+/** Área del portal del paciente. */
+function RequirePaciente({ children }: { children: ReactNode }) {
+  const { sesion, cargando } = useAuth();
+  if (cargando) return null;
+  if (!sesion) return <Navigate to="/login" replace />;
+  if (sesion.rol !== "paciente") return <Navigate to="/app" replace />;
   return <>{children}</>;
 }
 
@@ -56,11 +98,29 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/recuperar-contrasena" element={<ResetPasswordPage />} />
             <Route path="/auth/callback" element={<GoogleCallbackPage />} />
+            <Route path="/onboarding" element={<PatientOnboardingPage />} />
+            <Route
+              path="/portal"
+              element={
+                <RequirePaciente>
+                  <PortalPacienteLayout />
+                </RequirePaciente>
+              }
+            >
+              <Route index element={<PortalHomePage />} />
+              <Route path="buscar" element={<BuscarClinicaPage />} />
+              <Route path="historia" element={<MiHistoriaPage />} />
+              <Route path="odontograma" element={<MiOdontogramaPage />} />
+              <Route path="evoluciones" element={<MisEvolucionesPage />} />
+              <Route path="pagos" element={<MisPagosPage />} />
+            </Route>
             <Route
               path="/app"
               element={
                 <RequireAuth>
-                  <AppShell />
+                  <RequireNoPaciente>
+                    <AppShell />
+                  </RequireNoPaciente>
                 </RequireAuth>
               }
             >

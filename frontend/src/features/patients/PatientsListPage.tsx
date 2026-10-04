@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MagnifyingGlass, Plus, UsersThree, CaretLeft, CaretRight } from "@phosphor-icons/react";
-import { Card } from "@/components/ui/card";
 import bannerPacientes from "@/assets/banners/banner-pacientes.jpg";
 import { HangingBanner } from "@/components/ui/hanging-banner";
 import { SectionHeroStrip } from "@/components/ui/section-hero";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -13,7 +13,7 @@ import { useClinicaData } from "@/data/store";
 import { PatientForm } from "@/features/patients/PatientForm";
 import { PatientsTable } from "@/features/patients/PatientsTable";
 
-const POR_PAGINA = 10;
+const POR_PAGINA = 20;
 
 export function PatientsListPage() {
   const { pacientes, registrarPaciente } = useClinicaData();
@@ -41,7 +41,9 @@ export function PatientsListPage() {
     const q = busqueda.trim().toLowerCase();
     if (!q) return pacientes;
     return pacientes.filter((p) =>
-      `${p.nombres} ${p.apellidos} ${p.ci}`.toLowerCase().includes(q),
+      `${p.nombres} ${p.apellidos} ${p.ci} ${p.telefono} ${p.email}`
+        .toLowerCase()
+        .includes(q),
     );
   }, [pacientes, busqueda]);
 
@@ -77,7 +79,7 @@ export function PatientsListPage() {
           <Input
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Buscar por nombre, apellido o CI…"
+            placeholder="Buscar por nombre, CI, teléfono o correo…"
             className="pl-9"
           />
         </div>
@@ -104,17 +106,23 @@ export function PatientsListPage() {
       </div>
 
       {filtrados.length === 0 ? (
-        <Card className="flex flex-col items-center gap-3 border-dashed p-12 text-center">
-          <UsersThree size={28} className="text-ink-muted" />
-          <p className="text-sm text-ink-muted">
-            No se encontraron pacientes que coincidan con “{busqueda}”.
-          </p>
-        </Card>
+        <EmptyState
+          icon={busqueda.trim() ? MagnifyingGlass : UsersThree}
+          iconTone={busqueda.trim() ? "neutral" : "brand"}
+          title={busqueda.trim() ? `Sin coincidencias para “${busqueda.trim()}”` : "Todavía no hay pacientes"}
+          description={
+            busqueda.trim()
+              ? "Probá con otra parte del nombre, la CI o el teléfono. También podés buscar por correo."
+              : "Registrá el primer paciente de la clínica para poder abrir su historia clínica, su odontograma y su plan de tratamiento."
+          }
+          actionLabel={busqueda.trim() ? "Limpiar búsqueda" : "Nuevo paciente"}
+          actionVariant={busqueda.trim() ? "secondary" : "primary"}
+          onAction={() => (busqueda.trim() ? setBusqueda("") : setDialogoAbierto(true))}
+          live
+        />
       ) : (
         <>
-          <Card className="overflow-hidden">
-            <PatientsTable pacientes={visibles} tab="datos" />
-          </Card>
+          <PatientsTable pacientes={visibles} tab="datos" />
 
           {filtrados.length > POR_PAGINA && (
             <div className="flex flex-wrap items-center justify-between gap-3">

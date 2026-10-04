@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { WarningCircle } from "@phosphor-icons/react";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,9 @@ const vacio: Borrador = {
   telefono: "",
   email: "",
   direccion: "",
+  contactoEmergenciaNombre: "",
+  contactoEmergenciaTelefono: "",
+  contactoEmergenciaParentesco: "",
 };
 
 export function PatientForm({
@@ -24,17 +28,31 @@ export function PatientForm({
   textoBoton = "Registrar paciente",
 }: {
   inicial?: Paciente;
-  onSubmit: (datos: Borrador) => void;
+  onSubmit: (datos: Borrador) => void | Promise<void>;
   textoBoton?: string;
 }) {
   const [datos, setDatos] = useState<Borrador>(inicial ?? vacio);
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const set = <K extends keyof Borrador>(key: K, value: Borrador[K]) =>
     setDatos((prev) => ({ ...prev, [key]: value }));
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(datos);
+    setError(null);
+    setEnviando(true);
+    try {
+      await onSubmit(datos);
+    } catch (fallo) {
+      setError(
+        fallo instanceof Error
+          ? fallo.message
+          : "No se pudo guardar el paciente. Probá de nuevo.",
+      );
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -113,8 +131,47 @@ export function PatientForm({
         />
       </Field>
 
-      <Button type="submit" className="mt-2 self-end">
-        {textoBoton}
+      <fieldset className="flex flex-col gap-4 border-t border-line pt-4">
+        <legend className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          Contacto de emergencia
+        </legend>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Nombre" htmlFor="contactoEmergenciaNombre">
+            <Input
+              id="contactoEmergenciaNombre"
+              value={datos.contactoEmergenciaNombre ?? ""}
+              onChange={(e) => set("contactoEmergenciaNombre", e.target.value)}
+            />
+          </Field>
+          <Field label="Teléfono" htmlFor="contactoEmergenciaTelefono">
+            <Input
+              id="contactoEmergenciaTelefono"
+              value={datos.contactoEmergenciaTelefono ?? ""}
+              onChange={(e) => set("contactoEmergenciaTelefono", e.target.value)}
+            />
+          </Field>
+        </div>
+        <Field label="Parentesco" htmlFor="contactoEmergenciaParentesco">
+          <Input
+            id="contactoEmergenciaParentesco"
+            value={datos.contactoEmergenciaParentesco ?? ""}
+            onChange={(e) => set("contactoEmergenciaParentesco", e.target.value)}
+          />
+        </Field>
+      </fieldset>
+
+      {error && (
+        <p
+          role="alert"
+          className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg"
+        >
+          <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </p>
+      )}
+
+      <Button type="submit" disabled={enviando} className="mt-2 self-end">
+        {enviando ? "Guardando…" : textoBoton}
       </Button>
     </form>
   );

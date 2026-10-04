@@ -8,7 +8,15 @@ export const Label = forwardRef<
 >(({ className, ...props }, ref) => (
   <LabelPrimitive.Root
     ref={ref}
-    className={cn("text-xs font-semibold uppercase tracking-wide text-ink-muted", className)}
+    // Micro etiqueta de formulario. Se alinea con los titulos de grupo del
+    // Sidebar (`text-[11px] font-bold uppercase tracking-[0.08em]`) para que
+    // "Administracion" y "Nombre del paciente" se lean como el mismo nivel.
+    // OJO: no usar `label-ios` aqui — su tracking de 0.006em esta disenado para
+    // texto corrido y le quitaria el aire a una etiqueta en mayuscula.
+    className={cn(
+      "text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted",
+      className,
+    )}
     {...props}
   />
 ));

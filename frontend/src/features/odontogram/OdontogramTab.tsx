@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ArrowsClockwise, HandTap, Printer, SpinnerGap } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,11 +17,31 @@ import {
   CONDICION_ESTILO,
   CONDICION_LABEL,
 } from "@/features/odontogram/odontogramLayout";
+import { precargarVista3D } from "@/features/odontogram/precargaVista3D";
 import type { CondicionDiente, CondicionPieza } from "@/types";
 
 const DentalArch3D = lazy(() =>
   import("@/features/odontogram/DentalArch3D").then((m) => ({ default: m.DentalArch3D })),
 );
+
+const MAX_REINTENTOS_AUTO = 2;
+
+/** Tras una excepción en la vista 3D, reintenta sola hasta agotar los intentos
+ * disponibles mientras muestra el spinner; así un fallo transitorio no obliga
+ * al usuario a pulsar "Reintentar". */
+function ReintentoAutomatico({ onReintentar }: { onReintentar: () => void }) {
+  useEffect(() => {
+    const id = setTimeout(onReintentar, 700);
+    return () => clearTimeout(id);
+  }, [onReintentar]);
+
+  return (
+    <div className="flex h-80 w-full flex-col items-center justify-center gap-2 rounded-xl bg-brand-100/50">
+      <SpinnerGap size={28} className="animate-spin text-brand-700" />
+      <p className="text-sm text-ink-muted">Reintentando cargar la vista 3D…</p>
+    </div>
+  );
+}
 
 export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
   const { odontogramaDe, registrarCondicion, obtenerPaciente } = useClinicaData();
@@ -33,7 +53,26 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
   // permite reintentar la carga del modelo 3D tras limpiar su caché (ver
   // limpiarCacheVista3D en DentalArch3D.tsx).
   const [intentoVista3d, setIntentoVista3d] = useState(0);
+  const autoReintentos = useRef(0);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const reintentarVista3D = useCallback(async () => {
+    autoReintentos.current += 1;
+    const mod = await import("@/features/odontogram/DentalArch3D");
+    mod.limpiarCacheVista3D();
+    setIntentoVista3d((n) => n + 1);
+  }, []);
+
+  const reintentarManualVista3D = useCallback(() => {
+    autoReintentos.current = 0;
+    void reintentarVista3D();
+  }, [reintentarVista3D]);
+
+  // Empieza a descargar el chunk 3D y el modelo apenas se abre la ficha, para
+  // que el arco esté listo (o casi) cuando el Suspense lo reclame.
+  useEffect(() => {
+    void precargarVista3D().catch(() => {});
+  }, []);
 
   // Llegar con ?print=1 (desde el botón "Imprimir" de la tabla de pacientes)
   // dispara la impresión automáticamente. El odontograma se carga async desde
@@ -109,14 +148,14 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
             <ErrorBoundary
               key={intentoVista3d}
               fallback={
-                <TarjetaError
-                  mensaje="No se pudo cargar la vista 3D. Puedes seguir trabajando con el odontograma 2D de arriba mientras lo revisamos."
-                  onRetry={async () => {
-                    const mod = await import("@/features/odontogram/DentalArch3D");
-                    mod.limpiarCacheVista3D();
-                    setIntentoVista3d((n) => n + 1);
-                  }}
-                />
+                autoReintentos.current < MAX_REINTENTOS_AUTO ? (
+                  <ReintentoAutomatico onReintentar={reintentarVista3D} />
+                ) : (
+                  <TarjetaError
+                    mensaje="No se pudo cargar la vista 3D. Puedes seguir trabajando con el odontograma 2D de arriba mientras lo revisamos."
+                    onRetry={reintentarManualVista3D}
+                  />
+                )
               }
             >
               <Suspense

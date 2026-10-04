@@ -41,18 +41,18 @@ cambio de esquema antes de que el equipo lo aplique.
 
 - [ ] T-1.1 Configurar Supabase Auth (email/password)
 - [ ] T-1.2 Crear tabla `perfiles` y trigger de sync con `auth.users`
-- [ ] T-1.13 Agregar columnas `latitud`/`longitud` a `clinicas` + índice geo ⚠️ toca BD
+- [x] T-1.13 Agregar columnas `latitud`/`longitud` a `clinicas` + índice geo ⚠️ toca BD
 - [ ] T-1.3 Crear middleware de autenticación (JWT + `clinica_id`)
-- [ ] T-1.5 Implementar formulario de registro de paciente
+- [x] T-1.5 Implementar formulario de registro de paciente
 - [ ] T-1.6 Implementar flujo de recuperación de contraseña
 - [ ] T-1.8 Crear wizard de onboarding de clínica (MVP)
-- [ ] T-1.10 Configurar RLS para `perfiles` ⚠️ toca BD
+- [x] T-1.10 Configurar RLS para `perfiles` ⚠️ toca BD
 - [ ] T-1.4 Implementar página de login
 - [ ] T-1.9 Implementar ProtectedRoute y role-based routing
 - [ ] T-1.11 Implementar cierre de sesión
 - [ ] T-1.12 Crear hooks de autenticación (`useAuth`, `useUser`)
-- [ ] T-1.14 Implementar pestaña de búsqueda de clínicas (nombre + radio 5 km)
-- [ ] T-1.15 Implementar flujo de afiliación del paciente
+- [x] T-1.14 Implementar pestaña de búsqueda de clínicas (nombre + radio 5 km)
+- [x] T-1.15 Implementar flujo de afiliación del paciente
 - [ ] Validar US-1.1 a US-1.8 contra sus criterios de aceptación
 
 ### Mes 2 — Módulo 07
@@ -90,3 +90,18 @@ cambio de esquema antes de que el equipo lo aplique.
 | 2026-10-03 | Planta-4 | `AgendaPlantaMini` en el módulo de agenda y SQL propuesto de `zonas_clinica` + `citas.zona_id` | Hecho | 1 |
 | 2026-10-03 | Planta-5 | Ruta `/app/planta`, entrada en el Sidebar, `README.md` del módulo y fila en `AGENTS.md` | Hecho | 1 |
 | 2026-10-03 | Planta-6 | Baja del módulo Planta: no aporta valor porque cada clínica tiene una arquitectura distinta y muchas no tienen varios profesionales. Se eliminan `features/planta/`, `AgendaPlantaMini`, la ruta, la entrada del Sidebar y la fila en `AGENTS.md` | Hecho | 1 |
+| 2026-10-03 | Fix-P0 | Rollback del estado optimista en `store.tsx` (`actualizarHistoria`, `registrarCondicion`) y manejo de error + estado `enviando` en `PatientForm.tsx` para que falle visible el alta de paciente | Hecho | 2 |
+| 2026-10-03 | Fix-3D | Carga del arco 3D: se clona la escena por montaje en `DentalArch3D.tsx`, se añaden `modeloArco.ts` y `precargaVista3D.ts`, auto-reintento en `OdontogramTab` y prefetch al abrir la ficha | Hecho | 3 |
+| 2026-10-03 | T-2.5 | Ficha del paciente completa (US-2.4): pestañas **Evolución** (módulo 06) y **Pagos** (módulo 09) integradas en `PatientProfilePage`/`tabValue`; se expone `miPerfil` en el store para los módulos que escriben | Hecho | 3 |
+| 2026-10-03 | US-2.5 | Contacto de emergencia: campos en `Paciente`, mapeo y payloads del store, formulario y vista de la ficha | Hecho | 1 |
+| 2026-10-03 | US-2.3/2.6 | Búsqueda de pacientes por teléfono y correo, y paginación a 20 por página (lista y selector) | Hecho | 1 |
+| 2026-10-03 | US-1.2/T-1.5 | Portal del paciente: alta del perfil `paciente` tras el login con Google (`paciente/registrar` en la Edge Function) y formulario de onboarding en `/onboarding` | Hecho | 3 |
+| 2026-10-03 | T-1.14 | Búsqueda de clínicas por nombre/ciudad y por cercanía (geolocalización + Haversine, radio 5 km); `listarClinicas` extendido con latitud/longitud | Hecho | 3 |
+| 2026-10-03 | T-1.15/T-1.10 | Afiliación del paciente con la función `SECURITY DEFINER afiliar_paciente` (una policy de UPDATE sobre `perfiles` dejaría cambiar el propio rol) y portal de lectura (historia, odontograma, evoluciones, pagos) vía `paciente/mi-ficha` con service_role | Hecho | 4 |
+| 2026-10-03 | US-1.8 | Ruteo por rol: área `/portal` con guard `RequirePaciente` y `/onboarding`; login y callback de Google redirigen según el rol | Hecho | 2 |
+| 2026-10-04 | Fix-UTF8 | Doble codificación UTF-8 en 10 archivos (270 caracteres): el usuario veía `DefiniciÃ³n`, `clÃ­nicas`, `Ã©xito`. Recodificación cp1252→UTF-8 tras verificar que no quedaban secuencias `Ã` ni `U+FFFD`, más `Número de operación` en `PaymentForm.tsx` | Hecho | 2 |
+
+> Pendiente de la acción del PO: integrar
+> [`docs/modules/01-auth-onboarding/sql.sql`](../modules/01-auth-onboarding/sql.sql)
+> en `bd_5clinicas_midentista.sql` y desplegar la Edge Function
+> (`supabase functions deploy api`) para que el flujo funcione contra Supabase.

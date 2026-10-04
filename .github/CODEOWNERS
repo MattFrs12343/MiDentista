@@ -30,6 +30,7 @@
 /frontend/src/components/layout/          @MattFrs12343
 /frontend/src/features/patients/          @MattFrs12343
 /frontend/src/features/auth/              @MattFrs12343
+/frontend/src/features/portal-paciente/  @MattFrs12343
 
 # ------------------------------------------------ base de datos y arquitectura ---
 # Matias (Product Owner) debe revisar cualquier cambio a la base de datos,

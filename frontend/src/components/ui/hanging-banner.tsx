@@ -19,7 +19,14 @@ function Eyelet({ side }: { side: "left" | "right" }) {
       className={cn(
         "absolute top-0 z-20 grid h-[18px] w-[18px] place-items-center rounded-full",
         "-translate-y-1/2",
-        "border-2 border-rope-deep/80 bg-ink/25 shadow-[0_1px_2px_rgba(22,35,58,0.45)]",
+        // `shadow-e2` en lugar del `shadow-[...]` escrito a mano: el metal pasa
+        // a usar la misma escala de elevación que el resto de la app. e1 es
+        // demasiado tenue contra la foto y e3 (blur de 24px) se volvería un
+        // halo en un aro de 18px; e2 es el token que sí levanta el ojal.
+        // Sigue siendo `rounded-full` y no `rounded-tile`: un aro metálico es
+        // un círculo, y 14px de radio sobre 18px lo vuelve un cuadrado de
+        // esquinas vivas.
+        "border-2 border-rope-deep/80 bg-ink/25 shadow-e2",
         side === "left" ? "left-[2%] -translate-x-1/2" : "right-[2%] translate-x-1/2",
       )}
     >
@@ -33,6 +40,12 @@ function Eyelet({ side }: { side: "left" | "right" }) {
  * header con dos sogas. El hijo debe recibir `hanger-panel` para la sombra (y
  * su propia animación de entrada, p. ej. `fade-in-up`), nunca el wrapper, que
  * ya usa transform para el balanceo.
+ *
+ * Este componente no crea ningún elemento interactivo (sogas y ojal son
+ * decoración `aria-hidden`), así que no lleva anillo de foco propio: lo que
+ * llega por `children` conserva el suyo (`Button` ya usa
+ * `focus-visible:ring-2`). El péndulo y el contrato `hanger`/`hanger-panel`
+ * quedan intactos.
  */
 export function HangingBanner({
   children,

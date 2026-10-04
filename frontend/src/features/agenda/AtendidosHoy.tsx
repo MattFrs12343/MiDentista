@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { CheckCircle, ArrowUpRight } from "@phosphor-icons/react";
 import type { Cita, Paciente } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -134,7 +134,7 @@ function TarjetaAtendido({
       onClick={onIr}
       className={cn(
         "press flex h-full w-full flex-col gap-1 rounded-ios-lg border border-[#bfe0ca] bg-[#e6f4ea] px-3 py-2.5 text-left",
-        "hover:bg-[#dceee2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ios-blue/45",
+        "hover:bg-[#dceee2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
       )}
     >
       <div className="flex items-baseline justify-between gap-2">

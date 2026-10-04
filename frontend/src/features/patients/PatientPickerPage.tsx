@@ -1,6 +1,6 @@
 import { useMemo, useState, type ComponentType } from "react";
 import { MagnifyingGlass, UsersThree, type IconProps } from "@phosphor-icons/react";
-import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { HangingBanner } from "@/components/ui/hanging-banner";
 import { SectionHeroStrip } from "@/components/ui/section-hero";
@@ -34,7 +34,9 @@ export function PatientPickerPage({
     const q = busqueda.trim().toLowerCase();
     if (!q) return pacientes;
     return pacientes.filter((p) =>
-      `${p.nombres} ${p.apellidos} ${p.ci}`.toLowerCase().includes(q),
+      `${p.nombres} ${p.apellidos} ${p.ci} ${p.telefono} ${p.email}`
+        .toLowerCase()
+        .includes(q),
     );
   }, [pacientes, busqueda]);
 
@@ -64,16 +66,22 @@ export function PatientPickerPage({
       </div>
 
       {filtrados.length === 0 ? (
-        <Card className="flex flex-col items-center gap-3 border-dashed p-12 text-center">
-          <UsersThree size={28} className="text-ink-muted" />
-          <p className="text-sm text-ink-muted">
-            No se encontraron pacientes que coincidan con “{busqueda}”.
-          </p>
-        </Card>
+        <EmptyState
+          icon={busqueda.trim() ? MagnifyingGlass : UsersThree}
+          iconTone={busqueda.trim() ? "neutral" : "brand"}
+          title={busqueda.trim() ? `Sin coincidencias para “${busqueda.trim()}”` : "Todavía no hay pacientes"}
+          description={
+            busqueda.trim()
+              ? "Probá con otra parte del nombre, del apellido o de la CI."
+              : "Registrá un paciente en la sección Pacientes para poder seleccionarlo desde acá."
+          }
+          actionLabel={busqueda.trim() ? "Limpiar búsqueda" : undefined}
+          actionVariant="secondary"
+          onAction={() => setBusqueda("")}
+          live
+        />
       ) : (
-        <Card className="overflow-hidden">
-          <PatientsTable pacientes={filtrados} tab={tab} />
-        </Card>
+        <PatientsTable pacientes={filtrados} tab={tab} />
       )}
     </div>
   );

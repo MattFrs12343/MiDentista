@@ -23,6 +23,10 @@ export interface Paciente {
   telefono: string;
   email: string;
   direccion: string;
+  /** Contacto de emergencia (US-2.5). Columnas `contacto_emergencia_*`. */
+  contactoEmergenciaNombre?: string;
+  contactoEmergenciaTelefono?: string;
+  contactoEmergenciaParentesco?: string;
   creadoEl: string;
 }
 
