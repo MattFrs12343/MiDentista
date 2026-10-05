@@ -76,16 +76,33 @@
       vinculada cada atención. **No** se toca `procedimientos_tratamiento.estado`:
       el progreso del plan es del Módulo 05, queda anotado como pregunta abierta
 - [x] T-6.7 Integrar evolución en ficha del paciente (depende del Módulo 02)
-- [ ] Validar US-6.1 a US-6.4 contra sus criterios de aceptación — US-6.4
-      depende de T-6.6
+- [x] Validar US-6.1 a US-6.4 contra sus criterios de aceptación — el 2026-10-05.
+      Revisión a nivel de código, documentada en
+      [`validacion-us.md`](../modules/06-evolucion-clinica/validacion-us.md):
+      **US-6.2 cumple** y **US-6.1, US-6.3 y US-6.4 quedan parciales**. Salió un
+      defecto real al validar: el desplegable ofrecía planes `cancelado`, cuando el
+      criterio pide un plan "activo". Corregido con `planesVincidables()`, con
+      tests. Los tres huecos que quedan **no se cierran desde el frontend**: son
+      una columna que no existe en el esquema y dos criterios que son de otros
+      módulos. Los reporté al PO
+      ([`mensaje-matias.md`](../modules/06-evolucion-clinica/mensaje-matias.md))
+- [ ] Prueba manual con sesión real de odontólogo — la validación anterior es de
+      código, no de sesión. Quedan 4 comprobaciones, listadas al final de
+      `validacion-us.md`
 
 ### Mes 3 — Cierre del Módulo 06 (solo)
 
-- [ ] Terminar cualquier tarea de T-6.1 a T-6.7 pendiente de octubre
+- [x] Terminar cualquier tarea de T-6.1 a T-6.7 pendiente de octubre — T-6.6 y la
+      validación cerradas; T-6.1 sigue abierta por el PO
 - [ ] Corregir bugs reportados por Melissa/Angélica en testing
-- [ ] Revisar la integración de evolución clínica con el Módulo 05
-      (plan de tratamiento) y el Módulo 02 (ficha del paciente)
-- [ ] Confirmar a Matías que el Módulo 06 está listo para el deploy final
+- [x] Revisar la integración de evolución clínica con el Módulo 05 — el módulo 06
+      ya no depende del store: lee `planes_tratamiento` por su propio servicio.
+      Documenté el riesgo de que el Módulo 05 lee del store en memoria y escribe en
+      Supabase
+- [ ] Revisar la integración con el Módulo 02 (ficha del paciente) — la pestaña ya
+      está registrada por Matías en `PatientProfilePage.tsx`; falta probarla en vivo
+- [ ] Confirmar a Matías que el Módulo 06 está listo para el deploy final — bloqueado
+      por T-6.1 y por las migraciones
 
 ## Registro de avance
 
@@ -95,7 +112,8 @@
 | 2026-10-04 | TESTING | Verifiqué T-6.2 a T-6.5 y T-6.7 que ya venían implementadas: 22 tests en verde (`node --test src/features/evolucion/*.test.ts`) | completado | 0.5 |
 | 2026-10-04 | T-6.1 | Apliqué RLS en `evoluciones_clinicas` desde el editor de Supabase (no tenía `enable row level security` ni policies, así que cualquier usuario autenticado leía evoluciones de las 5 clínicas). Escribí las tres policies y las verifiqué: odontólogo de la clínica lee/escribe, odontólogo de otra clínica ve 0, recepcionista ve 0, paciente solo las suyas; crear y editar funcionan. Entre el `alter table` y las policies la tabla quedó en deny-all y el módulo dejó de cargar evoluciones unos minutos | en progreso | 2 |
 | 2026-10-04 | T-6.1 | Dejé el SQL documentado en `docs/modules/06-evolucion-clinica/sql.sql` para que el PO lo integre en `bd_5clinicas_midentista.sql`. Pendiente de Matías: integrar el SQL, documentarlo en `docs/DATABASE.md`, borrar una evolución de prueba que quedó en la tabla, y decidir sobre `force row level security` | bloqueado | 0.5 |
-| 2026-10-05 | T-6.6 | Implementé el vínculo de la evolución con el plan de tratamiento: `planesTratamientoMapper.ts`, `planesTratamientoService.ts` (solo lectura) y `usePlanesTratamiento.ts`, más dos desplegables en cascada en el formulario y la insignia del plan en la línea de tiempo. Agregué la validación de que `planTratamientoId` y `procedimientoId` sean UUID reales o `null`, para que el centinela `"ninguno"` del desplegable nunca llegue a Postgres. 9 tests nuevos (31 en verde); `npm run build`, `npm run lint` sin avisos en el módulo y los 16 tests del Módulo 03 sin romper | completado | 2.5 |
+| 2026-10-05 | T-6.6 | Implementé el vínculo de la evolución con el plan de tratamiento: `planesTratamientoMapper.ts`, `planesTratamientoService.ts` (solo lectura) y `usePlanesTratamiento.ts`, más dos desplegables en cascada en el formulario y la insignia del plan en la línea de tiempo. Agregué la validación de que `planTratamientoId` y `procedimientoId` sean UUID reales o `null`, para que el centinela `"ninguno"` del desplegable nunca llegue a Postgres | completado | 2.5 |
+| 2026-10-05 | US-6.x | Validé US-6.1 a US-6.4 contra el código y lo documenté en `docs/modules/06-evolucion-clinica/validacion-us.md`. US-6.2 cumple; US-6.1, US-6.3 y US-6.4 quedan parciales. Al validar encontré un defecto: el desplegable ofrecía planes `cancelado` cuando el criterio pide un plan "activo"; lo corregí con `planesVincidables()` y dos tests. 33 tests en verde, `npm run build` OK, `oxlint` sin avisos en el módulo | parcial | 2 |
 
 **Nota sobre el estado de T-6.1.** El trabajo técnico está hecho y verificado, pero la casilla sigue abierta a propósito: el RLS está aplicado **solo en la base**, no en el repositorio. Mientras `bd_5clinicas_midentista.sql` no lo incluya, el proyecto describe mal su propia base y quien la reconstruya se queda sin RLS. La tarea se cierra cuando el PO integre el SQL.
 

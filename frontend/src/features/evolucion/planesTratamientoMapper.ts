@@ -50,6 +50,15 @@ const ESTADOS_PLAN: ReadonlySet<string> = new Set<EstadoPlan>([
   "cancelado",
 ]);
 
+/** Como se lee cada estado en pantalla. */
+const ETIQUETA_ESTADO_PLAN: Record<EstadoPlan, string> = {
+  propuesto: "Propuesto",
+  aceptado: "Aceptado",
+  en_proceso: "En proceso",
+  completado: "Completado",
+  cancelado: "Cancelado",
+};
+
 const ESTADOS_PROCEDIMIENTO: ReadonlySet<string> = new Set<EstadoProcedimiento>([
   "pendiente",
   "en_proceso",
@@ -120,6 +129,30 @@ export function procedimientoDesdeFila(
 export function tituloDePlan(plan: PlanTratamiento): string {
   const titulo = plan.titulo?.trim() ?? "";
   return titulo !== "" ? titulo : "Plan sin título";
+}
+
+/** `estado` es nullable en la tabla, así que también hay que rotular ese caso. */
+export function etiquetaDeEstadoPlan(plan: PlanTratamiento): string {
+  if (plan.estado === null) return "sin estado";
+  return ETIQUETA_ESTADO_PLAN[plan.estado];
+}
+
+/**
+ * Un plan cancelado no admite atenciones nuevas (US-6.4: "Given que existe un
+ * plan de tratamiento **activo**").
+ *
+ * `completado` sí se ofrece: un odontólogo puede documentar con retraso una
+ * consulta de un plan que ya se cerró, y no es un dato incoherente. Un plan sin
+ * estado (`null`, que la columna admite) también se ofrece, porque descartar
+ * silenciosamente un plan sería peor que mostrarlo.
+ */
+export function esPlanVincidable(plan: PlanTratamiento): boolean {
+  return plan.estado !== "cancelado";
+}
+
+/** Los planes que el selector debe ofrecer, en el orden en que llegaron. */
+export function planesVincidables(planes: readonly PlanTratamiento[]): PlanTratamiento[] {
+  return planes.filter(esPlanVincidable);
 }
 
 /** Etiqueta de un procedimiento: descripción y pieza, si la tiene. */

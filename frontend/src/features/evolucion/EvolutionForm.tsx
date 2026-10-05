@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { NextVisitPicker } from "./NextVisitPicker";
 import { hoyEnIso } from "./fechasEvolucion";
 import {
+  etiquetaDeEstadoPlan,
   etiquetaDeProcedimiento,
+  planesVincidables,
   referenciaDesdeSeleccion,
   seleccionDesdeReferencia,
   SIN_PLAN,
@@ -137,6 +139,15 @@ export function EvolutionForm({
 
   /** Sin plan no puede haber procedimiento: el segundo desplegable se bloquea. */
   const sinPlan = planSeleccionado === SIN_PLAN;
+
+  /**
+   * US-6.4 pide vincular a un plan "activo": un plan cancelado no aparece.
+   *
+   * Si además no queda ninguno, el desplegable se deshabilita para no dejar
+   * elegir un id que ya no es válido.
+   */
+  const planesDisponibles = planesVincidables(planes);
+  const sinPlanes = planesDisponibles.length === 0;
 
   /**
    * Cambiar de plan descarta el procedimiento elegido: el anterior pertenece al
@@ -287,22 +298,24 @@ export function EvolutionForm({
               hint={
                 cargandoPlanes
                   ? "Cargando planes…"
-                  : "Opcional. Asocia esta atención al plan del módulo 05."
+                  : sinPlanes
+                    ? "Este paciente no tiene planes activos."
+                    : "Opcional. Asocia esta atención al plan del módulo 05."
               }
             >
               <Select
                 value={planSeleccionado}
                 onValueChange={elegirPlan}
-                disabled={guardando || cargandoPlanes}
+                disabled={guardando || cargandoPlanes || sinPlanes}
               >
                 <SelectTrigger id={idPlan} aria-label="Plan de tratamiento">
                   <SelectValue placeholder="Sin plan" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={SIN_PLAN}>Sin plan</SelectItem>
-                  {planes.map((plan) => (
+                  {planesDisponibles.map((plan) => (
                     <SelectItem key={plan.id} value={plan.id}>
-                      {tituloDePlan(plan)}
+                      {tituloDePlan(plan)} · {etiquetaDeEstadoPlan(plan)}
                     </SelectItem>
                   ))}
                 </SelectContent>

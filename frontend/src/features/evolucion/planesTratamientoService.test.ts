@@ -4,8 +4,11 @@ import test from "node:test";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cargarPlanes, cargarProcedimientos } from "./planesTratamientoService.ts";
 import {
+  etiquetaDeEstadoPlan,
   etiquetaDeProcedimiento,
+  esPlanVincidable,
   planDesdeFila,
+  planesVincidables,
   procedimientoDesdeFila,
   referenciaDesdeSeleccion,
   seleccionDesdeReferencia,
@@ -171,6 +174,48 @@ test("los títulos y descripciones ausentes no rompen las etiquetas", () => {
     etiquetaDeProcedimiento({ ...procedimiento, descripcion: "  " }),
     "Procedimiento sin descripción · pieza 16",
   );
+});
+
+test("solo se ofrecen los planes activos: un cancelado no aparece (US-6.4)", () => {
+  const de = (estado: PlanTratamiento["estado"]): PlanTratamiento =>
+    planDesdeFila(filaPlan({ id: estado ?? "sin-estado", estado }));
+
+  const todos = [
+    de("propuesto"),
+    de("aceptado"),
+    de("en_proceso"),
+    de("completado"),
+    de("cancelado"),
+    de(null),
+  ];
+  const offered = planesVincidables(todos);
+
+  // El cancelado queda fuera; el resto sigue disponible, incluso el completado
+  // (una consulta puede documentarse después de cerrar el plan) y el que no
+  // tiene estado, que la columna admite.
+  assert.deepEqual(
+    offered.map((plan) => plan.estado),
+    ["propuesto", "aceptado", "en_proceso", "completado", null],
+  );
+  assert.equal(
+    offered.some((plan) => plan.estado === "cancelado"),
+    false,
+  );
+  // Filtra sin mutar el array recibido.
+  assert.equal(todos.length, 6);
+  assert.deepEqual(planesVincidables([]), []);
+  assert.equal(esPlanVincidable(de("cancelado")), false);
+  assert.equal(esPlanVincidable(de("aceptado")), true);
+});
+
+test("el estado del plan se rotula en el desplegable", () => {
+  const de = (estado: PlanTratamiento["estado"]) => planDesdeFila(filaPlan({ estado }));
+  assert.equal(etiquetaDeEstadoPlan(de("en_proceso")), "En proceso");
+  assert.equal(etiquetaDeEstadoPlan(de("aceptado")), "Aceptado");
+  assert.equal(etiquetaDeEstadoPlan(de("completado")), "Completado");
+  assert.equal(etiquetaDeEstadoPlan(de("propuesto")), "Propuesto");
+  // Un estado que no se conoce se rotula como tal, no se inventa.
+  assert.equal(etiquetaDeEstadoPlan(de(null)), "sin estado");
 });
 
 test("el centinela del desplegable se traduce a null y vuelve sin inventar un id", () => {
