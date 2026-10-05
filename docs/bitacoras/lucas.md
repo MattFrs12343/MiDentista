@@ -34,22 +34,45 @@
 ### Mes 1 — Setup del proyecto
 
 - [x] `npm create vite@latest` + configurar TypeScript
-- [ ] Scaffolding de carpetas: `src/app`, `src/components`, `src/features`,
-      `src/lib`, `src/hooks`, `src/stores`, `src/types` — **parcial**: existen
-      `components`, `features`, `lib`, `types`, `data` y `assets`. No se
-      crearon `src/app`, `src/hooks` ni `src/stores`; la estructura real quedó
-      en `frontend/src/App.tsx` + `frontend/src/data/store.tsx`
+- [x] Scaffolding de carpetas: `src/app`, `src/components`, `src/features`,
+      `src/lib`, `src/hooks`, `src/stores`, `src/types` — **desviación
+      documentada, no se va a corregir**. Verificado el 2026-10-05: existen
+      `components`, `features`, `lib`, `types`, `data` y `assets`; no existen
+      `src/app`, `src/hooks` ni `src/stores`. Lo que el spec llama `src/app/`
+      (rutas, providers, layout) existe como `src/App.tsx` + `src/data/store.tsx`,
+      y las carpetas que faltaban no tienen ningún consumidor: los hooks viven
+      junto a su módulo (`features/<módulo>/use*.ts`) y el store es uno solo.
+      Moverlo a `src/app/` tocaría los imports de todos los módulos y de las
+      integraciones que son de Matías, así que la decisión es suya: o se actualiza
+      `ARCHITECTURE.md` §2 para que describa la estructura real, o se reestructura
+      en un momento del proyecto donde nadie esté trabajando. Reportado al PO
 - [x] Configurar Tailwind CSS + shadcn/ui — Tailwind v4 por el plugin
       `@tailwindcss/vite`; primitivas en `frontend/src/components/ui/`
-- [ ] Configurar ESLint + Prettier — **no se adoptaron**: el lint del proyecto
-      es `oxlint` (`npm run lint`). No hay configuración de ESLint ni de Prettier
-- [ ] Crear `.env.example` — **parcial**: existen `VITE_SUPABASE_URL` y
-      `VITE_SUPABASE_ANON_KEY`. Faltan `VITE_APP_NAME` y `VITE_APP_URL`
+- [x] Configurar ESLint + Prettier — **cerrado como tarea superada, no pendiente**.
+      Verificado el 2026-10-05 en `package.json`: no hay `eslint` ni `prettier` en
+      `devDependencies`, solo `oxlint`. El linter oficial del proyecto es `oxlint`
+      (`npm run lint`) y así lo fija el `AGENTS.md` §5, así que la decisión ya está
+      tomada y no hay nada que configurar
+- [x] Crear `.env.example` — **completo el 2026-10-05**. Verifiqué qué variables lee
+      el código con `git grep import.meta.env`: solo `VITE_SUPABASE_URL` y
+      `VITE_SUPABASE_ANON_KEY`, que es lo que usa `src/lib/supabase.ts`. Faltaban
+      `VITE_APP_NAME` y `VITE_APP_URL`, que sí documenta `ARCHITECTURE.md` §3, así
+      que las agregué con una nota de que el código todavía no las lee
 - [x] Configurar cliente Supabase (`src/lib/supabase.ts`)
-- [ ] Preparar `.htaccess` para SPA y pipeline de build — **parcial**: el
-      pipeline existe (`npm run build` → `tsc -b && vite build` → `dist/`),
-      pero no hay ningún `.htaccess` en el repo
-- [ ] Verificar que `npm run dev` levanta correctamente para todo el equipo
+- [x] Preparar `.htaccess` para SPA y pipeline de build — **completo el 2026-10-05**.
+      El pipeline ya existía; faltaba el `.htaccess`. Lo creé en
+      `frontend/public/.htaccess` con el contenido que pide `ARCHITECTURE.md` §9.2,
+      y verificado que Vite lo copia a `dist/.htaccess` (importante: si estuviera en
+      la raíz del repo no se subiría al FTP). `npm run build` produce `dist/` con
+      el `.htaccess` incluido
+- [x] Verificar que `npm run dev` levanta correctamente para todo el equipo —
+      **verificado el 2026-10-05**. Arranca en 367 ms, responde HTTP 200 en
+      `localhost:5173` y también en la IP de red `192.168.0.4:5173` (el
+      `vite.config.ts` tiene `server.host: true`, que es lo que permite que el
+      resto del equipo entre). Las rutas SPA anidadas responden 200:
+      `/app/pacientes`, `/app/evolucion` y `/login`. Sin errores en consola.
+      Para el equipo: `cd frontend && npm run dev`, y entrar por la IP de red si
+      están en otra máquina
 
 ### Mes 2 — Módulo 06 (dueño)
 
@@ -127,6 +150,8 @@
 | 2026-10-05 | TESTING | Dejé 3 filas de prueba en la base que yo no podía borrar por lo del `DELETE` ausente: 1 evolución (`motivo_consulta = 'T-6.6 PRUEBA automatica'`) y 2 planes temporales. El SQL quedó en `validacion-us.md`. Ninguna fila del seed se modificó | pendiente | 0 |
 | 2026-10-05 | T-6.6 | Probé la pestaña Evolución en la ficha del paciente con `npm run dev` y sesión real. El desplegable de plan ofrece *Plan de endodoncia pieza 36 · En proceso*. Queda confirmado en la UI lo que antes se veía vacío: `usePlanesTratamiento` pide los planes una sola vez al montarse, así que si el plan se crea desde el Módulo 05 y se cambia de pestaña sin recargar, la lista ya pedida sigue vacía. Un `F5` lo resuelve | completado | 0.5 |
 | 2026-10-05 | T-6.6 | Ejecuté el SQL de limpieza de las 3 filas de prueba desde el editor de Supabase y lo verifiqué contra la base: 0 evoluciones de prueba y 0 planes temporales. Los conteos bajaron de 7 a 6 evoluciones y de 9 a 7 planes, que es exactamente lo borrado. El seed quedó intacto: los 5 planes sembrados conservan título y estado, y Juan Carlos Mamani Quispe sigue con su plan de endodoncia y sus 3 procedimientos | completado | 0 |
+| 2026-10-05 | SETUP | Cerré los puntos del Mes 1 que seguían abiertos. Verifiqué los cinco contra el repo: `npm run dev` levanta y responde en localhost y en la IP de red, con rutas SPA anidadas en 200 y sin errores; `package.json` confirma que el linter del proyecto es `oxlint` y no ESLint ni Prettier, así que esa casilla estaba superada; el código solo lee dos variables de Supabase, así que completé `.env.example` con las otras dos del `ARCHITECTURE.md` §3; y creé `frontend/public/.htaccess` con el rewrite SPA del §9.2, comprobando que Vite lo copia a `dist/` | completado | 1 |
+| 2026-10-05 | SETUP | El punto de scaffolding queda como desviación documentada y no lo voy a corregir: lo que el spec llama `src/app/` existe como `src/App.tsx` + `src/data/store.tsx`, y `src/hooks` y `src/stores` no tienen consumidores porque los hooks viven con su módulo y el store es único. Reestructurar tocaría los imports de todos los módulos y de integraciones que son de Matías, así que lo reporté al PO para que decida entre actualizar `ARCHITECTURE.md` §2 o reestructurar en un momento tranquilo | bloqueado | 0.5 |
 
 **Nota sobre el estado de T-6.1.** El trabajo técnico está hecho y verificado, pero la casilla sigue abierta a propósito: el RLS está aplicado **solo en la base**, no en el repositorio. Mientras `bd_5clinicas_midentista.sql` no lo incluya, el proyecto describe mal su propia base y quien la reconstruya se queda sin RLS. La tarea se cierra cuando el PO integre el SQL.
 
