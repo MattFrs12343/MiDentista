@@ -185,18 +185,23 @@ afectadas y `error: null`. `store.tsx:617` (`quitarItemPlan`) hace
 evita en todas partes y que el `AGENTS.md` §4 prohíbe ("nunca conflir `null` con
 éxito"), pero en el store, que es de Matías.
 
-### Filas de prueba que quedaron en la base
+### Filas de prueba: ya borradas
 
-No se pudieron borrar por lo anterior. Hay que borrarlas a mano desde el editor
-SQL de Supabase:
+No se pudieron borrar desde la app por lo anterior (no hay policy de `DELETE`).
+El SQL se ejecutó el 2026-10-05 a mano desde el editor de Supabase y quedó
+verificado: 0 evoluciones de prueba y 0 planes temporales.
 
 ```sql
 delete from evoluciones_clinicas where motivo_consulta = 'T-6.6 PRUEBA automatica';
 delete from planes_tratamiento where titulo in ('Plan temporal de contraste', 'Plan CANCELADO temporal');
 ```
 
-Las dos evoluciones de prueba que se habían creado durante el trabajo quedaron ya
-eliminadas. Ninguna fila del seed fue modificada.
+Ninguna fila del seed fue modificada: los conteos quedaron en 6 evoluciones y 7
+planes, con los 5 planes sembrados intactos en título y estado.
+
+Los dos planes "Plan sin título" de Matías Franco Salvatierra y Pedro Luis
+Gutiérrez Choque **no son basura de la prueba**: los creó el Módulo 05 al agregar
+un procedimiento a un paciente que no tenía plan, y se conservaron.
 
 ## Verificación automática
 

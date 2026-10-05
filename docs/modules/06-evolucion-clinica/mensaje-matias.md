@@ -4,8 +4,9 @@
 mandarlo por el canal que usemos con el PO.
 
 Fecha de redacción: 2026-10-05. Rama: `feature/modulo-06-lucas`. Commits:
-`6dbaf31` (T-6.6), `758e78d` (validación de US-6.1 a US-6.4) y `12fb657`
-(prueba manual y hallazgos). Todo lo mío está en la rama, nada mergeado a `main`.
+`6dbaf31` (T-6.6), `758e78d` (validación de US-6.1 a US-6.4) y dos de documentación
+(`12fb657` y `5d12215`, con la prueba manual y sus hallazgos). Todo lo mío está en
+la rama, nada mergeado a `main`.
 
 ---
 
@@ -68,8 +69,10 @@ borrado que no ocurrió. Es el caso que el `AGENTS.md` §4 prohíbe en todas par
 pero el store es tuyo. Necesita comparar el conteo de filas devolvido, como ya
 hacemos en el módulo 06.
 
-**Te dejo 3 filas de prueba que no pude borrar**, justamente por el punto 4. El
-SQL está en `validacion-us.md`. Ninguna fila del seed la toqué.
+**Las 3 filas de prueba ya están borradas.** Rané el SQL a mano desde el editor de
+Supabase y lo verifiqué: 0 evoluciones de prueba, 0 planes temporales, y el seed
+intacto. El SQL te lo dejo igual en `validacion-us.md` por si querés revisarlo.
+Fue justamente el punto 4 el que me impedía borrarlas desde la app.
 
 **Sobre las migraciones.** Dijiste que había que hacerlas. Revisé el repo y no
 existe `supabase/migrations/` ni `supabase/config.toml`, así que no hay historial
