@@ -18,6 +18,20 @@ function exigirUuid(valor: string, campo: string) {
   }
 }
 
+/**
+ * Los ids de plan y procedimiento son opcionales, pero si vienen tienen que ser
+ * UUIDs de verdad (T-6.6).
+ *
+ * El desplegable usa el centinela `"ninguno"` para "sin plan", que se traduce a
+ * `null` en el mapper. Si esa traducción fallara, Postgres respondería con un
+ * error de sintaxis de UUID, que no dice nada de permisos ni de la UI. Aquí el
+ * rechazo ocurre antes, con un mensaje que sí señala la causa.
+ */
+function exigirUuidOpcional(valor: string | null | undefined, campo: string) {
+  if (valor === null || valor === undefined) return;
+  exigirUuid(valor, campo);
+}
+
 function tabla(cliente: SupabaseClient) {
   return cliente.schema("public").from("evoluciones_clinicas");
 }
@@ -52,6 +66,8 @@ export async function guardarEvolucion(
   exigirUuid(nueva.pacienteId, "pacienteId");
   exigirUuid(nueva.odontologoId, "odontologoId");
   exigirUuid(nueva.clinicaId, "clinicaId");
+  exigirUuidOpcional(nueva.planTratamientoId, "planTratamientoId");
+  exigirUuidOpcional(nueva.procedimientoId, "procedimientoId");
 
   const supabase = cliente ?? obtenerSupabase();
   const payload = evolucionParaGuardar(nueva, nueva.clinicaId);
@@ -76,6 +92,8 @@ export async function actualizarEvolucion(
   exigirUuid(evolucion.id, "id");
   exigirUuid(evolucion.pacienteId, "pacienteId");
   exigirUuid(evolucion.clinicaId, "clinicaId");
+  exigirUuidOpcional(evolucion.planTratamientoId, "planTratamientoId");
+  exigirUuidOpcional(evolucion.procedimientoId, "procedimientoId");
 
   const { data, error } = await tabla(cliente ?? obtenerSupabase())
     .update(evolucionParaActualizar(evolucion))

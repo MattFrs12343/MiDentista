@@ -4,10 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { NextVisitPicker } from "./NextVisitPicker";
 import { hoyEnIso } from "./fechasEvolucion";
-import type { BorradorEvolucion, EvolucionClinica } from "./tipos.ts";
+import {
+  etiquetaDeProcedimiento,
+  referenciaDesdeSeleccion,
+  seleccionDesdeReferencia,
+  SIN_PLAN,
+  tituloDePlan,
+} from "./planesTratamientoMapper.ts";
+import type {
+  BorradorEvolucion,
+  EvolucionClinica,
+  PlanTratamiento,
+  ProcedimientoTratamiento,
+} from "./tipos.ts";
 
 /** Rango aceptado para `numero_pieza`: un entero entre 0 y 32. */
 const PIEZA_MINIMO = 0;
@@ -22,6 +35,8 @@ const BORDADOR_VACIO: BorradorEvolucion = {
   indicaciones: "",
   proximaAtencion: null,
   numeroPieza: null,
+  planTratamientoId: null,
+  procedimientoId: null,
 };
 
 /**
@@ -62,6 +77,11 @@ function validar(borrador: BorradorEvolucion, pieza: string): Errores {
 export function EvolutionForm({
   inicial,
   guardando,
+  planes = [],
+  procedimientos = [],
+  cargandoPlanes = false,
+  cargandoProcedimientos = false,
+  onElegirPlan,
   onGuardar,
   onCancelar,
 }: {
@@ -69,6 +89,17 @@ export function EvolutionForm({
   inicial?: EvolucionClinica;
   /** Bloquea el envío mientras la escritura está en curso. */
   guardando: boolean;
+  /** Planes del paciente, en solo lectura (vienen del módulo 05). */
+  planes?: PlanTratamiento[];
+  /** Procedimientos del plan elegido, en solo lectura. */
+  procedimientos?: ProcedimientoTratamiento[];
+  cargandoPlanes?: boolean;
+  cargandoProcedimientos?: boolean;
+  /**
+   * Avisa qué plan quedó elegido para que el contenedor pida sus procedimientos.
+   * Es lo que hace posible la cascada sin que el formulario consulte la base.
+   */
+  onElegirPlan?: (planId: string | null) => void;
   onGuardar: (borrador: BorradorEvolucion) => void;
   onCancelar?: () => void;
 }) {
@@ -90,11 +121,32 @@ export function EvolutionForm({
       ? ""
       : `${inicial.numeroPieza}`,
   );
+  const [planSeleccionado, setPlanSeleccionado] = useState(
+    seleccionDesdeReferencia(inicial?.planTratamientoId ?? null),
+  );
+  const [procedimientoSeleccionado, setProcedimientoSeleccionado] = useState(
+    seleccionDesdeReferencia(inicial?.procedimientoId ?? null),
+  );
   const [errores, setErrores] = useState<Errores>({});
 
   const idMotivo = "evolucion-motivo-consulta";
   const idProcedimiento = "evolucion-procedimiento-realizado";
   const idPieza = "evolucion-numero-pieza";
+  const idPlan = "evolucion-plan-tratamiento";
+  const idItemPlan = "evolucion-procedimiento-plan";
+
+  /** Sin plan no puede haber procedimiento: el segundo desplegable se bloquea. */
+  const sinPlan = planSeleccionado === SIN_PLAN;
+
+  /**
+   * Cambiar de plan descarta el procedimiento elegido: el anterior pertenece al
+   * plan que se acaba de dejar, y guardar un id de otro plan no sería cierto.
+   */
+  function elegirPlan(valor: string) {
+    setPlanSeleccionado(valor);
+    setProcedimientoSeleccionado(SIN_PLAN);
+    onElegirPlan?.(referenciaDesdeSeleccion(valor));
+  }
 
   function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -107,6 +159,8 @@ export function EvolutionForm({
       indicaciones: indicaciones.trim(),
       proximaAtencion,
       numeroPieza: interpretarPieza(pieza),
+      planTratamientoId: referenciaDesdeSeleccion(planSeleccionado),
+      procedimientoId: referenciaDesdeSeleccion(procedimientoSeleccionado),
     };
 
     const encontrados = validar(borrador, pieza);
@@ -221,6 +275,71 @@ export function EvolutionForm({
               min={hoyEnIso()}
               disabled={guardando}
             />
+          </div>
+
+          {/* Vínculo con el plan de tratamiento (T-6.6). Los planes los escribe
+              el módulo 05; aquí solo se leen, así que el selector no ofrece crear
+              ni editar un plan. */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field
+              label="Plan de tratamiento"
+              htmlFor={idPlan}
+              hint={
+                cargandoPlanes
+                  ? "Cargando planes…"
+                  : "Opcional. Asocia esta atención al plan del módulo 05."
+              }
+            >
+              <Select
+                value={planSeleccionado}
+                onValueChange={elegirPlan}
+                disabled={guardando || cargandoPlanes}
+              >
+                <SelectTrigger id={idPlan} aria-label="Plan de tratamiento">
+                  <SelectValue placeholder="Sin plan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SIN_PLAN}>Sin plan</SelectItem>
+                  {planes.map((plan) => (
+                    <SelectItem key={plan.id} value={plan.id}>
+                      {tituloDePlan(plan)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field
+              label="Procedimiento del plan"
+              htmlFor={idItemPlan}
+              hint={
+                cargandoProcedimientos
+                  ? "Cargando procedimientos…"
+                  : sinPlan
+                    ? "Selecciona primero un plan."
+                    : procedimientos.length === 0
+                      ? "Este plan no tiene procedimientos cargados."
+                      : "Opcional. Precisa qué item del plan se ejecutó."
+              }
+            >
+              <Select
+                value={procedimientoSeleccionado}
+                onValueChange={setProcedimientoSeleccionado}
+                disabled={guardando || cargandoProcedimientos || sinPlan}
+              >
+                <SelectTrigger id={idItemPlan} aria-label="Procedimiento del plan">
+                  <SelectValue placeholder="Sin especificar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SIN_PLAN}>Sin especificar</SelectItem>
+                  {procedimientos.map((procedimiento) => (
+                    <SelectItem key={procedimiento.id} value={procedimiento.id}>
+                      {etiquetaDeProcedimiento(procedimiento)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
 
           <div className="flex flex-wrap justify-end gap-2 pt-1">

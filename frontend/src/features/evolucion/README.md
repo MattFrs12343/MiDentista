@@ -24,10 +24,38 @@ Cuando termines, escribe en el PR: **"necesito el tab `evolucion` en
 | `tipos.ts` | Tipos propios del módulo. Replican las columnas 1:1 |
 | `evolucionMapper.ts` | Tipo de fila, `esUuid`, `evolucionDesdeFila`, `evolucionParaGuardar` |
 | `evolucionService.ts` | `cargarEvoluciones`, `guardarEvolucion`, `actualizarEvolucion`, `registrarProximaAtencion` |
+| `planesTratamientoMapper.ts` | Tipos de fila del módulo 05, `tituloDePlan`, y la traducción del desplegable |
+| `planesTratamientoService.ts` | `cargarPlanes`, `cargarProcedimientos` — solo lectura |
+| `usePlanesTratamiento.ts` | Hook de lectura con guarda de cargas concurrentes |
+| `EvolutionTab.tsx`, `EvolutionForm.tsx`, `EvolutionTimeline.tsx`, `NextVisitPicker.tsx` | La UI de la pestaña |
 
-Los que te faltan crear: `EvolutionTab.tsx`, `EvolutionForm.tsx`,
-`EvolutionTimeline.tsx`, `NextVisitPicker.tsx`,
-`useEvolucionSupabase.ts` y los `.test.ts` del mapper y del servicio.
+## Vínculo con el plan de tratamiento (T-6.6)
+
+La evolución se puede atribuir a un plan del módulo 05 y, dentro de él, a un
+procedimiento concreto. Es **solo lectura**: este módulo no escribe en
+`planes_tratamiento` ni en `procedimientos_tratamiento`.
+
+Lo que **no** hace, a propósito: al registrar una atención no se cambia
+`procedimientos_tratamiento.estado` a `completado`. El progreso del plan es del
+módulo 05; si este módulo lo tocara, el plan mostraría un estado que cambió sin
+que nadie lo decidiera. Queda anotado como pregunta abierta para Matías.
+
+Dos detalles que conviene no romper:
+
+- El desplegable usa el centinela `"ninguno"` para "sin plan", porque Radix
+  Select rechaza `value=""`. `referenciaDesdeSeleccion` lo traduce a `null` y
+  `evolucionService` valida que cualquier id que venga sea un UUID real, para que
+  el centinela nunca llegue a Postgres como error de sintaxis.
+- Si una atención tiene plan pero su título no se puede resolver —plan borrado, o
+  un rol que no puede leerlo—, la línea de tiempo lo dice como "vinculado a un plan
+  no disponible" en vez de inventar un nombre.
+
+### Riesgo de integración conocido
+
+`TreatmentTab.tsx` (módulo 05) lee los planes del **store en memoria**, pero
+`store.tsx` los **escribe en Supabase**. Mientras esas dos rutas no se unan, un
+plan creado desde la UI puede no aparecer en este selector, y el que se ve en la
+pestaña 05 puede no ser el mismo que hay en la tabla. Se arregla en el módulo 05.
 
 ## Accesos a Supabase
 

@@ -69,9 +69,12 @@
 - [x] T-6.3 Implementar servicio de evolución (CRUD)
 - [x] T-6.4 Crear vista de evolución cronológica
 - [x] T-6.5 Implementar selección de próxima atención
-- [ ] T-6.6 Vincular evolución con plan de tratamiento (con apoyo de Carlos;
-      depende del Módulo 05) — **en curso**: el mapper y el servicio ya
-      soportan `planTratamientoId`, pero no hay selector en el formulario
+- [x] T-6.6 Vincular evolución con plan de tratamiento — el 2026-10-05. El
+      formulario tiene dos desplegables en cascada (plan → procedimiento) que leen
+      `planes_tratamiento` y `procedimientos_tratamiento` en solo lectura, con su
+      propio mapper, servicio y hook. La línea de tiempo muestra a qué plan quedó
+      vinculada cada atención. **No** se toca `procedimientos_tratamiento.estado`:
+      el progreso del plan es del Módulo 05, queda anotado como pregunta abierta
 - [x] T-6.7 Integrar evolución en ficha del paciente (depende del Módulo 02)
 - [ ] Validar US-6.1 a US-6.4 contra sus criterios de aceptación — US-6.4
       depende de T-6.6
@@ -92,7 +95,10 @@
 | 2026-10-04 | TESTING | Verifiqué T-6.2 a T-6.5 y T-6.7 que ya venían implementadas: 22 tests en verde (`node --test src/features/evolucion/*.test.ts`) | completado | 0.5 |
 | 2026-10-04 | T-6.1 | Apliqué RLS en `evoluciones_clinicas` desde el editor de Supabase (no tenía `enable row level security` ni policies, así que cualquier usuario autenticado leía evoluciones de las 5 clínicas). Escribí las tres policies y las verifiqué: odontólogo de la clínica lee/escribe, odontólogo de otra clínica ve 0, recepcionista ve 0, paciente solo las suyas; crear y editar funcionan. Entre el `alter table` y las policies la tabla quedó en deny-all y el módulo dejó de cargar evoluciones unos minutos | en progreso | 2 |
 | 2026-10-04 | T-6.1 | Dejé el SQL documentado en `docs/modules/06-evolucion-clinica/sql.sql` para que el PO lo integre en `bd_5clinicas_midentista.sql`. Pendiente de Matías: integrar el SQL, documentarlo en `docs/DATABASE.md`, borrar una evolución de prueba que quedó en la tabla, y decidir sobre `force row level security` | bloqueado | 0.5 |
+| 2026-10-05 | T-6.6 | Implementé el vínculo de la evolución con el plan de tratamiento: `planesTratamientoMapper.ts`, `planesTratamientoService.ts` (solo lectura) y `usePlanesTratamiento.ts`, más dos desplegables en cascada en el formulario y la insignia del plan en la línea de tiempo. Agregué la validación de que `planTratamientoId` y `procedimientoId` sean UUID reales o `null`, para que el centinela `"ninguno"` del desplegable nunca llegue a Postgres. 9 tests nuevos (31 en verde); `npm run build`, `npm run lint` sin avisos en el módulo y los 16 tests del Módulo 03 sin romper | completado | 2.5 |
 
 **Nota sobre el estado de T-6.1.** El trabajo técnico está hecho y verificado, pero la casilla sigue abierta a propósito: el RLS está aplicado **solo en la base**, no en el repositorio. Mientras `bd_5clinicas_midentista.sql` no lo incluya, el proyecto describe mal su propia base y quien la reconstruya se queda sin RLS. La tarea se cierra cuando el PO integre el SQL.
 
 **Desviación de proceso.** El RLS lo apliqué directamente sobre la base compartida del proyecto (`aoarcxvqlidcvytkxbmq`) sin la aprobación previa que exigen `AGENTS.md` §7 y `CONTRIBUTING.md`, y en vez de dejar la propuesta en `docs/modules/<módulo>/sql.sql` primero. Queda asentado acá y reportado al PO. Para los próximos cambios de esquema la propuesta va primero al archivo y la aplicación la hace él.
+
+**Migraciones diferidas (2026-10-05).** Matías respondió al reporte de T-6.1 indicando que hay que hacer las migraciones. Al revisar el repo, `supabase/migrations/` no existe y tampoco `supabase/config.toml`: no hay historial versionado de la base, así que arrancar eso implica bootstrap completo y decidir con el PO si hace falta además una migración baseline del esquema. Como eso toca el esquema —que es de Matías— y para no dejar el módulo a medias, prioricé cerrar T-6.6 y lo dejé anotado para consultarlo. Sigue pendiente, no cancelado: el RLS de T-6.1 está aplicado en la base pero sin migración que lo versione.

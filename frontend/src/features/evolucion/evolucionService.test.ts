@@ -132,6 +132,42 @@ function evolucionDesdeFilaPrueba() {
   };
 }
 
+test("los ids de plan y procedimiento se validan aunque sean opcionales", async () => {
+  const PLAN = "55555555-5555-4555-8555-555555555555";
+  const PROCEDIMIENTO = "66666666-6666-4666-8666-666666666666";
+  const { cliente, llamadas } = clienteSimulado();
+
+  // `null` y `undefined` son válidos: la atención no se imputa a ningún plan.
+  await assert.rejects(
+    guardarEvolucion(nueva({ planTratamientoId: "ninguno" }), cliente),
+    /planTratamientoId debe ser un UUID real/,
+  );
+  await assert.rejects(
+    guardarEvolucion(nueva({ procedimientoId: "ninguno" }), cliente),
+    /procedimientoId debe ser un UUID real/,
+  );
+  await assert.rejects(
+    actualizarEvolucion(
+      { id: EVOLUCION, ...evolucionDesdeFilaPrueba(), planTratamientoId: "plan_1" },
+      cliente,
+    ),
+    /planTratamientoId debe ser un UUID real/,
+  );
+
+  // El centinela del desplegable se rechaza antes de tocar la red, no como error
+  // de sintaxis de UUID vindo de Postgres.
+  assert.equal(llamadas.length, 0);
+
+  // Con UUIDs reales pasa y los dos ids llegan a la fila.
+  const ok = clienteSimulado({ respuesta: fila() });
+  await guardarEvolucion(
+    nueva({ planTratamientoId: PLAN, procedimientoId: PROCEDIMIENTO }),
+    ok.cliente,
+  );
+  assert.equal(ok.llamadas[0].contenido?.plan_tratamiento_id, PLAN);
+  assert.equal(ok.llamadas[0].contenido?.procedimiento_id, PROCEDIMIENTO);
+});
+
 test("la consulta filtra por paciente y pide fecha descendente", async () => {
   const { cliente, llamadas } = clienteSimulado({
     filas: [fila({ fecha_consulta: "2026-10-03" }), fila({ fecha_consulta: "2026-09-01" })],
