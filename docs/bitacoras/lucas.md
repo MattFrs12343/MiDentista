@@ -33,29 +33,48 @@
 
 ### Mes 1 — Setup del proyecto
 
-- [ ] `npm create vite@latest` + configurar TypeScript
+- [x] `npm create vite@latest` + configurar TypeScript
 - [ ] Scaffolding de carpetas: `src/app`, `src/components`, `src/features`,
-      `src/lib`, `src/hooks`, `src/stores`, `src/types`
-- [ ] Configurar Tailwind CSS + shadcn/ui
-- [ ] Configurar ESLint + Prettier
-- [ ] Crear `.env.example` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
-      `VITE_APP_NAME`, `VITE_APP_URL`)
-- [ ] Configurar cliente Supabase (`src/lib/supabase.ts`)
-- [ ] Preparar `.htaccess` para SPA y pipeline de build (`npm run build` →
-      `dist/`) — solo la configuración, el deploy real lo hace Matías
+      `src/lib`, `src/hooks`, `src/stores`, `src/types` — **parcial**: existen
+      `components`, `features`, `lib`, `types`, `data` y `assets`. No se
+      crearon `src/app`, `src/hooks` ni `src/stores`; la estructura real quedó
+      en `frontend/src/App.tsx` + `frontend/src/data/store.tsx`
+- [x] Configurar Tailwind CSS + shadcn/ui — Tailwind v4 por el plugin
+      `@tailwindcss/vite`; primitivas en `frontend/src/components/ui/`
+- [ ] Configurar ESLint + Prettier — **no se adoptaron**: el lint del proyecto
+      es `oxlint` (`npm run lint`). No hay configuración de ESLint ni de Prettier
+- [ ] Crear `.env.example` — **parcial**: existen `VITE_SUPABASE_URL` y
+      `VITE_SUPABASE_ANON_KEY`. Faltan `VITE_APP_NAME` y `VITE_APP_URL`
+- [x] Configurar cliente Supabase (`src/lib/supabase.ts`)
+- [ ] Preparar `.htaccess` para SPA y pipeline de build — **parcial**: el
+      pipeline existe (`npm run build` → `tsc -b && vite build` → `dist/`),
+      pero no hay ningún `.htaccess` en el repo
 - [ ] Verificar que `npm run dev` levanta correctamente para todo el equipo
 
 ### Mes 2 — Módulo 06 (dueño)
 
-- [ ] T-6.1 Crear tabla `evoluciones_clinicas` + RLS ⚠️ toca BD
-- [ ] T-6.2 Crear formulario de evolución clínica
-- [ ] T-6.3 Implementar servicio de evolución (CRUD)
-- [ ] T-6.4 Crear vista de evolución cronológica
-- [ ] T-6.5 Implementar selección de próxima atención
+> T-6.2 a T-6.5 y T-6.7 llegaron implementadas en `main` (commit `1044781`,
+> Matías Franco); verificado con los 22 tests de `src/features/evolucion/`.
+> Mi aporte propio es T-6.1 (RLS) y T-6.6.
+
+- [ ] T-6.1 Crear tabla `evoluciones_clinicas` + RLS ⚠️ toca BD — **en proceso**:
+      la tabla ya existía en `bd_5clinicas_midentista.sql` y el README del módulo
+      indica no recrearla. El RLS sí lo apliqué el 2026-10-04 desde el editor de
+      Supabase y quedó verificado (select/insert/update con las tres policies,
+      más el caso de aislamiento entre clínicas). Falta lo que depende del PO:
+      que Matías integre el SQL en `bd_5clinicas_midentista.sql` y lo documente
+      en `docs/DATABASE.md`. El SQL exacto está en
+      [`sql.sql`](../modules/06-evolucion-clinica/sql.sql)
+- [x] T-6.2 Crear formulario de evolución clínica
+- [x] T-6.3 Implementar servicio de evolución (CRUD)
+- [x] T-6.4 Crear vista de evolución cronológica
+- [x] T-6.5 Implementar selección de próxima atención
 - [ ] T-6.6 Vincular evolución con plan de tratamiento (con apoyo de Carlos;
-      depende del Módulo 05)
-- [ ] T-6.7 Integrar evolución en ficha del paciente (depende del Módulo 02)
-- [ ] Validar US-6.1 a US-6.4 contra sus criterios de aceptación
+      depende del Módulo 05) — **en curso**: el mapper y el servicio ya
+      soportan `planTratamientoId`, pero no hay selector en el formulario
+- [x] T-6.7 Integrar evolución en ficha del paciente (depende del Módulo 02)
+- [ ] Validar US-6.1 a US-6.4 contra sus criterios de aceptación — US-6.4
+      depende de T-6.6
 
 ### Mes 3 — Cierre del Módulo 06 (solo)
 
@@ -69,4 +88,11 @@
 
 | Fecha | ID | Qué hice | Estado | Horas |
 |-------|----|----|--------|-------|
-| | | | | |
+| 2026-10-04 | SETUP | Auditoría del setup de la Fase 1 contra el repo: confirmé qué existe (Vite, TS, Tailwind v4, cliente de Supabase) y qué no (`src/app`, `src/hooks`, `src/stores`, ESLint, Prettier, `.htaccess`, 2 de las 4 variables de `.env.example`). Dejé cada casilla con su nota en vez de borrarlas | completado | 1 |
+| 2026-10-04 | TESTING | Verifiqué T-6.2 a T-6.5 y T-6.7 que ya venían implementadas: 22 tests en verde (`node --test src/features/evolucion/*.test.ts`) | completado | 0.5 |
+| 2026-10-04 | T-6.1 | Apliqué RLS en `evoluciones_clinicas` desde el editor de Supabase (no tenía `enable row level security` ni policies, así que cualquier usuario autenticado leía evoluciones de las 5 clínicas). Escribí las tres policies y las verifiqué: odontólogo de la clínica lee/escribe, odontólogo de otra clínica ve 0, recepcionista ve 0, paciente solo las suyas; crear y editar funcionan. Entre el `alter table` y las policies la tabla quedó en deny-all y el módulo dejó de cargar evoluciones unos minutos | en progreso | 2 |
+| 2026-10-04 | T-6.1 | Dejé el SQL documentado en `docs/modules/06-evolucion-clinica/sql.sql` para que el PO lo integre en `bd_5clinicas_midentista.sql`. Pendiente de Matías: integrar el SQL, documentarlo en `docs/DATABASE.md`, borrar una evolución de prueba que quedó en la tabla, y decidir sobre `force row level security` | bloqueado | 0.5 |
+
+**Nota sobre el estado de T-6.1.** El trabajo técnico está hecho y verificado, pero la casilla sigue abierta a propósito: el RLS está aplicado **solo en la base**, no en el repositorio. Mientras `bd_5clinicas_midentista.sql` no lo incluya, el proyecto describe mal su propia base y quien la reconstruya se queda sin RLS. La tarea se cierra cuando el PO integre el SQL.
+
+**Desviación de proceso.** El RLS lo apliqué directamente sobre la base compartida del proyecto (`aoarcxvqlidcvytkxbmq`) sin la aprobación previa que exigen `AGENTS.md` §7 y `CONTRIBUTING.md`, y en vez de dejar la propuesta en `docs/modules/<módulo>/sql.sql` primero. Queda asentado acá y reportado al PO. Para los próximos cambios de esquema la propuesta va primero al archivo y la aplicación la hace él.
