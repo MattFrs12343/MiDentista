@@ -86,9 +86,13 @@
       una columna que no existe en el esquema y dos criterios que son de otros
       módulos. Los reporté al PO
       ([`mensaje-matias.md`](../modules/06-evolucion-clinica/mensaje-matias.md))
-- [ ] Prueba manual con sesión real de odontólogo — la validación anterior es de
-      código, no de sesión. Quedan 4 comprobaciones, listadas al final de
-      `validacion-us.md`
+- [x] Prueba manual con sesión real de odontólogo — **hecha el 2026-10-05** contra el
+      Supabase del proyecto con sesión de `ayrthon.rojas@dentalcristorey.com`,
+      invocando el código del módulo y no una reimplementación. **Las 4 pasan**:
+      alta con plan y procedimiento y relectura, no mezcla de procedimientos entre
+      planes, exclusión del plan `cancelado`, y aislamiento RLS (otra clínica ve
+      2 pacientes, 0 planes, 0 evoluciones). Evidencia y detalle en
+      [`validacion-us.md`](../modules/06-evolucion-clinica/validacion-us.md)
 
 ### Mes 3 — Cierre del Módulo 06 (solo)
 
@@ -114,6 +118,10 @@
 | 2026-10-04 | T-6.1 | Dejé el SQL documentado en `docs/modules/06-evolucion-clinica/sql.sql` para que el PO lo integre en `bd_5clinicas_midentista.sql`. Pendiente de Matías: integrar el SQL, documentarlo en `docs/DATABASE.md`, borrar una evolución de prueba que quedó en la tabla, y decidir sobre `force row level security` | bloqueado | 0.5 |
 | 2026-10-05 | T-6.6 | Implementé el vínculo de la evolución con el plan de tratamiento: `planesTratamientoMapper.ts`, `planesTratamientoService.ts` (solo lectura) y `usePlanesTratamiento.ts`, más dos desplegables en cascada en el formulario y la insignia del plan en la línea de tiempo. Agregué la validación de que `planTratamientoId` y `procedimientoId` sean UUID reales o `null`, para que el centinela `"ninguno"` del desplegable nunca llegue a Postgres | completado | 2.5 |
 | 2026-10-05 | US-6.x | Validé US-6.1 a US-6.4 contra el código y lo documenté en `docs/modules/06-evolucion-clinica/validacion-us.md`. US-6.2 cumple; US-6.1, US-6.3 y US-6.4 quedan parciales. Al validar encontré un defecto: el desplegable ofrecía planes `cancelado` cuando el criterio pide un plan "activo"; lo corregí con `planesVincidables()` y dos tests. 33 tests en verde, `npm run build` OK, `oxlint` sin avisos en el módulo | parcial | 2 |
+| 2026-10-05 | TESTING | Prueba manual con sesión real de odontólogo contra el Supabase del proyecto, ejecutando el código del módulo (`guardarEvolucion`, `cargarEvoluciones`, `cargarPlanes`, `cargarProcedimientos`, `planesVincidables`): las 4 comprobaciones pasan. La 4 incluye control: otras clínicas ven sus propios pacientes y 0 evoluciones, así que el cero es el aislamiento y no una consulta rota | completado | 1.5 |
+| 2026-10-05 | TESTING | **Hallazgo 1, para el PO:** `evoluciones_clinicas` y `planes_tratamiento` no tienen policy de `DELETE` (solo `select`/`insert`/`update`). Desde la app no se puede borrar ni una evolución ni un plan, así que una atención mal registrada no se puede corregir. Es decisión de esquema | bloqueado | 0 |
+| 2026-10-05 | TESTING | **Hallazgo 2, para Matías:** el `DELETE` con RLS no falla, devuelve `HTTP 200` con `[]` y `error: null`. `store.tsx:617` (`quitarItemPlan`) hace `if (error) throw error` y da la operación por buena. Es el caso que el `AGENTS.md` §4 prohíbe, en un archivo que no es mío | bloqueado | 0 |
+| 2026-10-05 | TESTING | Quedaron 3 filas de prueba en la base que no pude borrar por lo del `DELETE` ausente: 1 evolución (`motivo_consulta = 'T-6.6 PRUEBA automatica'`) y 2 planes temporales. El SQL para borrarlas está en `validacion-us.md`. Ninguna fila del seed se modificó | pendiente | 0 |
 
 **Nota sobre el estado de T-6.1.** El trabajo técnico está hecho y verificado, pero la casilla sigue abierta a propósito: el RLS está aplicado **solo en la base**, no en el repositorio. Mientras `bd_5clinicas_midentista.sql` no lo incluya, el proyecto describe mal su propia base y quien la reconstruya se queda sin RLS. La tarea se cierra cuando el PO integre el SQL.
 

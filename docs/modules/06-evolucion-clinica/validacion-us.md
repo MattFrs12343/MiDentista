@@ -144,17 +144,57 @@ Se dejó a propósito y documentado en `README.md`. La decisión es del PO.
 
 ---
 
-## Pendiente de prueba manual
+## Prueba manual con sesión real (2026-10-05) — las 4 comprobaciones
 
-Lo que solo se puede confirmar con una sesión real de odontólogo:
+Ejecutadas contra el Supabase del proyecto (`aoarcxvqlidcvytkxbmq`) con una
+sesión real de odontólogo, invocando el código del módulo (`guardarEvolucion`,
+`cargarEvoluciones`, `cargarPlanes`, `cargarProcedimientos`, `planesVincidables`)
+y no una reimplementación. Paciente de prueba: Juan Carlos Mamani Quispe.
 
-1. Registrar una evolución con plan y procedimiento, y confirmar que al recargar
-   los valores siguen en el desplegable.
-2. Cambiar de plan con un procedimiento ya elegido y confirmar que el segundo
-   desplegable se limpia.
-3. Confirmar que un plan `cancelado` no aparece en la lista.
-4. Confirmar el isolation con RLS en vivo: odontólogo de otra clínica no ve
-   evoluciones ni planes.
+| # | Comprobación | Resultado |
+|---|--------------|-----------|
+| 1 | Alta de evolución con plan y procedimiento, y relectura | **Pasa.** `guardarEvolucion` conserva los dos UUID y `numeroPieza` (36). `cargarEvoluciones` la devuelve y queda primera en la línea de tiempo |
+| 2 | Los procedimientos no se mezclan entre planes | **Pasa.** El plan real expone sus 3 procedimientos; ninguno de los 6 procedimientos de otros planes aparece |
+| 3 | Un plan `cancelado` no se ofrece | **Pasa.** Con 3 planes visibles en la consulta, el desplegable ofrece 1: el `cancelado` se excluye. Restaurado después a `aceptado` |
+| 4 | Aislamiento con RLS entre clínicas | **Pasa.** Odontólogo de otra clínica: 2 pacientes, **0 planes, 0 evoluciones**. Recepción de la misma clínica: 7 pacientes, 9 planes, 0 evoluciones |
+
+El control de la comprobación 4 importa: los otros dentistas sí ven sus propios
+pacientes, así que el cero en evoluciones es el aislamiento funcionando y no una
+consulta que falla en general.
+
+### Lo que la prueba reveló
+
+**El desplegable se queda desactualizado si no se recarga la página.**
+`usePlanesTratamiento` pide los planes una sola vez, al montarse. Si el plan se
+crea desde el Módulo 05 y después se cambia de pestaña sin recargar, la lista ya
+pedida sigue vacía y la UI dice "Este paciente no tiene planes activos". Un `F5`
+lo resuelve. No es un defecto de datos ni de permisos, pero conviene saberlo
+porque el mensaje induce a diagnósticos equivocados.
+
+**`planes_tratamiento` no tiene policy de `DELETE`.** Igual que
+`evoluciones_clinicas`, que solo tiene `select`, `insert` y `update`. Consecuencia
+funcional: desde la app no se puede borrar ni un plan ni una evolución clínica. Si
+un odontólogo se equivoca al registrar una atención, no hay forma de corregirla.
+Es una decisión de esquema y le corresponde al PO.
+
+**El `DELETE` con RLS no falla: devuelve `HTTP 200` con `[]`.** Cero filas
+afectadas y `error: null`. `store.tsx:617` (`quitarItemPlan`) hace
+`if (error) throw error` y da la operación por buena. Es el caso que el módulo
+evita en todas partes y que el `AGENTS.md` §4 prohíbe ("nunca conflir `null` con
+éxito"), pero en el store, que es de Matías.
+
+### Filas de prueba que quedaron en la base
+
+No se pudieron borrar por lo anterior. Hay que borrarlas a mano desde el editor
+SQL de Supabase:
+
+```sql
+delete from evoluciones_clinicas where motivo_consulta = 'T-6.6 PRUEBA automatica';
+delete from planes_tratamiento where titulo in ('Plan temporal de contraste', 'Plan CANCELADO temporal');
+```
+
+Las dos evoluciones de prueba que se habían creado durante el trabajo quedaron ya
+eliminadas. Ninguna fila del seed fue modificada.
 
 ## Verificación automática
 

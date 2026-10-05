@@ -1,4 +1,4 @@
-# Mensaje para Matías — Módulo 06, avance y tres decisiones
+# Mensaje para Matías — Módulo 06, avance y cinco decisiones
 
 **Estado del mensaje: borrador, todavía NO enviado.** Copiar el cuerpo de abajo y
 mandarlo por el canal que usemos con el PO.
@@ -43,6 +43,32 @@ también los planes `cancelado`, y US-6.4 pide un plan "activo". Lo arreglé: ah
 los cancelados no aparecen y cada opción muestra su estado. Un plan `completado`
 sí se ofrece, porque una consulta puede documentarse después de cerrar el plan.
 
+**Prueba manual con sesión real: las 4 comprobaciones pasan.** Las corrí contra la
+base con una sesión de odontólogo, usando el código del módulo y no una
+reimplementación. El alta con plan y procedimiento conserva los dos UUID y
+reaparece en la línea de tiempo; los procedimientos no se mezclan entre planes; el
+plan `cancelado` se excluye; y con RLS, un odontólogo de otra clínica ve 0
+evoluciones y 0 planes (control: sí ve sus propios pacientes, así que el cero es
+el aislamiento y no una consulta rota).
+
+**Dos cosas que salieron de esa prueba y que no sé a quién tocar.**
+
+**4. Ni `evoluciones_clinicas` ni `planes_tratamiento` tienen policy de `DELETE`.**
+Solo `select`, `insert` y `update`. Desde la app no se puede borrar ni una
+evolución clínica ni un plan de tratamiento: si un odontólogo se equivoca al
+registrar una atención, no hay forma de corregirla, solo editarla. ¿Se agregan las
+policies, o lo que corresponde es un `anular` en vez de un `borrar`?
+
+**5. El `DELETE` con RLS no falla: devuelve `HTTP 200` con `[]`.** Cero filas
+afectadas y `error: null`. En `store.tsx:617`, `quitarItemPlan` hace
+`if (error) throw error` y da la operación por buena, así que la UI confirmaría un
+borrado que no ocurrió. Es el caso que el `AGENTS.md` §4 prohíbe en todas partes,
+pero el store es tuyo. Necesita comparar el conteo de filas devolvido, como ya
+hacemos en el módulo 06.
+
+**Te dejo 3 filas de prueba que no pude borrar**, justamente por el punto 4. El
+SQL está en `validacion-us.md`. Ninguna fila del seed la toqué.
+
 **Sobre las migraciones.** Dijiste que había que hacerlas. Revisé el repo y no
 existe `supabase/migrations/` ni `supabase/config.toml`, así que no hay historial
 versionado de la base: arrancarlo es bootstrap completo, no agregar un archivo.
@@ -59,7 +85,9 @@ Necesito dos decisiones tuyas:
 - Integrar el SQL de `docs/modules/06-evolucion-clinica/sql.sql` en
   `bd_5clinicas_midentista.sql`
 - Documentarlo en `docs/DATABASE.md`
-- Borrar la evolución de prueba que quedó en la tabla
+- Borrar la evolución de prueba que quedó en la tabla — **revisado el 2026-10-05:**
+  las de T-6.1 ya están borradas; las que quedan son las de la prueba manual de
+  T-6.6, y van en el bloque de `validacion-us.md`
 - Decidir sobre `force row level security`
 
 **Un favor de seguridad.** Me pasaste un PAT de Supabase por chat y quedó en el
