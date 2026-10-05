@@ -3,7 +3,9 @@
 **Estado del mensaje: borrador, todavía NO enviado.** Copiar el cuerpo de abajo y
 mandarlo por el canal que usemos con el PO.
 
-Fecha de redacción: 2026-10-05. Rama: `feature/modulo-06-lucas`.
+Fecha de redacción: 2026-10-05. Rama: `feature/modulo-06-lucas`. Commits:
+`6dbaf31` (T-6.6), `758e78d` (validación de US-6.1 a US-6.4) y `12fb657`
+(prueba manual y hallazgos). Todo lo mío está en la rama, nada mergeado a `main`.
 
 ---
 
@@ -97,7 +99,10 @@ También noté que `data/api.ts:360` lee las evoluciones para el portal del
 paciente pero no pide `plan_tratamiento_id`, así que el paciente no ve a qué plan
 quedó vinculada su atención. Es tu archivo, no lo toqué.
 
-¿Abrimos el PR de T-6.6 o preferís que espere?
+**El PR.** Según el `AGENTS.md` §6 va uno por módulo, así que el PR sería del
+Módulo 06 completo, no solo de T-6.6. No lo abro todavía:preferiría esperar tus
+respuestas para que el PR llegue con T-6.1 resuelto y no a medias. Si preferís que
+lo abra igual, decímelo y lo abro.
 
 ---
 
