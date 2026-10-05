@@ -158,3 +158,43 @@
 **Desviación de proceso.** El RLS lo apliqué directamente sobre la base compartida del proyecto (`aoarcxvqlidcvytkxbmq`) sin la aprobación previa que exigen `AGENTS.md` §7 y `CONTRIBUTING.md`, y en vez de dejar la propuesta en `docs/modules/<módulo>/sql.sql` primero. Queda asentado acá y reportado al PO. Para los próximos cambios de esquema la propuesta va primero al archivo y la aplicación la hace él.
 
 **Migraciones diferidas (2026-10-05).** Matías respondió al reporte de T-6.1 indicando que hay que hacer las migraciones. Al revisar el repo, `supabase/migrations/` no existe y tampoco `supabase/config.toml`: no hay historial versionado de la base, así que arrancar eso implica bootstrap completo y decidir con el PO si hace falta además una migración baseline del esquema. Como eso toca el esquema —que es de Matías— y para no dejar el módulo a medias, prioricé cerrar T-6.6 y lo dejé anotado para consultarlo. Sigue pendiente, no cancelado: el RLS de T-6.1 está aplicado en la base pero sin migración que lo versione.
+
+---
+
+## Cierre de mi asignación (2026-10-05)
+
+**Lo mío está terminado.** Todo lo que depended de mi trabajo técnico está hecho, probado contra la base real y subido a `feature/modulo-06-lucas`. No hay tareas abiertas que sean mías.
+
+Resumen:
+
+| Fase | Estado |
+|------|--------|
+| Mes 1 — Setup | 8 de 8 |
+| Mes 2 — Módulo 06 | 5 de 6 tareas cerradas; T-6.1 bloqueada por el PO |
+| Validación US-6.1 a US-6.4 | Hecha. 1 cumple, 3 parciales por decisiones ajenas |
+| Mes 3 — Cierre | 3 de 5; las 2 abiertas dependen del PO o no hay nada que reportar |
+
+La prueba manual de la interfaz quedó hecha: con `npm run dev` y sesión real, la
+pestaña Evolución de la ficha del paciente ofrece *Plan de endodoncia pieza 36 ·
+En proceso* y el segundo desplegable lista sus 3 procedimientos.
+
+### Lo que sigue abierto y no es mío
+
+Cada punto tiene dueño y está reportado en
+[`mensaje-matias.md`](../modules/06-evolucion-clinica/mensaje-matias.md):
+
+1. **T-6.1** — el RLS está aplicado y verificado en la base, pero no versionado.
+   Falta que el PO integre el SQL en `bd_5clinicas_midentista.sql` y lo documente.
+2. **US-6.1, US-6.3 y US-6.4** — parciales por una columna que no existe en el
+   esquema y por dos criterios que pertenecen a otros módulos.
+3. **Migraciones** — arrancarlas desde cero, con dos decisiones de esquema del PO.
+4. **Policy de `DELETE`** — no existe en `evoluciones_clinicas` ni en
+   `planes_tratamiento`. Decisión de esquema.
+5. **`DELETE` silencioso en `store.tsx:617`** — bug real en un archivo del PO.
+6. **Desviación de scaffolding** — `src/app/`, `src/hooks` y `src/stores` del
+   `ARCHITECTURE.md` §2 no existen; la estructura real funciona. Corregirlo exige
+   tocar los imports de todos los módulos.
+7. **Rotación del PAT** — lo generó el PO y solo él puede revocarlo.
+
+El PR del módulo queda sin abrir a propósito: así llega con T-6.1 resuelto en vez
+de a medias.
