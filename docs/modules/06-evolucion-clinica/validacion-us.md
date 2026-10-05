@@ -168,8 +168,10 @@ consulta que falla en general.
 `usePlanesTratamiento` pide los planes una sola vez, al montarse. Si el plan se
 crea desde el Módulo 05 y después se cambia de pestaña sin recargar, la lista ya
 pedida sigue vacía y la UI dice "Este paciente no tiene planes activos". Un `F5`
-lo resuelve. No es un defecto de datos ni de permisos, pero conviene saberlo
-porque el mensaje induce a diagnósticos equivocados.
+lo resuelve. Confirmado en la UI el 2026-10-05: en la ficha de Juan Carlos Mamani
+Quispe el desplegable ofrece *Plan de endodoncia pieza 36 · En proceso*.
+No es un defecto de datos ni de permisos, pero conviene saberlo porque el mensaje
+induce a diagnósticos equivocados.
 
 **`planes_tratamiento` no tiene policy de `DELETE`.** Igual que
 `evoluciones_clinicas`, que solo tiene `select`, `insert` y `update`. Consecuencia

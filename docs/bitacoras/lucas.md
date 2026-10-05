@@ -103,8 +103,11 @@
       ya no depende del store: lee `planes_tratamiento` por su propio servicio.
       Documenté el riesgo de que el Módulo 05 lee del store en memoria y escribe en
       Supabase
-- [ ] Revisar la integración con el Módulo 02 (ficha del paciente) — la pestaña ya
-      está registrada por Matías en `PatientProfilePage.tsx`; falta probarla en vivo
+- [x] Revisar la integración con el Módulo 02 (ficha del paciente) — la pestaña está
+      registrada por Matías en `PatientProfilePage.tsx`. Probada en vivo el
+      2026-10-05 con `npm run dev` y sesión real: el desplegable de plan ofrece
+      *Plan de endodoncia pieza 36 · En proceso* en la ficha de Juan Carlos Mamani
+      Quispe, y el de procedimiento lista los 3 items de ese plan
 - [ ] Confirmar a Matías que el Módulo 06 está listo para el deploy final — bloqueado
       por T-6.1 y por las migraciones
 
@@ -122,6 +125,7 @@
 | 2026-10-05 | TESTING | **Hallazgo 1, para el PO:** `evoluciones_clinicas` y `planes_tratamiento` no tienen policy de `DELETE` (solo `select`/`insert`/`update`). Desde la app no se puede borrar ni una evolución ni un plan, así que una atención mal registrada no se puede corregir. Es decisión de esquema | bloqueado | 0 |
 | 2026-10-05 | TESTING | **Hallazgo 2, para Matías:** el `DELETE` con RLS no falla, devuelve `HTTP 200` con `[]` y `error: null`. `store.tsx:617` (`quitarItemPlan`) hace `if (error) throw error` y da la operación por buena. Es el caso que el `AGENTS.md` §4 prohíbe, en un archivo que no es mío | bloqueado | 0 |
 | 2026-10-05 | TESTING | Quedaron 3 filas de prueba en la base que no pude borrar por lo del `DELETE` ausente: 1 evolución (`motivo_consulta = 'T-6.6 PRUEBA automatica'`) y 2 planes temporales. El SQL para borrarlas está en `validacion-us.md`. Ninguna fila del seed se modificó | pendiente | 0 |
+| 2026-10-05 | T-6.6 | Probé la pestaña Evolución en la ficha del paciente con `npm run dev` y sesión real. El desplegable de plan ofrece *Plan de endodoncia pieza 36 · En proceso*. Queda confirmado en la UI lo que antes se veía vacío: `usePlanesTratamiento` pide los planes una sola vez al montarse, así que si el plan se crea desde el Módulo 05 y se cambia de pestaña sin recargar, la lista ya pedida sigue vacía. Un `F5` lo resuelve | completado | 0.5 |
 
 **Nota sobre el estado de T-6.1.** El trabajo técnico está hecho y verificado, pero la casilla sigue abierta a propósito: el RLS está aplicado **solo en la base**, no en el repositorio. Mientras `bd_5clinicas_midentista.sql` no lo incluya, el proyecto describe mal su propia base y quien la reconstruya se queda sin RLS. La tarea se cierra cuando el PO integre el SQL.
 
