@@ -17,7 +17,7 @@ const buttonVariants = cva(
         primary: "bg-ink text-white shadow-e2 hover:bg-ink/90 active:bg-ink-muted",
         // tinted: accion secundaria, color diluido (como UIButton tinted)
         secondary:
-          "bg-surface-sunken text-ink border border-ink/[0.08] hover:bg-line active:bg-line-strong",
+          "bg-surface-sunken text-ink border border-line hover:bg-line active:bg-line-strong",
         // plain: sin fondo hasta que se toca
         ghost: "text-label-2 hover:bg-black/[0.04] hover:text-ink active:bg-black/[0.08]",
         danger: "bg-ios-red text-white hover:brightness-95 active:brightness-90",

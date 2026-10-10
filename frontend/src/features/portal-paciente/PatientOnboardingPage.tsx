@@ -66,11 +66,11 @@ export function PatientOnboardingPage() {
       <MeshBackground />
       <AnimatedTeeth />
 
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 p-6 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl sm:p-10">
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-panel border border-white/30 border-t-white/60 bg-white/55 p-6 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl sm:p-10">
         <Logo size={28} />
 
         <div className="mt-6">
-          <h2 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.02em] text-ink min-[380px]:text-[1.6rem]">
+          <h2 className="title-ios text-[1.5rem] font-semibold text-ink min-[380px]:text-[1.6rem]">
             Completá tu perfil
           </h2>
           <p className="mt-2 text-sm text-ink-soft">
@@ -110,7 +110,7 @@ export function PatientOnboardingPage() {
           <p
             role="alert"
             aria-hidden={!error}
-            className={`flex items-start gap-2 rounded-xl border px-3.5 py-3 text-sm transition-opacity duration-150 ${
+            className={`flex items-start gap-2 rounded-tile border px-3.5 py-3 text-sm transition-opacity duration-150 ${
               error
                 ? "border-pastel-red-fg/25 bg-pastel-red-bg text-pastel-red-fg opacity-100"
                 : "pointer-events-none select-none border-transparent bg-transparent text-transparent opacity-0"

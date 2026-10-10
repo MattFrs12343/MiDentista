@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { WarningCircle } from "@phosphor-icons/react";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormActions, FormAlert, FormGroup, FormShell } from "@/components/ui/form-parts";
 import type { Paciente, Sexo } from "@/types";
 
 type Borrador = Omit<Paciente, "id" | "creadoEl">;
@@ -56,123 +56,125 @@ export function PatientForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Nombres" htmlFor="nombres">
-          <Input
-            id="nombres"
-            required
-            value={datos.nombres}
-            onChange={(e) => set("nombres", e.target.value)}
-          />
-        </Field>
-        <Field label="Apellidos" htmlFor="apellidos">
-          <Input
-            id="apellidos"
-            required
-            value={datos.apellidos}
-            onChange={(e) => set("apellidos", e.target.value)}
-          />
-        </Field>
-      </div>
+    // El tema vive en `FormShell`: los `Field`, `Input` y `Select` de adentro
+    // heredan solos el color y el tratamiento de la sección de pacientes.
+    <form onSubmit={handleSubmit}>
+      <FormShell section="pacientes">
+        <FormGroup titulo="Identificación">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Nombres" htmlFor="nombres">
+              <Input
+                id="nombres"
+                required
+                value={datos.nombres}
+                onChange={(e) => set("nombres", e.target.value)}
+              />
+            </Field>
+            <Field label="Apellidos" htmlFor="apellidos">
+              <Input
+                id="apellidos"
+                required
+                value={datos.apellidos}
+                onChange={(e) => set("apellidos", e.target.value)}
+              />
+            </Field>
+          </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Carnet de identidad" htmlFor="ci">
-          <Input id="ci" required value={datos.ci} onChange={(e) => set("ci", e.target.value)} />
-        </Field>
-        <Field label="Fecha de nacimiento" htmlFor="fechaNacimiento">
-          <Input
-            id="fechaNacimiento"
-            type="date"
-            required
-            value={datos.fechaNacimiento}
-            onChange={(e) => set("fechaNacimiento", e.target.value)}
-          />
-        </Field>
-      </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Carnet de identidad" htmlFor="ci">
+              <Input id="ci" required value={datos.ci} onChange={(e) => set("ci", e.target.value)} />
+            </Field>
+            <Field label="Fecha de nacimiento" htmlFor="fechaNacimiento">
+              <Input
+                id="fechaNacimiento"
+                type="date"
+                required
+                value={datos.fechaNacimiento}
+                onChange={(e) => set("fechaNacimiento", e.target.value)}
+              />
+            </Field>
+          </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Sexo">
-          <Select value={datos.sexo} onValueChange={(v) => set("sexo", v as Sexo)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="femenino">Femenino</SelectItem>
-              <SelectItem value="masculino">Masculino</SelectItem>
-              <SelectItem value="otro">Otro</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Teléfono" htmlFor="telefono">
-          <Input
-            id="telefono"
-            required
-            value={datos.telefono}
-            onChange={(e) => set("telefono", e.target.value)}
-          />
-        </Field>
-      </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Sexo">
+              <Select value={datos.sexo} onValueChange={(v) => set("sexo", v as Sexo)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="femenino">Femenino</SelectItem>
+                  <SelectItem value="masculino">Masculino</SelectItem>
+                  <SelectItem value="otro">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Teléfono" htmlFor="telefono">
+              <Input
+                id="telefono"
+                required
+                value={datos.telefono}
+                onChange={(e) => set("telefono", e.target.value)}
+              />
+            </Field>
+          </div>
+        </FormGroup>
 
-      <Field label="Correo electrónico" htmlFor="email">
-        <Input
-          id="email"
-          type="email"
-          value={datos.email}
-          onChange={(e) => set("email", e.target.value)}
-        />
-      </Field>
-
-      <Field label="Dirección" htmlFor="direccion">
-        <Input
-          id="direccion"
-          value={datos.direccion}
-          onChange={(e) => set("direccion", e.target.value)}
-        />
-      </Field>
-
-      <fieldset className="flex flex-col gap-4 border-t border-line pt-4">
-        <legend className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-          Contacto de emergencia
-        </legend>
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Nombre" htmlFor="contactoEmergenciaNombre">
+        <FormGroup titulo="Contacto">
+          <Field label="Correo electrónico" htmlFor="email">
             <Input
-              id="contactoEmergenciaNombre"
-              value={datos.contactoEmergenciaNombre ?? ""}
-              onChange={(e) => set("contactoEmergenciaNombre", e.target.value)}
+              id="email"
+              type="email"
+              value={datos.email}
+              onChange={(e) => set("email", e.target.value)}
             />
           </Field>
-          <Field label="Teléfono" htmlFor="contactoEmergenciaTelefono">
+
+          <Field label="Dirección" htmlFor="direccion">
             <Input
-              id="contactoEmergenciaTelefono"
-              value={datos.contactoEmergenciaTelefono ?? ""}
-              onChange={(e) => set("contactoEmergenciaTelefono", e.target.value)}
+              id="direccion"
+              value={datos.direccion}
+              onChange={(e) => set("direccion", e.target.value)}
             />
           </Field>
-        </div>
-        <Field label="Parentesco" htmlFor="contactoEmergenciaParentesco">
-          <Input
-            id="contactoEmergenciaParentesco"
-            value={datos.contactoEmergenciaParentesco ?? ""}
-            onChange={(e) => set("contactoEmergenciaParentesco", e.target.value)}
-          />
-        </Field>
-      </fieldset>
+        </FormGroup>
 
-      {error && (
-        <p
-          role="alert"
-          className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg"
+        <FormGroup
+          titulo="Contacto de emergencia"
+          descripcion="A quién llamamos si el paciente no responde durante la atención."
         >
-          <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
-          <span>{error}</span>
-        </p>
-      )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Nombre" htmlFor="contactoEmergenciaNombre">
+              <Input
+                id="contactoEmergenciaNombre"
+                value={datos.contactoEmergenciaNombre ?? ""}
+                onChange={(e) => set("contactoEmergenciaNombre", e.target.value)}
+              />
+            </Field>
+            <Field label="Teléfono" htmlFor="contactoEmergenciaTelefono">
+              <Input
+                id="contactoEmergenciaTelefono"
+                value={datos.contactoEmergenciaTelefono ?? ""}
+                onChange={(e) => set("contactoEmergenciaTelefono", e.target.value)}
+              />
+            </Field>
+          </div>
+          <Field label="Parentesco" htmlFor="contactoEmergenciaParentesco">
+            <Input
+              id="contactoEmergenciaParentesco"
+              value={datos.contactoEmergenciaParentesco ?? ""}
+              onChange={(e) => set("contactoEmergenciaParentesco", e.target.value)}
+            />
+          </Field>
+        </FormGroup>
 
-      <Button type="submit" disabled={enviando} className="mt-2 self-end">
-        {enviando ? "Guardando…" : textoBoton}
-      </Button>
+        {error ? <FormAlert>{error}</FormAlert> : null}
+
+        <FormActions>
+          <Button type="submit" disabled={enviando}>
+            {enviando ? "Guardando…" : textoBoton}
+          </Button>
+        </FormActions>
+      </FormShell>
     </form>
   );
 }

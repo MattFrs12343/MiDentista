@@ -1,6 +1,6 @@
-﻿import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, X, Warning, Clock, User, Printer } from "@phosphor-icons/react";
+import { Plus, X, Warning, Clock, User, Printer, FirstAid, Pill, Leaf } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Field } from "@/components/ui/field";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { FormActions, FormShell } from "@/components/ui/form-parts";
+import { SectionStatStrip } from "@/components/ui/section-board";
 import { useClinicaData } from "@/data/store";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ClinicalHistoryPrint } from "./ClinicalHistoryPrint";
@@ -194,6 +196,45 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
         </div>
       ) : null}
 
+      {/* Resumen del expediente: entrar a la pestaña ya dice qué hay de verdad
+          cargado, en vez de obligar a recorrer las ocho tarjetas para
+          enterarse de que están vacías. */}
+      <div className="xl:col-span-2">
+        <SectionStatStrip
+          metrics={[
+            {
+              label: "Alergias",
+              value: historia.alergias.length,
+              icon: Warning,
+              tone: alergiasGraves.length > 0 ? "red" : "neutral",
+              hint: alergiasGraves.length > 0 ? `${alergiasGraves.length} graves` : "ninguna grave",
+              destacado: alergiasGraves.length > 0,
+            },
+            {
+              label: "Enfermedades de base",
+              value: historia.enfermedadesBase.length,
+              icon: FirstAid,
+              tone: "orange",
+              hint: "condiciones médicas",
+            },
+            {
+              label: "Medicamentos",
+              value: historia.medicamentosActuales.length,
+              icon: Pill,
+              tone: "teal",
+              hint: "tratamiento actual",
+            },
+            {
+              label: "Hábitos",
+              value: historia.habitos.length,
+              icon: Leaf,
+              tone: "violet",
+              hint: "registrados",
+            },
+          ]}
+        />
+      </div>
+
       <div className="flex min-w-0 justify-end xl:col-span-2">
         <Button
           type="button"
@@ -230,19 +271,21 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
               title="Motivo de consulta"
               description="Lo que refiere el paciente al ingresar"
             >
-              <form onSubmit={guardarMotivo} className="flex flex-col gap-4">
-                <Textarea
-                  autoFocus
-                  value={motivo}
-                  onChange={(e) => setMotivo(e.target.value)}
-                  className="min-h-28 leading-relaxed"
-                />
-                <div className="flex justify-end">
-                  <Button type="submit" variant="secondary">
-                    Guardar
-                  </Button>
-                </div>
-              </form>
+              <FormShell section="historia">
+                <form onSubmit={guardarMotivo} className="flex flex-col gap-4">
+                  <Textarea
+                    autoFocus
+                    value={motivo}
+                    onChange={(e) => setMotivo(e.target.value)}
+                    className="min-h-28 leading-relaxed"
+                  />
+                  <FormActions>
+                    <Button type="submit" variant="secondary">
+                      Guardar
+                    </Button>
+                  </FormActions>
+                </form>
+              </FormShell>
             </DialogContent>
           </Dialog>
         </CardContent>
@@ -291,28 +334,30 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
               title="Antecedentes"
               description="Personales y familiares relevantes para el diagnóstico"
             >
-              <form onSubmit={guardarAntecedentes} className="flex flex-col gap-4">
-                <Field label="Antecedentes personales" className="min-w-0 gap-2">
-                  <Textarea
-                    autoFocus
-                    value={personales}
-                    onChange={(e) => setPersonales(e.target.value)}
-                    className="min-h-28 leading-relaxed"
-                  />
-                </Field>
-                <Field label="Antecedentes familiares" className="min-w-0 gap-2">
-                  <Textarea
-                    value={familiares}
-                    onChange={(e) => setFamiliares(e.target.value)}
-                    className="min-h-28 leading-relaxed"
-                  />
-                </Field>
-                <div className="flex justify-end">
-                  <Button type="submit" variant="secondary">
-                    Guardar
-                  </Button>
-                </div>
-              </form>
+              <FormShell section="historia">
+                <form onSubmit={guardarAntecedentes} className="flex flex-col gap-4">
+                  <Field label="Antecedentes personales" className="min-w-0 gap-2">
+                    <Textarea
+                      autoFocus
+                      value={personales}
+                      onChange={(e) => setPersonales(e.target.value)}
+                      className="min-h-28 leading-relaxed"
+                    />
+                  </Field>
+                  <Field label="Antecedentes familiares" className="min-w-0 gap-2">
+                    <Textarea
+                      value={familiares}
+                      onChange={(e) => setFamiliares(e.target.value)}
+                      className="min-h-28 leading-relaxed"
+                    />
+                  </Field>
+                  <FormActions>
+                    <Button type="submit" variant="secondary">
+                      Guardar
+                    </Button>
+                  </FormActions>
+                </form>
+              </FormShell>
             </DialogContent>
           </Dialog>
         </CardContent>
@@ -344,20 +389,22 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
               title="Antecedentes odontológicos"
               description="Tratamientos y experiencias odontológicas previas relevantes"
             >
-              <form onSubmit={guardarOdontologicos} className="flex flex-col gap-4">
-                <Textarea
-                  id="antecedentes-odontologicos"
-                  autoFocus
-                  value={odontologicos}
-                  onChange={(e) => setOdontologicos(e.target.value)}
-                  className="min-h-28 leading-relaxed"
-                />
-                <div className="flex justify-end">
-                  <Button type="submit" variant="secondary">
-                    Guardar
-                  </Button>
-                </div>
-              </form>
+              <FormShell section="historia">
+                <form onSubmit={guardarOdontologicos} className="flex flex-col gap-4">
+                  <Textarea
+                    id="antecedentes-odontologicos"
+                    autoFocus
+                    value={odontologicos}
+                    onChange={(e) => setOdontologicos(e.target.value)}
+                    className="min-h-28 leading-relaxed"
+                  />
+                  <FormActions>
+                    <Button type="submit" variant="secondary">
+                      Guardar
+                    </Button>
+                  </FormActions>
+                </form>
+              </FormShell>
             </DialogContent>
           </Dialog>
         </CardContent>
@@ -398,24 +445,26 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
                 title="Agregar enfermedad de base"
                 description="Condiciones médicas que el odontólogo debe considerar"
               >
-                <form
-                  onSubmit={(e) => {
-                    agregarEnfermedad(e);
-                    setEnfermedadAbierto(false);
-                  }}
-                  className="flex min-w-0 flex-wrap items-end gap-3"
-                >
-                  <Field label="Enfermedad" className="min-w-0 basis-48 flex-1 gap-2">
-                    <Input
-                      autoFocus
-                      value={enfermedad}
-                      onChange={(e) => setEnfermedad(e.target.value)}
-                    />
-                  </Field>
-                  <Button type="submit" variant="secondary" size="md" disabled={!enfermedad.trim()}>
-                    <Plus size={15} /> Agregar
-                  </Button>
-                </form>
+                <FormShell section="historia">
+                  <form
+                    onSubmit={(e) => {
+                      agregarEnfermedad(e);
+                      setEnfermedadAbierto(false);
+                    }}
+                    className="flex min-w-0 flex-wrap items-end gap-3"
+                  >
+                    <Field label="Enfermedad" className="min-w-0 basis-48 flex-1 gap-2">
+                      <Input
+                        autoFocus
+                        value={enfermedad}
+                        onChange={(e) => setEnfermedad(e.target.value)}
+                      />
+                    </Field>
+                    <Button type="submit" variant="secondary" size="md" disabled={!enfermedad.trim()}>
+                      <Plus size={15} /> Agregar
+                    </Button>
+                  </form>
+                </FormShell>
               </DialogContent>
             </Dialog>
           </div>
@@ -461,25 +510,27 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
                 title="Agregar medicamento actual"
                 description="Medicamentos que el paciente toma actualmente"
               >
-                <form
-                  onSubmit={(e) => {
-                    agregarMedicamento(e);
-                    setMedicamentoAbierto(false);
-                  }}
-                  className="flex flex-wrap items-end gap-3"
-                >
-                  <Field label="Medicamento" htmlFor="medicamento-actual" className="min-w-0 basis-48 flex-1 gap-2">
-                    <Input
-                      id="medicamento-actual"
-                      autoFocus
-                      value={medicamento}
-                      onChange={(e) => setMedicamento(e.target.value)}
-                    />
-                  </Field>
-                  <Button type="submit" variant="secondary" disabled={!medicamento.trim()}>
-                    <Plus size={15} /> Agregar
-                  </Button>
-                </form>
+                <FormShell section="historia">
+                  <form
+                    onSubmit={(e) => {
+                      agregarMedicamento(e);
+                      setMedicamentoAbierto(false);
+                    }}
+                    className="flex flex-wrap items-end gap-3"
+                  >
+                    <Field label="Medicamento" htmlFor="medicamento-actual" className="min-w-0 basis-48 flex-1 gap-2">
+                      <Input
+                        id="medicamento-actual"
+                        autoFocus
+                        value={medicamento}
+                        onChange={(e) => setMedicamento(e.target.value)}
+                      />
+                    </Field>
+                    <Button type="submit" variant="secondary" disabled={!medicamento.trim()}>
+                      <Plus size={15} /> Agregar
+                    </Button>
+                  </form>
+                </FormShell>
               </DialogContent>
             </Dialog>
           </div>
@@ -535,39 +586,41 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
                 title="Agregar alergia"
                 description="Dato crítico: revisar antes de indicar medicación"
               >
-                <form
-                  onSubmit={(e) => {
-                    handleAgregarAlergia(e);
-                    setAlergiaAbierto(false);
-                  }}
-                  className="flex flex-wrap items-end gap-3"
-                >
-                  <Field label="Sustancia" className="min-w-0 basis-48 flex-1 gap-2">
-                    <Input
-                      autoFocus
-                      value={nuevaSustancia}
-                      onChange={(e) => setNuevaSustancia(e.target.value)}
-                    />
-                  </Field>
-                  <Field label="Severidad" className="min-w-0 basis-32 flex-1 gap-2">
-                    <Select
-                      value={nuevaSeveridad}
-                      onValueChange={(v) => setNuevaSeveridad(v as Alergia["severidad"])}
-                    >
-                      <SelectTrigger className="min-w-0 gap-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="leve">Leve</SelectItem>
-                        <SelectItem value="moderada">Moderada</SelectItem>
-                        <SelectItem value="grave">Grave</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Button type="submit" variant="secondary">
-                    <Plus size={15} /> Agregar
-                  </Button>
-                </form>
+                <FormShell section="historia">
+                  <form
+                    onSubmit={(e) => {
+                      handleAgregarAlergia(e);
+                      setAlergiaAbierto(false);
+                    }}
+                    className="flex flex-wrap items-end gap-3"
+                  >
+                    <Field label="Sustancia" className="min-w-0 basis-48 flex-1 gap-2">
+                      <Input
+                        autoFocus
+                        value={nuevaSustancia}
+                        onChange={(e) => setNuevaSustancia(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Severidad" className="min-w-0 basis-32 flex-1 gap-2">
+                      <Select
+                        value={nuevaSeveridad}
+                        onValueChange={(v) => setNuevaSeveridad(v as Alergia["severidad"])}
+                      >
+                        <SelectTrigger className="min-w-0 gap-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="leve">Leve</SelectItem>
+                          <SelectItem value="moderada">Moderada</SelectItem>
+                          <SelectItem value="grave">Grave</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Button type="submit" variant="secondary">
+                      <Plus size={15} /> Agregar
+                    </Button>
+                  </form>
+                </FormShell>
               </DialogContent>
             </Dialog>
           </div>
@@ -613,25 +666,27 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
                 title="Agregar hábito"
                 description="Hábitos relevantes para la atención odontológica"
               >
-                <form
-                  onSubmit={(e) => {
-                    agregarHabito(e);
-                    setHabitoAbierto(false);
-                  }}
-                  className="flex flex-wrap items-end gap-3"
-                >
-                  <Field label="Hábito" htmlFor="habito" className="min-w-0 basis-48 flex-1 gap-2">
-                    <Input
-                      id="habito"
-                      autoFocus
-                      value={habito}
-                      onChange={(e) => setHabito(e.target.value)}
-                    />
-                  </Field>
-                  <Button type="submit" variant="secondary" disabled={!habito.trim()}>
-                    <Plus size={15} /> Agregar
-                  </Button>
-                </form>
+                <FormShell section="historia">
+                  <form
+                    onSubmit={(e) => {
+                      agregarHabito(e);
+                      setHabitoAbierto(false);
+                    }}
+                    className="flex flex-wrap items-end gap-3"
+                  >
+                    <Field label="Hábito" htmlFor="habito" className="min-w-0 basis-48 flex-1 gap-2">
+                      <Input
+                        id="habito"
+                        autoFocus
+                        value={habito}
+                        onChange={(e) => setHabito(e.target.value)}
+                      />
+                    </Field>
+                    <Button type="submit" variant="secondary" disabled={!habito.trim()}>
+                      <Plus size={15} /> Agregar
+                    </Button>
+                  </form>
+                </FormShell>
               </DialogContent>
             </Dialog>
           </div>
@@ -664,20 +719,22 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
               title="Observaciones generales"
               description="Notas clínicas generales que no correspondan a los demás apartados"
             >
-              <form onSubmit={guardarObservaciones} className="flex flex-col gap-4">
-                <Textarea
-                  id="observaciones-generales"
-                  autoFocus
-                  value={observaciones}
-                  onChange={(e) => setObservaciones(e.target.value)}
-                  className="min-h-32 leading-relaxed"
-                />
-                <div className="flex justify-end">
-                  <Button type="submit" variant="secondary">
-                    Guardar
-                  </Button>
-                </div>
-              </form>
+              <FormShell section="historia">
+                <form onSubmit={guardarObservaciones} className="flex flex-col gap-4">
+                  <Textarea
+                    id="observaciones-generales"
+                    autoFocus
+                    value={observaciones}
+                    onChange={(e) => setObservaciones(e.target.value)}
+                    className="min-h-32 leading-relaxed"
+                  />
+                  <FormActions>
+                    <Button type="submit" variant="secondary">
+                      Guardar
+                    </Button>
+                  </FormActions>
+                </form>
+              </FormShell>
             </DialogContent>
           </Dialog>
         </CardContent>

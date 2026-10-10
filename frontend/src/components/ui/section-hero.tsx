@@ -3,6 +3,11 @@ import type { IconProps } from "@phosphor-icons/react";
 import type { ModuleTone } from "@/components/layout/PageHeaderContext";
 import { cn } from "@/lib/cn";
 
+/**
+ * Fuente unica del gradiente de modulo. Antes vivia aqui; el fondo animado del
+ * portal lo necesitaba tambien, y mantener una sola copia es justamente lo que
+ * evita que estos valores se desincronicen sin que nadie lo note.
+ */
 const TONE_GRADIENT: Record<ModuleTone, string> = {
   blue: "from-brand-900 via-brand-700 to-brand-400",
   violet: "from-[#2f2159] via-[#5b3f9f] to-[#9b81d6]",

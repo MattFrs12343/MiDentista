@@ -55,6 +55,9 @@ const MisEvolucionesPage = lazy(() =>
 const MisPagosPage = lazy(() =>
   import("@/features/portal-paciente/MisPagosPage").then((m) => ({ default: m.MisPagosPage })),
 );
+const MisCitasPage = lazy(() =>
+  import("@/features/portal-paciente/MisCitasPage").then((m) => ({ default: m.MisCitasPage })),
+);
 
 /** Además de tener sesión, exige rol 'superadmin'; cualquier otra cuenta vuelve al panel. */
 function RequireSuperadmin({ children }: { children: ReactNode }) {
@@ -109,6 +112,9 @@ export default function App() {
             >
               <Route index element={<PortalHomePage />} />
               <Route path="buscar" element={<BuscarClinicaPage />} />
+              {/* La cita es la accion que el paciente mas busca, asi que tiene
+                  ruta propia y no comparte pantalla con la historia clinica. */}
+              <Route path="citas" element={<MisCitasPage />} />
               <Route path="historia" element={<MiHistoriaPage />} />
               <Route path="odontograma" element={<MiOdontogramaPage />} />
               <Route path="evoluciones" element={<MisEvolucionesPage />} />

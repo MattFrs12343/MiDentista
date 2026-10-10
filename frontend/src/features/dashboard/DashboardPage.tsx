@@ -62,8 +62,6 @@ export function DashboardPage() {
     [planes],
   );
 
-  const irAPacientes = () => navigate("/app/pacientes");
-
   return (
     <div className="dashboard-page">
       <HangingBanner className="max-w-3xl">
@@ -145,17 +143,32 @@ export function DashboardPage() {
           />
         </Link>
 
-        <article className="dashboard-next-card">
-          <span className="dashboard-next-label">
-            <Sparkle size={13} weight="fill" />
-            SIGUIENTE PASO
+        {/* Única tarjeta con degradado de la fila: el mismo lenguaje de la
+            tarjeta "destacada" del portal del paciente (`CardAcceso`), para
+            que el panel del profesional tenga su propia acción principal en
+            vez de otra tarjeta blanca más. */}
+        <Link
+          to="/app/pacientes"
+          className="press group relative isolate flex h-full flex-col justify-between gap-3 overflow-hidden rounded-panel bg-gradient-to-br from-brand-700 to-brand-800 p-4 text-left shadow-e2 transition-shadow duration-200 ease-out hover:shadow-e3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+        >
+          <Tooth
+            weight="duotone"
+            aria-hidden
+            className="pointer-events-none absolute -bottom-4 -right-4 text-white/10"
+            style={{ width: 104, height: 104, transform: "rotate(-12deg)" }}
+          />
+          <span className="relative flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white/75">
+            <Sparkle size={13} weight="fill" aria-hidden />
+            Siguiente paso
           </span>
-          <p>Registra un paciente nuevo para abrir su historia clínica y odontograma.</p>
-          <button className="dashboard-primary-button" type="button" onClick={irAPacientes}>
+          <p className="relative text-[13px] leading-relaxed text-white/90">
+            Registra un paciente nuevo para abrir su historia clínica y odontograma.
+          </p>
+          <span className="relative inline-flex items-center gap-2 self-start rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-brand-700 transition-transform duration-200 ease-out group-hover:translate-x-0.5">
             Ir a pacientes
-            <ArrowRight size={14} />
-          </button>
-        </article>
+            <ArrowRight size={14} weight="bold" aria-hidden />
+          </span>
+        </Link>
       </section>
 
       {/* Agenda primero: es lo que el odontologo mira al abrir la pantalla para

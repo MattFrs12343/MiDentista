@@ -16,6 +16,8 @@ export interface MapaHibridoProps {
   radioKm: number;
   clinicaSeleccionadaId?: string | null;
   onSeleccionarClinica?: (id: string) => void;
+  /** Resalta un pin al pasar el cursor: la lista y el mapa dejan de ser dos vistas aisladas. */
+  onResaltarClinica?: (id: string | null) => void;
   /** Mientras se busca la ubicación, el mapa muestra el efecto de bombeo. */
   locating?: boolean;
   /** Botón "Mi ubicación": recentra el mapa en el paciente. */
@@ -24,6 +26,23 @@ export interface MapaHibridoProps {
 }
 
 export type CapaMapa = "plano" | "hibrido";
+
+/**
+ * Azules del mapa, alineados con la rampa de marca.
+ *
+ * Leaflet dibuja en canvas y no puede leer tokens de CSS, así que estos valores
+ * repiten los de `--color-brand-*` en `index.css`. Es la única forma de que el
+ * mapa no se desincronice de la interfaz; si se cambia la marca, se cambian
+ * los dos lados.
+ */
+const TONE_MARCA = {
+  /** `--color-brand-500`: pines de clínica. */
+  relleno: "#3d84b8",
+  /** `--color-brand-600`: borde del radio de búsqueda. */
+  borde: "#2f6a9a",
+  /** `--color-brand-900`: clínica seleccionada y posición del paciente. */
+  oscuro: "#142845",
+} as const;
 
 /**
  * Fuentes de tiles SIN API key. CARTO y Stadia ya piden clave, así que no se
@@ -91,6 +110,7 @@ export function MapaHibrido({
   radioKm,
   clinicaSeleccionadaId = null,
   onSeleccionarClinica,
+  onResaltarClinica,
   locating = false,
   onCentrarEnMiUbicacion,
   className = "",
@@ -129,21 +149,28 @@ export function MapaHibrido({
     const puntoInicial: [number, number] = centro ? [centro.lat, centro.lon] : [-17.2, -65.6];
     mapa.setView(puntoInicial, centro ? 14 : 6);
 
+    /* Leaflet dibuja en canvas y no puede leer tokens de CSS, asi que el radio
+       de búsqueda lleva los mismos valores que `--color-brand-*` en
+       `index.css`. `#2563eb` / `#3b82f6` eran el azul genérico de otra
+       librería y se veían más saturados que el resto de la interfaz. */
     radioRef.current = L.circle(puntoInicial, {
       radius: radioKmRef.current * 1000,
-      color: "#2563eb",
+      color: TONE_MARCA.borde,
       weight: 1,
-      fillColor: "#3b82f6",
-      fillOpacity: 0.08,
+      fillColor: TONE_MARCA.relleno,
+      fillOpacity: 0.1,
       interactive: false,
     }).addTo(mapa);
 
-    // El punto del paciente solo existe cuando conocemos su ubicación.
+    // El punto del paciente solo existe cuando conocemos su ubicación. Va en
+    // `brand-700` (no en el azul claro de los pines) para que "yo" y "las
+    // clínicas" no se confundan: el paciente es el punto de referencia, no una
+    // clínica más.
     usuarioRef.current = L.circleMarker(puntoInicial, {
       radius: 7,
       color: "#ffffff",
       weight: 3,
-      fillColor: "#2563eb",
+      fillColor: TONE_MARCA.oscuro,
       fillOpacity: 1,
       interactive: false,
     });
@@ -235,18 +262,27 @@ export function MapaHibrido({
 
     clinicas.forEach((clinica) => {
       const seleccionada = clinica.id === clinicaSeleccionadaId;
+      /* El pin es la superficie mas saturada del mapa y tiene que salir del mismo
+         azul que el resto de la app. La seleccionada se distingue por relleno
+         oscuro Y por radio (10 contra 7), para que se lea sin depender del
+         color. */
       L.circleMarker([clinica.lat, clinica.lon], {
         radius: seleccionada ? 10 : 7,
         color: "#ffffff",
         weight: 2,
-        fillColor: seleccionada ? "#0f172a" : "#0ea5e9",
+        fillColor: seleccionada ? TONE_MARCA.oscuro : TONE_MARCA.relleno,
         fillOpacity: 1,
       })
         .bindTooltip(escaparHtml(clinica.nombre), { direction: "top" })
+        /* El `mouseover` resalta la tarjeta de la lista: con mapa y lista en la
+           misma pantalla, el pin dice "esta" y la tarjeta dice "aquí". Sin esto
+           el paciente tiene que recordar cuál era. */
+        .on("mouseover", () => onResaltarClinica?.(clinica.id))
+        .on("mouseout", () => onResaltarClinica?.(null))
         .on("click", () => onSeleccionarClinica?.(clinica.id))
         .addTo(capa);
     });
-  }, [clinicas, clinicaSeleccionadaId, onSeleccionarClinica]);
+  }, [clinicas, clinicaSeleccionadaId, onSeleccionarClinica, onResaltarClinica]);
 
   return (
     <div
@@ -332,7 +368,7 @@ export function MapaHibrido({
           width: 26px;
           height: 26px;
           margin: -13px 0 0 -13px;
-          border: 2px solid #2f6a9a;
+          border: 2px solid var(--color-brand-600);
           border-radius: 9999px;
           opacity: 0;
         }
