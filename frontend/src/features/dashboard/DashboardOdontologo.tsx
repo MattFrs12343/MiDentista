@@ -1,0 +1,194 @@
+import { useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Tooth,
+  ArrowRight,
+  UsersThree,
+  ClipboardText,
+  Sparkle,
+  Syringe,
+  Scissors,
+  Pill,
+  Thermometer,
+} from "@phosphor-icons/react";
+import heroDashboard from "@/assets/banners/hero-dashboard.jpg";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { HangingBanner } from "@/components/ui/hanging-banner";
+import { StatTile } from "@/components/ui/stat-tile";
+import { usePageHeader } from "@/components/layout/PageHeaderContext";
+import { useAuth } from "@/features/auth/AuthContext";
+import { useClinicaData } from "@/data/store";
+import { primerNombre as obtenerPrimerNombre } from "@/lib/nombre";
+import { CalendarioAgenda } from "@/features/agenda/CalendarioAgenda";
+import { AtendidosHoy } from "@/features/agenda/AtendidosHoy";
+import "./dashboard.css";
+
+/**
+ * Dashboard del odontologo (rol `odontologo`). Es el panel con el que se abrio
+ * el modulo: patologia de la clinica, agenda de la semana y quien fue atendido
+ * hoy. El contenido se movio aqui tal cual desde el antiguo `DashboardPage`
+ * para que el selector por rol (T-13.1) no cambie nada de lo que ya funcionaba.
+ */
+export function DashboardOdontologo() {
+  usePageHeader({
+    title: "Panel general",
+    subtitle: "Salud de tu clínica",
+    icon: Tooth,
+    tone: "blue",
+  });
+  const { sesion } = useAuth();
+  const { pacientes, odontogramaDe, planDe, citas, horarios } = useClinicaData();
+  const navigate = useNavigate();
+
+  const primerNombre = sesion ? obtenerPrimerNombre(sesion.nombre) : "";
+
+  /**
+   * El store expone los datos por paciente, asi que el panel tiene que
+   * destructurarlos antes de poder agregar. Con 14 pacientes es lo bastante
+   * chico para hacerlo en render y no necesita un indice en el store.
+   */
+  const { planes, diagnosticosActivos } = useMemo(() => {
+    const planes_: Record<string, ReturnType<typeof planDe>> = {};
+    let diagnosticos = 0;
+
+    for (const p of pacientes) {
+      const odontograma = odontogramaDe(p.id);
+      planes_[p.id] = planDe(p.id);
+      // Un diagnostico registrado es una pieza con condicion distinta de sano.
+      diagnosticos += odontograma.filter((c) => c.condicion !== "sano").length;
+    }
+    return {
+      planes: planes_,
+      diagnosticosActivos: diagnosticos,
+    };
+  }, [pacientes, odontogramaDe, planDe]);
+
+  const tratamientosPropuestos = useMemo(
+    () => Object.values(planes).reduce((acc, plan) => acc + plan.items.length, 0),
+    [planes],
+  );
+
+  const irAPacientes = () => navigate("/app/pacientes");
+
+  return (
+    <div className="dashboard-page">
+      <HangingBanner className="max-w-3xl">
+        <section className="dashboard-hero hanger-panel fade-in-up w-full sm:min-h-64 lg:min-h-72">
+          <img src={heroDashboard} alt="" aria-hidden className="dashboard-hero-photo" />
+          <div className="dashboard-hero-scrim" />
+
+          <div className="dashboard-hero-content">
+            <span className="dashboard-hero-label">
+              BIENVENIDO, DOCTOR{sesion?.clinica ? ` · ${sesion.clinica}` : ""}
+            </span>
+            <h2>Hola, {primerNombre}.</h2>
+            <span className="dashboard-hero-motto">Tu trabajo transforma sonrisas.</span>
+            <p>Dónde se concentra la patología de tu clínica y qué quedó pendiente de planear.</p>
+          </div>
+
+          <div className="dashboard-hero-decoration" aria-hidden>
+            <div className="dashboard-hero-tools">
+              <Syringe size={30} weight="duotone" />
+              <Scissors size={26} weight="duotone" />
+              <Pill size={28} weight="duotone" />
+              <Thermometer size={26} weight="duotone" />
+            </div>
+            <div className="dashboard-tooth-decoration">
+              <Tooth size={132} weight="duotone" />
+            </div>
+          </div>
+        </section>
+      </HangingBanner>
+
+      <section className="dashboard-stats">
+        {/* Cada metrica es un destino: el `Link` aporta el foco y el rol, el
+            `interactive` del tile aporta la elevacion y la presion al tocar. */}
+        <Link
+          to="/app/pacientes"
+          className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          aria-label="Ver los pacientes registrados"
+        >
+          <StatTile
+            interactive
+            className="h-full"
+            icon={UsersThree}
+            iconTone="blue"
+            label="Pacientes registrados"
+            value={pacientes.length}
+            hint="Fichas clínicas abiertas"
+          />
+        </Link>
+
+        <Link
+          to="/app/pacientes"
+          className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          aria-label="Ver los diagnósticos registrados"
+        >
+          <StatTile
+            interactive
+            className="h-full"
+            icon={ClipboardText}
+            iconTone="violet"
+            label="Diagnósticos registrados"
+            value={diagnosticosActivos}
+            hint="Piezas con condición distinta de sano"
+          />
+        </Link>
+
+        <Link
+          to="/app/pacientes"
+          className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          aria-label="Ver los ítems en planes de tratamiento"
+        >
+          <StatTile
+            interactive
+            className="h-full"
+            icon={Tooth}
+            iconTone="green"
+            label="Ítems en planes de tratamiento"
+            value={tratamientosPropuestos}
+            hint="Procedimientos propuestos"
+          />
+        </Link>
+
+        <article className="dashboard-next-card">
+          <span className="dashboard-next-label">
+            <Sparkle size={13} weight="fill" />
+            SIGUIENTE PASO
+          </span>
+          <p>Registra un paciente nuevo para abrir su historia clínica y odontograma.</p>
+          <button className="dashboard-primary-button" type="button" onClick={irAPacientes}>
+            Ir a pacientes
+            <ArrowRight size={14} />
+          </button>
+        </article>
+      </section>
+
+      {/* Agenda primero: es lo que el odontologo mira al abrir la pantalla para
+          saber a quien tiene que atender ahora, junto con quien ya fue atendido. */}
+      <section className="dashboard-blocks">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start">
+          <Card className="fade-in-up">
+            <CardHeader className="flex-row items-start justify-between space-y-0">
+              <div>
+                <CardTitle>Agenda de la semana</CardTitle>
+                <CardDescription>
+                  Citas agendadas por día y hora. Toca una cita para ir a la ficha del paciente.
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CalendarioAgenda citas={citas} horarios={horarios} pacientes={pacientes} />
+            </CardContent>
+          </Card>
+
+          <AtendidosHoy
+            citas={citas}
+            pacientes={pacientes}
+            onIr={(id) => navigate(`/app/pacientes/${id}`)}
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
