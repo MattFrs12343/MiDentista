@@ -8,11 +8,14 @@ const badgeVariants = cva(
     variants: {
       tone: {
         neutral: "bg-surface-sunken text-ink-soft",
-        blue: "bg-pastel-blue-bg text-pastel-blue-fg",
-        red: "bg-pastel-red-bg text-pastel-red-fg",
-        green: "bg-pastel-green-bg text-pastel-green-fg",
-        yellow: "bg-pastel-yellow-bg text-pastel-yellow-fg",
-        violet: "bg-pastel-violet-bg text-pastel-violet-fg",
+// `blue` y `violet` usan la rampa de marca. El celeste `pastel-blue-bg` y el
+  // lila `pastel-violet-bg` quedan fuera de la identidad de la plataforma; los
+  // nombres se conservan porque el resto de la app los pide por tono de modulo.
+  blue: "bg-brand-100 text-brand-700",
+  red: "bg-pastel-red-bg text-pastel-red-fg",
+  green: "bg-pastel-green-bg text-pastel-green-fg",
+  yellow: "bg-pastel-yellow-bg text-pastel-yellow-fg",
+  violet: "bg-brand-50 text-brand-600",
       },
     },
     defaultVariants: { tone: "neutral" },

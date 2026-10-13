@@ -5,6 +5,7 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { FormActions, FormAlert, FormGroup, FormShell } from "@/components/ui/form-parts";
 import { aNumero, redondear } from "./pagoCalculo.ts";
 import { hoyIso } from "./pagoFormato.ts";
 import { METODOS_PAGO, type MetodoPago, type Pago } from "./tipos.ts";
@@ -97,100 +98,102 @@ export function PaymentForm({
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={enviar} className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field
-              label="Monto (Bs)"
-              htmlFor="pago-monto"
-              hint={monto && !montoValido ? "Debe ser mayor que cero." : undefined}
-            >
-              <Input
-                id="pago-monto"
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.01"
-                placeholder="0,00"
-                value={monto}
-                onChange={(e) => setMonto(e.target.value)}
+        {/* Tema `pagos`: etiqueta en versalitas, controles de radio corto y las
+            cifras tabulares las pone `Input` solo en los campos numéricos. */}
+        <form onSubmit={enviar}>
+          <FormShell section="pagos">
+            <FormGroup titulo="Datos del cobro">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field
+                  label="Monto (Bs)"
+                  htmlFor="pago-monto"
+                  error={monto && !montoValido ? "Debe ser mayor que cero." : null}
+                >
+                  <Input
+                    id="pago-monto"
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={monto}
+                    onChange={(e) => setMonto(e.target.value)}
+                    disabled={guardando}
+                    required
+                  />
+                </Field>
+
+                <Field label="Método de pago" htmlFor="pago-metodo">
+                  <Select
+                    value={metodoPago}
+                    onValueChange={(valor) => setMetodoPago(valor as MetodoPago)}
+                    disabled={guardando}
+                  >
+                    <SelectTrigger id="pago-metodo" aria-label="Método de pago">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {METODOS_PAGO.map((metodo) => (
+                        <SelectItem key={metodo} value={metodo}>
+                          {METODO_ETIQUETA[metodo]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="Fecha del pago" htmlFor="pago-fecha">
+                  <Input
+                    id="pago-fecha"
+                    type="date"
+                    value={fechaPago}
+                    onChange={(e) => setFechaPago(e.target.value)}
+                    disabled={guardando}
+                    required
+                  />
+                </Field>
+
+                <Field
+                  label="Referencia"
+                  htmlFor="pago-referencia"
+                  hint="Número de operación o referencia bancaria. Opcional."
+                >
+                  <Input
+                    id="pago-referencia"
+                    type="text"
+                    placeholder="Opcional"
+                    value={codigoReferencia}
+                    onChange={(e) => setCodigoReferencia(e.target.value)}
+                    disabled={guardando}
+                  />
+                </Field>
+              </div>
+            </FormGroup>
+
+            <Field label="Notas" htmlFor="pago-notas" hint="Opcional.">
+              <Textarea
+                id="pago-notas"
+                rows={3}
+                placeholder="Detalle del cobro"
+                value={notas}
+                onChange={(e) => setNotas(e.target.value)}
                 disabled={guardando}
-                required
               />
             </Field>
 
-<Field label="Método de pago" htmlFor="pago-metodo">
-              <Select
-                value={metodoPago}
-                onValueChange={(valor) => setMetodoPago(valor as MetodoPago)}
-                disabled={guardando}
-              >
-                <SelectTrigger id="pago-metodo" aria-label="Método de pago">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {METODOS_PAGO.map((metodo) => (
-                    <SelectItem key={metodo} value={metodo}>
-                      {METODO_ETIQUETA[metodo]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
+            {fallo || error ? <FormAlert>{fallo ?? error}</FormAlert> : null}
 
-            <Field label="Fecha del pago" htmlFor="pago-fecha">
-              <Input
-                id="pago-fecha"
-                type="date"
-                value={fechaPago}
-                onChange={(e) => setFechaPago(e.target.value)}
-                disabled={guardando}
-                required
-              />
-            </Field>
-
-            <Field
-              label="Referencia"
-              htmlFor="pago-referencia"
-              hint="Número de operación o referencia bancaria. Opcional."
-            >
-              <Input
-                id="pago-referencia"
-                type="text"
-                placeholder="Opcional"
-                value={codigoReferencia}
-                onChange={(e) => setCodigoReferencia(e.target.value)}
-                disabled={guardando}
-              />
-            </Field>
-          </div>
-
-          <Field label="Notas" htmlFor="pago-notas" hint="Opcional.">
-            <Textarea
-              id="pago-notas"
-              rows={3}
-              placeholder="Detalle del cobro"
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              disabled={guardando}
-            />
-          </Field>
-
-          {fallo || error ? (
-            <p role="alert" className="text-[12px] leading-snug text-pastel-red-fg">
-              {fallo ?? error}
-            </p>
-          ) : null}
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Button type="submit" disabled={guardando || !montoValido}>
-              {guardando ? "Registrando…" : "Registrar pago"}
-            </Button>
-            {onCancelar ? (
-              <Button type="button" variant="ghost" size="md" onClick={onCancelar} disabled={guardando}>
-                Cancelar
+            <FormActions>
+              <Button type="submit" disabled={guardando || !montoValido}>
+                {guardando ? "Registrando…" : "Registrar pago"}
               </Button>
-            ) : null}
-          </div>
+              {onCancelar ? (
+                <Button type="button" variant="ghost" size="md" onClick={onCancelar} disabled={guardando}>
+                  Cancelar
+                </Button>
+              ) : null}
+            </FormActions>
+          </FormShell>
         </form>
       </CardContent>
     </Card>

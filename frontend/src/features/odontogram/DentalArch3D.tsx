@@ -19,7 +19,31 @@ import { MODEL_URL } from "@/features/odontogram/modeloArco";
 import type { CondicionPieza } from "@/types";
 
 const GUM_COLOR = "#e3a79c";
+const BONE_COLOR = "#e8e0d2";
 const SELECCION_COLOR = new THREE.Color("#3d84b8");
+
+/**
+ * Los nodos de hueso del modelo. Se listan uno por uno a propósito: la versión
+ * anterior usaba `/mandible|maxilla|sinus/`, y ese patrón no casaba con
+ * `mandibular-alveolar-process` ni con `mandibular-condyle-*` (la subcadena
+ * "mandible" no aparece dentro de "mandibular"). Resultado: medio maxilar
+ * oculto y la otra mitad visible en blanco, sin material asignado.
+ */
+const NODOS_HUESO = new Set([
+  "mandible-body",
+  "mandibular-alveolar-process",
+  "mandibular-condyle-right",
+  "mandibular-condyle-left",
+  "maxilla-right",
+  "maxilla-left",
+  "maxillary-alveolar-process-right",
+  "maxillary-alveolar-process-left",
+  "maxillary-sinus-right",
+  "maxillary-sinus-left",
+]);
+
+/** Qué nivel de anatomía se muestra: solo encías, o encías más hueso. */
+export type Anatomia3D = "encias" | "hueso";
 
 // `useLoader` cachea la promesa del modelo fuera de React (en un Map global
 // de `suspend-react`). Si la primera carga falla por algo transitorio (red
@@ -61,11 +85,10 @@ function useDentalAssets() {
     const escena = gltf.scene.clone(true);
     const dientes = new Map<number, THREE.Object3D>();
     const encias: THREE.Object3D[] = [];
+    const hueso: THREE.Object3D[] = [];
 
     escena.traverse((obj) => {
       const dienteMatch = /^tooth-(\d{2})$/.exec(obj.name);
-      const esEncia = /^gingiva-/.test(obj.name);
-      const esHueso = /mandible|maxilla|sinus/.test(obj.name);
 
       if (dienteMatch) {
         const fdi = Number(dienteMatch[1]);
@@ -79,24 +102,50 @@ function useDentalAssets() {
             });
           }
         });
-      } else if (esEncia) {
+      } else if (/^gingiva-/.test(obj.name)) {
         encias.push(obj);
         obj.traverse((hijo) => {
           if (hijo instanceof THREE.Mesh) {
             hijo.material = new THREE.MeshStandardMaterial({ color: GUM_COLOR, roughness: 0.65 });
           }
         });
-      } else if (esHueso) {
+      } else if (NODOS_HUESO.has(obj.name)) {
+        hueso.push(obj);
+        obj.traverse((hijo) => {
+          if (hijo instanceof THREE.Mesh) {
+            hijo.material = new THREE.MeshStandardMaterial({ color: BONE_COLOR, roughness: 0.85 });
+          }
+        });
+        // El hueso arranca oculto; `Escena` lo muestra si el usuario pide el
+        // nivel "hueso".
         obj.visible = false;
       }
     });
 
-    const caja = new THREE.Box3().setFromObject(escena);
-    const centro = caja.getCenter(new THREE.Vector3());
-    const tamano = caja.getSize(new THREE.Vector3()).length() / 2;
-    const radio = Number.isFinite(tamano) && tamano > 0 ? tamano : 1;
+    // El encuadre se calcula sobre lo que se VE, no sobre la escena completa.
+    // La caja global la domina la mandíbula (escala ~5), así que usar siempre
+    // esa caja dejaba dientes y encías flotando diminutos en el centro: era
+    // justamente por eso que las encías no se apreciaban.
+    const cajaEncias = new THREE.Box3();
+    for (const d of dientes.values()) cajaEncias.expandByObject(d);
+    for (const e of encias) cajaEncias.expandByObject(e);
+    const cajaHueso = cajaEncias.clone();
+    for (const h of hueso) cajaHueso.expandByObject(h);
 
-    return { escena, dientes, encias, centro, radio };
+    const encuadre = (caja: THREE.Box3) => {
+      const centro = caja.getCenter(new THREE.Vector3());
+      const tamano = caja.getSize(new THREE.Vector3()).length() / 2;
+      return { centro, radio: Number.isFinite(tamano) && tamano > 0 ? tamano : 1 };
+    };
+
+    return {
+      escena,
+      dientes,
+      encias,
+      hueso,
+      encuadreEncias: encuadre(cajaEncias),
+      encuadreHueso: encuadre(cajaHueso),
+    };
   }, [gltf]);
 }
 
@@ -196,20 +245,29 @@ function Diente({
 function Escena({
   piezas,
   seleccionada,
+  anatomia,
   onSelect,
   onHover,
   interaction,
 }: {
   piezas: CondicionPieza[];
   seleccionada: number | null;
+  anatomia: Anatomia3D;
   onSelect: (pieza: number | null) => void;
   onHover: (pieza: number | null) => void;
   interaction: MutableRefObject<Interaction>;
 }) {
-  const { dientes, encias, centro, radio } = useDentalAssets();
+  const { dientes, encias, hueso, encuadreEncias, encuadreHueso } = useDentalAssets();
   const condicionDe = (pieza: number) => piezas.find((c) => c.pieza === pieza);
   const { camera } = useThree();
+
+  // Cada nivel de anatomía tiene su propio encuadre (ver `useDentalAssets`).
+  const { centro, radio } = anatomia === "hueso" ? encuadreHueso : encuadreEncias;
   const distanciaBase = radio / Math.sin((40 * Math.PI) / 360) / 1.3;
+
+  useEffect(() => {
+    for (const obj of hueso) obj.visible = anatomia === "hueso";
+  }, [hueso, anatomia]);
 
   useFrame(() => {
     const state = interaction.current;
@@ -258,11 +316,14 @@ function Escena({
 export function DentalArch3D({
   piezas,
   seleccionada,
+  anatomia = "encias",
   onSelect,
   className,
 }: {
   piezas: CondicionPieza[];
   seleccionada: number | null;
+  /** Por defecto solo encías, que es lo que lee el paciente. */
+  anatomia?: Anatomia3D;
   onSelect: (pieza: number | null) => void;
   className?: string;
 }) {
@@ -283,7 +344,26 @@ export function DentalArch3D({
   const [hover, setHover] = useState<{ pieza: number; x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Pellizco: se guardan los punteros activos y la distancia entre los dos
+  // últimos. Sin esto el zoom dependía solo de `onWheel`, que en táctil no
+  // existe: en el celular la única forma de acercar eran los botones.
+  const punteros = useRef(new Map<number, { x: number; y: number }>());
+  const distanciaPellizco = useRef<number | null>(null);
+
+  const aplicarZoom = (factor: number) => {
+    interaction.current.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, interaction.current.zoom * factor));
+  };
+
   const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (punteros.current.size === 2) {
+      const [a, b] = [...punteros.current.values()];
+      distanciaPellizco.current = Math.hypot(a.x - b.x, a.y - b.y);
+      // Dos dedos no son un arrastre: se anula la rotación para que el
+      // pellizco no derrame el giro de la cámara.
+      interaction.current.dragging = false;
+      return;
+    }
     interaction.current.dragging = true;
     interaction.current.moved = false;
     lastPos.current = { x: e.clientX, y: e.clientY };
@@ -296,6 +376,22 @@ export function DentalArch3D({
       const rect = containerRef.current.getBoundingClientRect();
       setHover((h) => (h ? { ...h, x: e.clientX - rect.left, y: e.clientY - rect.top } : h));
     }
+
+    if (punteros.current.has(e.pointerId)) {
+      punteros.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    if (punteros.current.size === 2) {
+      const [a, b] = [...punteros.current.values()];
+      const distancia = Math.hypot(a.x - b.x, a.y - b.y);
+      const previa = distanciaPellizco.current;
+      if (previa && distancia > 0) {
+        aplicarZoom(previa / distancia);
+      }
+      distanciaPellizco.current = distancia;
+      return;
+    }
+
     if (!interaction.current.dragging) return;
     const dx = e.clientX - lastPos.current.x;
     const dy = e.clientY - lastPos.current.y;
@@ -305,15 +401,13 @@ export function DentalArch3D({
     lastPos.current = { x: e.clientX, y: e.clientY };
   };
 
-  const endDrag = () => {
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    punteros.current.delete(e.pointerId);
+    if (punteros.current.size < 2) distanciaPellizco.current = null;
     interaction.current.dragging = false;
     setTimeout(() => {
       interaction.current.moved = false;
     }, 0);
-  };
-
-  const aplicarZoom = (factor: number) => {
-    interaction.current.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, interaction.current.zoom * factor));
   };
 
   const handleWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
@@ -366,6 +460,7 @@ export function DentalArch3D({
         <Escena
           piezas={piezas}
           seleccionada={seleccionada}
+          anatomia={anatomia}
           onSelect={onSelect}
           onHover={handleHover}
           interaction={interaction}
@@ -384,24 +479,24 @@ export function DentalArch3D({
       <div
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
-        className="absolute bottom-3 right-3 z-10 flex flex-col overflow-hidden rounded-lg border border-line-strong bg-surface shadow-diffuse"
+        className="absolute bottom-3 right-3 z-10 flex flex-col overflow-hidden rounded-xl border border-line-strong bg-surface shadow-diffuse"
       >
         <button
           type="button"
           aria-label="Acercar"
           onClick={() => aplicarZoom(0.8)}
-          className="flex h-8 w-8 items-center justify-center text-ink-soft transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink"
+          className="flex size-11 items-center justify-center text-ink-soft transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink"
         >
-          <Plus size={15} weight="bold" />
+          <Plus size={17} weight="bold" />
         </button>
         <div className="h-px bg-line" />
         <button
           type="button"
           aria-label="Alejar"
           onClick={() => aplicarZoom(1.25)}
-          className="flex h-8 w-8 items-center justify-center text-ink-soft transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink"
+          className="flex size-11 items-center justify-center text-ink-soft transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink"
         >
-          <Minus size={15} weight="bold" />
+          <Minus size={17} weight="bold" />
         </button>
       </div>
     </div>

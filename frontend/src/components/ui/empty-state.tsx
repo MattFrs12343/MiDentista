@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
 /** Tono del chip del ícono. Reusa los pares pastel del tema. */
-export type EmptyStateTone = "neutral" | "brand" | "positive" | "warning";
+export type EmptyStateTone = "neutral" | "brand" | "positive" | "warning" | "danger";
 
 const TONE_CHIP: Record<EmptyStateTone, string> = {
   neutral: "bg-surface text-ink-muted",
   brand: "bg-brand-50 text-brand-600",
   positive: "bg-pastel-green-bg text-pastel-green-fg",
   warning: "bg-pastel-yellow-bg text-pastel-yellow-fg",
+  danger: "bg-pastel-red-bg text-pastel-red-fg",
 };
 
 export interface EmptyStateProps extends HTMLAttributes<HTMLDivElement> {

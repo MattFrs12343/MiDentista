@@ -1,8 +1,19 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, PencilSimple, Printer, Trash, SpinnerGap, UserCircle, WarningCircle } from "@phosphor-icons/react";
+import {
+  CaretRight,
+  Eye,
+  PencilSimple,
+  Printer,
+  Trash,
+  SpinnerGap,
+  UserCircle,
+  WarningCircle,
+} from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import type { DataTableColumn } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -27,6 +38,37 @@ const ACCION_BTN =
  *  los botones de acciones, y asi el teclado recorre cada destino. */
 const ENLACE_FICHA =
   "flex items-center gap-3 px-4 py-3 focus-visible:rounded-ios focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring";
+
+/** Acción de la tarjeta móvil: 44px de alto, con su texto y no solo el ícono. */
+function BotonAccion({
+  icono: Icono,
+  etiqueta,
+  sr,
+  onClick,
+  peligro = false,
+}: {
+  icono: Icon;
+  etiqueta: string;
+  sr: string;
+  onClick: () => void;
+  peligro?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={sr}
+      onClick={onClick}
+      className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-ios px-2 text-[13px] font-medium transition-colors duration-150 ${
+        peligro
+          ? "text-pastel-red-fg hover:bg-pastel-red-bg"
+          : "text-ink-soft hover:bg-surface-sunken hover:text-ink"
+      }`}
+    >
+      <Icono size={16} weight="bold" aria-hidden />
+      {etiqueta}
+    </button>
+  );
+}
 
 /**
  * Tabla de pacientes con columna de acciones (Ver / Editar / Imprimir /
@@ -167,26 +209,99 @@ export function PatientsTable({ pacientes, tab }: { pacientes: Paciente[]; tab: 
 
   return (
     <>
-      <DataTable
-        columns={columnas}
-        data={pacientes}
-        rowKey={(p) => p.id}
-        label="Listado de pacientes"
-        // Sin alto maximo el encabezado sticky no tiene contra que anclarse:
-        // el alto le da su propio scroll vertical.
-        maxHeight="32rem"
-        className="fade-in-up"
-        tableClassName="min-w-[46rem]"
-        empty={
-          <EmptyState
-            size="sm"
-            icon={UserCircle}
-            iconTone="brand"
-            title="Todavía no hay pacientes para mostrar"
-            description="Registrá el primer paciente de la clínica para empezar a abrir historias clínicas."
-          />
-        }
-      />
+      {/* En celular la tabla no sirve: seis columnas y cuatro acciones obligan a
+          arrastrar en horizontal y los botones quedan de 24px. Las tarjetas
+          muestran lo mismo con un destino táctil grande. */}
+      <ul className="flex flex-col gap-2 md:hidden">
+        {pacientes.map((p) => (
+          <li key={p.id}>
+            <Card className="overflow-hidden p-0">
+              <Link
+                to={fichaDe(p.id)}
+                className="flex min-h-11 items-center gap-3 px-3 py-3 focus-visible:rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
+              >
+                <Avatar nombre={`${p.nombres} ${p.apellidos}`} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-ink">
+                    {p.nombres} {p.apellidos}
+                  </p>
+                  <p className="truncate text-xs text-ink-muted">{p.email || "Sin correo"}</p>
+                </div>
+                <CaretRight size={16} className="shrink-0 text-ink-muted" aria-hidden />
+              </Link>
+
+              <dl className="flex flex-wrap gap-x-4 gap-y-1 border-t border-line bg-surface-sunken/60 px-3 py-2 text-xs">
+                {p.ci ? (
+                  <div className="flex gap-1">
+                    <dt className="text-ink-muted">CI</dt>
+                    <dd className="font-medium tabular-nums text-ink-soft">{p.ci}</dd>
+                  </div>
+                ) : null}
+                <div className="flex gap-1">
+                  <dt className="text-ink-muted">Edad</dt>
+                  <dd className="font-medium tabular-nums text-ink-soft">
+                    {calcularEdad(p.fechaNacimiento)} años
+                  </dd>
+                </div>
+                {p.telefono ? (
+                  <div className="flex gap-1">
+                    <dt className="text-ink-muted">Tel.</dt>
+                    <dd className="font-medium tabular-nums text-ink-soft">{p.telefono}</dd>
+                  </div>
+                ) : null}
+              </dl>
+
+              <div className="flex items-center gap-1 border-t border-line px-2 py-1.5">
+                <BotonAccion
+                  icono={Eye}
+                  etiqueta="Ver"
+                  onClick={() => irA(p.id)}
+                  sr={`Ver ${p.nombres} ${p.apellidos}`}
+                />
+                <BotonAccion
+                  icono={Printer}
+                  etiqueta="Imprimir"
+                  onClick={() => irA(p.id, true)}
+                  sr={`Imprimir ${p.nombres} ${p.apellidos}`}
+                />
+                <BotonAccion
+                  icono={Trash}
+                  etiqueta="Eliminar"
+                  onClick={() => {
+                    setErrorEliminar(null);
+                    setPorEliminar(p);
+                  }}
+                  sr={`Eliminar ${p.nombres} ${p.apellidos}`}
+                  peligro
+                />
+              </div>
+            </Card>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden md:block">
+        <DataTable
+          columns={columnas}
+          data={pacientes}
+          rowKey={(p) => p.id}
+          label="Listado de pacientes"
+          // Sin alto maximo el encabezado sticky no tiene contra que anclarse:
+          // el alto le da su propio scroll vertical.
+          maxHeight="32rem"
+          className="fade-in-up"
+          tableClassName="min-w-[46rem]"
+          empty={
+            <EmptyState
+              size="sm"
+              icon={UserCircle}
+              iconTone="brand"
+              title="Todavía no hay pacientes para mostrar"
+              description="Registrá el primer paciente de la clínica para empezar a abrir historias clínicas."
+            />
+          }
+        />
+      </div>
 
       <Dialog
         open={porEliminar !== null}

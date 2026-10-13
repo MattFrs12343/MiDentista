@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Trash, Stethoscope, Printer } from "@phosphor-icons/react";
+import { Plus, Trash, Stethoscope, Printer, Money, Warning, Prohibit } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { SectionStatStrip } from "@/components/ui/section-board";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -84,6 +85,40 @@ export function TreatmentTab({ pacienteId }: { pacienteId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <SectionStatStrip
+        metrics={[
+          {
+            label: "Costo estimado",
+            value: `Bs ${total.toFixed(0)}`,
+            icon: Money,
+            tone: "green",
+            hint: `${plan.items.length} ${plan.items.length === 1 ? "procedimiento" : "procedimientos"}`,
+            destacado: true,
+          },
+          {
+            label: "Diagnósticos",
+            value: diagnosticos.length,
+            icon: Stethoscope,
+            tone: "brand",
+            hint: "hallazgos registrados",
+          },
+          {
+            label: "Prioridad alta",
+            value: plan.items.filter((i) => i.prioridad === "alta").length,
+            icon: Warning,
+            tone: "red",
+            hint: "a resolver primero",
+          },
+          {
+            label: "Pendientes de pieza",
+            value: plan.items.filter((i) => i.pieza === undefined).length,
+            icon: Prohibit,
+            tone: "neutral",
+            hint: "sin pieza asignada",
+          },
+        ]}
+      />
+
       <div className="flex justify-end">
         <Button type="button" variant="secondary" onClick={() => window.print()} disabled={!paciente}>
           <Printer size={15} /> Imprimir

@@ -1,17 +1,31 @@
 @import "tailwindcss";
 
 @theme {
+  /* La pila empieza por SF Pro porque en iOS y macOS es la tipografía del
+     sistema y es la que hace que el portal se lea como app y no como página.
+     `Inter` va justo después: se usa solo si ya está instalada, sin pedirla por
+     red, así que no suma una descarga ni un FOUT. */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, "Segoe UI",
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, system-ui, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
   --font-mono:
     ui-monospace, "SF Mono", "Cascadia Code", "Segoe UI Mono", Menlo, Consolas, monospace;
 
-  --color-canvas: #fbfaf7;
+  /* El canvas baja de `#fbfaf7` a `#f1efea`. Con el valor anterior una tarjeta
+     blanca daba 1.04 de contraste contra el fondo: es decir, ninguna. El texto
+     estaba bien (5.7-15.7) y por eso el problema pasaba desapercibido en una
+     auditoría de texto, pero las tarjetas no se leían como superficies. Ahora
+     la tarjeta da 1.15 contra el canvas y el borde 1.24, y `ink-muted` sobre el
+     canvas sigue en 4.98 (AA), asi que bajar el canvas no le rope contraste al
+     texto. Sigue siendo un blanco calido: la app no se pone gris. */
+  --color-canvas: #f1efea;
   --color-surface: #ffffff;
   --color-surface-sunken: #f5f3ef;
-  --color-line: #e8e5df;
-  --color-line-strong: #d9d5cc;
+  /* `line` pasa de `#e8e5df` a `#ddd8ce`: sobre tarjeta blanca el contraste
+     sube de 1.26 a 1.42. Con 7% de opacidad de tinta el borde era invisible
+     incluso con el token al maximo. */
+  --color-line: #ddd8ce;
+  --color-line-strong: #c9c2b4;
   /* borde de campos de formulario en reposo: mas oscuro que line-strong a
      proposito, para que un input sea identificable sin pasar el mouse ni
      enfocarlo. Sigue siendo neutro/calido, sin tinte celeste. */
@@ -466,6 +480,83 @@
 
     .press-row:active {
       background-color: rgba(120, 120, 128, 0.18);
+    }
+  }
+
+  /* --- Tarjetas de acceso del portal: barrido y deriva -------------------
+     Las seis tarjetas van con degradado de izquierda a derecha, cada una con
+     su propio color. El barrido de hover va en blanco porque las seis tienen
+     fondo de color/oscuro.
+
+     El barrido es `::after` y se mueve con `transform`: animar `left` o `width`
+     forzaría reflow de la tarjeta entera en cada frame. Solo corre con hover y
+     puntero fino, porque en táctil no hay hover y la banda saldría sola al
+     tocar, que es ruido.
+
+     `acceso-deriva` mueve el motivo muy lento y en bucle. También en `transform`
+     y sin tocar `left`/`top`. */
+  @keyframes acento-barrido {
+    0% {
+      transform: translateX(-115%) skewX(-14deg);
+    }
+    100% {
+      transform: translateX(115%) skewX(-14deg);
+    }
+  }
+
+  .acento-barrido::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.14) 45%,
+      rgb(255 255 255 / 0.04) 60%,
+      transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+  }
+
+  @keyframes acceso-deriva {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    50% {
+      transform: translate(-4px, -7px) rotate(-2.5deg);
+    }
+  }
+
+  .acceso-deriva {
+    animation: acceso-deriva 26s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* El desfase por índice desincroniza los motivos: si las seis arrancaran en
+     fase, el ojo los lee como una sola capa en movimiento. */
+  .acceso-deriva:nth-child(even) {
+    animation-direction: reverse;
+    animation-duration: 31s;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .acento-tarjeta:hover .acento-barrido::after,
+    .acento-tarjeta:focus-visible .acento-barrido::after {
+      opacity: 1;
+      animation: acento-barrido 720ms var(--ease-out-strong) both;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .acento-barrido::after {
+      animation: none !important;
+    }
+
+    .acceso-deriva {
+      animation: none;
     }
   }
 

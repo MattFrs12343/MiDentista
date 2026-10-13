@@ -5,8 +5,11 @@ import {
   CheckCircle,
   Crosshair,
   FloppyDisk,
+  ListBullets,
   MagnifyingGlass,
   MapPin,
+  MapTrifold,
+  NavigationArrow,
   Phone,
   SpinnerGap,
   WarningCircle,
@@ -17,11 +20,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { SectionToolbar } from "@/components/ui/section-board";
+import { cn } from "@/lib/cn";
 import { useAuth } from "@/features/auth/AuthContext";
 import { usePortalPaciente } from "@/features/portal-paciente/PortalPacienteContext";
 import { distanciaKm } from "@/features/portal-paciente/haversine";
 import { generarClinicasDemo } from "@/features/portal-paciente/clinicasDemo";
 import { MapaHibrido } from "@/features/portal-paciente/MapaHibrido";
+import { PortalSubHeader } from "@/features/portal-paciente/PortalHero";
 import {
   ApiError,
   afiliarPacientePortalApi,
@@ -62,6 +68,8 @@ export function BuscarClinicaPage() {
   const [vista, setVista] = useState<"lista" | "mapa">("mapa");
   /** Texto ya diferido: es el que realmente filtra, para no filtrar en cada tecla. */
   const [termino, setTermino] = useState("");
+  /** Clínica resaltada: la que el paciente está mirando en el mapa. */
+  const [idEnfocada, setIdEnfocada] = useState<string | null>(null);
 
   const yaAfiliado = ficha?.clinica ?? null;
 
@@ -174,6 +182,23 @@ export function BuscarClinicaPage() {
     return resultados;
   }, [resultados, demo, haBuscado, termino]);
 
+  /**
+   * Distancia de la clínica enfocada a la más cercana realmente disponible.
+   *
+   * El filtro por cercanía recorta a `RADIO_KM`, así que el radio del mapa no
+   * siempre corresponde a lo que hay alrededor. Resolver el vecino mas próximo
+   * del set actual evita que el círculo sugiera un radio de búsqueda distinto
+   * al que el paciente está viendo.
+   */
+  const alcanceEfectivo = useMemo(() => {
+    if (!visibles.length) return RADIO_KM;
+    const conDistancia = visibles
+      .map((r) => r.distancia)
+      .filter((d): d is number => d != null);
+    if (!conDistancia.length) return RADIO_KM;
+    return Math.min(RADIO_KM, Math.ceil(Math.max(...conDistancia)));
+  }, [visibles]);
+
   // Centro del mapa: la ubicación del paciente si la hay; si no, el primer
   // resultado con coordenadas. `useMemo` mantiene estable la identidad del
   // objeto para no re-disparar los efectos del mapa en cada render.
@@ -198,8 +223,13 @@ export function BuscarClinicaPage() {
     [visibles],
   );
 
+  /* Al tocar un pin del mapa solo se resalta la tarjeta; el alta se sigue
+     haciendo con un botón explícito. Abrir el diálogo desde un pin hacía que un
+     toque perdido (dedo gordo, mapa con scroll) dejara el formulario de
+     afiliación abierto sobre el mapa sin haberlo pedido. */
   const seleccionarDesdeMapa = useCallback(
     (id: string) => {
+      setIdEnfocada(id);
       if (yaAfiliado) return;
       // Las clínicas de demostración no existen en la base: no se pueden afiliar.
       if (id.startsWith("demo-")) return;
@@ -208,6 +238,12 @@ export function BuscarClinicaPage() {
     },
     [clinicas, yaAfiliado],
   );
+
+  /* Al cambiar de vista se limpia el enfoque: si no, la tarjeta bordering
+     queda resaltada en un sitio donde el paciente no la está viendo. */
+  useEffect(() => {
+    setIdEnfocada(null);
+  }, [vista]);
 
   if (cargandoFicha) {
     return (
@@ -219,21 +255,23 @@ export function BuscarClinicaPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Buscar clínica</h1>
-        <p className="mt-1 text-sm text-ink-soft">
-          Buscá por nombre o activá tu ubicación para ver las clínicas dentro de {RADIO_KM} km. Las
-          clínicas solo aparecen cuando iniciás una búsqueda.
-        </p>
-      </div>
+      <PortalSubHeader
+        icono={MapPin}
+        titulo="Buscar clínica"
+        descripcion="Buscá por nombre o activá tu ubicación para ver las clínicas cercanas."
+        seccion="clinica"
+      />
 
+      {/* Aviso informativo, no estado de éxito: el azul de marca es el lenguaje
+          neutro del portal. Pintarlo de verde sumaba un tono ajeno sin decir nada
+          que el título no dijera ya. */}
       {yaAfiliado ? (
-        <Card className="border-pastel-green-fg/20 bg-pastel-green-bg">
-          <CardContent className="flex items-center gap-3 p-4 text-pastel-green-fg">
+        <Card variant="flat" tone="brand" accent>
+          <CardContent className="flex items-center gap-3 p-4 text-brand-700">
             <CheckCircle size={22} weight="fill" className="shrink-0" />
             <div className="text-sm">
               <p className="font-semibold">Ya estás afiliado a {yaAfiliado.nombre}</p>
-              <p className="text-pastel-green-fg/80">
+              <p className="text-brand-600">
                 Por ahora una cuenta de paciente pertenece a una sola clínica.
               </p>
             </div>
@@ -308,35 +346,47 @@ export function BuscarClinicaPage() {
       ) : null}
 
       {haBuscado ? (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-ink-soft">
+        <SectionToolbar className="justify-between">
+          <p className="min-w-0 truncate text-sm text-ink-soft">
             {cargando
               ? "Buscando clínicas…"
               : `${visibles.length} ${visibles.length === 1 ? "clínica" : "clínicas"} encontrada${
                   visibles.length === 1 ? "" : "s"
+                }${
+                  ubicacion
+                    ? ` · buscando en un radio de ${alcanceEfectivo} km`
+                    : ""
                 }`}
           </p>
-          <div className="flex gap-2" role="tablist" aria-label="Elegir vista">
-            <Button
-              type="button"
-              size="sm"
-              variant={vista === "lista" ? "primary" : "secondary"}
-              onClick={() => setVista("lista")}
-              aria-pressed={vista === "lista"}
-            >
-              Lista
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={vista === "mapa" ? "primary" : "secondary"}
-              onClick={() => setVista("mapa")}
-              aria-pressed={vista === "mapa"}
-            >
-              Mapa
-            </Button>
+          {/* `SegmentedControl` y no dos botones: el estado activo se lee por
+              relleno, no solo por color, así que no depende del color para
+              comunicar cuál de las dos vistas está activa. */}
+          <div
+            role="tablist"
+            aria-label="Elegir vista"
+            className="flex shrink-0 gap-0.5 rounded-full bg-surface-sunken p-1"
+          >
+            {(["mapa", "lista"] as const).map((opcion) => (
+              <button
+                key={opcion}
+                type="button"
+                role="tab"
+                aria-selected={vista === opcion}
+                onClick={() => setVista(opcion)}
+                className={cn(
+                  "press inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold transition-colors",
+                  vista === opcion
+                    ? "bg-surface text-ink shadow-e1"
+                    : "text-ink-muted hover:text-ink",
+                )}
+              >
+                {opcion === "mapa" ? <MapTrifold size={15} weight="duotone" /> : null}
+                {opcion === "lista" ? <ListBullets size={15} weight="duotone" /> : null}
+                {opcion === "mapa" ? "Mapa" : "Lista"}
+              </button>
+            ))}
           </div>
-        </div>
+        </SectionToolbar>
       ) : null}
 
       {haBuscado && vista === "mapa" ? (
@@ -348,9 +398,13 @@ export function BuscarClinicaPage() {
           <MapaHibrido
             centro={centroMapa}
             clinicas={clinicasMapa}
-            radioKm={RADIO_KM}
+            /* `alcanceEfectivo` y no el radio fijo: el filtro recorta a
+               `RADIO_KM`, asi que el circulo dibujado puede ser mayor que el
+               area con resultados y sugerir un alcance que no existe. */
+            radioKm={alcanceEfectivo}
             clinicaSeleccionadaId={seleccionada?.id ?? null}
             onSeleccionarClinica={seleccionarDesdeMapa}
+            onResaltarClinica={setIdEnfocada}
             locating={estadoUbicacion === "buscando"}
             onCentrarEnMiUbicacion={pedirUbicacion}
           />
@@ -358,7 +412,7 @@ export function BuscarClinicaPage() {
       ) : null}
 
       {haBuscado && visibles.length > 0 && visibles.every((r) => r.demo) ? (
-        <p className="flex items-start gap-2 rounded-xl border border-dashed border-brand-600/30 bg-brand-50 p-3 text-sm text-ink-soft">
+        <p className="flex items-start gap-2 rounded-tile border border-dashed border-brand-600/30 bg-brand-50 p-3 text-sm text-ink-soft">
           <FloppyDisk size={16} weight="duotone" className="mt-0.5 shrink-0 text-brand-600" />
           <span>
             <strong className="text-ink">Datos de demostración.</strong> No hay clínicas registradas a
@@ -386,36 +440,94 @@ export function BuscarClinicaPage() {
                   ? `No hay clínicas dentro de ${RADIO_KM} km. Probá sin usar la ubicación.`
                   : "No encontramos clínicas con ese criterio."}
               </p>
+              {/* Salida del atasco: sin esto el paciente queda mirando un
+                  vacío sin forma de seguir buscando. */}
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="mt-2"
+                onClick={() => {
+                  if (ubicacion) {
+                    setUbicacion(null);
+                    setEstadoUbicacion("inactiva");
+                  }
+                  setTexto("");
+                  setTermino("");
+                  setHaBuscado(false);
+                }}
+              >
+                {ubicacion ? "Buscar sin ubicación" : "Limpiar búsqueda"}
+              </Button>
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
           {visibles.map(({ clinica, distancia, demo: esDemo }) => (
-            <Card key={clinica.id} className={esDemo ? "border-dashed" : undefined}>
+            /* `tone` sigue la cercanía: la clínica a la que el paciente realmente puede
+       ir es la de menos kilómetros, y el acento lo dice antes de leer el número.
+       `accent` marca además cuál está enfocada en el mapa, para que al pasar
+       de la vista mapa a la lista se sepa dónde estabas mirando. */
+          <Card
+              key={clinica.id}
+              variant={idEnfocada === clinica.id ? "overlay" : "raised"}
+              accent
+              className={cn(
+                esDemo && "border-dashed",
+                distancia != null &&
+                  distancia <= 1 &&
+                  "border-brand-300 bg-brand-50",
+                distancia != null && distancia > 1 && distancia <= 3 && "border-brand-200",
+              )}
+            >
               <CardContent className="flex h-full flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="font-semibold text-ink">{clinica.nombre}</h2>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold break-words text-ink">{clinica.nombre}</h3>
                     {clinica.ciudad ? (
-                      <p className="mt-0.5 flex items-center gap-1 text-sm text-ink-muted">
-                        <MapPin size={14} weight="duotone" /> {clinica.ciudad}
+                      <p className="mt-0.5 flex items-center gap-1 text-sm break-words text-ink-muted">
+                        <MapPin size={14} weight="duotone" className="shrink-0" />{" "}
+                        <span className="break-words">{clinica.ciudad}</span>
                       </p>
                     ) : null}
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-1">
-                    {distancia != null ? <Badge tone="blue">{distancia.toFixed(1)} km</Badge> : null}
+                    {distancia != null ? (
+                      <Badge tone={distancia <= 1 ? "blue" : "neutral"}>
+                        {distancia.toFixed(1)} km
+                      </Badge>
+                    ) : null}
                     {esDemo ? <Badge tone="yellow">Demo</Badge> : null}
                   </div>
                 </div>
 
-                {clinica.direccion ? <p className="text-sm text-ink-soft">{clinica.direccion}</p> : null}
-                {clinica.telefono ? (
-                  <p className="flex items-center gap-1.5 text-sm text-ink-soft">
-                    <Phone size={14} weight="duotone" /> {clinica.telefono}
-                  </p>
+                {clinica.direccion ? (
+                  <p className="text-sm break-words text-ink-soft">{clinica.direccion}</p>
                 ) : null}
+                <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-1">
+                  {clinica.telefono ? (
+                    <a
+                      href={`tel:${clinica.telefono.replace(/\s/g, "")}`}
+                      className="press inline-flex min-h-9 items-center gap-1.5 text-sm text-ink-soft hover:text-brand-600"
+                    >
+                      <Phone size={14} weight="duotone" className="shrink-0" />
+                      {clinica.telefono}
+                    </a>
+                  ) : null}
+                  {/* Ir por calle: `geo:` con destino. Solo cuando hay
+                      coordenadas; sin ellas el botón no llevaría a ningún lado. */}
+                  {clinica.latitud != null && clinica.longitud != null ? (
+                    <a
+                      href={`geo:${clinica.latitud},${clinica.longitud}?q=${encodeURIComponent(clinica.nombre)}`}
+                      className="press inline-flex min-h-9 items-center gap-1.5 text-sm text-ink-soft hover:text-brand-600"
+                    >
+                      <NavigationArrow size={14} weight="duotone" className="shrink-0" />
+                      Cómo llegar
+                    </a>
+                  ) : null}
+                </div>
 
-                <div className="mt-auto pt-2">
+                <div className="mt-2 pt-1">
                   <Button
                     type="button"
                     className="w-full"
@@ -540,7 +652,7 @@ function DialogAfiliacion({
                 id="af-genero"
                 value={datos.genero ?? ""}
                 onChange={(e) => actualizar("genero", e.target.value)}
-                className="h-11 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                className="h-11 w-full rounded-tile border border-line bg-white px-3 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 <option value="">Sin especificar</option>
                 <option value="F">Femenino</option>

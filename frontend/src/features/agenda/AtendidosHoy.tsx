@@ -1,7 +1,9 @@
 ﻿import { useMemo } from "react";
-import { CheckCircle, ArrowUpRight } from "@phosphor-icons/react";
+import { CheckCircle, ArrowUpRight, Clock, XCircle, CalendarBlank } from "@phosphor-icons/react";
 import type { Cita, Paciente } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { SectionStatStrip } from "@/components/ui/section-board";
 import { cn } from "@/lib/cn";
 import {
   atendidasDe,
@@ -78,6 +80,28 @@ export function AtendidosHoy({
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
+        {/* Fila de métricas del día: antes "Atendidos hoy" solo contaba lo
+            atendido, sin decir cuánto quedaba ni si hubo cancelaciones. */}
+        <SectionStatStrip
+          metrics={[
+            { label: "Atendidas", value: stats.atendida, icon: CheckCircle, tone: "green" },
+            {
+              label: "Pendientes",
+              value: stats.reservada + stats.confirmada,
+              icon: Clock,
+              tone: "orange",
+            },
+            { label: "Canceladas", value: stats.cancelada, icon: XCircle, tone: "red" },
+            {
+              label: "Total del día",
+              value: stats.total,
+              icon: CalendarBlank,
+              tone: "brand",
+              destacado: true,
+            },
+          ]}
+        />
+
         {tarjetas.length === 0 ? (
           <p className="rounded-ios-lg bg-black/[0.03] px-4 py-6 text-center text-[13px] text-label-2">
             Ningún paciente ha sido atendido hoy.
@@ -98,14 +122,14 @@ export function AtendidosHoy({
         )}
 
         {siguiente ? (
-          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-ios bg-pastel-blue-bg px-3 py-2 text-[12px] text-pastel-blue-fg">
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-ios bg-brand-50 px-3 py-2 text-[12px] text-brand-700">
             <ArrowUpRight size={13} weight="bold" className="shrink-0" />
             <span className="font-semibold">Sigue:</span>
             <span className="tabular-nums">{formatoHora(siguiente.horaInicio)}</span>
             <span className="truncate">{siguiente.motivoConsulta}</span>
           </p>
         ) : stats.atendida > 0 ? (
-          <p className="rounded-ios bg-[#eaf6ee] px-3 py-2 text-[12px] text-[#2f6b48]">
+          <p className="rounded-ios bg-pastel-green-bg px-3 py-2 text-[12px] text-pastel-green-fg">
             No quedan citas pendientes para hoy.
           </p>
         ) : null}
@@ -133,21 +157,28 @@ function TarjetaAtendido({
       type="button"
       onClick={onIr}
       className={cn(
-        "press flex h-full w-full flex-col gap-1 rounded-ios-lg border border-[#bfe0ca] bg-[#e6f4ea] px-3 py-2.5 text-left",
-        "hover:bg-[#dceee2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
+        "press lift-hover flex h-full w-full flex-col gap-2 rounded-ios-lg border border-pastel-green-fg/20 bg-pastel-green-bg px-3 py-2.5 text-left transition-[filter,box-shadow] duration-150 ease-out",
+        "hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
       )}
     >
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="truncate text-[14px] font-semibold text-[#2f6b48]">{nombre}</span>
-        <span className="shrink-0 text-[11px] font-semibold tabular-nums text-[#2f6b48]/70">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <Avatar nombre={nombre} className="size-7 bg-white/70 text-[10px] text-pastel-green-fg" />
+          <span className="truncate text-[14px] font-semibold text-pastel-green-fg">{nombre}</span>
+        </div>
+        <span className="shrink-0 text-[11px] font-semibold tabular-nums text-pastel-green-fg/70">
           {formatoHora(primera.horaInicio)}
         </span>
       </div>
-      <span className="text-[12px] leading-snug text-[#2f6b48]/85">{primera.motivoConsulta}</span>
-      <span className="text-[11px] text-[#2f6b48]/60">
+      <span className="text-[12px] leading-snug text-pastel-green-fg/85">{primera.motivoConsulta}</span>
+      <span className="flex items-center gap-1.5 text-[11px] text-pastel-green-fg/60">
         {ci ? `CI ${ci} · ` : ""}
         {rango}
-        {citas.length > 1 ? ` · ${citas.length} citas` : ""}
+        {citas.length > 1 ? (
+          <span className="shrink-0 rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-bold text-pastel-green-fg">
+            {citas.length} citas
+          </span>
+        ) : null}
       </span>
     </button>
   );

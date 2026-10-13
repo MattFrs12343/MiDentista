@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
-import { CalendarBlank, IdentificationCard, Phone, EnvelopeSimple } from "@phosphor-icons/react";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { IdentificationCard, UserCircleMinus } from "@phosphor-icons/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/ui/empty-state";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useClinicaData } from "@/data/store";
 import { useAuth } from "@/features/auth/AuthContext";
+import { PatientHero } from "@/features/patients/PatientHero";
 import { PersonalDataTab } from "@/features/patients/PersonalDataTab";
 import { ClinicalHistoryTab } from "@/features/clinical/ClinicalHistoryTab";
 import { OdontogramTab } from "@/features/odontogram/OdontogramTab";
@@ -42,39 +42,17 @@ export function PatientProfilePage() {
   if (!pacienteId) return <Navigate to="/app/pacientes" replace />;
   if (!paciente) {
     return (
-      <div className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-ink-muted">
-        No se encontró este paciente. Puede haber sido eliminado.
-      </div>
+      <EmptyState
+        icon={UserCircleMinus}
+        title="No se encontró este paciente"
+        description="Puede haber sido eliminado. Volvé al listado para elegir otro."
+      />
     );
   }
 
   return (
     <div className="flex flex-col gap-6 fade-in-up">
-      <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Avatar nombre={`${paciente.nombres} ${paciente.apellidos}`} className="h-12 w-12 text-sm" />
-          <div>
-            <p className="text-base font-semibold text-ink">
-              {paciente.nombres} {paciente.apellidos}
-            </p>
-            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
-              <span className="flex items-center gap-1">
-                <IdentificationCard size={13} /> {paciente.ci}
-              </span>
-              <span className="flex items-center gap-1">
-                <CalendarBlank size={13} /> {paciente.fechaNacimiento}
-              </span>
-              <span className="flex items-center gap-1">
-                <Phone size={13} /> {paciente.telefono}
-              </span>
-              <span className="flex items-center gap-1">
-                <EnvelopeSimple size={13} /> {paciente.email}
-              </span>
-            </div>
-          </div>
-        </div>
-        <Badge tone="blue">Paciente activo</Badge>
-      </div>
+      <PatientHero paciente={paciente} />
 
       <Tabs
         value={tabActiva}
@@ -110,9 +88,7 @@ export function PatientProfilePage() {
               odontologoId={miPerfil.id}
             />
           ) : (
-            <p className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-ink-muted">
-              Cargando perfil…
-            </p>
+            <EmptyState size="sm" title="Cargando perfil…" />
           )}
         </TabsContent>
         <TabsContent value="pagos">
@@ -123,9 +99,7 @@ export function PatientProfilePage() {
               registradoPor={puedeCobrar ? miPerfil.id : undefined}
             />
           ) : (
-            <p className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-ink-muted">
-              Cargando perfil…
-            </p>
+            <EmptyState size="sm" title="Cargando perfil…" />
           )}
         </TabsContent>
       </Tabs>

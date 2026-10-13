@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MagnifyingGlass, Plus, UsersThree, CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { MagnifyingGlass, Plus, UsersThree, CaretLeft, CaretRight, Phone, Envelope } from "@phosphor-icons/react";
 import bannerPacientes from "@/assets/banners/banner-pacientes.jpg";
 import { HangingBanner } from "@/components/ui/hanging-banner";
 import { SectionHeroStrip } from "@/components/ui/section-hero";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SectionStatStrip, SectionToolbar } from "@/components/ui/section-board";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -70,8 +71,42 @@ export function PatientsListPage() {
         />
       </HangingBanner>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="relative max-w-sm flex-1">
+      <SectionStatStrip
+        metrics={[
+          {
+            label: "Pacientes registrados",
+            value: pacientes.length,
+            icon: UsersThree,
+            tone: "brand",
+            hint: "en toda la clínica",
+            destacado: true,
+          },
+          {
+            label: "Con teléfono",
+            value: pacientes.filter((p) => p.telefono.trim().length > 0).length,
+            icon: Phone,
+            tone: "teal",
+            hint: "contacto directo",
+          },
+          {
+            label: "Con correo",
+            value: pacientes.filter((p) => p.email.trim().length > 0).length,
+            icon: Envelope,
+            tone: "violet",
+            hint: "para recordatorios",
+          },
+          {
+            label: "Resultados",
+            value: filtrados.length,
+            icon: MagnifyingGlass,
+            tone: "neutral",
+            hint: busqueda.trim() ? `para “${busqueda.trim()}”` : "sin filtro aplicado",
+          },
+        ]}
+      />
+
+      <SectionToolbar>
+        <div className="relative min-w-56 flex-1">
           <MagnifyingGlass
             size={16}
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted"
@@ -80,7 +115,8 @@ export function PatientsListPage() {
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por nombre, CI, teléfono o correo…"
-            className="pl-9"
+            className="border-0 bg-transparent pl-9 shadow-none focus-visible:bg-transparent"
+            aria-label="Buscar pacientes"
           />
         </div>
 
@@ -103,7 +139,7 @@ export function PatientsListPage() {
             />
           </DialogContent>
         </Dialog>
-      </div>
+      </SectionToolbar>
 
       {filtrados.length === 0 ? (
         <EmptyState

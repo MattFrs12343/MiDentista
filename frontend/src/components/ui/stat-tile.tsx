@@ -14,14 +14,23 @@ export type StatTileTone =
   | "violet"
   | "teal";
 
+/**
+ * `blue` y `violet` quedan como alias de la marca, no de los pasteles.
+ *
+ * `pastel-blue-bg` es `#e1f3fe`, un celeste mas saturado y frio que el azul de
+ * la plataforma (`brand-500` `#3d84b8`), y `pastel-violet-bg` es un lila con
+ * base morada que sobre el canvas calido se lee como color ajeno. Ninguno de
+ * los dos pertenece a la identidad. Se conservan los nombres porque otras
+ * vistas los piden por tono de modulo, pero resuelven al azul de marca.
+ */
 const TONE_CHIP: Record<StatTileTone, string> = {
   neutral: "bg-surface-sunken text-ink-muted",
   brand: "bg-brand-50 text-brand-600",
-  blue: "bg-pastel-blue-bg text-pastel-blue-fg",
+  blue: "bg-brand-100 text-brand-700",
   green: "bg-pastel-green-bg text-pastel-green-fg",
   orange: "bg-pastel-yellow-bg text-pastel-yellow-fg",
   red: "bg-pastel-red-bg text-pastel-red-fg",
-  violet: "bg-pastel-violet-bg text-pastel-violet-fg",
+  violet: "bg-brand-50 text-brand-600",
   teal: "bg-brand-50 text-ios-teal",
 };
 
@@ -153,7 +162,10 @@ export function StatTile({
         ) : null}
       </div>
 
-      <p className="text-ios text-[26px] leading-none font-semibold tracking-[-0.02em] text-ink tabular-nums">
+      {/* 26px en escritorio, 22px en móvil: con `leading-none` y dos columnas
+          los cuatro tiles de la fila no dejaban respirar el dígito, y el número
+          es justo lo que el paciente entra a mirar. */}
+      <p className="text-ios text-[22px] leading-none font-semibold tracking-[-0.02em] text-ink tabular-nums sm:text-[26px]">
         {value}
       </p>
 

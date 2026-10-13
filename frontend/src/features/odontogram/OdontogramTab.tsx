@@ -1,9 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ArrowsClockwise, HandTap, Printer, SpinnerGap } from "@phosphor-icons/react";
+import { ArrowsClockwise, HandTap, Printer, SpinnerGap, Tooth, Warning, Prohibit, Cube } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary, TarjetaError } from "@/components/ui/error-boundary";
+import { SectionStatStrip } from "@/components/ui/section-board";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useClinicaData } from "@/data/store";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ToothButton } from "@/features/odontogram/ToothButton";
@@ -99,10 +101,112 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex justify-end">
-        <Button type="button" variant="secondary" onClick={() => window.print()} disabled={!paciente}>
-          <Printer size={15} /> Imprimir
-        </Button>
+      <SectionStatStrip
+        metrics={[
+          {
+            label: "Piezas marcadas",
+            value: piezas.length,
+            icon: Tooth,
+            tone: "teal",
+            hint: "de 32 permanentes",
+            destacado: true,
+          },
+          {
+            label: "A atender",
+            value: piezas.filter((c) => c.condicion === "caries" || c.condicion === "obturado").length,
+            icon: Warning,
+            tone: "red",
+            hint: "caries u obturación",
+          },
+          {
+            label: "Ausentes",
+            value: piezas.filter((c) => c.condicion === "ausente").length,
+            icon: Prohibit,
+            tone: "neutral",
+            hint: "no se pueden editar",
+          },
+          {
+            label: "En edición",
+            value: seleccionada ?? "—",
+            icon: HandTap,
+            tone: "brand",
+            hint: seleccionada !== null ? `pieza ${seleccionada} (FDI)` : "ninguna seleccionada",
+          },
+        ]}
+      />
+
+      {/* La vista 3D encabeza la sección y el editor queda en una columna fija al
+          lado. Antes el editor aparecía debajo del canvas, así que al seleccionar
+          una pieza había que bajar la página para editarla. */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_320px]">
+        <Card className="overflow-hidden">
+          <CardHeader className="border-b">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Cube size={18} weight="duotone" className="text-ios-teal" />
+                  Vista 3D del arco dental
+                </CardTitle>
+                <CardDescription className="flex items-center gap-1.5">
+                  <ArrowsClockwise size={13} /> Arrastra para girar · rueda o +/− para acercar · toca
+                  una pieza para seleccionarla
+                </CardDescription>
+              </div>
+              <Button type="button" variant="secondary" size="sm" onClick={() => window.print()} disabled={!paciente}>
+                <Printer size={15} /> Imprimir
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ErrorBoundary
+              key={intentoVista3d}
+              fallback={
+                autoReintentos.current < MAX_REINTENTOS_AUTO ? (
+                  <ReintentoAutomatico onReintentar={reintentarVista3D} />
+                ) : (
+                  <TarjetaError
+                    mensaje="No se pudo cargar la vista 3D. Puedes seguir trabajando con el odontograma 2D de abajo mientras lo revisamos."
+                    onRetry={reintentarManualVista3D}
+                  />
+                )
+              }
+            >
+              <Suspense
+                fallback={
+                  <div className="flex h-[420px] w-full flex-col items-center justify-center gap-2 bg-brand-100/40">
+                    <SpinnerGap size={28} className="animate-spin text-brand-700" />
+                    <p className="text-sm text-ink-muted">Cargando vista 3D…</p>
+                  </div>
+                }
+              >
+                <DentalArch3D
+                  piezas={piezas}
+                  seleccionada={seleccionada}
+                  onSelect={setSeleccionada}
+                  className="h-[420px] w-full"
+                />
+              </Suspense>
+            </ErrorBoundary>
+          </CardContent>
+        </Card>
+
+        <div className="xl:sticky xl:top-4 xl:self-start">
+          {seleccionada !== null ? (
+            <ToothEditorCard
+              pieza={seleccionada}
+              condicion={condicionDe(seleccionada)}
+              onGuardar={guardarPieza}
+              onCerrar={() => setSeleccionada(null)}
+            />
+          ) : (
+            <EmptyState
+              icon={HandTap}
+              iconTone="brand"
+              title="Ninguna pieza seleccionada"
+              description="Selecciona una pieza en el 3D o en el 2D para ver y editar su condición aquí."
+            />
+          )}
+        </div>
       </div>
 
       <Card>
@@ -134,65 +238,6 @@ export function OdontogramTab({ pacienteId }: { pacienteId: string }) {
           />
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_300px]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Vista 3D del arco dental</CardTitle>
-            <CardDescription className="flex items-center gap-1.5">
-              <ArrowsClockwise size={13} /> Arrastra para girar · rueda o +/− para acercar · toca
-              una pieza para seleccionarla
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ErrorBoundary
-              key={intentoVista3d}
-              fallback={
-                autoReintentos.current < MAX_REINTENTOS_AUTO ? (
-                  <ReintentoAutomatico onReintentar={reintentarVista3D} />
-                ) : (
-                  <TarjetaError
-                    mensaje="No se pudo cargar la vista 3D. Puedes seguir trabajando con el odontograma 2D de arriba mientras lo revisamos."
-                    onRetry={reintentarManualVista3D}
-                  />
-                )
-              }
-            >
-              <Suspense
-                fallback={
-                  <div className="flex h-80 w-full flex-col items-center justify-center gap-2 rounded-xl bg-brand-100/50">
-                    <SpinnerGap size={28} className="animate-spin text-brand-700" />
-                    <p className="text-sm text-ink-muted">Cargando vista 3D…</p>
-                  </div>
-                }
-              >
-                <DentalArch3D
-                  piezas={piezas}
-                  seleccionada={seleccionada}
-                  onSelect={setSeleccionada}
-                  className="h-80 w-full"
-                />
-              </Suspense>
-            </ErrorBoundary>
-          </CardContent>
-        </Card>
-
-        {seleccionada !== null ? (
-          <ToothEditorCard
-            pieza={seleccionada}
-            condicion={condicionDe(seleccionada)}
-            onGuardar={guardarPieza}
-            onCerrar={() => setSeleccionada(null)}
-          />
-        ) : (
-          <Card className="flex flex-col items-center justify-center gap-2 border-dashed p-8 text-center">
-            <HandTap size={22} className="text-ink-muted" />
-            <p className="text-sm text-ink-muted">
-              Selecciona una pieza en el 2D o en el 3D para ver y editar su condición aquí.
-            </p>
-          </Card>
-        )}
-      </div>
 
       <Card>
         <CardHeader>

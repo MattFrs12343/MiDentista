@@ -1,164 +1,192 @@
-import { Link, Navigate } from "react-router-dom";
-import type { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useState } from "react";
 import {
   CalendarBlank,
+  CalendarPlus,
+  ClipboardText,
   FileText,
   MapPin,
   Receipt,
-  SpinnerGap,
   Tooth,
-  WarningCircle,
 } from "@phosphor-icons/react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { SectionStatStrip, type SectionMetric } from "@/components/ui/section-board";
 import { usePortalPaciente } from "@/features/portal-paciente/PortalPacienteContext";
-import { etiquetaEstado, formatearFechaCorta, formatearHora, formatearMoneda, tonoEstado } from "@/features/portal-paciente/portalFormato";
+import { CardAcceso } from "@/features/portal-paciente/CardAcceso";
+import { PortalHero } from "@/features/portal-paciente/PortalHero";
+import { PortalCargando, PortalError } from "@/features/portal-paciente/PortalEstado";
+import { formatearFechaCorta, formatearHora, formatearMoneda } from "@/features/portal-paciente/portalFormato";
 
 export function PortalHomePage() {
   const { ficha, cargando, error, recargar } = usePortalPaciente();
 
-  if (cargando) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <SpinnerGap size={26} className="animate-spin text-ink-soft" />
-      </div>
-    );
-  }
+  /* `hoy` se lee una vez por montaje y antes de cualquier return temprano:
+     `new Date()` durante el render es impuro (lo marca el linter), y el hook
+     tiene que ejecutarse siempre o React se descuadra en el orden de hooks.
+     El dia no cambia dentro de una sesion, asi que el valor es estable. */
+  const [hoy] = useState(() => new Date().toISOString().slice(0, 10));
 
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 p-10 text-center">
-          <WarningCircle size={26} weight="fill" className="text-pastel-red-fg" />
-          <p className="text-sm text-ink-soft">{error}</p>
-          <Button type="button" onClick={() => void recargar()}>
-            Reintentar
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
+  if (cargando) return <PortalCargando />;
+  if (error) return <PortalError mensaje={error} onReintentar={() => void recargar()} />;
 
   if (!ficha) return null;
   if (ficha.sinClinica) return <Navigate to="/portal/buscar" replace />;
 
-  const hoy = new Date().toISOString().slice(0, 10);
   const proximaCita = ficha.citas
     .filter((c) => c.fechaCita >= hoy && (c.estado === "reservada" || c.estado === "confirmada"))
     .sort((a, b) => a.fechaCita.localeCompare(b.fechaCita))[0];
 
+  /* Porcentaje ya pagado, para la barra de la tarjeta de pagos. Se calcula sobre
+     pagado + pendiente y no sobre el total histórico: si el paciente pagó cinco
+     treatments y no debe nada, la barra tiene que decir 100, no 40. Sin saldo
+     pendiente la barra se marca completa explícitamente, porque `0` como avance
+     se lee como "nunca pagó". El mínimo de 3% evita que una barra de 1px
+     desaparezca en las pantallas de alta densidad. */
+  const totalCuenta = ficha.resumen.totalPagado + ficha.resumen.saldoPendiente;
+  const avancePago =
+    ficha.resumen.saldoPendiente === 0
+      ? 100
+      : totalCuenta > 0
+        ? Math.round((ficha.resumen.totalPagado / totalCuenta) * 100)
+        : 0;
+
+  /* La fila de métricas reemplaza a la tarjeta de tres cifras sueltas. El saldo
+     es el número que el paciente busca de verdad, así que va primero y
+     destacado; el resto acompaña en orden de importancia. */
+  const metricas: SectionMetric[] = [
+    {
+      label: "Saldo pendiente",
+      value: formatearMoneda(ficha.resumen.saldoPendiente),
+      icon: Receipt,
+      tone: ficha.resumen.saldoPendiente > 0 ? "orange" : "neutral",
+      hint: ficha.resumen.saldoPendiente > 0 ? "Tenés saldo a pagar" : "Estás al día",
+      destacado: true,
+    },
+    {
+      label: "Próxima cita",
+      value: proximaCita ? formatearFechaCorta(proximaCita.fechaCita) : "—",
+      icon: CalendarBlank,
+      tone: proximaCita ? "blue" : "neutral",
+      hint: proximaCita ? formatearHora(proximaCita.horaInicio) : "No tenés citas próximas",
+    },
+    {
+      label: "Evoluciones",
+      value: ficha.evoluciones.length,
+      icon: FileText,
+      tone: "violet",
+      hint: "Registros en tu historia",
+    },
+    {
+      label: "Tratamientos",
+      value: ficha.planes.length,
+      icon: Tooth,
+      tone: "teal",
+      hint:
+        ficha.diagnosticos.length > 0
+          ? `${ficha.diagnosticos.length} diagnósticos`
+          : "Sin diagnósticos",
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
-          Hola, {ficha.perfil.nombre.split(" ")[0]}
-        </h1>
-        <p className="mt-1 text-sm break-words text-ink-soft">
-          Este es el resumen de tu atención en {ficha.clinica?.nombre}.
-        </p>
-      </div>
+      <PortalHero
+        nombre={ficha.perfil.nombre}
+        clinica={ficha.clinica?.nombre ?? null}
+        ciudad={ficha.clinica?.ciudad ?? null}
+        proximaCita={
+          proximaCita
+            ? {
+                texto: `${formatearFechaCorta(proximaCita.fechaCita)} · ${formatearHora(proximaCita.horaInicio)}`,
+              }
+            : null
+        }
+        saldoPendiente={ficha.resumen.saldoPendiente}
+      />
 
-      {/* una sola columna en movil: cada card a 320px entra sin recortar y sin
-          sumar scroll horizontal */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Card className="min-w-0">
-          <CardContent className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Clínica</p>
-            <p className="mt-1 font-semibold break-words text-ink">{ficha.clinica?.nombre}</p>
-            {ficha.clinica?.ciudad ? (
-              <p className="mt-0.5 flex items-start gap-1 text-sm text-ink-muted">
-                <MapPin size={14} weight="duotone" className="mt-0.5 shrink-0" />{" "}
-                <span className="break-words">{ficha.clinica.ciudad}</span>
-              </p>
-            ) : null}
-          </CardContent>
-        </Card>
+      <SectionStatStrip metrics={metricas} />
 
-        <Card className="min-w-0">
-          <CardContent className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Próxima cita</p>
-            {proximaCita ? (
-              <>
-                <p className="mt-1 font-semibold break-words text-ink">
-                  {formatearFechaCorta(proximaCita.fechaCita)} · {formatearHora(proximaCita.horaInicio)}
-                </p>
-                <Badge tone={tonoEstado(proximaCita.estado)} className="mt-1.5">
-                  {etiquetaEstado(proximaCita.estado)}
-                </Badge>
-              </>
-            ) : (
-              <p className="mt-1 text-sm text-ink-soft">No tenés citas próximas.</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="min-w-0">
-          <CardContent className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Estado de cuenta</p>
-            <p className="mt-1 text-2xl font-semibold tracking-tight break-words text-ink">
-              {formatearMoneda(ficha.resumen.saldoPendiente)}
-            </p>
-            <p className="text-sm text-ink-muted">
-              Saldo pendiente · Pagado {formatearMoneda(ficha.resumen.totalPagado)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="min-w-0">
-          <CardContent className="grid grid-cols-3 gap-1 p-4 text-center sm:p-5 sm:gap-2">
-            <Dato icono={CalendarBlank} valor={ficha.evoluciones.length} etiqueta="Evoluciones" />
-            <Dato icono={Tooth} valor={ficha.diagnosticos.length} etiqueta="Diagnósticos" />
-            <Dato icono={FileText} valor={ficha.planes.length} etiqueta="Tratamientos" />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <AccesoRapido to="/portal/historia" icono={<FileText size={16} weight="duotone" />} texto="Ver mi historia" />
-        <AccesoRapido to="/portal/odontograma" icono={<Tooth size={16} weight="duotone" />} texto="Ver odontograma" />
-        <AccesoRapido to="/portal/pagos" icono={<Receipt size={16} weight="duotone" />} texto="Ver mis pagos" />
-      </div>
+      {/* Accesos directos: lo único que hay bajo la fila de métricas. Antes de este
+          bloque vivían aquí dos tarjetas de consulta ("Tu clínica" y "Resumen de
+          tu atención") que repetían datos que ya están en el hero y en el
+          strip, y ocupaban la pantalla de arriba del todo sin ofrecer ninguna
+          acción. El nombre de la clínica y su ciudad ahora viajan en el subtítulo
+          de la tarjeta "Cambiar de clínica", y las cifras van en el subtítulo de
+          la tarjeta a la que corresponden. */}
+      <section aria-labelledby="accesos" className="flex flex-col gap-3">
+        <h2
+          id="accesos"
+          className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted"
+        >
+          ¿Qué querés hacer?
+        </h2>
+        {/* 3 columnas en escritorio con `auto-rows-fr`: todas las tarjetas de una
+            fila miden lo mismo sin fijar alturas, así que el contenido más largo
+            estira la fila y las demás se emparejan solas. Con `min-h` fijo
+            quedaban altas y con aire sobrante. */}
+        <div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <CardAcceso
+            to="/portal/citas"
+            icono={<CalendarPlus size={20} weight="duotone" />}
+            titulo="Agendar cita"
+            detalle={
+              proximaCita
+                ? `Tu próxima: ${formatearFechaCorta(proximaCita.fechaCita)}`
+                : "Pedí una atención en tu clínica"
+            }
+            variante="cita"
+            destacada
+            badge={proximaCita ? undefined : "Principal"}
+          />
+          <CardAcceso
+            to="/portal/odontograma"
+            icono={<Tooth size={20} weight="duotone" />}
+            titulo="Mi odontograma"
+            detalle={
+              ficha.diagnosticos.length > 0
+                ? `${ficha.diagnosticos.length} diagnósticos · ${ficha.planes.length} tratamientos`
+                : "Estado de cada pieza dental"
+            }
+            variante="odontograma"
+          />
+          <CardAcceso
+            to="/portal/historia"
+            icono={<ClipboardText size={20} weight="duotone" />}
+            titulo="Mi historia"
+            detalle={`${ficha.evoluciones.length} evoluciones registradas`}
+            variante="historia"
+          />
+          <CardAcceso
+            to="/portal/pagos"
+            icono={<Receipt size={20} weight="duotone" />}
+            titulo="Pagos y saldo"
+            detalle={
+              ficha.resumen.saldoPendiente > 0
+                ? `${formatearMoneda(ficha.resumen.saldoPendiente)} pendientes`
+                : `Al día · ${formatearMoneda(ficha.resumen.totalPagado)} pagado`
+            }
+            variante="pagos"
+            avance={avancePago}
+          />
+          <CardAcceso
+            to="/portal/evoluciones"
+            icono={<CalendarBlank size={20} weight="duotone" />}
+            titulo="Evoluciones"
+            detalle="Consultas por fecha y pieza"
+            variante="evoluciones"
+          />
+          <CardAcceso
+            to="/portal/buscar"
+            icono={<MapPin size={20} weight="duotone" />}
+            titulo={ficha.clinica ? "Cambiar de clínica" : "Buscar clínica"}
+            detalle={
+              ficha.clinica
+                ? `${ficha.clinica.nombre}${ficha.clinica.ciudad ? ` · ${ficha.clinica.ciudad}` : ""}`
+                : "Elegí la clínica donde atenderte"
+            }
+            variante="clinica"
+          />
+        </div>
+      </section>
     </div>
-  );
-}
-
-function Dato({
-  icono: Icono,
-  valor,
-  etiqueta,
-}: {
-  icono: typeof CalendarBlank;
-  valor: number;
-  etiqueta: string;
-}) {
-  return (
-    <div className="flex min-w-0 flex-col items-center gap-1 px-0.5">
-      <Icono size={18} weight="duotone" className="shrink-0 text-brand-600" />
-      <span className="text-lg font-semibold text-ink">{valor}</span>
-      <span className="text-[11px] uppercase leading-tight tracking-wide text-balance text-ink-muted">
-        {etiqueta}
-      </span>
-    </div>
-  );
-}
-
-function AccesoRapido({
-  to,
-  icono,
-  texto,
-}: {
-  to: string;
-  icono: ReactNode;
-  texto: string;
-}) {
-  return (
-    <Link
-      to={to}
-      className="press inline-flex h-12 min-w-0 items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-center text-sm font-semibold break-words text-ink transition-colors hover:bg-surface-sunken"
-    >
-      {icono}
-      {texto}
-    </Link>
   );
 }
