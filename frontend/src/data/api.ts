@@ -6,6 +6,7 @@ import { obtenerSupabase } from "@/lib/supabase";
  * (login con bloqueo, invitar/gestionar personal) que no pueden resolverse
  * con una política de RLS porque requieren la service_role key. */
 const FUNCIONES_URL = `${import.meta.env?.VITE_SUPABASE_URL?.trim()}/functions/v1/api`;
+const ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY?.trim();
 
 export interface Clinica {
   id: string;
@@ -70,7 +71,7 @@ async function llamarFuncion<T>(
   accessToken?: string,
   method: "POST" | "GET" = "POST",
 ): Promise<T> {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = { apikey: ANON_KEY ?? "" };
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
 
   const init: RequestInit = { method, headers };
