@@ -135,6 +135,47 @@ export async function listarPersonalApi(): Promise<PerfilAdmin[]> {
   return llamarFuncion<PerfilAdmin[]>("admin/listar", undefined, token, "GET");
 }
 
+/** Alta de una clínica nueva. Única escritura sobre `clinicas` desde la app:
+ * va por la Edge Function porque no hay política RLS de `insert` para esa
+ * tabla a propósito (ver docs/modules/12-gestion-clinica/README.md). */
+export async function crearClinicaApi(datos: {
+  nombre: string;
+  /** Si se omite, el backend lo deriva del nombre. */
+  slug?: string;
+  ciudad?: string;
+  pais?: string;
+  email?: string;
+  telefono?: string;
+  direccion?: string;
+  latitud?: number;
+  longitud?: number;
+}): Promise<Clinica> {
+  const token = await tokenDeSesion();
+  return llamarFuncion<Clinica>("admin/crear-clinica", datos, token);
+}
+
+export interface TablaTamano {
+  tabla: string;
+  bytes: number;
+  legible: string;
+}
+
+export interface TamanoBaseDatos {
+  totalBytes: number;
+  totalLegible: string;
+  /** Las tablas más grandes primero (hasta 8), para ver dónde crece el espacio. */
+  tablas: TablaTamano[];
+}
+
+/** Tamaño actual de Postgres, para el card "Base de datos" del panel. Vía RPC
+ * `security definer` (pg_database_size no la expone PostgREST); pasa por la
+ * Edge Function para que la valide `requerirSuperadmin` igual que el resto
+ * de `/admin/*`. */
+export async function obtenerTamanoBdApi(): Promise<TamanoBaseDatos> {
+  const token = await tokenDeSesion();
+  return llamarFuncion<TamanoBaseDatos>("admin/tamano-bd", undefined, token, "GET");
+}
+
 export async function invitarPersonalApi(datos: {
   email: string;
   nombreCompleto: string;

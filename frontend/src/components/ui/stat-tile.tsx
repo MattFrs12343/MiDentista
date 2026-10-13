@@ -23,14 +23,17 @@ export type StatTileTone =
  * los dos pertenece a la identidad. Se conservan los nombres porque otras
  * vistas los piden por tono de modulo, pero resuelven al azul de marca.
  */
+/* `brand` y `violet` usaban `bg-brand-50 text-brand-600` (~5.3:1, al límite).
+   Mismo par que `blue` (`bg-brand-100 text-brand-700`, ~7:1) para que el chip
+   tenga margen real de contraste. */
 const TONE_CHIP: Record<StatTileTone, string> = {
   neutral: "bg-surface-sunken text-ink-muted",
-  brand: "bg-brand-50 text-brand-600",
+  brand: "bg-brand-100 text-brand-700",
   blue: "bg-brand-100 text-brand-700",
   green: "bg-pastel-green-bg text-pastel-green-fg",
   orange: "bg-pastel-yellow-bg text-pastel-yellow-fg",
   red: "bg-pastel-red-bg text-pastel-red-fg",
-  violet: "bg-brand-50 text-brand-600",
+  violet: "bg-brand-100 text-brand-700",
   teal: "bg-brand-50 text-ios-teal",
 };
 
@@ -108,6 +111,13 @@ export interface StatTileProps extends HTMLAttributes<HTMLDivElement> {
    * elevación solo acompañan, no reemplazan el foco ni el rol.
    */
   interactive?: boolean;
+  /**
+   * Para grillas angostas (3+ columnas en móvil): chip de ícono y tipografía
+   * más chicos. Sin esto, el tamaño pensado para 1-2 columnas no entraba en
+   * una celda de ~100px — el ícono quedaba apretado contra el borde o el
+   * número se cortaba.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -129,6 +139,7 @@ export function StatTile({
   iconWeight = "duotone",
   hint,
   interactive = false,
+  compact = false,
   className,
   children,
   ...props
@@ -141,31 +152,50 @@ export function StatTile({
       role="group"
       aria-label={props["aria-label"] ?? label}
       className={cn(
-        "flex flex-col gap-3 rounded-tile border border-line bg-surface p-4 shadow-e1",
+        "flex flex-col rounded-tile border border-line bg-surface shadow-e1",
+        // `min-[821px]:` y no solo `compact`: a partir de ahí `DashboardPage`
+        // vuelve a su grilla de 4 columnas con aire de sobra, así que el modo
+        // compacto solo hace falta en la franja angosta (ver dashboard.css).
+        compact ? "gap-2 p-2.5 min-[821px]:gap-3 min-[821px]:p-4" : "gap-3 p-4",
         interactive && "lift-hover press-row cursor-pointer transition-shadow duration-150 ease-out",
         className,
       )}
       {...props}
     >
-      <div className="flex items-start justify-between gap-3">
-        <p className="label-ios text-[13px] leading-snug font-medium text-ink-muted">{label}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p
+          className={cn(
+            "label-ios min-w-0 flex-1 leading-snug font-medium text-ink-muted",
+            compact ? "text-[11px] min-[821px]:text-[13px]" : "text-[13px]",
+          )}
+        >
+          {label}
+        </p>
         {Icono ? (
           <span
             aria-hidden="true"
             className={cn(
-              "grid size-9 shrink-0 place-items-center rounded-ios",
+              "grid shrink-0 place-items-center rounded-ios",
+              compact ? "size-6 min-[821px]:size-9" : "size-9",
               TONE_CHIP[iconTone],
             )}
           >
-            <Icono size={18} weight={iconWeight} />
+            <Icono size={compact ? 13 : 18} weight={iconWeight} />
           </span>
         ) : null}
       </div>
 
       {/* 26px en escritorio, 22px en móvil: con `leading-none` y dos columnas
           los cuatro tiles de la fila no dejaban respirar el dígito, y el número
-          es justo lo que el paciente entra a mirar. */}
-      <p className="text-ios text-[22px] leading-none font-semibold tracking-[-0.02em] text-ink tabular-nums sm:text-[26px]">
+          es justo lo que el paciente entra a mirar. En `compact` (grillas de 3+
+          columnas en móvil) ni el tamaño móvil entraba cómodo, de ahí el propio
+          piso más chico en vez de heredar el `sm:`. */}
+      <p
+        className={cn(
+          "text-ios leading-none font-semibold tracking-[-0.02em] text-ink tabular-nums",
+          compact ? "text-[18px] min-[821px]:text-[26px]" : "text-[22px] sm:text-[26px]",
+        )}
+      >
         {value}
       </p>
 
@@ -189,7 +219,16 @@ export function StatTile({
             </span>
           ) : null}
 
-          {hint ? <span className="text-[12px] text-ink-muted">{hint}</span> : null}
+          {hint ? (
+            <span
+              className={cn(
+                "text-ink-muted",
+                compact ? "text-[10px] leading-snug min-[821px]:text-[12px]" : "text-[12px]",
+              )}
+            >
+              {hint}
+            </span>
+          ) : null}
           {children}
         </div>
       ) : null}

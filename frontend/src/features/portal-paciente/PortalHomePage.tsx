@@ -119,11 +119,14 @@ export function PortalHomePage() {
         >
           ¿Qué querés hacer?
         </h2>
-        {/* 3 columnas en escritorio con `auto-rows-fr`: todas las tarjetas de una
-            fila miden lo mismo sin fijar alturas, así que el contenido más largo
-            estira la fila y las demás se emparejan solas. Con `min-h` fijo
-            quedaban altas y con aire sobrante. */}
-        <div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {/* En móvil/tablet (hasta `lg`) la barra inferior ya tiene su botón
+            circular de Menú con las 7 secciones: repetirlas todas acá sería
+            redundante con esa grilla. Por eso solo quedan las dos más
+            frecuentes (agendar y ver el odontograma) a 1 columna, destacadas;
+            el resto se reserva para escritorio, que no tiene Menú y navega
+            por la barra superior. `auto-rows-fr`: todas las tarjetas de una
+            fila miden lo mismo sin fijar alturas. */}
+        <div className="grid auto-rows-fr grid-cols-1 gap-3 lg:grid-cols-3">
           <CardAcceso
             to="/portal/citas"
             icono={<CalendarPlus size={20} weight="duotone" />}
@@ -148,43 +151,49 @@ export function PortalHomePage() {
             }
             variante="odontograma"
           />
-          <CardAcceso
-            to="/portal/historia"
-            icono={<ClipboardText size={20} weight="duotone" />}
-            titulo="Mi historia"
-            detalle={`${ficha.evoluciones.length} evoluciones registradas`}
-            variante="historia"
-          />
-          <CardAcceso
-            to="/portal/pagos"
-            icono={<Receipt size={20} weight="duotone" />}
-            titulo="Pagos y saldo"
-            detalle={
-              ficha.resumen.saldoPendiente > 0
-                ? `${formatearMoneda(ficha.resumen.saldoPendiente)} pendientes`
-                : `Al día · ${formatearMoneda(ficha.resumen.totalPagado)} pagado`
-            }
-            variante="pagos"
-            avance={avancePago}
-          />
-          <CardAcceso
-            to="/portal/evoluciones"
-            icono={<CalendarBlank size={20} weight="duotone" />}
-            titulo="Evoluciones"
-            detalle="Consultas por fecha y pieza"
-            variante="evoluciones"
-          />
-          <CardAcceso
-            to="/portal/buscar"
-            icono={<MapPin size={20} weight="duotone" />}
-            titulo={ficha.clinica ? "Cambiar de clínica" : "Buscar clínica"}
-            detalle={
-              ficha.clinica
-                ? `${ficha.clinica.nombre}${ficha.clinica.ciudad ? ` · ${ficha.clinica.ciudad}` : ""}`
-                : "Elegí la clínica donde atenderte"
-            }
-            variante="clinica"
-          />
+
+          {/* `hidden lg:contents`: en escritorio sus hijos se suman a la
+              misma grilla como si no hubiera wrapper; en móvil/tablet
+              desaparecen del todo (no solo visualmente: no ocupan layout). */}
+          <div className="hidden lg:contents">
+            <CardAcceso
+              to="/portal/historia"
+              icono={<ClipboardText size={20} weight="duotone" />}
+              titulo="Mi historia"
+              detalle={`${ficha.evoluciones.length} evoluciones registradas`}
+              variante="historia"
+            />
+            <CardAcceso
+              to="/portal/pagos"
+              icono={<Receipt size={20} weight="duotone" />}
+              titulo="Pagos y saldo"
+              detalle={
+                ficha.resumen.saldoPendiente > 0
+                  ? `${formatearMoneda(ficha.resumen.saldoPendiente)} pendientes`
+                  : `Al día · ${formatearMoneda(ficha.resumen.totalPagado)} pagado`
+              }
+              variante="pagos"
+              avance={avancePago}
+            />
+            <CardAcceso
+              to="/portal/evoluciones"
+              icono={<CalendarBlank size={20} weight="duotone" />}
+              titulo="Evoluciones"
+              detalle="Consultas por fecha y pieza"
+              variante="evoluciones"
+            />
+            <CardAcceso
+              to="/portal/buscar"
+              icono={<MapPin size={20} weight="duotone" />}
+              titulo={ficha.clinica ? "Cambiar de clínica" : "Buscar clínica"}
+              detalle={
+                ficha.clinica
+                  ? `${ficha.clinica.nombre}${ficha.clinica.ciudad ? ` · ${ficha.clinica.ciudad}` : ""}`
+                  : "Elegí la clínica donde atenderte"
+              }
+              variante="clinica"
+            />
+          </div>
         </div>
       </section>
     </div>

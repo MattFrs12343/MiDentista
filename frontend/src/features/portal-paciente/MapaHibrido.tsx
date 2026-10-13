@@ -22,6 +22,9 @@ export interface MapaHibridoProps {
   locating?: boolean;
   /** Botón "Mi ubicación": recentra el mapa en el paciente. */
   onCentrarEnMiUbicacion?: () => void;
+  /** Clases de alto. Por defecto el recorte chico de siempre; la vista de
+   * onboarding (sin header, mapa de punta a punta) pasa una más alta. */
+  altura?: string;
   className?: string;
 }
 
@@ -45,13 +48,28 @@ const TONE_MARCA = {
 } as const;
 
 /**
- * Fuentes de tiles SIN API key. CARTO y Stadia ya piden clave, así que no se
- * usan: OpenStreetMap para el plano y Esri para el híbrido satelital.
+ * Fuentes de tiles SIN API key, las dos en el mismo host de Esri.
+ *
+ * El plano probó primero el basemap raster clásico de CARTO (Voyager), pero
+ * CARTO empezó a exigir clave también ahí: los tiles seguían devolviendo
+ * `200 OK` con un PNG válido, así que un chequeo por código de estado no lo
+ * detecta — el PNG en sí es el cartel "API KEY REQUIRED". Esri's "Light Gray
+ * Canvas" da el mismo resultado (plano, colores atenuados, estilo app de
+ * viajes) sin ese problema: es el mismo host y el mismo contrato REST que ya
+ * usa el híbrido satelital, que sigue funcionando sin clave. Nativo hasta
+ * zoom 16; pasado eso el servicio devuelve tiles en blanco, de ahí
+ * `maxNativeZoom`.
  */
-const CAPAS: Record<CapaMapa, { url: string; credito: string; etiquetas?: string }> = {
+const CAPAS: Record<
+  CapaMapa,
+  { url: string; credito: string; etiquetas?: string; maxZoomNativo?: number }
+> = {
   plano: {
-    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    credito: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    credito: "&copy; Esri &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS",
+    etiquetas:
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+    maxZoomNativo: 16,
   },
   hibrido: {
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -98,10 +116,63 @@ function posicionarPulso(
   overlay.style.transform = `translate3d(${Math.round(punto.x)}px, ${Math.round(punto.y)}px, 0)`;
 }
 
+/** Cuánto tarda la onda en crecer del centro al radio real antes de reiniciar. */
+const DURACION_ONDA_MS = 2600;
+
+/**
+ * Arranca (o reinicia) el loop de la onda de radar sobre el círculo de
+ * búsqueda: un anillo que crece de 0 al radio real y se desvanece, en bucle,
+ * igual que el "buscando cerca tuyo" de una app de viajes. Cancela cualquier
+ * loop anterior antes de arrancar uno nuevo, así un cambio de centro o de
+ * radio no deja dos animaciones corriendo en paralelo.
+ */
+function animarOnda(
+  ondaRef: { current: L.Circle | null },
+  frameRef: { current: number | null },
+  punto: L.LatLngExpression,
+  radioMetros: number,
+): void {
+  if (frameRef.current !== null) {
+    cancelAnimationFrame(frameRef.current);
+    frameRef.current = null;
+  }
+
+  const onda = ondaRef.current;
+  if (!onda) return;
+
+  onda.setLatLng(punto);
+
+  if (radioMetros <= 0) {
+    onda.setRadius(0).setStyle({ opacity: 0, fillOpacity: 0 });
+    return;
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // Sin animación: un anillo fijo a mitad de camino, para no perder la
+    // señal de "esta es el área de búsqueda" sin depender del movimiento.
+    onda.setRadius(radioMetros * 0.55).setStyle({ opacity: 0.22, fillOpacity: 0.05 });
+    return;
+  }
+
+  let inicio: number | null = null;
+  const paso = (marca: number) => {
+    if (inicio === null) inicio = marca;
+    const progreso = ((marca - inicio) % DURACION_ONDA_MS) / DURACION_ONDA_MS;
+    const desvanecido = 1 - progreso;
+    onda.setRadius(progreso * radioMetros).setStyle({
+      opacity: desvanecido * 0.5,
+      fillOpacity: desvanecido * 0.12,
+    });
+    frameRef.current = requestAnimationFrame(paso);
+  };
+  frameRef.current = requestAnimationFrame(paso);
+}
+
 /**
  * Mapa 2D para buscar clínicas. Sin API key y sin 3D: el usuario elige entre
- * un plano de callejero (OpenStreetMap, con límites y etiquetas) y un híbrido
- * de imagen satelital con los límites geográficos superpuestos (Esri).
+ * un plano de callejero estilo "app de viajes" (Esri Light Gray Canvas,
+ * colores atenuados y legibles en pantallas chicas) y un híbrido de imagen
+ * satelital con los límites geográficos superpuestos (también Esri).
  * Leaflet se usa en modo "vanilla" (refs + efectos), sin react-leaflet.
  */
 export function MapaHibrido({
@@ -113,11 +184,14 @@ export function MapaHibrido({
   onResaltarClinica,
   locating = false,
   onCentrarEnMiUbicacion,
+  altura = "h-[320px] sm:h-[420px] md:h-[480px]",
   className = "",
 }: MapaHibridoProps) {
   const contenedorRef = useRef<HTMLDivElement>(null);
   const mapaRef = useRef<L.Map | null>(null);
   const radioRef = useRef<L.Circle | null>(null);
+  const ondaRef = useRef<L.Circle | null>(null);
+  const ondaFrameRef = useRef<number | null>(null);
   const usuarioRef = useRef<L.CircleMarker | null>(null);
   const capaRef = useRef<L.LayerGroup | null>(null);
   const baseRef = useRef<L.TileLayer | null>(null);
@@ -133,14 +207,22 @@ export function MapaHibrido({
 
     const mapa = L.map(contenedor, {
       attributionControl: true,
-      zoomControl: true,
+      // Sin botones +/-: igual que las apps de viajes en el celular, el mapa
+      // se maneja a pellizcos y con doble tap. Sin ellos el mobile queda
+      // limpio y los controles propios (capas, ubicarme) no compiten por
+      // espacio con la cruz de zoom de Leaflet.
+      zoomControl: false,
       minZoom: 2,
       maxZoom: 19,
     });
     mapaRef.current = mapa;
+    // La atribución por defecto va abajo a la derecha, el mismo rincón que
+    // "ubicarme": se mueve a la izquierda para que no se pisen.
+    mapa.attributionControl.setPosition("bottomleft");
 
     baseRef.current = L.tileLayer(CAPAS[capa].url, {
       maxZoom: 19,
+      maxNativeZoom: CAPAS[capa].maxZoomNativo,
       attribution: CAPAS[capa].credito,
     }).addTo(mapa);
 
@@ -160,6 +242,24 @@ export function MapaHibrido({
       fillColor: TONE_MARCA.relleno,
       fillOpacity: 0.1,
       interactive: false,
+      className: "mapa-hibrido-radio",
+    }).addTo(mapa);
+
+    /* Onda de radar, al estilo "buscando cerca tuyo" de las apps de viajes:
+       un círculo propio que crece de 0 hasta el radio real y se desvanece, en
+       loop. Es un layer de Leaflet con radio geográfico (no un overlay HTML
+       como el bombeo del punto del paciente), a propósito: así, al hacer zoom
+       o pan a mitad de la animación, sigue representando el área real en vez
+       de desalinearse como lo haría una animación en píxeles. */
+    ondaRef.current = L.circle(puntoInicial, {
+      radius: 0,
+      color: TONE_MARCA.borde,
+      weight: 1.5,
+      fillColor: TONE_MARCA.relleno,
+      fillOpacity: 0,
+      opacity: 0,
+      interactive: false,
+      className: "mapa-hibrido-onda",
     }).addTo(mapa);
 
     // El punto del paciente solo existe cuando conocemos su ubicación. Va en
@@ -194,9 +294,12 @@ export function MapaHibrido({
     return () => {
       observador.disconnect();
       mapa.off("move zoom resize", posicionar);
+      if (ondaFrameRef.current !== null) cancelAnimationFrame(ondaFrameRef.current);
       mapa.remove();
       mapaRef.current = null;
       radioRef.current = null;
+      ondaRef.current = null;
+      ondaFrameRef.current = null;
       usuarioRef.current = null;
       capaRef.current = null;
       baseRef.current = null;
@@ -215,15 +318,24 @@ export function MapaHibrido({
 
     base.setUrl(CAPAS[capa].url);
     base.options.attribution = CAPAS[capa].credito;
+    // `setUrl` solo cambia la plantilla de URL: `maxNativeZoom` hay que
+    // pisarlo a mano en las opciones (Leaflet lo relee en cada tile), si no
+    // la capa que sí tiene zoom nativo completo (el satelital) se queda con
+    // el límite de 16 que necesita el plano.
+    base.options.maxNativeZoom = CAPAS[capa].maxZoomNativo;
 
     const urlEtiquetas = CAPAS[capa].etiquetas;
     if (urlEtiquetas) {
       if (!etiquetasRef.current) {
         // Se agrega después de la base, así los límites y rótulos quedan por encima
         // de la imagen pero por debajo de los marcadores (overlayPane).
-        etiquetasRef.current = L.tileLayer(urlEtiquetas, { maxZoom: 19 });
+        etiquetasRef.current = L.tileLayer(urlEtiquetas, {
+          maxZoom: 19,
+          maxNativeZoom: CAPAS[capa].maxZoomNativo,
+        });
       } else {
         etiquetasRef.current.setUrl(urlEtiquetas);
+        etiquetasRef.current.options.maxNativeZoom = CAPAS[capa].maxZoomNativo;
       }
       if (!mapa.hasLayer(etiquetasRef.current)) etiquetasRef.current.addTo(mapa);
     } else if (etiquetasRef.current && mapa.hasLayer(etiquetasRef.current)) {
@@ -243,10 +355,12 @@ export function MapaHibrido({
       radioRef.current.setLatLng(punto).setRadius(radioKm * 1000);
       usuarioRef.current.setLatLng(punto).addTo(mapa);
       mapa.panTo(punto, { animate: true, duration: 0.25 });
+      animarOnda(ondaRef, ondaFrameRef, punto, radioKm * 1000);
     } else {
-      // Sin ubicación: sin círculo de radio y sin punto del paciente.
+      // Sin ubicación: sin círculo de radio, sin punto del paciente y sin onda.
       radioRef.current.setRadius(0);
       mapa.removeLayer(usuarioRef.current);
+      animarOnda(ondaRef, ondaFrameRef, radioRef.current.getLatLng(), 0);
     }
 
     // El punto pudo cambiar de lugar o desaparecer, así que el overlay de
@@ -285,8 +399,14 @@ export function MapaHibrido({
   }, [clinicas, clinicaSeleccionadaId, onSeleccionarClinica, onResaltarClinica]);
 
   return (
+    // `isolate`: los controles propios (selector de capas, "ubicarme") usan
+    // z-index altos (500+) para ganarle a los panes internos de Leaflet, que
+    // también llegan a esos valores. Sin `isolate` ese z-index no queda
+    // contenido acá adentro — compite directo contra el resto de la app (p.
+    // ej. la barra de herramientas del portal, z-50) y le gana aunque esté
+    // muy por debajo en el documento, pintándose encima de ella.
     <div
-      className={`mapa-hibrido relative w-full overflow-hidden rounded-2xl border border-line bg-surface-sunken h-[320px] sm:h-[420px] md:h-[480px] ${className}`}
+      className={`mapa-hibrido relative isolate w-full overflow-hidden rounded-2xl border border-line bg-surface-sunken ${altura} ${capa === "plano" ? "mapa-hibrido-plano" : ""} ${className}`}
     >
       <div ref={contenedorRef} className="relative h-full w-full">
         <div
@@ -304,15 +424,17 @@ export function MapaHibrido({
         </div>
       </div>
 
-      <div className="absolute right-2.5 top-2.5 z-[500] flex overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+      {/* Pill flotante estilo app de viajes: opaca, sombra amplia, sin bordes
+          duros. 44px de alto por segmento para que el pulgar no falle. */}
+      <div className="absolute right-3 top-3 z-[500] flex overflow-hidden rounded-full bg-surface shadow-e2">
         {(["plano", "hibrido"] as const).map((id) => (
           <button
             key={id}
             type="button"
             onClick={() => setCapa(id)}
             aria-pressed={capa === id}
-            className={`px-2.5 py-1.5 text-xs font-medium capitalize transition-colors ${
-              capa === id ? "bg-brand-600 text-white" : "bg-white text-ink-soft hover:bg-brand-50"
+            className={`min-h-11 px-4 text-xs font-semibold capitalize transition-colors ${
+              capa === id ? "bg-brand-600 text-white" : "bg-surface text-ink-soft hover:bg-surface-sunken"
             }`}
           >
             {id}
@@ -328,7 +450,7 @@ export function MapaHibrido({
           aria-busy={locating}
           aria-label={locating ? "Buscando tu ubicación" : "Posicionarme en el mapa"}
           title={locating ? "Buscando tu ubicación" : "Posicionarme en el mapa"}
-          className="absolute bottom-8 right-3 z-[500] flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-brand-700 shadow-md transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:cursor-progress disabled:opacity-90"
+          className="absolute bottom-3 right-3 z-[500] flex size-12 items-center justify-center rounded-full bg-surface text-brand-700 shadow-e2 transition-transform duration-150 ease-out hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 active:scale-90 disabled:cursor-progress disabled:opacity-90"
         >
           {locating ? (
             <SpinnerGap size={20} className="animate-spin" />
@@ -342,6 +464,16 @@ export function MapaHibrido({
         .mapa-hibrido .leaflet-container { font: inherit; }
         .mapa-hibrido .leaflet-popup-content-wrapper { border-radius: 0.75rem; }
         .mapa-hibrido .leaflet-tooltip { border-radius: 0.5rem; padding: 4px 8px; }
+
+        /* El Light Gray Canvas de Esri es gris neutro de fábrica. Un filtro
+           le da el mismo tinte cálido que el resto de la app (el canvas de
+           fondo es un blanco cálido, no un gris frío): nunca toca el
+           satelital ("hibrido"), que necesita sus colores reales. Valores
+           suaves a propósito: es un filtro de CSS a ciegas sobre tiles de
+           terceros, no un estilo propio, así que no busca un tinte fuerte. */
+        .mapa-hibrido-plano .leaflet-tile-pane {
+          filter: sepia(22%) saturate(130%) brightness(1.01);
+        }
 
         /* Efecto de bombeo: overlay HTML anclado al punto del paciente. */
         .mapa-hibrido-pulso {

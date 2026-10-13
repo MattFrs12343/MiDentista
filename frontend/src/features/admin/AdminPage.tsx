@@ -1,4 +1,5 @@
-﻿import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import type { Icon } from "@phosphor-icons/react";
 import {
   Plus,
   ShieldCheck,
@@ -10,38 +11,86 @@ import {
   XCircle,
   Trash,
   LockKey,
+  UsersThree,
+  Clock,
+  Buildings,
+  CaretDown,
+  MapPin,
+  Database,
 } from "@phosphor-icons/react";
+import { Avatar } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SectionStatStrip, type SectionMetric } from "@/components/ui/section-board";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useAuth, ROLE_LABEL } from "@/features/auth/AuthContext";
 import {
   ApiError,
   listarClinicas,
   listarPersonalApi,
+  crearClinicaApi,
   invitarPersonalApi,
   reenviarInvitacionApi,
   cancelarInvitacionApi,
   eliminarPersonalApi,
   restablecerContrasenaPersonalApi,
+  obtenerTamanoBdApi,
   type Clinica,
   type PerfilAdmin,
+  type TamanoBaseDatos,
 } from "@/data/api";
 import type { Role } from "@/types";
 
 const ROLES_INVITABLES: Role[] = ["odontologo", "recepcionista", "superadmin"];
-const ACCION_BTN =
-  "rounded-md p-1.5 text-ink-muted transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:pointer-events-none disabled:opacity-40";
+
+/** Acción de la tarjeta móvil: 44px de alto, con su texto y no solo el
+ * ícono — mismo patrón que `PatientsTable`. */
+function BotonAccionMovil({
+  icono: Icono,
+  etiqueta,
+  sr,
+  onClick,
+  peligro = false,
+  disabled = false,
+  girando = false,
+}: {
+  icono: Icon;
+  etiqueta: string;
+  sr: string;
+  onClick: () => void;
+  peligro?: boolean;
+  disabled?: boolean;
+  girando?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={sr}
+      disabled={disabled || girando}
+      onClick={onClick}
+      className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-ios px-2 text-[13px] font-medium transition-colors duration-150 disabled:pointer-events-none disabled:opacity-40 ${
+        peligro
+          ? "text-pastel-red-fg hover:bg-pastel-red-bg"
+          : "text-ink-soft hover:bg-surface-sunken hover:text-ink"
+      }`}
+    >
+      <Icono size={16} weight="bold" aria-hidden className={girando ? "animate-spin" : undefined} />
+      {etiqueta}
+    </button>
+  );
+}
 
 export function AdminPage() {
   usePageHeader({
     title: "Administración",
-    subtitle: "Personal de todas las clínicas e invitaciones",
+    subtitle: "Clínicas, personal e invitaciones",
     icon: ShieldCheck,
     tone: "violet",
   });
@@ -53,6 +102,13 @@ export function AdminPage() {
   const [clinicas, setClinicas] = useState<Clinica[]>([]);
   const [cargando, setCargando] = useState(true);
   const [errorLista, setErrorLista] = useState<string | null>(null);
+  const [invitarAbierto, setInvitarAbierto] = useState(false);
+  const [crearClinicaAbierto, setCrearClinicaAbierto] = useState(false);
+
+  // Aparte de `cargar()`: si el RPC de tamaño falla (p. ej. todavía no se
+  // corrió la migración en la base), el resto del panel sigue funcionando.
+  const [tamanoBd, setTamanoBd] = useState<TamanoBaseDatos | null>(null);
+  const [cargandoTamano, setCargandoTamano] = useState(true);
 
   const cargar = () => {
     setCargando(true);
@@ -66,62 +122,524 @@ export function AdminPage() {
       .finally(() => setCargando(false));
   };
 
+  const cargarTamano = () => {
+    setCargandoTamano(true);
+    obtenerTamanoBdApi()
+      .then(setTamanoBd)
+      .catch(() => setTamanoBd(null))
+      .finally(() => setCargandoTamano(false));
+  };
+
   useEffect(() => {
-    if (correo) cargar();
+    if (correo) {
+      cargar();
+      cargarTamano();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [correo]);
 
+  // El superadmin no pertenece a ninguna clínica: va aparte, no dentro de
+  // ninguna `ClinicaCard`. El resto se agrupa por `clinicaSlug` para que cada
+  // tarjeta de clínica muestre solo su propio personal.
+  const administradores = useMemo(() => personal.filter((p) => p.rol === "superadmin"), [personal]);
+  const personalPorClinica = useMemo(() => {
+    const mapa = new Map<string, PerfilAdmin[]>();
+    for (const p of personal) {
+      if (!p.clinicaSlug) continue;
+      const lista = mapa.get(p.clinicaSlug) ?? [];
+      lista.push(p);
+      mapa.set(p.clinicaSlug, lista);
+    }
+    return mapa;
+  }, [personal]);
+
+  /* Lo primero que un superadmin quiere saber al entrar: cuántas clínicas
+     hay, cuánto personal en total, cuántas invitaciones siguen sin aceptar
+     (algo para seguir), y cuánto espacio ocupa la base (para no quedarse
+     con esa lectura solo en el detalle de más abajo). Son 4 a propósito:
+     en la grilla de la tira (2 columnas en móvil, 4 en escritorio) 3
+     métricas dejan un hueco al final. */
+  const metricas: SectionMetric[] = useMemo(() => {
+    const pendientes = personal.filter((p) => p.invitacionPendiente).length;
+    return [
+      {
+        label: "Clínicas",
+        value: clinicas.length,
+        icon: Buildings,
+        tone: "violet",
+        hint: "Activas",
+        destacado: true,
+      },
+      {
+        label: "Personal total",
+        value: personal.length,
+        icon: UsersThree,
+        tone: "blue",
+        hint: "Todas las clínicas",
+      },
+      {
+        label: "Invitaciones pendientes",
+        value: pendientes,
+        icon: Clock,
+        tone: pendientes > 0 ? "orange" : "neutral",
+        hint: pendientes > 0 ? "Todavía no aceptaron" : "Al día",
+      },
+      {
+        label: "Tamaño de la base",
+        value: tamanoBd?.totalLegible ?? (cargandoTamano ? "…" : "—"),
+        icon: Database,
+        tone: "teal",
+        hint: "Postgres, en vivo",
+      },
+    ];
+  }, [personal, clinicas, tamanoBd, cargandoTamano]);
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex min-w-0 justify-end">
-        <InvitarDialog clinicas={clinicas} onInvitado={cargar} />
-      </div>
+      {!cargando && !errorLista ? <SectionStatStrip metrics={metricas} className="fade-in-up" /> : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal</CardTitle>
-          <CardDescription>Odontólogos, recepcionistas y administradores de todas las clínicas</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {cargando ? (
-            <div className="flex items-center gap-2 py-6 text-sm text-ink-muted">
-              <SpinnerGap size={16} className="animate-spin" /> Cargando…
+      <TarjetaBaseDatos datos={tamanoBd} cargando={cargandoTamano} />
+
+      {cargando ? (
+        <div className="flex items-center gap-2 py-6 text-sm text-ink-muted">
+          <SpinnerGap size={16} className="animate-spin" /> Cargando…
+        </div>
+      ) : errorLista ? (
+        <p className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg">
+          <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
+          <span>{errorLista}</span>
+        </p>
+      ) : (
+        // Pestañas en vez de dos secciones apiladas: clínicas y administradores
+        // son dos espacios con su propia acción principal (crear clínica /
+        // invitar administrador) y no deberían competir por el mismo lugar en
+        // pantalla ni mezclarse en una sola lista.
+        <Tabs defaultValue="clinicas" className="flex flex-col gap-4">
+          <TabsList>
+            <TabsTrigger value="clinicas">
+              Clínicas{clinicas.length > 0 ? ` (${clinicas.length})` : ""}
+            </TabsTrigger>
+            <TabsTrigger value="administradores">
+              Administradores{administradores.length > 0 ? ` (${administradores.length})` : ""}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="clinicas" className="flex flex-col gap-4">
+            <div className="flex items-center justify-end">
+              <Button type="button" onClick={() => setCrearClinicaAbierto(true)}>
+                <Plus size={16} weight="bold" /> Crear clínica
+              </Button>
             </div>
-          ) : errorLista ? (
-            <p className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg">
-              <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
-              <span>{errorLista}</span>
-            </p>
-          ) : personal.length === 0 ? (
-            <p className="py-6 text-sm text-ink-muted">Todavía no hay personal registrado.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[48rem] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-line bg-surface-sunken text-xs uppercase tracking-wide text-ink-muted">
-                    <th className="px-5 py-3 font-semibold">Nombre</th>
-                    <th className="px-5 py-3 font-semibold">Correo</th>
-                    <th className="px-5 py-3 font-semibold">Rol</th>
-                    <th className="px-5 py-3 font-semibold">Clínica</th>
-                    <th className="px-5 py-3 font-semibold">Estado</th>
-                    <th className="px-5 py-3 font-semibold text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
-                  {personal.map((p) => (
-                    <FilaPersonal key={p.id} perfil={p} esPropio={p.email === correo} onCambio={cargar} />
+
+            {clinicas.length === 0 ? (
+              <EmptyState
+                size="sm"
+                icon={Buildings}
+                iconTone="brand"
+                title="Todavía no hay clínicas"
+                description="Creá la primera clínica para poder invitar a su personal."
+                actionLabel="Crear clínica"
+                onAction={() => setCrearClinicaAbierto(true)}
+              />
+            ) : (
+              <div className="flex flex-col gap-3">
+                {clinicas.map((c) => (
+                  <ClinicaCard
+                    key={c.id}
+                    clinica={c}
+                    personal={personalPorClinica.get(c.slug) ?? []}
+                    correoPropio={correo}
+                    onCambio={cargar}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="administradores" className="flex flex-col gap-4">
+            <div className="flex items-center justify-end">
+              <Button type="button" variant="secondary" onClick={() => setInvitarAbierto(true)}>
+                <Envelope size={16} weight="bold" /> Invitar administrador
+              </Button>
+            </div>
+
+            {administradores.length === 0 ? (
+              <EmptyState
+                size="sm"
+                icon={ShieldCheck}
+                iconTone="brand"
+                title="Todavía no hay otros administradores"
+                description="Invitá a alguien más para que audite el sistema junto con vos."
+                actionLabel="Invitar administrador"
+                onAction={() => setInvitarAbierto(true)}
+              />
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Administradores</CardTitle>
+                  <CardDescription>Auditan el sistema entero: no pertenecen a ninguna clínica.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-2">
+                  {administradores.map((p) => (
+                    <TarjetaPersonal key={p.id} perfil={p} esPropio={p.email === correo} onCambio={cargar} />
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+
+      <InvitarDialog open={invitarAbierto} onOpenChange={setInvitarAbierto} clinicas={clinicas} onInvitado={cargar} />
+      <CrearClinicaDialog open={crearClinicaAbierto} onOpenChange={setCrearClinicaAbierto} onCreada={cargar} />
     </div>
   );
 }
 
-function FilaPersonal({
+/**
+ * Tamaño actual de Postgres: el total y, debajo, las tablas que más espacio
+ * ocupan con una barra relativa al tamaño de la más grande — para ver de un
+ * vistazo dónde está creciendo la base, no solo un número suelto. Se
+ * actualiza solo (nueva consulta cada vez que se entra al panel), no es un
+ * valor fijo.
+ */
+function TarjetaBaseDatos({ datos, cargando }: { datos: TamanoBaseDatos | null; cargando: boolean }) {
+  if (cargando) {
+    return (
+      <Card className="fade-in-up">
+        <CardContent className="flex items-center gap-2 py-4 text-sm text-ink-muted">
+          <SpinnerGap size={16} className="animate-spin" /> Calculando el tamaño de la base…
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Si el RPC todavía no existe en la base (falta correr la migración) no
+  // rompemos el panel: simplemente no se muestra la tarjeta.
+  if (!datos) return null;
+
+  const mayor = datos.tablas[0]?.bytes || 1;
+
+  return (
+    <Card className="fade-in-up">
+      <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-tile bg-brand-100 text-brand-700">
+            <Database size={20} weight="duotone" />
+          </span>
+          <div>
+            <CardTitle>Base de datos</CardTitle>
+            <CardDescription>Espacio ocupado en Postgres, en vivo.</CardDescription>
+          </div>
+        </div>
+        <p className="text-right text-[22px] font-semibold tabular-nums text-ink">{datos.totalLegible}</p>
+      </CardHeader>
+
+      {datos.tablas.length > 0 ? (
+        <CardContent className="flex flex-col gap-2.5 pt-0">
+          {datos.tablas.map((t) => (
+            <div key={t.tabla} className="flex items-center gap-3">
+              <span className="w-36 shrink-0 truncate text-xs text-ink-soft sm:w-44">{t.tabla}</span>
+              <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-sunken">
+                <span
+                  className="block h-full rounded-full bg-brand-500"
+                  style={{ width: `${Math.max(4, Math.round((t.bytes / mayor) * 100))}%` }}
+                />
+              </span>
+              <span className="w-14 shrink-0 text-right text-xs tabular-nums text-ink-muted">{t.legible}</span>
+            </div>
+          ))}
+        </CardContent>
+      ) : null}
+    </Card>
+  );
+}
+
+/**
+ * Una clínica, expandible: el encabezado siempre visible (nombre, ciudad,
+ * cuánto personal tiene) y, al tocarlo, su roster completo + el botón para
+ * invitar a alguien puntualmente a esa clínica. Es el reemplazo directo del
+ * viejo listado plano de "Personal": ahora cada cuenta vive donde pertenece,
+ * no en una tabla única con una columna de clínica.
+ */
+function ClinicaCard({
+  clinica,
+  personal,
+  correoPropio,
+  onCambio,
+}: {
+  clinica: Clinica;
+  personal: PerfilAdmin[];
+  correoPropio: string;
+  onCambio: () => void;
+}) {
+  const [abierta, setAbierta] = useState(false);
+  const [invitarAbierto, setInvitarAbierto] = useState(false);
+  const pendientes = personal.filter((p) => p.invitacionPendiente).length;
+
+  return (
+    <Card className="overflow-hidden p-0">
+      <button
+        type="button"
+        onClick={() => setAbierta((v) => !v)}
+        aria-expanded={abierta}
+        className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
+      >
+        <span className="grid size-10 shrink-0 place-items-center rounded-tile bg-brand-100 text-brand-700">
+          <Buildings size={20} weight="duotone" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-ink">{clinica.nombre}</p>
+          <p className="truncate text-xs text-ink-muted">
+            {clinica.ciudad ?? "Sin ciudad"} · {personal.length} {personal.length === 1 ? "persona" : "personas"}
+            {pendientes > 0 ? ` · ${pendientes} pendiente${pendientes === 1 ? "" : "s"}` : ""}
+          </p>
+        </div>
+        <CaretDown
+          size={18}
+          weight="bold"
+          aria-hidden
+          className={`shrink-0 text-ink-muted transition-transform duration-150 ${abierta ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {abierta ? (
+        <div className="flex flex-col gap-4 border-t border-line p-4">
+          {clinica.direccion || clinica.telefono || clinica.email ? (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 rounded-tile bg-surface-sunken/60 px-3.5 py-3 text-xs text-ink-soft">
+              {clinica.direccion ? (
+                <span className="flex items-center gap-1">
+                  <MapPin size={13} weight="duotone" className="shrink-0 text-ink-muted" /> {clinica.direccion}
+                </span>
+              ) : null}
+              {clinica.telefono ? <span>{clinica.telefono}</span> : null}
+              {clinica.email ? <span>{clinica.email}</span> : null}
+            </div>
+          ) : null}
+
+          <div className="flex flex-col gap-2.5">
+            <p className="label-ios px-0.5 text-[11px] font-medium text-ink-muted">
+              Personal · {personal.length}
+            </p>
+            {personal.length === 0 ? (
+              <p className="px-1 py-4 text-center text-sm text-ink-muted">Todavía no hay personal en esta clínica.</p>
+            ) : (
+              personal.map((p) => (
+                <TarjetaPersonal key={p.id} perfil={p} esPropio={p.email === correoPropio} onCambio={onCambio} />
+              ))
+            )}
+          </div>
+
+          <div className="border-t border-line pt-3">
+            <Button type="button" variant="secondary" className="w-full" onClick={() => setInvitarAbierto(true)}>
+              <Plus size={16} weight="bold" /> Invitar a {clinica.nombre}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      <InvitarDialog
+        open={invitarAbierto}
+        onOpenChange={setInvitarAbierto}
+        clinicas={[clinica]}
+        clinicaFija={{ id: clinica.id, nombre: clinica.nombre }}
+        onInvitado={onCambio}
+      />
+    </Card>
+  );
+}
+
+function CrearClinicaDialog({
+  open,
+  onOpenChange,
+  onCreada,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreada: () => void;
+}) {
+  const [nombre, setNombre] = useState("");
+  const [ciudad, setCiudad] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [email, setEmail] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [creada, setCreada] = useState<Clinica | null>(null);
+
+  const resetear = () => {
+    setNombre("");
+    setCiudad("");
+    setDireccion("");
+    setTelefono("");
+    setEmail("");
+    setCargando(false);
+    setError(null);
+    setCreada(null);
+  };
+
+  const handleOpenChange = (abierto: boolean) => {
+    onOpenChange(abierto);
+    if (!abierto) resetear();
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (cargando) return;
+    setError(null);
+    setCargando(true);
+    try {
+      const nueva = await crearClinicaApi({
+        nombre: nombre.trim(),
+        ciudad: ciudad.trim() || undefined,
+        direccion: direccion.trim() || undefined,
+        telefono: telefono.trim() || undefined,
+        email: email.trim() || undefined,
+      });
+      setCreada(nueva);
+      setCargando(false);
+      onCreada();
+    } catch (fallo) {
+      setCargando(false);
+      setError(fallo instanceof ApiError ? fallo.message : "No se pudo crear la clínica");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        title="Crear clínica"
+        description={creada ? undefined : "Después vas a poder invitar a su personal desde su propia tarjeta."}
+      >
+        {creada ? (
+          <div className="flex flex-col items-center gap-4 py-2 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-pastel-green-bg text-pastel-green-fg">
+              <CheckCircle size={26} weight="fill" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-ink">{creada.nombre} creada</p>
+              <p className="mt-1 text-sm text-ink-muted">
+                Ya aparece en la lista de clínicas — abrí su tarjeta para invitar a su primer odontólogo o
+                recepcionista.
+              </p>
+            </div>
+            <Button type="button" onClick={() => handleOpenChange(false)} className="w-full">
+              Listo
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <Field label="Nombre de la clínica" htmlFor="clinica-nombre">
+              <Input
+                id="clinica-nombre"
+                required
+                autoFocus
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Dental Dos Santos"
+              />
+            </Field>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Field label="Ciudad (opcional)" htmlFor="clinica-ciudad">
+                <Input id="clinica-ciudad" value={ciudad} onChange={(e) => setCiudad(e.target.value)} placeholder="La Paz" />
+              </Field>
+              <Field label="Teléfono (opcional)" htmlFor="clinica-telefono">
+                <Input id="clinica-telefono" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+591 2 2345678" />
+              </Field>
+            </div>
+
+            <Field label="Dirección (opcional)" htmlFor="clinica-direccion">
+              <Input id="clinica-direccion" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Av. 6 de Agosto Nº 2240" />
+            </Field>
+
+            <Field label="Correo (opcional)" htmlFor="clinica-email">
+              <Input
+                id="clinica-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="contacto@clinica.com"
+              />
+            </Field>
+
+            <p className="-mt-1 text-xs text-ink-muted">
+              El identificador de la clínica (slug) se genera solo a partir del nombre. Las coordenadas para que
+              aparezca en el buscador del portal del paciente se pueden cargar después, directo en la base.
+            </p>
+
+            {error && (
+              <p
+                role="alert"
+                className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg"
+              >
+                <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
+                <span>{error}</span>
+              </p>
+            )}
+
+            <Button type="submit" disabled={cargando} className="w-full">
+              {cargando ? (
+                <>
+                  <SpinnerGap size={16} className="animate-spin" /> Creando…
+                </>
+              ) : (
+                <>
+                  <Plus size={16} weight="bold" /> Crear clínica
+                </>
+              )}
+            </Button>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * Una cuenta de personal: avatar + nombre + correo, el rol (y la
+ * especialidad, si la tiene) como dato secundario — ya no repite la clínica,
+ * porque esta tarjeta siempre vive dentro de la `ClinicaCard` a la que
+ * pertenece (o dentro de "Administradores", donde la clínica es siempre
+ * "ninguna"). Botones de 44px con su texto, no solo el ícono.
+ */
+function TarjetaPersonal({
+  perfil,
+  esPropio,
+  onCambio,
+}: {
+  perfil: PerfilAdmin;
+  esPropio: boolean;
+  onCambio: () => void;
+}) {
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="flex min-h-11 items-center gap-3 px-3 py-3">
+        <Avatar nombre={perfil.nombre} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-ink">
+            {perfil.nombre} {esPropio ? <span className="text-xs text-ink-muted">(vos)</span> : null}
+          </p>
+          <p className="truncate text-xs text-ink-muted">
+            {perfil.email} · {ROLE_LABEL[perfil.rol]}
+            {perfil.especialidad ? ` · ${perfil.especialidad}` : ""}
+          </p>
+        </div>
+      </div>
+
+      <div className="border-t border-line px-3 py-2.5">
+        <FilaAcciones perfil={perfil} esPropio={esPropio} onCambio={onCambio} />
+      </div>
+    </Card>
+  );
+}
+
+/**
+ * Estado (badge) + acciones de una cuenta: reenviar/cancelar si la
+ * invitación sigue pendiente, restablecer contraseña/eliminar si ya está
+ * activa — con su diálogo de confirmación.
+ */
+function FilaAcciones({
   perfil,
   esPropio,
   onCambio,
@@ -147,80 +665,54 @@ function FilaPersonal({
     }
   };
 
+  const badge = perfil.invitacionPendiente ? (
+    <Badge tone="yellow">Invitación pendiente</Badge>
+  ) : perfil.activo ? (
+    <Badge tone="green">Activo</Badge>
+  ) : (
+    <Badge tone="neutral">Inactivo</Badge>
+  );
+
   return (
-    <tr>
-      <td className="px-5 py-3 font-medium text-ink">
-        {perfil.nombre} {esPropio ? <span className="text-xs text-ink-muted">(vos)</span> : null}
-      </td>
-      <td className="px-5 py-3 text-ink-soft">{perfil.email}</td>
-      <td className="px-5 py-3 text-ink-soft">{ROLE_LABEL[perfil.rol]}</td>
-      <td className="px-5 py-3 text-ink-soft">
-        {/* El superadmin no pertenece a ninguna clínica: solo audita el sistema. */}
-        {perfil.clinica ?? <span className="italic text-ink-muted">Todas (auditor)</span>}
-      </td>
-      <td className="px-5 py-3">
-        {perfil.invitacionPendiente ? (
-          <Badge tone="yellow">Invitación pendiente</Badge>
-        ) : perfil.activo ? (
-          <Badge tone="green">Activo</Badge>
-        ) : (
-          <Badge tone="neutral">Inactivo</Badge>
-        )}
-        {error && <p className="mt-1 text-xs text-pastel-red-fg">{error}</p>}
-      </td>
-      <td className="px-5 py-3">
-        <div className="flex items-center justify-end gap-1">
-          {perfil.invitacionPendiente ? (
-            <>
-              <button
-                type="button"
-                aria-label="Reenviar invitación"
-                title="Reenviar invitación"
-                className={ACCION_BTN}
-                disabled={accion === "reenviar"}
-                onClick={reenviar}
-              >
-                {accion === "reenviar" ? (
-                  <SpinnerGap size={16} className="animate-spin" />
-                ) : (
-                  <ArrowClockwise size={16} weight="bold" />
-                )}
-              </button>
-              <button
-                type="button"
-                aria-label="Cancelar invitación"
-                title="Cancelar invitación"
-                className={`${ACCION_BTN} hover:bg-pastel-red-bg hover:text-pastel-red-fg`}
-                onClick={() => setConfirmando("cancelar")}
-              >
-                <XCircle size={16} weight="bold" />
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                aria-label="Restablecer contraseña"
-                title="Restablecer contraseña"
-                className={ACCION_BTN}
-                onClick={() => setConfirmando("restablecer")}
-              >
-                <LockKey size={16} weight="bold" />
-              </button>
-              <button
-                type="button"
-                aria-label="Eliminar cuenta"
-                title="Eliminar cuenta"
-                disabled={esPropio}
-                className={`${ACCION_BTN} hover:bg-pastel-red-bg hover:text-pastel-red-fg`}
-                onClick={() => setConfirmando("eliminar")}
-              >
-                <Trash size={16} weight="bold" />
-              </button>
-            </>
-          )}
+    <div className="flex flex-col gap-2">
+      {badge}
+      {error ? <p className="text-xs text-pastel-red-fg">{error}</p> : null}
+
+      {perfil.invitacionPendiente ? (
+        <div className="flex items-center gap-1">
+          <BotonAccionMovil
+            icono={accion === "reenviar" ? SpinnerGap : ArrowClockwise}
+            etiqueta="Reenviar"
+            sr="Reenviar invitación"
+            onClick={reenviar}
+            girando={accion === "reenviar"}
+          />
+          <BotonAccionMovil
+            icono={XCircle}
+            etiqueta="Cancelar"
+            sr="Cancelar invitación"
+            onClick={() => setConfirmando("cancelar")}
+            peligro
+          />
         </div>
-      </td>
+      ) : (
+        <div className="flex items-center gap-1">
+          <BotonAccionMovil
+            icono={LockKey}
+            etiqueta="Contraseña"
+            sr="Restablecer contraseña"
+            onClick={() => setConfirmando("restablecer")}
+          />
+          <BotonAccionMovil
+            icono={Trash}
+            etiqueta="Eliminar"
+            sr="Eliminar cuenta"
+            onClick={() => setConfirmando("eliminar")}
+            disabled={esPropio}
+            peligro
+          />
+        </div>
+      )}
 
       <ConfirmarDialog
         tipo={confirmando}
@@ -231,7 +723,7 @@ function FilaPersonal({
           onCambio();
         }}
       />
-    </tr>
+    </div>
   );
 }
 
@@ -356,37 +848,54 @@ function ConfirmarDialog({
   );
 }
 
+/**
+ * Siempre controlado desde afuera (`open`/`onOpenChange`): el disparador lo
+ * decide quien lo usa — el botón genérico "Invitar" del encabezado, o el
+ * botón "Invitar a esta clínica" de una `ClinicaCard` — así el mismo diálogo
+ * sirve para los dos casos sin un trigger propio fijo.
+ *
+ * Con `clinicaFija` (se abrió desde una clínica puntual): el selector de
+ * clínica desaparece (ya se sabe cuál es) y "Administrador" sale de los
+ * roles invitables, porque un superadmin no pertenece a ninguna clínica.
+ */
 function InvitarDialog({
+  open,
+  onOpenChange,
   clinicas,
+  clinicaFija,
   onInvitado,
 }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   clinicas: Clinica[];
+  clinicaFija?: { id: string; nombre: string };
   onInvitado: () => void;
 }) {
-  const [abierto, setAbierto] = useState(false);
   const [email, setEmail] = useState("");
   const [nombreCompleto, setNombreCompleto] = useState("");
   const [rol, setRol] = useState<Role>("odontologo");
-  const [clinicaId, setClinicaId] = useState("");
+  const [clinicaId, setClinicaId] = useState(clinicaFija?.id ?? "");
   const [especialidad, setEspecialidad] = useState("");
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enviado, setEnviado] = useState(false);
 
+  const rolesDisponibles = clinicaFija ? ROLES_INVITABLES.filter((r) => r !== "superadmin") : ROLES_INVITABLES;
+
   const resetear = () => {
     setEmail("");
     setNombreCompleto("");
     setRol("odontologo");
-    setClinicaId("");
+    setClinicaId(clinicaFija?.id ?? "");
     setEspecialidad("");
     setCargando(false);
     setError(null);
     setEnviado(false);
   };
 
-  const handleOpenChange = (open: boolean) => {
-    setAbierto(open);
-    if (!open) resetear();
+  const handleOpenChange = (abierto: boolean) => {
+    onOpenChange(abierto);
+    if (!abierto) resetear();
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -394,8 +903,9 @@ function InvitarDialog({
     if (cargando) return;
     setError(null);
 
+    const clinicaElegida = clinicaFija?.id ?? clinicaId;
     // El superadmin no pertenece a ninguna clínica: solo audita el sistema.
-    if (rol !== "superadmin" && !clinicaId) {
+    if (rol !== "superadmin" && !clinicaElegida) {
       setError("Elegí una clínica");
       return;
     }
@@ -406,7 +916,7 @@ function InvitarDialog({
         email: email.trim(),
         nombreCompleto: nombreCompleto.trim(),
         rol: rol as "odontologo" | "recepcionista" | "superadmin",
-        clinicaId: rol === "superadmin" ? undefined : clinicaId,
+        clinicaId: rol === "superadmin" ? undefined : clinicaElegida,
         especialidad: especialidad.trim() || undefined,
       });
       setEnviado(true);
@@ -419,14 +929,9 @@ function InvitarDialog({
   };
 
   return (
-    <Dialog open={abierto} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button type="button">
-          <Plus size={16} weight="bold" /> Invitar
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        title="Invitar colaborador"
+        title={clinicaFija ? `Invitar a ${clinicaFija.nombre}` : "Invitar colaborador"}
         description={enviado ? undefined : "Le mandamos un correo con un link para que elija su contraseña."}
       >
         {enviado ? (
@@ -468,14 +973,18 @@ function InvitarDialog({
               />
             </Field>
 
-            <div className={rol === "superadmin" ? "grid grid-cols-1 gap-3" : "grid grid-cols-2 gap-3"}>
+            <div
+              className={
+                clinicaFija || rol === "superadmin" ? "grid grid-cols-1 gap-3" : "grid grid-cols-1 gap-3 sm:grid-cols-2"
+              }
+            >
               <Field label="Rol">
                 <Select value={rol} onValueChange={(v) => setRol(v as Role)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLES_INVITABLES.map((r) => (
+                    {rolesDisponibles.map((r) => (
                       <SelectItem key={r} value={r}>
                         {ROLE_LABEL[r]}
                       </SelectItem>
@@ -484,7 +993,7 @@ function InvitarDialog({
                 </Select>
               </Field>
 
-              {rol !== "superadmin" && (
+              {!clinicaFija && rol !== "superadmin" && (
                 <Field label="Clínica">
                   <Select value={clinicaId} onValueChange={setClinicaId}>
                     <SelectTrigger>
@@ -502,11 +1011,15 @@ function InvitarDialog({
               )}
             </div>
 
-            {rol === "superadmin" && (
+            {clinicaFija ? (
+              <p className="-mt-1 text-xs text-ink-muted">
+                Se suma al personal de <strong className="text-ink-soft">{clinicaFija.nombre}</strong>.
+              </p>
+            ) : rol === "superadmin" ? (
               <p className="-mt-1 text-xs text-ink-muted">
                 El administrador no pertenece a ninguna clínica: solo audita el sistema.
               </p>
-            )}
+            ) : null}
 
             {rol === "odontologo" && (
               <Field label="Especialidad (opcional)" htmlFor="invitar-especialidad">

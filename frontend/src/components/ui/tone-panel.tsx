@@ -10,7 +10,12 @@ import { cn } from "@/lib/cn";
  * desincronizan sin que nadie lo note.
  */
 const TONE_GRADIENT: Record<ModuleTone, string> = {
-  blue: "from-brand-900 via-brand-700 to-brand-400",
+  // `to-brand-400` (el mismo stop que usa `section-hero.tsx`) da ~2.6:1 de
+  // contraste contra texto blanco — ni el título en 100% de opacidad pasa
+  // AA en esa punta del degradado. Ahí el texto va protegido por un scrim
+  // oscuro aparte; acá no, así que el propio degradado tiene que quedarse
+  // oscuro de punta a punta. `brand-600` da ~5.75:1.
+  blue: "from-brand-900 via-brand-700 to-brand-600",
   violet: "from-[#2f2159] via-[#5b3f9f] to-[#9b81d6]",
   green: "from-[#123a26] via-[#2f6b48] to-[#6fb890]",
   yellow: "from-[#4a3208] via-[#93641c] to-[#d9a54a]",

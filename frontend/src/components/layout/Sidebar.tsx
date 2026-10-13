@@ -10,7 +10,6 @@ import {
   Wallet,
   LockSimple,
   ShieldCheck,
-  X,
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { Avatar } from "@/components/ui/avatar";
@@ -69,18 +68,12 @@ function claseItem({ isActive }: { isActive: boolean }) {
   );
 }
 
-function ItemNav({
-  to,
-  label,
-  icon: Icon,
-  end,
-  onNavigate,
-}: ItemMenu & { onNavigate: () => void }) {
+function ItemNav({ to, label, icon: Icon, end }: ItemMenu) {
   return (
     <li>
       {/* `NavLink` marca `aria-current="page"` solo en el item activo: el riel
           es decorativo y no duplica ese anuncio para el lector de pantalla. */}
-      <NavLink to={to} end={end} onClick={onNavigate} className={claseItem}>
+      <NavLink to={to} end={end} className={claseItem}>
         {({ isActive }) => (
           <>
             <Icon
@@ -109,58 +102,29 @@ function TituloGrupo({ children }: { children: string }) {
   );
 }
 
-export function Sidebar({
-  menuAbierto,
-  onClose,
-}: {
-  menuAbierto: boolean;
-  onClose: () => void;
-}) {
+/** Solo escritorio: la navegación móvil es `MobileTabBar` (barra inferior +
+ * hoja), montada aparte en `AppShell`. Antes este panel también hacía de
+ * drawer en móvil (disparado por el botón del `Topbar`); ese camino ya no
+ * existe, así que acá no queda nada de velo ni de botón de cerrar. */
+export function Sidebar() {
   const { sesion } = useAuth();
   const esSuperadmin = sesion?.rol === "superadmin";
 
   return (
-    <>
-      {/* velo del cajón: solo en pantallas donde el sidebar está oculto */}
-      <div
-        onClick={onClose}
-        aria-hidden
-        className={cn(
-          "fixed inset-0 z-40 bg-ink/35 backdrop-blur-[2px] transition-opacity duration-200 ease-out lg:hidden",
-          menuAbierto ? "visible opacity-100" : "invisible pointer-events-none opacity-0",
-        )}
-      />
-
       <aside
-        id="menu-lateral"
         aria-label="Navegación principal"
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex h-screen w-64 shrink-0 flex-col",
+          "hidden h-screen w-64 shrink-0 flex-col",
           // `border-line` sobre el canvas calido separa de verdad: un borde
           // blanco translucido sobre un panel blanco no separaba nada.
-          // En movil el panel flota (sombra amplia) y en desktop se apoya en el
-          // contenido con una sombra lateral, un paso por delante.
-          "border-r border-line bg-white/92 backdrop-blur-xl backdrop-saturate-150",
-          "shadow-e3 lg:border-line-strong lg:bg-white/70 lg:shadow-[10px_0_28px_-18px_rgb(22_35_58/0.4)]",
-          "transition-[transform,visibility] duration-200 ease-out",
-          "lg:visible lg:pointer-events-auto lg:static lg:translate-x-0",
-          menuAbierto
-            ? "visible translate-x-0"
-            : "invisible -translate-x-full max-lg:pointer-events-none",
+          "border-r border-line-strong bg-white/70 shadow-[10px_0_28px_-18px_rgb(22_35_58/0.4)]",
+          "lg:flex",
         )}
       >
         {/* el header no lleva fondo propio: hereda el material del panel, para
             que la barra del logo no se lea como una tira blanca pegada arriba */}
-        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-line px-4 pt-safe sm:px-5 lg:pt-0">
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-line px-4 sm:px-5">
           <Logo size={26} />
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Cerrar menú"
-            className="-mr-1.5 shrink-0 rounded-full p-1.5 text-ink-muted transition-colors duration-150 ease-out hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring lg:hidden"
-          >
-            <X size={18} weight="bold" />
-          </button>
         </div>
 
         <nav className="scroll-edge-top flex-1 space-y-5 overflow-y-auto px-3 py-5">
@@ -172,7 +136,7 @@ export function Sidebar({
               <TituloGrupo>Administración</TituloGrupo>
               <ul className="space-y-0.5">
                 {administracion.map((item) => (
-                  <ItemNav key={item.to} {...item} onNavigate={onClose} />
+                  <ItemNav key={item.to} {...item} />
                 ))}
               </ul>
             </div>
@@ -182,7 +146,7 @@ export function Sidebar({
                 <TituloGrupo>Atención clínica</TituloGrupo>
                 <ul className="space-y-0.5">
                   {principal.map((item) => (
-                    <ItemNav key={item.to} {...item} onNavigate={onClose} />
+                    <ItemNav key={item.to} {...item} />
                   ))}
                 </ul>
               </div>
@@ -228,6 +192,5 @@ export function Sidebar({
           </div>
         ) : null}
       </aside>
-    </>
   );
 }

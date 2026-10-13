@@ -1,11 +1,19 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
+import {
+  ArrowRight,
+  Check,
+  CheckCircle,
+  Eye,
+  EyeSlash,
+  SpinnerGap,
+  WarningCircle,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { Input } from "@/components/ui/input";
-import { Logo } from "@/components/ui/logo";
+import { Logo, LogoMark } from "@/components/ui/logo";
 import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -22,6 +30,8 @@ export function LoginPage() {
   const navigate = useNavigate();
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
+  const [verClave, setVerClave] = useState(false);
+  const [recordar, setRecordar] = useState(true);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cargandoGoogle, setCargandoGoogle] = useState(false);
@@ -46,6 +56,21 @@ export function LoginPage() {
       // Establece la sesión real de Supabase (access/refresh token) para que
       // las consultas protegidas por RLS se autentiquen como este usuario.
       await obtenerSupabase().auth.setSession(session);
+
+      // "Mantener sesión iniciada" desmarcado: Supabase persiste en
+      // localStorage por defecto (sobrevive a cerrar el navegador), así que
+      // sin un storage propio por sesión la única forma de desarmar eso sin
+      // tocar el cliente compartido es cerrar sesión al cerrar la pestaña.
+      // `scope: "local"` es limpieza sincrónica de storage, no un pedido de
+      // red: llega a tiempo en `beforeunload`, a diferencia de un signOut
+      // normal (que sí golpea al servidor y el navegador puede cortarlo a
+      // mitad de camino).
+      if (!recordar) {
+        window.addEventListener("beforeunload", () => {
+          void obtenerSupabase().auth.signOut({ scope: "local" });
+        });
+      }
+
       iniciarSesion(sesion);
       navigate(sesion.rol === "paciente" ? "/portal" : "/app", { replace: true });
     } catch (fallo) {
@@ -83,7 +108,7 @@ export function LoginPage() {
       <MeshBackground />
       <AnimatedTeeth />
 
-      <div className="relative z-10 grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl lg:min-h-[640px] lg:grid-cols-[1fr_1.1fr]">
+      <div className="fade-in-up relative z-10 grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/30 border-t-white/60 bg-white/55 shadow-[0_40px_100px_-30px_rgba(20,40,75,0.55)] backdrop-blur-xl lg:min-h-[640px] lg:grid-cols-[1fr_1.1fr]">
         {/* Panel de marca. Antes era `logo-badge.jpg` con `object-cover`: un JPG
             de 1200x1200 sobre fondo blanco que se leia como un cuadrado blanco
             recortado contra el degradé de la tarjeta. Ahora es un degradé claro
@@ -133,13 +158,45 @@ export function LoginPage() {
           </div>
         </div>
 
-        <div className="flex flex-col justify-center gap-6 p-5 sm:gap-8 sm:p-10 lg:gap-8 lg:p-12">
-          {/* En desktop el logo va en el panel de branding de la izquierda; acá
-              solo aparece cuando ese panel no se renderiza (movil/tablet). */}
-          <div className="fade-in-up lg:hidden">
-            <Logo size={26} />
+        <div className="flex flex-col lg:justify-center">
+          {/* En desktop el logo y la bajada viven en el panel de branding de la
+              izquierda; acá es la versión compacta para cuando ese panel no se
+              renderiza (móvil/tablet) — antes era solo el isotipo suelto sobre
+              el vidrio, sin ningún color propio, así que el login se sentía sin
+              marca hasta el formulario. Mismo degradé ya probado en el resto de
+              la app (oscuro → brand-600, nunca hasta el extremo claro): texto
+              blanco encima necesita ese piso de contraste. */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 px-5 pt-6 pb-10 sm:px-10 sm:pt-8 sm:pb-14 lg:hidden">
+            <div className="mesh-blob-a absolute -right-1/4 -top-1/2 h-[160%] w-[65%] rounded-full bg-white/10 blur-3xl" />
+            <div className="relative flex items-center gap-2.5">
+              <LogoMark size={28} className="text-white" />
+              <span className="text-[1.15rem] font-semibold tracking-tight text-white">
+                <span className="text-brand-200">Mi</span>Dentista
+              </span>
+            </div>
+            <p className="relative mt-2 max-w-[30ch] text-[13px] leading-snug text-white/85">
+              La consulta de tu clínica, ordenada de punta a punta.
+            </p>
+
+            {/* Ola en vez de borde recto: sin esto, la franja de marca y el
+                formulario blanco se leían como dos rectángulos apilados con
+                una línea dura en el medio — mismo lenguaje que la ola de la
+                barra de navegación móvil (`MobileTabBar`), para que el corte
+                se sienta parte del mismo sistema visual. */}
+            <svg
+              aria-hidden
+              viewBox="0 0 400 28"
+              preserveAspectRatio="none"
+              className="absolute inset-x-0 bottom-0 h-7 w-full translate-y-px"
+            >
+              <path
+                d="M0,28 L0,17 C55,3 95,3 145,14 C205,27 250,11 305,6 C345,2 375,7 400,15 L400,28 Z"
+                fill="white"
+              />
+            </svg>
           </div>
 
+          <div className="flex flex-col gap-6 p-5 sm:gap-8 sm:p-10 lg:gap-8 lg:p-12">
           <div className="fade-in-up" style={{ animationDelay: "40ms" }}>
             <h2 className="text-[1.6rem] font-semibold leading-tight tracking-[-0.02em] text-ink min-[380px]:text-[2rem]">
               Bienvenido de vuelta
@@ -168,26 +225,57 @@ export function LoginPage() {
 
             <div className="fade-in-up" style={{ animationDelay: "120ms" }}>
               <Field label="Contraseña" htmlFor="clave" labelClassName="text-ink-soft">
-                <Input
-                  id="clave"
-                  type="password"
-                  required
-                  value={clave}
-                  onChange={(e) => setClave(e.target.value)}
-                  placeholder="••••••••"
-                  className="bg-white/90"
-                />
+                <div className="relative">
+                  <Input
+                    id="clave"
+                    type={verClave ? "text" : "password"}
+                    required
+                    value={clave}
+                    onChange={(e) => setClave(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    className="bg-white/90 pr-11"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setVerClave((v) => !v)}
+                    aria-label={verClave ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    aria-pressed={verClave}
+                    tabIndex={-1}
+                    className="press absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  >
+                    {verClave ? <EyeSlash size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </Field>
             </div>
 
             <div
-              className="fade-in-up flex items-center justify-end text-xs"
+              className="fade-in-up flex items-center justify-between gap-2 text-xs"
               style={{ animationDelay: "160ms" }}
             >
+              <label className="flex cursor-pointer select-none items-center gap-2 text-ink-soft">
+                <input
+                  type="checkbox"
+                  checked={recordar}
+                  onChange={(e) => setRecordar(e.target.checked)}
+                  className="sr-only"
+                />
+                <span
+                  aria-hidden
+                  className={`grid size-[18px] shrink-0 place-items-center rounded-[5px] border transition-colors ${
+                    recordar ? "border-brand-600 bg-brand-600" : "border-line-field bg-white"
+                  }`}
+                >
+                  {recordar ? <Check size={12} weight="bold" className="text-white" /> : null}
+                </span>
+                Mantener sesión iniciada
+              </label>
+
               <ForgotPasswordDialog>
                 <button
                   type="button"
-                  className="font-semibold text-brand-700 transition-colors hover:text-brand-800"
+                  className="shrink-0 font-semibold text-brand-700 transition-colors hover:text-brand-800"
                 >
                   ¿Olvidaste tu contraseña?
                 </button>
@@ -264,6 +352,7 @@ export function LoginPage() {
               El rol y los permisos quedan definidos por la cuenta de tu clínica.
             </p>
           </form>
+          </div>
         </div>
       </div>
     </div>

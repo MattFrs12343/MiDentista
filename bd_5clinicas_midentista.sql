@@ -364,6 +364,27 @@ create index if not exists idx_perfiles_clinica on public.perfiles (clinica_id);
 create index if not exists idx_perfiles_email on public.perfiles (email);
 create index if not exists idx_clinicas_geo on public.clinicas (latitud, longitud);
 
+-- `auth_user_id`: la consulta mas repetida de toda la app. `current_perfil()`
+-- (de la que salen `mi_clinica_id()`, `mi_perfil_id()` y `es_superadmin()`)
+-- hace `where auth_user_id = auth.uid()` y la llama CASI TODA politica RLS de
+-- este archivo, osea en cada select/insert/update que hace el frontend. Sin
+-- indice, eso es un seq scan de `perfiles` en cada fila de cada consulta.
+create index if not exists idx_perfiles_auth_user on public.perfiles (auth_user_id);
+
+-- `clinica_id`: faltaba en las tablas clinicas que SI tienen politica RLS
+-- "for select using (clinica_id = mi_clinica_id())" pero solo estaban
+-- indexadas por `paciente_id`. Sin esto, cualquier vista que liste "todo lo
+-- de mi clinica" (no de un paciente puntual) hace seq scan.
+create index if not exists idx_historiales_clinica on public.historiales_clinicos (clinica_id);
+create index if not exists idx_odontogramas_clinica on public.odontogramas (clinica_id);
+create index if not exists idx_diagnosticos_clinica on public.diagnosticos (clinica_id);
+create index if not exists idx_planes_clinica on public.planes_tratamiento (clinica_id);
+create index if not exists idx_procedimientos_clinica on public.procedimientos_tratamiento (clinica_id);
+create index if not exists idx_evoluciones_clinica on public.evoluciones_clinicas (clinica_id);
+create index if not exists idx_horarios_clinica on public.horarios (clinica_id);
+create index if not exists idx_presupuestos_clinica on public.presupuestos (clinica_id);
+create index if not exists idx_items_presupuesto_clinica on public.items_presupuesto (clinica_id);
+
 -- ============================================================================
 -- 4. TRIGGERS (actualizado_en automático)
 -- ============================================================================
@@ -961,6 +982,50 @@ create policy citas_update on public.citas for update
     (clinica_id = public.mi_clinica_id() and odontologo_id = public.mi_perfil_id())
     or public.es_superadmin()
   );
+
+-- ============================================================================
+-- 8. MONITOREO: tamaño de la base (card "Base de datos" del panel admin)
+-- ============================================================================
+-- pg_database_size/pg_total_relation_size no están expuestas por PostgREST
+-- (no son tablas), así que hace falta esta función. `security definer` para
+-- poder leer el catálogo del sistema, pero el `execute` queda restringido a
+-- `service_role`: el control de acceso real (solo superadmin) lo hace la
+-- Edge Function (`requerirSuperadmin`), no esta función ni una política RLS.
+create or replace function public.admin_tamano_base_datos()
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  total_bytes bigint;
+  tablas json;
+begin
+  select pg_database_size(current_database()) into total_bytes;
+
+  select coalesce(json_agg(fila), '[]'::json) into tablas
+    from (
+      select
+        relname as tabla,
+        pg_total_relation_size(c.oid) as bytes,
+        pg_size_pretty(pg_total_relation_size(c.oid)) as legible
+      from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public' and c.relkind = 'r'
+      order by pg_total_relation_size(c.oid) desc
+      limit 8
+    ) fila;
+
+  return json_build_object(
+    'totalBytes', total_bytes,
+    'totalLegible', pg_size_pretty(total_bytes),
+    'tablas', tablas
+  );
+end;
+$$;
+
+revoke all on function public.admin_tamano_base_datos() from public;
+grant execute on function public.admin_tamano_base_datos() to service_role;
 
 -- ============================================================================
 -- FIN DE LA BASE DE DATOS MIDENTISTA (5 CLÍNICAS)

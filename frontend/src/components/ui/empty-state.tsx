@@ -8,7 +8,9 @@ export type EmptyStateTone = "neutral" | "brand" | "positive" | "warning" | "dan
 
 const TONE_CHIP: Record<EmptyStateTone, string> = {
   neutral: "bg-surface text-ink-muted",
-  brand: "bg-brand-50 text-brand-600",
+  // Antes `bg-brand-50 text-brand-600` (~5.3:1, al límite). `brand-100`/`700`
+  // da ~7:1, el mismo par que ya usa `blue` en los otros chips de la app.
+  brand: "bg-brand-100 text-brand-700",
   positive: "bg-pastel-green-bg text-pastel-green-fg",
   warning: "bg-pastel-yellow-bg text-pastel-yellow-fg",
   danger: "bg-pastel-red-bg text-pastel-red-fg",

@@ -13,6 +13,7 @@ import {
   Phone,
   SpinnerGap,
   WarningCircle,
+  X,
 } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { SectionLoader } from "@/components/ui/section-loader";
 import { SectionToolbar } from "@/components/ui/section-board";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -70,8 +72,19 @@ export function BuscarClinicaPage() {
   const [termino, setTermino] = useState("");
   /** Clínica resaltada: la que el paciente está mirando en el mapa. */
   const [idEnfocada, setIdEnfocada] = useState<string | null>(null);
+  /** Tarjeta de info breve que se abre al tocar un pin. Un toque ya no manda
+   * directo al formulario completo: primero nombre/dirección/teléfono, y
+   * "Afiliarme" recién ahí abre el alta. */
+  const [clinicaInfo, setClinicaInfo] = useState<ClinicaConDistancia | null>(null);
 
   const yaAfiliado = ficha?.clinica ?? null;
+
+  /** Un paciente sin clínica cae acá por `<Navigate>` apenas entra a la sesión
+   * (ver `ficha.sinClinica` en el resto del portal): para esa primera vez, el
+   * buscador es la pantalla entera — sin encabezado, sin notas, directo al
+   * mapa — en vez de una página más con su título y su descripción. */
+  const modoOnboarding = !cargandoFicha && Boolean(ficha?.sinClinica);
+  const [autoUbicacionIntentada, setAutoUbicacionIntentada] = useState(false);
 
   useEffect(() => {
     let activo = true;
@@ -107,6 +120,19 @@ export function BuscarClinicaPage() {
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
     );
   };
+
+  /** Dispara la ubicación una sola vez al entrar en modo onboarding: el
+   * paciente nuevo no debería tener que tocar un botón para que el mapa
+   * arranque buscando cerca suyo. */
+  useEffect(() => {
+    if (!modoOnboarding || autoUbicacionIntentada) return;
+    setAutoUbicacionIntentada(true);
+    setHaBuscado(true);
+    pedirUbicacion();
+    // `pedirUbicacion` se redefine en cada render; solo debe dispararse una
+    // vez al activarse el modo onboarding, no en cada cambio de referencia.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modoOnboarding, autoUbicacionIntentada]);
 
   // Diferimos el término para que la búsqueda sea "en vivo" sin filtrar en cada tecla.
   useEffect(() => {
@@ -223,32 +249,119 @@ export function BuscarClinicaPage() {
     [visibles],
   );
 
-  /* Al tocar un pin del mapa solo se resalta la tarjeta; el alta se sigue
-     haciendo con un botón explícito. Abrir el diálogo desde un pin hacía que un
-     toque perdido (dedo gordo, mapa con scroll) dejara el formulario de
-     afiliación abierto sobre el mapa sin haberlo pedido. */
+  /* Al tocar un pin del mapa se abre la tarjeta de info breve (nombre,
+     dirección, teléfono, distancia), no el formulario completo de una vez:
+     un toque perdido (dedo gordo, mapa con scroll) dejaba el alta abierta
+     sobre el mapa sin haberlo pedido. "Afiliarme" en esa tarjeta es el que
+     abre `DialogAfiliacion`. */
   const seleccionarDesdeMapa = useCallback(
     (id: string) => {
       setIdEnfocada(id);
-      if (yaAfiliado) return;
-      // Las clínicas de demostración no existen en la base: no se pueden afiliar.
-      if (id.startsWith("demo-")) return;
-      const clinica = clinicas.find((c) => c.id === id);
-      if (clinica) setSeleccionada(clinica);
+      const item = visibles.find((v) => v.clinica.id === id);
+      if (item) setClinicaInfo(item);
     },
-    [clinicas, yaAfiliado],
+    [visibles],
   );
 
   /* Al cambiar de vista se limpia el enfoque: si no, la tarjeta bordering
      queda resaltada en un sitio donde el paciente no la está viendo. */
   useEffect(() => {
     setIdEnfocada(null);
+    setClinicaInfo(null);
   }, [vista]);
 
   if (cargandoFicha) {
+    return <SectionLoader className="min-h-[50vh]" />;
+  }
+
+  // Compartida por las dos variantes del mapa (onboarding y la vista normal).
+  const tarjetaInfo = clinicaInfo ? (
+    <TarjetaInfoClinica
+      info={clinicaInfo}
+      clinicaActualId={yaAfiliado?.id ?? null}
+      onCerrar={() => setClinicaInfo(null)}
+      onAfiliarme={() => {
+        setSeleccionada(clinicaInfo.clinica);
+        setClinicaInfo(null);
+      }}
+    />
+  ) : null;
+
+  const dialogoAfiliacion = seleccionada ? (
+    <DialogAfiliacion
+      clinica={seleccionada}
+      clinicaAnterior={yaAfiliado && yaAfiliado.id !== seleccionada.id ? yaAfiliado.nombre : null}
+      datosIniciales={{
+        nombreCompleto: ficha?.perfil.nombre ?? "",
+        telefono: ficha?.perfil.telefono ?? "",
+      }}
+      onCerrar={() => setSeleccionada(null)}
+      onExito={async () => {
+        await refrescarSesion();
+        await recargar();
+        navigate("/portal", { replace: true });
+      }}
+    />
+  ) : null;
+
+  /* Un paciente recién llegado y sin clínica no tiene nada más que hacer en
+     el portal hasta afiliarse: nada de encabezado, nada de "todavía no
+     buscaste", nada de alternar entre mapa y lista. El buscador (un input) y
+     el mapa de punta a punta, buscando solo con entrar — ver el efecto que
+     disparra `autoUbicacionIntentada` más arriba. */
+  if (modoOnboarding) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <SpinnerGap size={26} className="animate-spin text-ink-soft" />
+      <div className="flex flex-col gap-3">
+        <div className="relative">
+          <MagnifyingGlass
+            size={17}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted"
+          />
+          <Input
+            value={texto}
+            onChange={(e) => {
+              const valor = e.target.value;
+              setTexto(valor);
+              if (valor.trim()) setHaBuscado(true);
+            }}
+            placeholder="Nombre de tu clínica o ciudad"
+            className="bg-white pl-10 shadow-e1"
+            aria-label="Buscar clínica por nombre o ciudad"
+          />
+        </div>
+
+        {estadoUbicacion === "error" ? (
+          <p className="flex items-center gap-2 text-sm text-pastel-red-fg">
+            <WarningCircle size={16} weight="fill" /> No pudimos obtener tu ubicación. Buscá por nombre arriba.
+          </p>
+        ) : null}
+
+        {/* `isolate`: contiene el z-index alto del mapa y de esta tarjeta
+            (ver nota en `MapaHibrido`) para que no se pinten por encima de la
+            barra de herramientas fija del portal. */}
+        <div className="relative isolate">
+          {cargando ? (
+            <SectionLoader label="Buscando clínicas cerca tuyo" className="min-h-[55vh]" />
+          ) : (
+            <MapaHibrido
+              centro={centroMapa}
+              clinicas={clinicasMapa}
+              radioKm={alcanceEfectivo}
+              clinicaSeleccionadaId={clinicaInfo?.clinica.id ?? null}
+              onSeleccionarClinica={seleccionarDesdeMapa}
+              onResaltarClinica={setIdEnfocada}
+              locating={estadoUbicacion === "buscando"}
+              onCentrarEnMiUbicacion={pedirUbicacion}
+              /* Deja margen generoso (header + buscador + aire antes de la
+                 barra inferior fija del portal): subestimar este número es lo
+                 que hacía que el mapa empujara contra la barra. */
+              altura="h-[calc(100dvh-17rem)] min-h-[340px]"
+            />
+          )}
+          {tarjetaInfo}
+        </div>
+
+        {dialogoAfiliacion}
       </div>
     );
   }
@@ -262,17 +375,21 @@ export function BuscarClinicaPage() {
         seccion="clinica"
       />
 
-      {/* Aviso informativo, no estado de éxito: el azul de marca es el lenguaje
-          neutro del portal. Pintarlo de verde sumaba un tono ajeno sin decir nada
-          que el título no dijera ya. */}
+      {/* Es un estado de éxito (ya tenés clínica, no hace falta nada más), así
+          que va en verde como el resto de los indicadores "todo en orden" de
+          la app. Fondo sólido (no el pastel clarito de `tone="green"`) con
+          texto blanco: `pastel-green-fg` da ~6.8:1 de contraste contra blanco,
+          bien por encima del 4.5:1 de AA. */}
       {yaAfiliado ? (
-        <Card variant="flat" tone="brand" accent>
-          <CardContent className="flex items-center gap-3 p-4 text-brand-700">
-            <CheckCircle size={22} weight="fill" className="shrink-0" />
+        <Card variant="raised" className="bg-pastel-green-fg">
+          <CardContent className="flex items-center gap-3 p-4 text-white">
+            <CheckCircle size={22} weight="fill" className="shrink-0 text-white" />
             <div className="text-sm">
-              <p className="font-semibold">Ya estás afiliado a {yaAfiliado.nombre}</p>
-              <p className="text-brand-600">
-                Por ahora una cuenta de paciente pertenece a una sola clínica.
+              <p className="font-semibold" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
+                Estás afiliado a {yaAfiliado.nombre}
+              </p>
+              <p className="text-white/90" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}>
+                Podés cambiarte a otra clínica cuando quieras: tu historia clínica viaja con vos.
               </p>
             </div>
           </CardContent>
@@ -391,23 +508,26 @@ export function BuscarClinicaPage() {
 
       {haBuscado && vista === "mapa" ? (
         cargando ? (
-          <div className="flex items-center justify-center rounded-2xl border border-line bg-surface-sunken py-16">
-            <SpinnerGap size={24} className="animate-spin text-ink-soft" />
+          <div className="rounded-2xl border border-line bg-surface-sunken">
+            <SectionLoader label="Buscando clínicas" className="min-h-64" />
           </div>
         ) : (
-          <MapaHibrido
-            centro={centroMapa}
-            clinicas={clinicasMapa}
-            /* `alcanceEfectivo` y no el radio fijo: el filtro recorta a
-               `RADIO_KM`, asi que el circulo dibujado puede ser mayor que el
-               area con resultados y sugerir un alcance que no existe. */
-            radioKm={alcanceEfectivo}
-            clinicaSeleccionadaId={seleccionada?.id ?? null}
-            onSeleccionarClinica={seleccionarDesdeMapa}
-            onResaltarClinica={setIdEnfocada}
-            locating={estadoUbicacion === "buscando"}
-            onCentrarEnMiUbicacion={pedirUbicacion}
-          />
+          <div className="relative isolate">
+            <MapaHibrido
+              centro={centroMapa}
+              clinicas={clinicasMapa}
+              /* `alcanceEfectivo` y no el radio fijo: el filtro recorta a
+                 `RADIO_KM`, asi que el circulo dibujado puede ser mayor que el
+                 area con resultados y sugerir un alcance que no existe. */
+              radioKm={alcanceEfectivo}
+              clinicaSeleccionadaId={clinicaInfo?.clinica.id ?? null}
+              onSeleccionarClinica={seleccionarDesdeMapa}
+              onResaltarClinica={setIdEnfocada}
+              locating={estadoUbicacion === "buscando"}
+              onCentrarEnMiUbicacion={pedirUbicacion}
+            />
+            {tarjetaInfo}
+          </div>
         )
       ) : null}
 
@@ -424,9 +544,7 @@ export function BuscarClinicaPage() {
 
       {haBuscado && vista === "lista" ? (
         cargando ? (
-          <div className="flex items-center justify-center py-16">
-            <SpinnerGap size={24} className="animate-spin text-ink-soft" />
-          </div>
+          <SectionLoader label="Buscando clínicas" className="min-h-64" />
         ) : error ? (
           <p className="flex items-center gap-2 text-sm text-pastel-red-fg">
             <WarningCircle size={16} weight="fill" /> {error}
@@ -530,16 +648,19 @@ export function BuscarClinicaPage() {
                 <div className="mt-2 pt-1">
                   <Button
                     type="button"
+                    variant={yaAfiliado && yaAfiliado.id !== clinica.id ? "secondary" : "primary"}
                     className="w-full"
-                    disabled={Boolean(yaAfiliado) || Boolean(esDemo)}
+                    disabled={Boolean(esDemo) || yaAfiliado?.id === clinica.id}
                     onClick={() => setSeleccionada(clinica)}
                   >
                     {esDemo ? (
                       <>
                         <FloppyDisk size={16} /> Datos de demostración
                       </>
+                    ) : yaAfiliado?.id === clinica.id ? (
+                      "Tu clínica actual"
                     ) : yaAfiliado ? (
-                      "Ya estás afiliado"
+                      "Cambiarme a esta clínica"
                     ) : (
                       "Afiliarme"
                     )}
@@ -552,32 +673,101 @@ export function BuscarClinicaPage() {
         )
       ) : null}
 
-      {seleccionada ? (
-        <DialogAfiliacion
-          clinica={seleccionada}
-          datosIniciales={{
-            nombreCompleto: ficha?.perfil.nombre ?? "",
-            telefono: ficha?.perfil.telefono ?? "",
-          }}
-          onCerrar={() => setSeleccionada(null)}
-          onExito={async () => {
-            await refrescarSesion();
-            await recargar();
-            navigate("/portal", { replace: true });
-          }}
-        />
+      {dialogoAfiliacion}
+    </div>
+  );
+}
+
+function TarjetaInfoClinica({
+  info,
+  clinicaActualId,
+  onCerrar,
+  onAfiliarme,
+}: {
+  info: ClinicaConDistancia;
+  clinicaActualId: string | null;
+  onCerrar: () => void;
+  onAfiliarme: () => void;
+}) {
+  const { clinica, distancia, demo } = info;
+  const esLaActual = clinicaActualId === clinica.id;
+  const esCambio = clinicaActualId != null && !esLaActual;
+  return (
+    <div
+      role="dialog"
+      aria-label={clinica.nombre}
+      className="absolute inset-x-3 bottom-3 z-[600] rounded-panel border border-line bg-surface p-4 shadow-e3"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="font-semibold break-words text-ink">{clinica.nombre}</h3>
+          {clinica.ciudad || distancia != null ? (
+            <p className="mt-0.5 flex items-center gap-1 text-[12.5px] text-ink-muted">
+              <MapPin size={13} weight="duotone" className="shrink-0" />
+              <span className="break-words">
+                {clinica.ciudad}
+                {clinica.ciudad && distancia != null ? " · " : ""}
+                {distancia != null ? `${distancia.toFixed(1)} km` : ""}
+              </span>
+            </p>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          onClick={onCerrar}
+          aria-label="Cerrar"
+          className="press shrink-0 touch-none rounded-full p-1.5 text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+        >
+          <X size={16} weight="bold" />
+        </button>
+      </div>
+
+      {clinica.direccion ? (
+        <p className="mt-2 text-[13px] break-words text-ink-soft">{clinica.direccion}</p>
       ) : null}
+
+      {clinica.telefono ? (
+        <a
+          href={`tel:${clinica.telefono.replace(/\s/g, "")}`}
+          className="press mt-2 inline-flex min-h-8 items-center gap-1.5 text-sm text-ink-soft hover:text-brand-600"
+        >
+          <Phone size={14} weight="duotone" className="shrink-0" />
+          {clinica.telefono}
+        </a>
+      ) : null}
+
+      <div className="mt-3">
+        {demo ? (
+          <p className="flex items-center gap-1.5 text-[12.5px] text-ink-muted">
+            <FloppyDisk size={14} weight="duotone" className="shrink-0" />
+            Clínica de demostración: no se puede afiliar.
+          </p>
+        ) : esLaActual ? (
+          <p className="flex items-center gap-1.5 text-[12.5px] font-medium text-pastel-green-fg">
+            <CheckCircle size={14} weight="fill" className="shrink-0" />
+            Esta es tu clínica actual
+          </p>
+        ) : (
+          <Button type="button" variant={esCambio ? "secondary" : "primary"} className="w-full" onClick={onAfiliarme}>
+            {esCambio ? "Cambiarme a esta clínica" : "Afiliarme"}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
 
 function DialogAfiliacion({
   clinica,
+  clinicaAnterior,
   datosIniciales,
   onCerrar,
   onExito,
 }: {
   clinica: Clinica;
+  /** Nombre de la clínica actual cuando esto es un cambio, no una primera
+   * afiliación. `null` para alta nueva: ahí no hay nada que advertir. */
+  clinicaAnterior: string | null;
   datosIniciales: { nombreCompleto: string; telefono: string };
   onCerrar: () => void;
   onExito: () => Promise<void>;
@@ -616,7 +806,7 @@ function DialogAfiliacion({
   return (
     <Dialog open onOpenChange={(abierto) => (abierto ? undefined : onCerrar())}>
       <DialogContent
-        title={`Afiliarme a ${clinica.nombre}`}
+        title={clinicaAnterior ? `Cambiarme a ${clinica.nombre}` : `Afiliarme a ${clinica.nombre}`}
         description="Estos datos son los que verá la clínica para tu atención."
       >
         <form
@@ -626,6 +816,20 @@ function DialogAfiliacion({
             void enviar();
           }}
         >
+          {/* Es la parte del cambio que de verdad importa comunicar: la
+              clínica anterior deja de ver esta historia apenas se confirma. */}
+          {clinicaAnterior ? (
+            <p className="flex items-start gap-2 rounded-tile border border-dashed border-pastel-yellow-fg/40 bg-pastel-yellow-bg p-3 text-sm text-ink">
+              <WarningCircle size={16} weight="fill" className="mt-0.5 shrink-0 text-pastel-yellow-fg" />
+              <span>
+                Tu historia clínica (odontograma, diagnósticos, evoluciones y planes de tratamiento) se
+                transfiere de <strong>{clinicaAnterior}</strong> a <strong>{clinica.nombre}</strong>.{" "}
+                <strong>{clinicaAnterior}</strong> ya no va a poder verla. Tus citas, presupuestos y pagos
+                quedan como están, en la clínica donde ocurrieron.
+              </span>
+            </p>
+          ) : null}
+
           <Field label="Nombre completo" htmlFor="af-nombre">
             <Input
               id="af-nombre"
@@ -717,7 +921,7 @@ function DialogAfiliacion({
             </Button>
             <Button type="submit" disabled={enviando}>
               {enviando ? <SpinnerGap size={16} className="animate-spin" /> : <CheckCircle size={16} weight="bold" />}
-              Confirmar afiliación
+              {clinicaAnterior ? "Confirmar cambio" : "Confirmar afiliación"}
             </Button>
           </div>
         </form>

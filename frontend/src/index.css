@@ -74,6 +74,7 @@
   --color-ios-purple: #af52de;
   --color-ios-red: #ff3b30;
   --color-ios-teal: #30b0c7;
+  --color-ios-yellow: #ffcc00;
 
   /* etiquetas: negro puro con pesos, no gris plano (vibrancy) */
   --color-label: #000000;
@@ -297,6 +298,25 @@
       50% {
         opacity: 1;
       }
+    }
+  }
+
+  /* Línea punteada que "fluye" entre dos marcas (pantalla de login con
+     Google): el trazo recorre su propio patrón de guiones en bucle, como una
+     corriente entre los dos íconos que conecta. */
+  .google-callback-enlace {
+    animation: google-callback-fluir 900ms linear infinite;
+  }
+
+  @keyframes google-callback-fluir {
+    to {
+      stroke-dashoffset: -15;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .google-callback-enlace {
+      animation: none;
     }
   }
 

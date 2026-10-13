@@ -26,19 +26,12 @@
 .dashboard-hero {
   position: relative;
 
-  /* Antes el hero ocupaba todo el ancho del area de contenido (hasta
-     ~1600px); ahora cuelga del header igual que las demas pantallas, con
-     el mismo tope de max-w-3xl (768px) del `HangingBanner`. A ese ancho ya
-     no entra el layout "de escritorio" (texto al 58% + decoracion entera),
-     asi que se usa directamente el layout angosto que antes vivia en los
-     media queries de 980px/1180px.
-
-     El tamano (ancho + alto) lo dan las utilidades de Tailwind en el JSX
-     (aspect-[1600/600] min-h-[9.5rem] sm:min-h-[11rem]), el mismo
-     contrato de `HeroBackdrop` que usan los banners de las demas
-     secciones (Pacientes, Historia clinica, Odontograma, Tratamiento),
-     para que el panel general cuelgue exactamente del mismo ancho y alto
-     que ellas. No fijar min-height/height aca o pisa esas utilidades. */
+  /* Cuelga del header igual que las demas pantallas, con el mismo tope de
+     max-w-3xl (768px) del `HangingBanner`. El alto (`min-h-56 sm:min-h-64
+     lg:min-h-72`, más alto que los demas banners) lo dan las utilidades de
+     Tailwind en el JSX: este hero carga más contenido (saludo + frase +
+     párrafo) que un `HeroBackdrop` sin texto, así que no comparte su piso
+     de 9.5rem. No fijar min-height/height aca o pisa esas utilidades. */
 
   display: flex;
   align-items: center;
@@ -48,6 +41,11 @@
   margin-bottom: 24px;
 
   border-radius: 20px;
+  /* Mismo filo que usa `HeroBackdrop` (`border border-ink/10`) en los demas
+     banners: sin esto, el contorno de este hero en particular dependía
+     nada más que de la sombra, y al lado de los otros (que sí tienen un
+     borde de 1px nítido) se leía incompleto. */
+  border: 1px solid rgba(22, 35, 58, 0.1);
 
   /* Color plano de respaldo si la foto no llegara a cargar. */
   background: #173456;
@@ -182,12 +180,13 @@
    ESTADISTICAS
    ============================================================ */
 
+/* 3 métricas nada más: "Siguiente paso" se mudó a su propia tarjeta al final
+   de la página (antes era la 4ª columna de esta grilla, de ahí el
+   `minmax(260px, 1.05fr)` que ya no hace falta). */
 .dashboard-stats {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr))
-    minmax(260px, 1.05fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 16px;
 
@@ -201,17 +200,15 @@
    descuenta el Sidebar global de 256px.
    ============================================================ */
 
-@media (max-width: 1180px) {
-
-  .dashboard-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 820px) {
 
+  /* Las 3 métricas siguen en fila (como pidió el Dr), solo con menos aire:
+     `minmax(0, 1fr)` y no `1fr` solo porque sin el `minmax`, el número
+     grande de `StatTile` (`tabular-nums`, puede ser ancho) empuja la
+     columna más allá de lo que el grid tiene disponible, y las tres
+     tarjetas dejan de alinearse con el resto de la página. */
   .dashboard-stats {
-    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .dashboard-hero-content h2 {
@@ -221,24 +218,44 @@
 
 @media (max-width: 560px) {
 
+  /* Antes este velo se endurecía justo acá (0.92 -> 0.78, parejo de punta a
+     punta) y con menos alto disponible se leía como una capa oscura pegada
+     encima de toda la foto. Vuelve al mismo degradé suave de siempre, solo
+     un poco más marcado a la izquierda para el texto. */
   .dashboard-hero-scrim {
     background:
       linear-gradient(
         to right,
-        rgba(23, 52, 86, 0.92) 0%,
-        rgba(23, 52, 86, 0.78) 100%
+        rgba(23, 52, 86, 0.82) 0%,
+        rgba(23, 52, 86, 0.55) 60%,
+        rgba(23, 52, 86, 0.3) 100%
       );
   }
 
   .dashboard-hero-content {
-    padding: 24px;
+    padding: 20px 24px;
   }
 
   .dashboard-hero-content h2 {
-    font-size: 25px;
+    font-size: 24px;
   }
 
   .dashboard-hero-motto {
-    font-size: 15px;
+    font-size: 14px;
+  }
+
+  /* El párrafo es el dato menos esencial de los cuatro (kicker, saludo,
+     frase, párrafo) y el que más espacio pedía: afuera en mobile, donde el
+     hero ya no tiene el alto de escritorio para darle lugar sin amontonar
+     todo lo demás. */
+  .dashboard-hero-content p {
+    display: none;
+  }
+
+  /* Decoración (instrumentos + diente de fondo): puro adorno `aria-hidden`
+     que en una pantalla chica compite por el mismo espacio que el texto en
+     vez de quedar atrás, discreto. */
+  .dashboard-hero-decoration {
+    display: none;
   }
 }

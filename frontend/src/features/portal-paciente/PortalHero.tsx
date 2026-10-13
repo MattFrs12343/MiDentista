@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { TonePanel } from "@/components/ui/tone-panel";
 import { cn } from "@/lib/cn";
+import { TEXT_SCRIM_STRONG } from "@/lib/text-scrim";
 import { GRADIENTE_SECCION, type SeccionPortal } from "@/features/portal-paciente/portalGradientes";
 
 /**
@@ -41,7 +42,9 @@ export function PortalHero({
               Hola, {primero}
             </h1>
             <span className="sr-only">{nombre}</span>
-            <p className="mt-0.5 truncate text-[13px] text-white/75">
+            {/* `/85` y no `/75`: a 75% sobre el extremo claro del degradado
+                (`brand-600`, el borde derecho) el contraste bajaba a ~4:1. */}
+            <p className="mt-0.5 truncate text-[13px] text-white/85">
               {clinica ?? "Sin clínica asignada"}
               {ciudad ? ` · ${ciudad}` : ""}
             </p>
@@ -110,6 +113,10 @@ export function PortalSubHeader({
           <div className="mesh-blob-a absolute -left-1/5 -top-1/3 h-[85%] w-[70%] rounded-full bg-white/10 blur-3xl" />
           <div className="mesh-blob-b absolute -bottom-1/3 -right-1/5 h-[90%] w-[70%] rounded-full bg-white/10 blur-3xl" />
         </div>
+        {/* El degradado de sección termina claro a propósito (le da vida a
+            cada módulo), pero claro + texto blanco da ~2-3:1 de contraste.
+            Mismo velo que ya usa `SectionHero` para el mismo problema. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: TEXT_SCRIM_STRONG }} />
 
         <div className="relative flex min-w-0 items-start gap-3">
           <span

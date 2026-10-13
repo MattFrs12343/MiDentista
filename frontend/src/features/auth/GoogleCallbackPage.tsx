@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SpinnerGap, WarningCircle } from "@phosphor-icons/react";
+import { WarningCircle } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/ui/logo";
+import { Logo, LogoMark } from "@/components/ui/logo";
+import { GoogleIcon } from "@/components/ui/google-icon";
 import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { obtenerSupabase } from "@/lib/supabase";
@@ -88,9 +89,43 @@ export function GoogleCallbackPage() {
             </Button>
           </div>
         ) : (
-          <div className="mt-7 flex flex-col items-center gap-3 py-4 text-center">
-            <SpinnerGap size={28} className="animate-spin text-ink-soft" />
-            <p className="text-sm text-ink-soft">Iniciando sesión con Google…</p>
+          <div className="mt-7 flex flex-col items-center gap-5 py-4 text-center">
+            {/* Dos marcas, un vínculo: la "G" de Google y el diente de
+                MiDentista, unidos por una línea punteada que corre en bucle —
+                se lee como "conectando una cuenta con la otra", no como un
+                spinner genérico que podría ser cualquier pantalla de carga. */}
+            <div className="flex items-center gap-3">
+              <span className="grid size-14 shrink-0 place-items-center rounded-full bg-white shadow-e2 ring-1 ring-line">
+                <GoogleIcon size={26} />
+              </span>
+
+              <svg width="40" height="12" viewBox="0 0 40 12" aria-hidden className="shrink-0 text-brand-300">
+                <line
+                  x1="2" y1="6" x2="38" y2="6"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeDasharray="0.5 7"
+                  className="google-callback-enlace"
+                />
+              </svg>
+
+              <span className="relative grid size-14 shrink-0 place-items-center">
+                <svg viewBox="0 0 56 56" aria-hidden className="absolute inset-0 h-full w-full">
+                  <circle cx="28" cy="28" r="25" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-brand-100" />
+                  <circle
+                    cx="28" cy="28" r="25" fill="none" stroke="currentColor" strokeWidth="3"
+                    strokeLinecap="round" strokeDasharray="44 113"
+                    className="anillo-cargando text-brand-500"
+                  />
+                </svg>
+                <span className="relative grid size-11 place-items-center rounded-full bg-brand-50">
+                  <LogoMark size={22} />
+                </span>
+              </span>
+            </div>
+
+            <p className="text-sm text-ink-soft">Conectando tu cuenta de Google con MiDentista…</p>
           </div>
         )}
       </div>

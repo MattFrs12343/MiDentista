@@ -1,7 +1,18 @@
 ﻿import { useMemo, useState } from "react";
-import { CaretLeft, CaretRight, Warning } from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
+import {
+  CaretLeft,
+  CaretRight,
+  Clock,
+  EnvelopeSimple,
+  IdentificationCard,
+  NotePencil,
+  Phone,
+  Warning,
+} from "@phosphor-icons/react";
 import type { Cita, Horario, Paciente } from "@/types";
 import { cn } from "@/lib/cn";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   COLOR_ESTADO,
   DIAS_CORTO,
@@ -12,6 +23,7 @@ import {
   estadisticasDelDia,
   esHoy,
   etiquetaCorta,
+  etiquetaLarga,
   formatoHora,
   hoyISO,
   inicioDeSemana,
@@ -49,6 +61,9 @@ export function CalendarioAgenda({
   const semanaActual = inicioDeSemana(hoy);
   const [semana, setSemana] = useState(semanaActual);
   const [diaElegido, setDiaElegido] = useState<string | null>(null);
+  /** Cita tocada (rejilla de escritorio o lista móvil): abre el modal con
+   * los datos del paciente y el motivo de la consulta. */
+  const [citaAbierta, setCitaAbierta] = useState<Cita | null>(null);
 
   const dias = useMemo(() => diasLaborables(semana), [semana]);
   const porId = useMemo(() => new Map(pacientes.map((p) => [p.id, p])), [pacientes]);
@@ -158,6 +173,7 @@ export function CalendarioAgenda({
               porId={porId}
               enConflicto={enConflicto}
               altoPorHora={ALTO_POR_HORA}
+              onAbrirCita={setCitaAbierta}
             />
           ))}
         </div>
@@ -169,6 +185,7 @@ export function CalendarioAgenda({
           {dias.map((d) => {
             const total = estadisticasDelDia(citas, d).total;
             const activo = d === diaActivo;
+            const conCitas = total > 0;
             return (
               <button
                 key={d}
@@ -176,10 +193,15 @@ export function CalendarioAgenda({
                 onClick={() => setDiaElegido(d)}
                 aria-pressed={activo}
                 className={cn(
-                  "press flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-ios px-1 py-2",
+                  "press flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-ios px-1 py-2 transition-colors",
                   activo
                     ? "bg-ios-blue text-white shadow-[0_1px_3px_rgba(0,0,0,0.15)]"
-                    : "bg-black/[0.03] text-label-2",
+                    : // Días con citas registradas toman el tinte de marca, para
+                      // distinguirse de un vistazo de los días libres (antes el
+                      // único indicio era el numerito chico de abajo).
+                      conCitas
+                      ? "bg-brand-50 text-brand-800"
+                      : "bg-black/[0.03] text-label-2",
                   esHoy(d, hoy) && !activo && "ring-1 ring-focus-ring",
                 )}
               >
@@ -189,7 +211,14 @@ export function CalendarioAgenda({
                 <span className="text-[15px] font-semibold tabular-nums">
                   {Number(d.slice(-2))}
                 </span>
-                <span className="text-[9px] tabular-nums">{total || "‐"}</span>
+                <span
+                  className={cn(
+                    "text-[9px] tabular-nums",
+                    !activo && conCitas && "font-semibold text-brand-600",
+                  )}
+                >
+                  {total || "‐"}
+                </span>
               </button>
             );
           })}
@@ -199,8 +228,15 @@ export function CalendarioAgenda({
           citas={citas}
           porId={porId}
           enConflicto={enConflicto}
+          onAbrirCita={setCitaAbierta}
         />
       </div>
+
+      <DialogCita
+        cita={citaAbierta}
+        paciente={citaAbierta ? porId.get(citaAbierta.pacienteId) : undefined}
+        onCerrar={() => setCitaAbierta(null)}
+      />
     </div>
   );
 }
@@ -233,6 +269,7 @@ function BotonSemana({
 
 function EncabezadoDia({ fecha, total }: { fecha: string; total: number }) {
   const hoy = esHoy(fecha);
+  const conCitas = total > 0;
   return (
     <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5 py-1.5">
       <span
@@ -246,12 +283,12 @@ function EncabezadoDia({ fecha, total }: { fecha: string; total: number }) {
       <span
         className={cn(
           "flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-[13px] font-semibold tabular-nums",
-          hoy ? "bg-ios-blue text-white" : "text-label",
+          hoy ? "bg-ios-blue text-white" : conCitas ? "bg-brand-50 text-brand-700" : "text-label",
         )}
       >
         {Number(fecha.slice(-2))}
       </span>
-      <span className="truncate text-[10px] text-label-3">
+      <span className={cn("truncate text-[10px]", conCitas ? "font-semibold text-brand-600" : "text-label-3")}>
         {total ? `${total}` : "libre"}
       </span>
     </div>
@@ -287,6 +324,7 @@ function ColumnaDia({
   porId,
   enConflicto,
   altoPorHora,
+  onAbrirCita,
 }: {
   fecha: string;
   citas: Cita[];
@@ -294,6 +332,7 @@ function ColumnaDia({
   porId: Map<string, Paciente>;
   enConflicto: Set<string>;
   altoPorHora: number;
+  onAbrirCita: (cita: Cita) => void;
 }) {
   const franjas = useMemo(() => ubicaEnEje(citas, eje), [citas, eje]);
   const domingo = diaDe(fecha) === 0;
@@ -321,6 +360,7 @@ function ColumnaDia({
           franja={franja}
           porId={porId}
           conflicto={enConflicto.has(cita.id)}
+          onAbrir={onAbrirCita}
         />
       ))}
 
@@ -344,20 +384,24 @@ function FranjaCita({
   franja,
   porId,
   conflicto,
+  onAbrir,
 }: {
   cita: Cita;
   franja: Franja;
   porId: Map<string, Paciente>;
   conflicto: boolean;
+  onAbrir: (cita: Cita) => void;
 }) {
   const paciente = porId.get(cita.pacienteId);
   const nombre = paciente ? `${paciente.nombres} ${paciente.apellidos}` : "Paciente";
   const ancho = 100 / franja.columnas;
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => onAbrir(cita)}
       className={cn(
-        "absolute overflow-hidden rounded-md border px-1.5 py-1",
+        "press absolute overflow-hidden rounded-md border px-1.5 py-1 text-left transition-shadow hover:shadow-e1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
         COLOR_ESTADO[cita.estado],
         conflicto && "ring-1 ring-ios-red",
       )}
@@ -372,7 +416,7 @@ function FranjaCita({
       title={`${nombre} · ${rangoHorario(cita.horaInicio, cita.horaFin)} · ${cita.motivoConsulta}`}
     >
       <p className="truncate text-[11px] font-semibold leading-tight">{nombre}</p>
-    </div>
+    </button>
   );
 }
 
@@ -381,11 +425,13 @@ function ListaDia({
   citas,
   porId,
   enConflicto,
+  onAbrirCita,
 }: {
   fecha: string;
   citas: Cita[];
   porId: Map<string, Paciente>;
   enConflicto: Set<string>;
+  onAbrirCita: (cita: Cita) => void;
 }) {
   const delDia = citasDeFecha(citas, fecha);
   const cerradas = delDia.filter((c) => c.estado === "cancelada");
@@ -404,27 +450,30 @@ function ListaDia({
         const paciente = porId.get(cita.pacienteId);
         const nombre = paciente ? `${paciente.nombres} ${paciente.apellidos}` : "Paciente";
         return (
-          <li
-            key={cita.id}
-            className={cn(
-              "rounded-ios border px-3 py-2.5",
-              COLOR_ESTADO[cita.estado],
-              enConflicto.has(cita.id) && "ring-1 ring-ios-red",
-            )}
-          >
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="truncate text-[14px] font-semibold">{nombre}</p>
-              <span className="shrink-0 text-[12px] font-semibold tabular-nums">
-                {formatoHora(cita.horaInicio)}
-              </span>
-            </div>
-            <p className="mt-0.5 text-[12px] leading-snug opacity-85">{cita.motivoConsulta}</p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide opacity-70">
-              {ETIQUETA_ESTADO[cita.estado]}
-              {cita.estado === "cancelada"
-                ? ""
-                : ` · ${rangoHorario(cita.horaInicio, cita.horaFin)}`}
-            </p>
+          <li key={cita.id}>
+            <button
+              type="button"
+              onClick={() => onAbrirCita(cita)}
+              className={cn(
+                "press w-full rounded-ios border px-3 py-2.5 text-left transition-shadow hover:shadow-e1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
+                COLOR_ESTADO[cita.estado],
+                enConflicto.has(cita.id) && "ring-1 ring-ios-red",
+              )}
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="truncate text-[14px] font-semibold">{nombre}</p>
+                <span className="shrink-0 text-[12px] font-semibold tabular-nums">
+                  {formatoHora(cita.horaInicio)}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[12px] leading-snug opacity-85">{cita.motivoConsulta}</p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide opacity-70">
+                {ETIQUETA_ESTADO[cita.estado]}
+                {cita.estado === "cancelada"
+                  ? ""
+                  : ` · ${rangoHorario(cita.horaInicio, cita.horaFin)}`}
+              </p>
+            </button>
           </li>
         );
       })}
@@ -436,5 +485,88 @@ function ListaDia({
         </li>
       ) : null}
     </ul>
+  );
+}
+
+function Dato({ icono: Icono, children }: { icono: typeof Phone; children: React.ReactNode }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-ink-soft">
+      <Icono size={14} weight="duotone" className="shrink-0 text-ink-muted" aria-hidden />
+      <span className="min-w-0 truncate">{children}</span>
+    </span>
+  );
+}
+
+/**
+ * Lo que pide el Dr al tocar una cita: quién es el paciente y para qué viene,
+ * sin tener que salir de la agenda. `cita` manda: con ella presente se abre
+ * el diálogo (Radix lo anima al montar/desmontar), sin ella queda cerrado.
+ */
+function DialogCita({
+  cita,
+  paciente,
+  onCerrar,
+}: {
+  cita: Cita | null;
+  paciente: Paciente | undefined;
+  onCerrar: () => void;
+}) {
+  if (!cita) return null;
+  const nombre = paciente ? `${paciente.nombres} ${paciente.apellidos}` : "Paciente";
+
+  return (
+    <Dialog open onOpenChange={(abierto) => (abierto ? undefined : onCerrar())}>
+      <DialogContent title={nombre} description={etiquetaLarga(cita.fechaCita)}>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                COLOR_ESTADO[cita.estado],
+              )}
+            >
+              {ETIQUETA_ESTADO[cita.estado]}
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-[13px] text-ink-soft">
+              <Clock size={14} weight="duotone" className="shrink-0" aria-hidden />
+              {rangoHorario(cita.horaInicio, cita.horaFin)}
+            </span>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+              Motivo de la consulta
+            </p>
+            <p className="mt-1 text-sm text-ink">{cita.motivoConsulta || "Sin especificar"}</p>
+          </div>
+
+          {cita.notas ? (
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Notas</p>
+              <p className="mt-1 text-sm text-ink-soft">{cita.notas}</p>
+            </div>
+          ) : null}
+
+          {paciente ? (
+            <div className="flex flex-col gap-1.5 rounded-tile border border-line bg-surface-sunken/60 p-3">
+              {paciente.ci ? <Dato icono={IdentificationCard}>CI {paciente.ci}</Dato> : null}
+              {paciente.telefono ? <Dato icono={Phone}>{paciente.telefono}</Dato> : null}
+              {paciente.email ? <Dato icono={EnvelopeSimple}>{paciente.email}</Dato> : null}
+            </div>
+          ) : null}
+
+          {paciente ? (
+            <Link
+              to={`/app/pacientes/${paciente.id}`}
+              onClick={onCerrar}
+              className="press inline-flex min-h-10 items-center justify-center gap-2 self-start rounded-full bg-ink px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              <NotePencil size={15} weight="bold" aria-hidden />
+              Ver ficha del paciente
+            </Link>
+          ) : null}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

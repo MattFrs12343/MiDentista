@@ -15,7 +15,9 @@ const badgeVariants = cva(
   red: "bg-pastel-red-bg text-pastel-red-fg",
   green: "bg-pastel-green-bg text-pastel-green-fg",
   yellow: "bg-pastel-yellow-bg text-pastel-yellow-fg",
-  violet: "bg-brand-50 text-brand-600",
+  // Antes `bg-brand-50 text-brand-600`: ~5.3:1, al límite para texto de 11px.
+  // Mismo par que `blue` (~7:1) para que una etiqueta siga siendo legible.
+  violet: "bg-brand-100 text-brand-700",
       },
     },
     defaultVariants: { tone: "neutral" },

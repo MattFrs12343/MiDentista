@@ -14,10 +14,12 @@ import { GRADIENTE_SECCION, type SeccionPortal } from "@/features/portal-pacient
  * celeste = clínica), reutilizando los mismos tonos de módulo que ya usa el
  * resto de la app en sus heroes, para que no se sientan colores inventados.
  *
- * "Agendar cita" sigue siendo la acción principal: ocupa dos columnas en
- * pantallas medianas y su motivo decorativo es un poco más grande, pero ya
- * no es la única con color — con las seis vívidas, la jerarquía la da el
- * tamaño, no el contraste entre "una de color" y "cinco en blanco".
+ * "Agendar cita" sigue siendo la acción principal: su motivo decorativo es
+ * un poco más grande y lleva el badge "Principal" cuando no hay próxima
+ * cita, pero ya no es la única con color — con las seis vívidas, la
+ * jerarquía la da el badge y el tamaño del motivo, no el contraste entre
+ * "una de color" y "cinco en blanco". En el portal del paciente (móvil) es,
+ * además, una de las dos únicas que se muestran: ver `PortalHomePage`.
  *
  * Decorativo: un motivo de línea muy sutil por tarjeta, un barrido de brillo
  * al pasar el mouse/foco, y una deriva lenta del motivo en bucle.
@@ -157,7 +159,6 @@ export function CardAcceso({
         "acento-tarjeta press group relative isolate flex min-w-0 flex-col overflow-hidden rounded-panel bg-gradient-to-r p-4 text-left text-white",
         GRADIENTE_SECCION[variante],
         "shadow-e1 transition-[box-shadow,transform] duration-200 ease-out hover:shadow-e2",
-        destacada && "sm:col-span-2 lg:col-span-1",
       )}
     >
       {/* Capa del brillo de hover. Va dentro del `isolate` y por debajo del
@@ -179,18 +180,35 @@ export function CardAcceso({
           {icono}
         </span>
         {badge ? (
-          <span className="shrink-0 rounded-full bg-white/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-white ring-1 ring-white/25">
+          <span
+            className="shrink-0 rounded-full bg-white/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-white ring-1 ring-white/25"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.45)" }}
+          >
             {badge}
           </span>
         ) : null}
       </div>
 
+      {/* `text-shadow` y no un velo oscuro de fondo: un velo sobre una
+          tarjeta chica tapa casi toda la superficie y apaga justo los
+          colores vívidos que le dan identidad a la sección. La sombra deja
+          el degradado intacto y solo refuerza el borde de la letra — misma
+          técnica que usan los pines/etiquetas de los mapas de Uber sobre
+          fondos variables. */}
       <div className="relative mt-3 flex items-end justify-between gap-2">
         <span className="min-w-0">
-          <span className="block text-[13.5px] font-semibold leading-snug tracking-[-0.01em] text-white">
+          <span
+            className="block text-[13.5px] font-semibold leading-snug tracking-[-0.01em] text-white"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5), 0 1px 1px rgba(0,0,0,0.35)" }}
+          >
             {titulo}
           </span>
-          <span className="mt-0.5 block truncate text-[12px] font-medium leading-snug text-white/85">{detalle}</span>
+          <span
+            className="mt-0.5 block truncate text-[12px] font-medium leading-snug text-white/90"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5), 0 1px 1px rgba(0,0,0,0.35)" }}
+          >
+            {detalle}
+          </span>
           {/* Solo donde hay un porcentaje real. */}
           {typeof avance === "number" ? (
             <span aria-hidden className="mt-2 block h-[3px] w-full overflow-hidden rounded-full bg-white/25">

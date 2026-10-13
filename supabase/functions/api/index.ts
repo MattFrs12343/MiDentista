@@ -9,6 +9,8 @@
 //   /login                       -> { correo, clave }
 //   /cambiar-contrasena-propia   -> { claveActual, claveNueva }  (requiere Authorization: Bearer <access_token>)
 //   /admin/listar                -> GET, sin body  (Authorization: superadmin)
+//   /admin/tamano-bd              -> GET, sin body  (Authorization: superadmin)
+//   /admin/crear-clinica         -> { nombre, slug?, ciudad?, pais?, email?, telefono?, direccion?, latitud?, longitud? }  (Authorization: superadmin)
 //   /admin/invitar               -> { email, nombreCompleto, rol, clinicaId, especialidad? }  (Authorization: superadmin)
 //   /admin/reenviar-invitacion   -> { perfilId }
 //   /admin/cancelar-invitacion   -> { perfilId }
@@ -260,6 +262,82 @@ async function handleAdminListar(req: Request) {
   );
 
   return json(resultado);
+}
+
+/** Tamaño actual de Postgres (total + detalle por tabla), para el card
+ * "Base de datos" del panel. Vía RPC `security definer` porque
+ * pg_database_size no está expuesta por PostgREST; el control de acceso real
+ * sigue siendo este `requerirSuperadmin`, no el `execute` de la función. */
+async function handleAdminTamanoBd(req: Request) {
+  const admin_ = await requerirSuperadmin(req);
+  if (!admin_) return json({ error: "Esta acción requiere una cuenta de administrador" }, 403);
+
+  const { data, error } = await admin.rpc("admin_tamano_base_datos");
+  if (error || !data) return json({ error: "No se pudo calcular el tamaño de la base" }, 503);
+
+  return json(data);
+}
+
+/** Deriva un slug legible del nombre ("Clínica Dos Santos" -> "clinica-dos-santos")
+ * cuando el formulario no manda uno a mano. */
+// Rango Unicode de "combining diacritical marks" (U+0300-U+036F), construido
+// con codigos numericos y no como literal: algunos editores/herramientas
+// reescriben un literal `̀` como el caracter combinante de verdad, que
+// despues es indistinguible a simple vista de un acento real en el archivo.
+const DIACRITICOS = new RegExp(`[${String.fromCharCode(0x0300)}-${String.fromCharCode(0x036f)}]`, "g");
+
+function slugificar(texto: string): string {
+  return texto
+    .normalize("NFD")
+    .replace(DIACRITICOS, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-+|-+$)/g, "");
+}
+
+/** Alta de una clínica nueva. Es el único punto de escritura sobre `clinicas`
+ * desde la aplicación: no hay política RLS de `insert` para esa tabla a
+ * propósito (ver docs/modules/12-gestion-clinica/README.md) — cualquier
+ * cuenta autenticada con una política mal escrita podría crear clínicas, acá
+ * el chequeo de `requerirSuperadmin` es explícito y a mano. */
+async function handleAdminCrearClinica(req: Request) {
+  const admin_ = await requerirSuperadmin(req);
+  if (!admin_) return json({ error: "Esta acción requiere una cuenta de administrador" }, 403);
+
+  const body = await req.json().catch(() => ({}));
+  const nombre = String(body?.nombre ?? "").trim();
+  const slugManual = String(body?.slug ?? "").trim();
+  const ciudad = body?.ciudad ? String(body.ciudad).trim() : null;
+  const pais = body?.pais ? String(body.pais).trim() : "Bolivia";
+  const email = body?.email ? String(body.email).trim() : null;
+  const telefono = body?.telefono ? String(body.telefono).trim() : null;
+  const direccion = body?.direccion ? String(body.direccion).trim() : null;
+  const latitud = body?.latitud !== undefined && body.latitud !== null && body.latitud !== "" ? Number(body.latitud) : null;
+  const longitud = body?.longitud !== undefined && body.longitud !== null && body.longitud !== "" ? Number(body.longitud) : null;
+
+  if (!nombre) return json({ error: "El nombre es obligatorio" }, 400);
+  if (email && !EMAIL_REGEX.test(email)) return json({ error: "El correo no es válido" }, 400);
+  if (latitud !== null && (Number.isNaN(latitud) || latitud < -90 || latitud > 90)) {
+    return json({ error: "La latitud tiene que estar entre -90 y 90" }, 400);
+  }
+  if (longitud !== null && (Number.isNaN(longitud) || longitud < -180 || longitud > 180)) {
+    return json({ error: "La longitud tiene que estar entre -180 y 180" }, 400);
+  }
+
+  const slug = slugificar(slugManual || nombre);
+  if (!slug) return json({ error: "No se pudo generar un identificador a partir del nombre" }, 400);
+
+  const { data: existente } = await admin.from("clinicas").select("id").eq("slug", slug).maybeSingle();
+  if (existente) return json({ error: `Ya existe una clínica con el identificador "${slug}"` }, 409);
+
+  const { data: nueva, error } = await admin
+    .from("clinicas")
+    .insert({ nombre, slug, ciudad, pais, email, telefono, direccion, latitud, longitud })
+    .select("id, nombre, slug, ciudad, pais, email, telefono, direccion, latitud, longitud")
+    .single();
+  if (error || !nueva) return json({ error: "No se pudo crear la clínica" }, 503);
+
+  return json(nueva, 201);
 }
 
 async function handleAdminInvitar(req: Request) {
@@ -631,6 +709,8 @@ Deno.serve(async (req) => {
     if (req.method === "POST" && ruta === "login") return await handleLogin(req);
     if (req.method === "POST" && ruta === "cambiar-contrasena-propia") return await handleCambiarContrasenaPropia(req);
     if (req.method === "GET" && ruta === "admin/listar") return await handleAdminListar(req);
+    if (req.method === "GET" && ruta === "admin/tamano-bd") return await handleAdminTamanoBd(req);
+    if (req.method === "POST" && ruta === "admin/crear-clinica") return await handleAdminCrearClinica(req);
     if (req.method === "POST" && ruta === "admin/invitar") return await handleAdminInvitar(req);
     if (req.method === "POST" && ruta === "admin/reenviar-invitacion") return await handleAdminReenviarInvitacion(req);
     if (req.method === "POST" && ruta === "admin/cancelar-invitacion") return await handleAdminCancelarInvitacion(req);

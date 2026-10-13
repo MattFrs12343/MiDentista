@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/ui/logo";
 import { MeshBackground } from "@/components/ui/mesh-background";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
+import { SectionLoader } from "@/components/ui/section-loader";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ApiError, registrarPacientePortalApi } from "@/data/api";
 import { obtenerSupabase } from "@/lib/supabase";
@@ -36,8 +37,8 @@ export function PatientOnboardingPage() {
 
   if (cargando) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-canvas">
-        <SpinnerGap size={28} className="animate-spin text-ink-soft" />
+      <div className="min-h-screen bg-canvas">
+        <SectionLoader className="min-h-screen" />
       </div>
     );
   }

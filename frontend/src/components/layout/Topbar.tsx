@@ -1,16 +1,13 @@
-import { List, LockKey, SignOut } from "@phosphor-icons/react";
+import { LockKey, SignOut } from "@phosphor-icons/react";
 import { Avatar } from "@/components/ui/avatar";
 import { Logo } from "@/components/ui/logo";
 import { useAuth, ROLE_LABEL } from "@/features/auth/AuthContext";
 import { ChangePasswordDialog } from "@/features/auth/ChangePasswordDialog";
 
-export function Topbar({
-  menuAbierto,
-  onMenuClick,
-}: {
-  menuAbierto: boolean;
-  onMenuClick: () => void;
-}) {
+/** Sin `menuAbierto`/`onMenuClick`: la navegación móvil ya no es un drawer
+ * disparado desde acá, es `MobileTabBar` (barra inferior), montada aparte en
+ * `AppShell`. El sidebar sigue existiendo, pero solo para escritorio. */
+export function Topbar() {
   const { sesion, cerrarSesion } = useAuth();
 
   return (
@@ -22,17 +19,6 @@ export function Topbar({
     <header className="relative z-20 shrink-0">
       <div className="material flex h-14 items-center gap-1 border-b border-line px-2 sm:h-16 sm:gap-2 sm:px-6 lg:gap-3 lg:px-8">
         <div className="pt-safe flex w-full min-w-0 items-center gap-1.5 sm:gap-3">
-          <button
-            type="button"
-            onClick={onMenuClick}
-            aria-label="Abrir menú"
-            aria-expanded={menuAbierto}
-            aria-controls="menu-lateral"
-            className="press -ml-1 shrink-0 touch-none rounded-full p-2.5 text-label-2 hover:bg-black/[0.04] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring lg:hidden"
-          >
-            <List size={22} weight="bold" />
-          </button>
-
           {/* el logo del sidebar queda oculto en movil, donde el header es lo unico visible */}
           <div className="min-w-0 lg:hidden">
             <Logo size={22} />

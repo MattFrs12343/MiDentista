@@ -1,6 +1,7 @@
-import type { ComponentType, ReactNode } from "react";
-import type { IconProps } from "@phosphor-icons/react";
+import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { SpinnerGap, type IconProps } from "@phosphor-icons/react";
 import type { ModuleTone } from "@/components/layout/PageHeaderContext";
+import { TEXT_SCRIM_LIGHT, TEXT_SCRIM_STRONG } from "@/lib/text-scrim";
 import { cn } from "@/lib/cn";
 
 /**
@@ -17,11 +18,9 @@ const TONE_GRADIENT: Record<ModuleTone, string> = {
 
 const OVERLAY: Record<"light" | "strong", string> = {
   // overlay tenue: la foto es la protagonista (banners sin texto)
-  light:
-    "linear-gradient(to right, rgba(22,35,58,0.42) 0%, rgba(22,35,58,0.18) 55%, rgba(22,35,58,0.04) 100%)",
+  light: TEXT_SCRIM_LIGHT,
   // overlay marcado a la izquierda: asegura contraste del texto del panel
-  strong:
-    "linear-gradient(to right, rgba(22,35,58,0.93) 0%, rgba(22,35,58,0.78) 38%, rgba(22,35,58,0.28) 64%, rgba(22,35,58,0.06) 100%)",
+  strong: TEXT_SCRIM_STRONG,
 };
 
 /**
@@ -58,6 +57,17 @@ function HeroBackdrop({
   children?: ReactNode;
   className?: string;
 }) {
+  // El degradado de `tone` ya hace de fondo "esqueleto": en vez de un flash
+  // brusco cuando la foto (varios KB, pedido aparte del bundle) termina de
+  // bajar, la imagen entra con un fade y mientras tanto un spinner chico
+  // confirma que algo está cargando y no que el banner se rompió.
+  const [cargada, setCargada] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    setCargada(Boolean(imgRef.current?.complete));
+  }, [photo]);
+
   return (
     <div
       className={cn(
@@ -69,11 +79,22 @@ function HeroBackdrop({
     >
       {photo ? (
         <>
+          {!cargada ? (
+            <div aria-hidden className="absolute inset-0 flex items-center justify-center">
+              <SpinnerGap size={22} weight="bold" className="animate-spin text-white/70" />
+            </div>
+          ) : null}
           <img
+            ref={imgRef}
             src={photo}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            onLoad={() => setCargada(true)}
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ease-out",
+              cargada ? "opacity-100" : "opacity-0",
+            )}
             style={{ objectPosition: photoPosition }}
           />
           <div className="absolute inset-0 bg-ink/5" />

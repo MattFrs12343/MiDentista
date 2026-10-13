@@ -1,4 +1,4 @@
-﻿import { useMemo } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Tooth,
@@ -10,6 +10,7 @@ import {
   Scissors,
   Pill,
   Thermometer,
+  SpinnerGap,
 } from "@phosphor-icons/react";
 import heroDashboard from "@/assets/banners/hero-dashboard.jpg";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -62,11 +63,44 @@ export function DashboardPage() {
     [planes],
   );
 
+  // El `#173456` de fondo de `.dashboard-hero` ya hace de esqueleto: la foto
+  // entra con fade en vez de un flash cuando termina de bajar (es un JPG
+  // aparte del bundle, no algo que ya esté en memoria), y el spinner chico
+  // confirma que está cargando mientras tanto.
+  const [heroCargado, setHeroCargado] = useState(false);
+  const heroImgRef = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    setHeroCargado(Boolean(heroImgRef.current?.complete));
+  }, []);
+
   return (
     <div className="dashboard-page">
       <HangingBanner className="max-w-3xl">
-        <section className="dashboard-hero hanger-panel fade-in-up w-full sm:min-h-64 lg:min-h-72">
-          <img src={heroDashboard} alt="" aria-hidden className="dashboard-hero-photo" />
+        {/* `min-h-56` y no el `min-h-[9.5rem]` (152px) de los banners sin texto:
+            este hero carga kicker + saludo + frase + párrafo, bastante más
+            contenido que una foto decorativa sola, y 152px lo dejaba todo
+            amontonado. El párrafo y la decoración se ocultan aparte en mobile
+            (ver dashboard.css, `@media (max-width: 560px)`) para que no
+            compita con el texto en el espacio que sí hay. */}
+        <section className="dashboard-hero hanger-panel fade-in-up w-full min-h-56 sm:min-h-64 lg:min-h-72">
+          {!heroCargado ? (
+            <div aria-hidden className="absolute inset-0 z-[1] flex items-center justify-center">
+              <SpinnerGap size={22} weight="bold" className="animate-spin text-white/70" />
+            </div>
+          ) : null}
+          <img
+            ref={heroImgRef}
+            src={heroDashboard}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            onLoad={() => setHeroCargado(true)}
+            className="dashboard-hero-photo"
+            style={{
+              opacity: heroCargado ? 1 : 0,
+              transition: "opacity 300ms ease-out",
+            }}
+          />
           <div className="dashboard-hero-scrim" />
 
           <div className="dashboard-hero-content">
@@ -102,10 +136,11 @@ export function DashboardPage() {
         >
           <StatTile
             interactive
+            compact
             className="h-full"
             icon={UsersThree}
             iconTone="blue"
-            label="Pacientes registrados"
+            label="Pacientes"
             value={pacientes.length}
             hint="Fichas clínicas abiertas"
           />
@@ -118,10 +153,11 @@ export function DashboardPage() {
         >
           <StatTile
             interactive
+            compact
             className="h-full"
             icon={ClipboardText}
             iconTone="violet"
-            label="Diagnósticos registrados"
+            label="Diagnósticos"
             value={diagnosticosActivos}
             hint="Piezas con condición distinta de sano"
           />
@@ -134,45 +170,21 @@ export function DashboardPage() {
         >
           <StatTile
             interactive
+            compact
             className="h-full"
             icon={Tooth}
             iconTone="green"
-            label="Ítems en planes de tratamiento"
+            label="Tratamientos"
             value={tratamientosPropuestos}
             hint="Procedimientos propuestos"
           />
         </Link>
-
-        {/* Única tarjeta con degradado de la fila: el mismo lenguaje de la
-            tarjeta "destacada" del portal del paciente (`CardAcceso`), para
-            que el panel del profesional tenga su propia acción principal en
-            vez de otra tarjeta blanca más. */}
-        <Link
-          to="/app/pacientes"
-          className="press group relative isolate flex h-full flex-col justify-between gap-3 overflow-hidden rounded-panel bg-gradient-to-br from-brand-700 to-brand-800 p-4 text-left shadow-e2 transition-shadow duration-200 ease-out hover:shadow-e3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-        >
-          <Tooth
-            weight="duotone"
-            aria-hidden
-            className="pointer-events-none absolute -bottom-4 -right-4 text-white/10"
-            style={{ width: 104, height: 104, transform: "rotate(-12deg)" }}
-          />
-          <span className="relative flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white/75">
-            <Sparkle size={13} weight="fill" aria-hidden />
-            Siguiente paso
-          </span>
-          <p className="relative text-[13px] leading-relaxed text-white/90">
-            Registra un paciente nuevo para abrir su historia clínica y odontograma.
-          </p>
-          <span className="relative inline-flex items-center gap-2 self-start rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-brand-700 transition-transform duration-200 ease-out group-hover:translate-x-0.5">
-            Ir a pacientes
-            <ArrowRight size={14} weight="bold" aria-hidden />
-          </span>
-        </Link>
       </section>
 
-      {/* Agenda primero: es lo que el odontologo mira al abrir la pantalla para
-          saber a quien tiene que atender ahora, junto con quien ya fue atendido. */}
+      {/* Orden de lectura: métricas primero (de un vistazo), agenda después
+          (a quién hay que atender hoy y cuándo), lo ya atendido debajo de la
+          agenda, y "Siguiente paso" al final — es una invitación a actuar,
+          no un dato que el Dr necesite antes que el resto. */}
       <section className="dashboard-blocks">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start">
           <Card className="fade-in-up">
@@ -180,7 +192,8 @@ export function DashboardPage() {
               <div>
                 <CardTitle>Agenda de la semana</CardTitle>
                 <CardDescription>
-                  Citas agendadas por día y hora. Toca una cita para ir a la ficha del paciente.
+                  Citas agendadas por día y hora. Toca una cita para ver los datos del paciente y el
+                  motivo de la consulta.
                 </CardDescription>
               </div>
             </CardHeader>
@@ -196,6 +209,33 @@ export function DashboardPage() {
           />
         </div>
       </section>
+
+      {/* Única tarjeta con degradado de la página: el mismo lenguaje de la
+          tarjeta "destacada" del portal del paciente (`CardAcceso`). Va al
+          final a propósito: es una invitación a la próxima acción, no una
+          métrica que el Dr necesite leer antes que la agenda. */}
+      <Link
+        to="/app/pacientes"
+        className="press group relative isolate flex flex-col justify-between gap-3 overflow-hidden rounded-panel bg-gradient-to-br from-brand-700 to-brand-800 p-5 text-left shadow-e2 transition-shadow duration-200 ease-out hover:shadow-e3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+      >
+        <Tooth
+          weight="duotone"
+          aria-hidden
+          className="pointer-events-none absolute -bottom-4 -right-4 text-white/10"
+          style={{ width: 104, height: 104, transform: "rotate(-12deg)" }}
+        />
+        <span className="relative flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white/75">
+          <Sparkle size={13} weight="fill" aria-hidden />
+          Siguiente paso
+        </span>
+        <p className="relative max-w-md text-[13px] leading-relaxed text-white/90">
+          Registra un paciente nuevo para abrir su historia clínica y odontograma.
+        </p>
+        <span className="relative inline-flex items-center gap-2 self-start rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-brand-700 transition-transform duration-200 ease-out group-hover:translate-x-0.5">
+          Ir a pacientes
+          <ArrowRight size={14} weight="bold" aria-hidden />
+        </span>
+      </Link>
     </div>
   );
 }

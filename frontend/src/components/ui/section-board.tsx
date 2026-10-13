@@ -170,8 +170,10 @@ export function RailCard({
           "grid size-8 shrink-0 place-items-center rounded-ios",
           /* `blue` y `violet` resuelven al azul de marca: los pasteles
              equivalentes (celeste y lila) quedan fuera de la identidad de la
-             plataforma. Ver la nota de `stat-tile.tsx`. */
-          (tone === "violet" || tone === "brand") && "bg-brand-50 text-brand-600",
+             plataforma. Ver la nota de `stat-tile.tsx`. Mismo par que `blue`
+             (antes `brand-50`/`600`, ~5.3:1 al límite) para que el chip tenga
+             margen real de contraste. */
+          (tone === "violet" || tone === "brand") && "bg-brand-100 text-brand-700",
           tone === "blue" && "bg-brand-100 text-brand-700",
           tone === "teal" && "bg-brand-50 text-ios-teal",
           tone === "orange" && "bg-pastel-yellow-bg text-pastel-yellow-fg",

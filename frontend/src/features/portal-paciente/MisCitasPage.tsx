@@ -72,10 +72,10 @@ export function MisCitasPage() {
       {/* Canal de reserva. Va arriba de todo porque es lo que el paciente viene a
           hacer: si es su intención principal, no debería tener que pasar por la
           lista para encontrarla. */}
-      <Card variant="raised" tone="brand" accent>
+      <Card variant="raised" tone="neutral" accent>
         <CardHeader divided>
           <CardTitle as="h2" className="flex items-center gap-2">
-            <CalendarPlus size={18} weight="duotone" aria-hidden />
+            <CalendarPlus size={18} weight="duotone" className="text-brand-600" aria-hidden />
             Agendar una cita
           </CardTitle>
         </CardHeader>
@@ -89,9 +89,9 @@ export function MisCitasPage() {
             {ficha.clinica?.telefono ? (
               <a
                 href={`tel:${ficha.clinica.telefono.replace(/\s+/g, "")}`}
-                className="press lift-hover flex min-h-14 items-center gap-3 rounded-tile border border-line bg-surface px-4 py-3 shadow-e1"
+                className="press lift-hover flex min-h-14 items-center gap-3 rounded-tile border border-line-strong bg-surface-sunken px-4 py-3 shadow-e1"
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-tile bg-brand-50 text-brand-600">
+                <span className="grid size-10 shrink-0 place-items-center rounded-tile bg-brand-100 text-brand-700">
                   <Phone size={19} weight="duotone" aria-hidden />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -108,9 +108,9 @@ export function MisCitasPage() {
             {ficha.clinica?.email ? (
               <a
                 href={`mailto:${ficha.clinica.email}?subject=${encodeURIComponent("Solicitud de cita")}`}
-                className="press lift-hover flex min-h-14 items-center gap-3 rounded-tile border border-line bg-surface px-4 py-3 shadow-e1"
+                className="press lift-hover flex min-h-14 items-center gap-3 rounded-tile border border-line-strong bg-surface-sunken px-4 py-3 shadow-e1"
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-tile bg-brand-50 text-brand-600">
+                <span className="grid size-10 shrink-0 place-items-center rounded-tile bg-brand-100 text-brand-700">
                   <Envelope size={19} weight="duotone" aria-hidden />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export function MisCitasPage() {
              plano que el resto de la lista. */
           <Card variant="raised" tone="brand" className="overflow-hidden p-0">
             <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-6">
-              <div className="flex shrink-0 flex-col items-center justify-center rounded-tile bg-brand-50 px-5 py-3 text-center">
+              <div className="flex shrink-0 flex-col items-center justify-center rounded-tile bg-surface px-5 py-3 text-center shadow-e1">
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-600">
                   {formatearFechaCorta(proxima.fechaCita).split(" ")[0]}
                 </span>
@@ -187,7 +187,7 @@ export function MisCitasPage() {
                   </span>
                 </p>
               </div>
-              <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-700 sm:self-center">
+              <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold text-brand-700 shadow-e1 sm:self-center">
                 <CheckCircle size={13} weight="fill" aria-hidden />
                 {proxima.estado === "confirmada" ? "Confirmada" : "Reservada"}
               </span>

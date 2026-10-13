@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedTeeth } from "@/components/ui/animated-teeth";
 import { cn } from "@/lib/cn";
+import { TEXT_SCRIM_STRONG } from "@/lib/text-scrim";
 import type { Paciente } from "@/types";
 
 /**
@@ -57,6 +58,12 @@ export function PatientHero({ paciente }: { paciente: Paciente }) {
         <AnimatedTeeth tone="vivid" />
       </div>
 
+      {/* El degradado termina claro a propósito (`#9b81d6`), pero claro +
+          texto blanco da ~3.2:1 de contraste — bajo el 4.5:1 de AA, y el dato
+          de contacto (`white/75`) peor todavía. Mismo velo que ya usa
+          `SectionHero`/`PortalHero` para el mismo problema. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: TEXT_SCRIM_STRONG }} />
+
       <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-6">
         <div className="flex min-w-0 items-center gap-4">
           <Avatar
@@ -67,7 +74,7 @@ export function PatientHero({ paciente }: { paciente: Paciente }) {
             <h1 className="title-ios truncate text-xl font-semibold text-white sm:text-2xl">
               {nombre}
             </h1>
-            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/75">
+            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/85">
               {paciente.ci ? (
                 <Dato icono={IdentificationCard}>{paciente.ci}</Dato>
               ) : null}
