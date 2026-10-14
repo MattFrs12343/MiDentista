@@ -19,6 +19,8 @@ import { useClinicaData } from "@/data/store";
 import { primerNombre as obtenerPrimerNombre } from "@/lib/nombre";
 import { CalendarioAgenda } from "@/features/agenda/CalendarioAgenda";
 import { AtendidosHoy } from "@/features/agenda/AtendidosHoy";
+import { ClinicalFindingsChart } from "./ClinicalFindingsChart";
+import { contarHallazgos } from "./odontologoGraficos";
 import "./dashboard.css";
 
 /**
@@ -45,12 +47,14 @@ export function DashboardOdontologo() {
    * destructurarlos antes de poder agregar. Con 14 pacientes es lo bastante
    * chico para hacerlo en render y no necesita un indice en el store.
    */
-  const { planes, diagnosticosActivos } = useMemo(() => {
+  const { planes, diagnosticosActivos, hallazgos } = useMemo(() => {
     const planes_: Record<string, ReturnType<typeof planDe>> = {};
+    const odontogramas: Record<string, ReturnType<typeof odontogramaDe>> = {};
     let diagnosticos = 0;
 
     for (const p of pacientes) {
       const odontograma = odontogramaDe(p.id);
+      odontogramas[p.id] = odontograma;
       planes_[p.id] = planDe(p.id);
       // Un diagnostico registrado es una pieza con condicion distinta de sano.
       diagnosticos += odontograma.filter((c) => c.condicion !== "sano").length;
@@ -58,6 +62,9 @@ export function DashboardOdontologo() {
     return {
       planes: planes_,
       diagnosticosActivos: diagnosticos,
+      // Mismo criterio que las tarjetas (piezas por condicion, sin `sano`),
+      // reutilizado por el grafico de hallazgos.
+      hallazgos: contarHallazgos(odontogramas),
     };
   }, [pacientes, odontogramaDe, planDe]);
 
@@ -208,6 +215,13 @@ export function DashboardOdontologo() {
             onIr={(id) => navigate(`/app/pacientes/${id}`)}
           />
         </div>
+      </section>
+
+      {/* Hallazgos clínicos: donde se concentra la patologia de la clinica.
+          El grafico reutiliza `ClinicalFindingsChart` y los conteos salen de
+          los odontogramas reales de los pacientes (sin `sano`). */}
+      <section className="dashboard-blocks">
+        <ClinicalFindingsChart conteos={hallazgos} />
       </section>
     </div>
   );

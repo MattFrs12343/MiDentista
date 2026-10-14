@@ -43,11 +43,49 @@ test("consulta las columnas mínimas y resume clínicas y usuarios", async () =>
   assert.deepEqual(resumen, {
     clinicas: { total: 2, activas: 1 },
     usuarios: { total: 2, activos: 1 },
+    usuariosPorRol: {
+      total: 2,
+      items: [
+        { rol: "paciente", cantidad: 1 },
+        { rol: "superadmin", cantidad: 1 },
+      ],
+    },
+    clinicasPorEstado: { activas: 1, inactivas: 1, total: 2 },
   });
   assert.deepEqual(llamadas, [
     { tabla: "clinicas", columnas: "activo" },
     { tabla: "perfiles", columnas: "rol, activo" },
   ]);
+});
+
+test("las agregaciones de gráficos salen de las mismas filas, sin consultas extra", async () => {
+  const { cliente, llamadas } = clienteSimulado({
+    clinicas: {
+      data: [{ activo: true }, { activo: true }, { activo: false }],
+      error: null,
+    },
+    perfiles: {
+      data: [
+        { rol: "odontologo", activo: true },
+        { rol: "odontologo", activo: false },
+        { rol: "recepcionista", activo: true },
+      ],
+      error: null,
+    },
+  });
+
+  const resumen = await cargarResumenSuperadmin(cliente);
+
+  assert.deepEqual(resumen.clinicasPorEstado, { activas: 2, inactivas: 1, total: 3 });
+  assert.deepEqual(resumen.usuariosPorRol, {
+    total: 3,
+    items: [
+      { rol: "odontologo", cantidad: 2 },
+      { rol: "recepcionista", cantidad: 1 },
+    ],
+  });
+  // Sigue siendo una única lectura por tabla: los gráficos no disparan otra.
+  assert.equal(llamadas.length, 2);
 });
 
 test("un SELECT vacío (posible RLS) devuelve ceros, no un error", async () => {
@@ -58,6 +96,8 @@ test("un SELECT vacío (posible RLS) devuelve ceros, no un error", async () => {
   assert.deepEqual(await cargarResumenSuperadmin(cliente), {
     clinicas: { total: 0, activas: 0 },
     usuarios: { total: 0, activos: 0 },
+    usuariosPorRol: { total: 0, items: [] },
+    clinicasPorEstado: { activas: 0, inactivas: 0, total: 0 },
   });
 });
 

@@ -6,6 +6,7 @@ import { DashboardStatCard } from "./DashboardStatCard";
 import { estadoDashboard } from "./dashboardCards";
 import { estaVacioResumen, indicadoresSuperadmin } from "./superadminResumen";
 import { useSuperadminResumen } from "./useSuperadminResumen";
+import { SuperadminCharts } from "./SuperadminCharts";
 import "./dashboard.css";
 
 /** Contexto de cada tarjeta, por id de indicador. */
@@ -55,6 +56,7 @@ export function DashboardSuperadmin() {
             ))}
           </section>
 
+          <SuperadminCharts resumen={datos.valor} />
           <ActividadGeneralPendiente />
         </>
       )}

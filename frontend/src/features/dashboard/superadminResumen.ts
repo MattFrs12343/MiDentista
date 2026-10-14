@@ -37,6 +37,31 @@ export interface ConteoUsuarios {
 export interface ResumenSuperadmin {
   clinicas: ConteoClinicas;
   usuarios: ConteoUsuarios;
+  /**
+   * Agregaciones para los gráficos del panel (T-13.7). Son opcionales porque
+   * `crearResumenVacio` y `resumirSuperadmin` (T-13.2) describen solo los
+   * conteos; el servicio las añade a partir de las mismas filas ya consultadas.
+   */
+  usuariosPorRol?: ConteoUsuariosPorRol;
+  clinicasPorEstado?: DistribucionClinicasEstado;
+}
+
+/** Conteo de usuarios por rol (valores no vacíos y no nulos). */
+export interface ConteoRol {
+  rol: string;
+  cantidad: number;
+}
+
+export interface ConteoUsuariosPorRol {
+  total: number;
+  items: ConteoRol[];
+}
+
+/** Distribución de clínicas activas/inactivas. */
+export interface DistribucionClinicasEstado {
+  activas: number;
+  inactivas: number;
+  total: number;
 }
 
 /** Resumen en ceros: estado inicial antes de la respuesta del servidor. */
@@ -84,6 +109,38 @@ export function resumirSuperadmin(
     clinicas: contarClinicas(clinicas),
     usuarios: contarUsuarios(perfiles),
   };
+}
+
+/** Cuenta usuarios por rol, ignorando filas con `rol` nulo/vacío. */
+export function contarUsuariosPorRol(perfiles: readonly FilaPerfil[]): ConteoUsuariosPorRol {
+  const mapa = new Map<string, number>();
+  let total = 0;
+
+  for (const p of perfiles) {
+    total += 1;
+    const clave = p.rol;
+    if (!clave) continue;
+    if (clave.trim().length === 0) continue;
+    mapa.set(clave, (mapa.get(clave) ?? 0) + 1);
+  }
+
+  const items: ConteoRol[] = Array.from(mapa.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([rol, cantidad]) => ({ rol, cantidad }));
+
+  return { total, items };
+}
+
+/** Distribución de clínicas activas/inactivas a partir de las filas. */
+export function distribuirClinicasPorEstado(clinicas: readonly FilaClinica[]): DistribucionClinicasEstado {
+  let total = 0;
+  let activas = 0;
+  for (const c of clinicas) {
+    total += 1;
+    if (c.activo === true) activas += 1;
+  }
+  const inactivas = total - activas;
+  return { activas, inactivas, total };
 }
 
 /**

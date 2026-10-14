@@ -27,6 +27,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { obtenerSupabase } from "../../lib/supabase.ts";
 import {
+  contarUsuariosPorRol,
+  distribuirClinicasPorEstado,
   resumirSuperadmin,
   type FilaClinica,
   type FilaPerfil,
@@ -55,5 +57,15 @@ export async function cargarResumenSuperadmin(
     throw new Error("Supabase no devolvió un resultado de usuarios válido.");
   }
 
-  return resumirSuperadmin(clinicas.data as FilaClinica[], perfiles.data as FilaPerfil[]);
+  // Las agregaciones de los gráficos (T-13.7) se calculan sobre estas mismas
+  // filas: ni una consulta más, para no duplicar lecturas ni cargar dos veces
+  // las tablas.
+  const filasClinicas = clinicas.data as FilaClinica[];
+  const filasPerfiles = perfiles.data as FilaPerfil[];
+
+  return {
+    ...resumirSuperadmin(filasClinicas, filasPerfiles),
+    usuariosPorRol: contarUsuariosPorRol(filasPerfiles),
+    clinicasPorEstado: distribuirClinicasPorEstado(filasClinicas),
+  };
 }
