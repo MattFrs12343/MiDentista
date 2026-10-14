@@ -90,15 +90,31 @@ Con RLS activo, `[]` puede significar "sin permiso", no "cero". Usa
 
 | Archivo | Qué aporta |
 |---------|-----------|
-| `tipos.ts` | `Indicador`, `SerieGrafica`, `ResumenAgenda`, `ResumenIngresos`, `DASHBOARD_POR_ROL` |
-| `DashboardPage.tsx` | El dashboard de demostración actual (tuyo) |
-| `mapa-calor.tsx` | Mapa de calor SVG, sin conectar |
-| `ClinicalFindingsChart.tsx` | Hallazgos clínicos SVG, sin conectar |
+| `tipos.ts` | `Indicador`, `SerieGrafica`, `ResumenAgenda`, `ResumenIngresos`, `DASHBOARD_POR_ROL`, `DatosDashboard<T>` |
+| `dashboardCards.ts` | Lógica pura de tarjetas (tono, delta, estado) |
+| `dashboardCards.test.ts` | Pruebas unitarias de `dashboardCards.ts` |
+| `DashboardStatCard.tsx` | Adaptador `Indicador` → `StatTile` |
+| `DashboardEmptyState.tsx` | Adaptador `DatosDashboard<T>` → `EmptyState` |
+| `superadminResumen.ts` | Lógica pura del panel superadmin (conteos, indicadores) |
+| `superadminResumen.test.ts` | Pruebas unitarias de `superadminResumen.ts` |
+| `dashboardSuperadminService.ts` | Servicio de lectura (Supabase) para T-13.2 |
+| `dashboardSuperadminService.test.ts` | Pruebas del servicio con mock |
+| `useSuperadminResumen.ts` | Hook que carga el resumen con estados DatosDashboard |
+| `DashboardSuperadmin.tsx` | **Implementado (T-13.2):** panel con clínicas y usuarios activos |
+| `DashboardAdmin.tsx` | Andamiaje temporal (pendiente) |
+| `DashboardRecepcion.tsx` | Andamiaje temporal (pendiente) |
+| `DashboardOdontologo.tsx` | Panel real del odontólogo |
+| `DashboardPaciente.tsx` | Andamiaje temporal (pendiente) |
+| `DashboardPlaceholder.tsx` | Andamiaje temporal para roles no implementados |
+| `DashboardPage.tsx` | Selector por rol (T-13.1) |
+| `mapa-calor.tsx` | Mapa de calor SVG (sin conectar a paneles todavía) |
+| `ClinicalFindingsChart.tsx` | Hallazgos clínicos SVG (sin conectar) |
+| `clinica-calor.ts` | Lógica pura del mapa de calor |
 | `dashboard.css` | Estilos del módulo (tuyo) |
 
-Por crear: `DashboardSuperadmin.tsx`, `DashboardAdmin.tsx`,
-`DashboardRecepcion.tsx`, `DashboardOdontologo.tsx`, `DashboardPaciente.tsx`,
-`DashboardStatCard.tsx`, `DashboardEmptyState.tsx`.
+Por crear: `DashboardAdmin.tsx`, `DashboardRecepcion.tsx`, `DashboardPaciente.tsx` ya existen como placeholders (pendientes de completar). **No hace falta crear DashboardStatCard/DashboardEmptyState/superadmin* — ya existen.**
+
+**Decisión sobre reutilización (T-13.2):** no se reutiliza `listarClinicas()` de `data/api.ts` porque filtra solo activas (no permite obtener total). `listarPersonalApi()` depende de la Edge Function. Por eso el módulo usa su propio servicio (`dashboardSuperadminService.ts`) leyendo `public.clinicas` y `public.perfiles` directamente con `obtenerSupabase()`, respetando RLS.
 
 ## Verificación
 
