@@ -10,24 +10,65 @@ import {
   Thermometer,
 } from "@phosphor-icons/react";
 import heroDashboard from "@/assets/banners/hero-dashboard.jpg";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { HangingBanner } from "@/components/ui/hanging-banner";
 import { DashboardStatCard } from "./DashboardStatCard";
+import { DashboardEmptyState } from "./DashboardEmptyState";
+import { estadoDashboard } from "./dashboardCards";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useClinicaData } from "@/data/store";
 import { primerNombre as obtenerPrimerNombre } from "@/lib/nombre";
 import { CalendarioAgenda } from "@/features/agenda/CalendarioAgenda";
 import { AtendidosHoy } from "@/features/agenda/AtendidosHoy";
+import {
+  ETIQUETA_ESTADO,
+  etiquetaLarga,
+  formatoHora,
+  hoyISO,
+} from "@/features/agenda/agenda";
 import { ClinicalFindingsChart } from "./ClinicalFindingsChart";
 import { contarHallazgos } from "./odontologoGraficos";
+import { resumenDelDia } from "./recepcionResumen";
+import { proximaActividad } from "./odontologoResumen";
+import { useTratamientosClinica } from "./useTratamientosClinica";
+import type { Cita } from "@/types";
 import "./dashboard.css";
 
+/** Tono de la píldora por estado de cita; los del `Badge` compartido. */
+const TONO_ESTADO: Record<Cita["estado"], "blue" | "green" | "neutral" | "red"> = {
+  reservada: "blue",
+  confirmada: "green",
+  atendida: "neutral",
+  cancelada: "red",
+};
+
+/** Sin datos cargados: estado vacío legítimo, no error ni falta de permiso. */
+const SIN_DATOS = { valor: null, cargando: false, sinPermiso: false, error: null } as const;
+
 /**
- * Dashboard del odontologo (rol `odontologo`). Es el panel con el que se abrio
- * el modulo: patologia de la clinica, agenda de la semana y quien fue atendido
- * hoy. El contenido se movio aqui tal cual desde el antiguo `DashboardPage`
- * para que el selector por rol (T-13.1) no cambie nada de lo que ya funcionaba.
+ * Dashboard del odontólogo (rol `odontologo`, T-13.4 / US-13.3).
+ *
+ * Responde a lo que el odontólogo abre la pantalla a ver: la agenda de la
+ * semana, quién fue atendido hoy, dónde se concentra la patología, **cuántas
+ * citas hay hoy**, **cuántos tratamientos están activos y pendientes** y **cuál
+ * es su próxima actividad**. El contenido previo se conserva tal cual (agenda,
+ * atendidos, hallazgos y "Siguiente paso").
+ *
+ * Fuentes, todas de solo lectura:
+ *   - Citas y odontogramas: `useClinicaData` (store del módulo 07).
+ *   - Citas del día y próxima actividad: funciones de agenda/recepción, sin
+ *     recontar por su cuenta.
+ *   - Tratamientos por estado: servicio propio del módulo
+ *     (`useTratamientosClinica`), porque el store NO expone el `estado` de los
+ *     planes (ver `dashboardOdontologoService.ts`).
+ *
+ * DEUDA DE RLS (documentada, no resuelta aquí): las políticas actuales dejan a
+ * cualquier odontólogo ver los pacientes y planes de toda la clínica, aunque la
+ * entrevista pide "cada odontólogo solo ve sus propios pacientes". No se recorta
+ * en la UI —eso escondería el problema de permisos—: lo corrige Matías en
+ * Supabase. Este panel solo agrega lo que ya llegó autorizado.
  */
 export function DashboardOdontologo() {
   usePageHeader({
@@ -41,37 +82,51 @@ export function DashboardOdontologo() {
   const navigate = useNavigate();
 
   const primerNombre = sesion ? obtenerPrimerNombre(sesion.nombre) : "";
+  const hoy = hoyISO();
+
+  const porId = useMemo(() => new Map(pacientes.map((p) => [p.id, p])), [pacientes]);
 
   /**
    * El store expone los datos por paciente, asi que el panel tiene que
    * destructurarlos antes de poder agregar. Con 14 pacientes es lo bastante
    * chico para hacerlo en render y no necesita un indice en el store.
    */
-  const { planes, diagnosticosActivos, hallazgos } = useMemo(() => {
+  const { planes, piezasConHallazgos, hallazgos } = useMemo(() => {
     const planes_: Record<string, ReturnType<typeof planDe>> = {};
     const odontogramas: Record<string, ReturnType<typeof odontogramaDe>> = {};
-    let diagnosticos = 0;
+    let piezas = 0;
 
     for (const p of pacientes) {
       const odontograma = odontogramaDe(p.id);
       odontogramas[p.id] = odontograma;
       planes_[p.id] = planDe(p.id);
-      // Un diagnostico registrado es una pieza con condicion distinta de sano.
-      diagnosticos += odontograma.filter((c) => c.condicion !== "sano").length;
+      // Cada pieza con condición distinta de `sano`. NO son filas de la tabla
+      // `diagnosticos`: es el mismo tipo de conteo que el gráfico de hallazgos.
+      piezas += odontograma.filter((c) => c.condicion !== "sano").length;
     }
     return {
       planes: planes_,
-      diagnosticosActivos: diagnosticos,
+      piezasConHallazgos: piezas,
       // Mismo criterio que las tarjetas (piezas por condicion, sin `sano`),
       // reutilizado por el grafico de hallazgos.
       hallazgos: contarHallazgos(odontogramas),
     };
   }, [pacientes, odontogramaDe, planDe]);
 
-  const tratamientosPropuestos = useMemo(
+  const itemsDePlanes = useMemo(
     () => Object.values(planes).reduce((acc, plan) => acc + plan.items.length, 0),
     [planes],
   );
+
+  // Resumen del día: la cifra la decide la agenda (módulo 07), no este panel.
+  const resumenHoy = useMemo(() => resumenDelDia(citas, hoy), [citas, hoy]);
+  const proxima = useMemo(() => proximaActividad(citas, hoy), [citas, hoy]);
+
+  const tratamientos = useTratamientosClinica();
+  const estadoTrat = estadoDashboard(tratamientos, (t) => t.total === 0);
+  const tratamientosBloqueados = estadoTrat === "error" || estadoTrat === "sinPermiso";
+  const valorTratamiento = (n: number) =>
+    tratamientosBloqueados ? "—" : estadoTrat === "cargando" ? "…" : String(n);
 
   return (
     <div className="dashboard-page">
@@ -128,19 +183,19 @@ export function DashboardOdontologo() {
         <Link
           to="/app/pacientes"
           className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
-          aria-label="Ver los diagnósticos registrados"
+          aria-label="Ver las piezas con hallazgos en los odontogramas"
         >
           <DashboardStatCard
             interactive
             className="h-full"
             indicador={{
-              id: "diagnosticos-registrados",
-              etiqueta: "Diagnósticos registrados",
-              valor: String(diagnosticosActivos),
+              id: "piezas-con-hallazgos",
+              etiqueta: "Piezas con hallazgos",
+              valor: String(piezasConHallazgos),
               icono: "ClipboardText",
               tono: "violet",
             }}
-            hint="Piezas con condición distinta de sano"
+            hint="Piezas del odontograma con condición distinta de sana"
           />
         </Link>
 
@@ -155,7 +210,7 @@ export function DashboardOdontologo() {
             indicador={{
               id: "planes-tratamiento",
               etiqueta: "Ítems en planes de tratamiento",
-              valor: String(tratamientosPropuestos),
+              valor: String(itemsDePlanes),
               icono: "Tooth",
               tono: "green",
             }}
@@ -189,6 +244,115 @@ export function DashboardOdontologo() {
             <ArrowRight size={14} weight="bold" aria-hidden />
           </span>
         </Link>
+      </section>
+
+      {/* Flujo del día y carga de tratamiento: dos cifras del día (citas) más
+          los tratamientos vivos por estado real. Las citas salen de la agenda;
+          los tratamientos, del servicio del módulo (el store no trae estado). */}
+      <section className="dashboard-blocks">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <DashboardStatCard
+            indicador={{
+              id: "citas-hoy",
+              etiqueta: "Citas de hoy",
+              valor: String(resumenHoy.total),
+              icono: "CalendarDots",
+              tono: "blue",
+            }}
+            hint="En tu agenda de hoy"
+          />
+          <DashboardStatCard
+            indicador={{
+              id: "por-atender-hoy",
+              etiqueta: "Por atender hoy",
+              valor: String(resumenHoy.reservada + resumenHoy.confirmada),
+              icono: "CalendarCheck",
+              tono: "green",
+            }}
+            hint={`${resumenHoy.confirmada} confirmadas · ${resumenHoy.reservada} reservadas`}
+          />
+
+          {tratamientosBloqueados ? (
+            <div className="sm:col-span-2">
+              <DashboardEmptyState
+                datos={tratamientos}
+                size="sm"
+                className="h-full"
+              />
+            </div>
+          ) : (
+            <>
+              <DashboardStatCard
+                indicador={{
+                  id: "tratamientos-activos",
+                  etiqueta: "Tratamientos activos",
+                  valor: valorTratamiento(tratamientos.valor.activos),
+                  icono: "Tooth",
+                  tono: "violet",
+                }}
+                hint="Planes aceptados o en proceso"
+              />
+              <DashboardStatCard
+                indicador={{
+                  id: "tratamientos-pendientes",
+                  etiqueta: "Tratamientos pendientes",
+                  valor: valorTratamiento(tratamientos.valor.pendientes),
+                  icono: "ClipboardText",
+                  tono: "yellow",
+                }}
+                hint="Planes propuestos sin aceptar"
+              />
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Próxima actividad: la siguiente cita viva de la agenda. Si no hay,
+          se muestra un vacío claro en vez de inventar una cita. */}
+      <section className="dashboard-blocks">
+        <Card className="fade-in-up">
+          <CardHeader divided>
+            <CardTitle>Próxima actividad</CardTitle>
+            <CardDescription>Tu siguiente cita reservada o confirmada.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {proxima ? (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
+                    <Tooth size={18} weight="duotone" aria-hidden />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[13.5px] font-medium text-ink">
+                      {nombreDePaciente(porId.get(proxima.pacienteId))}
+                    </p>
+                    <p className="truncate text-[12px] text-ink-muted">
+                      {etiquetaLarga(proxima.fechaCita)} · {formatoHora(proxima.horaInicio)}
+                      {proxima.motivoConsulta ? ` · ${proxima.motivoConsulta}` : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge tone={TONO_ESTADO[proxima.estado]}>{ETIQUETA_ESTADO[proxima.estado]}</Badge>
+                  <Link
+                    to={`/app/pacientes/${proxima.pacienteId}`}
+                    className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-brand-700 hover:underline"
+                  >
+                    Ver ficha
+                    <ArrowRight size={13} weight="bold" aria-hidden />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <DashboardEmptyState
+                datos={SIN_DATOS}
+                size="sm"
+                vacioTitle="No tenés citas próximas"
+                vacioDescription="Cuando se agende una cita reservada o confirmada aparecerá aquí."
+              />
+            )}
+          </CardContent>
+        </Card>
       </section>
 
       {/* Agenda primero: es lo que el odontologo mira al abrir la pantalla para
@@ -225,4 +389,10 @@ export function DashboardOdontologo() {
       </section>
     </div>
   );
+}
+
+/** Nombre completo del paciente o un texto de relleno si no está en el store. */
+function nombreDePaciente(paciente: { nombres: string; apellidos: string } | undefined): string {
+  if (!paciente) return "Paciente sin ficha";
+  return `${paciente.nombres} ${paciente.apellidos}`.trim() || "Paciente sin ficha";
 }
