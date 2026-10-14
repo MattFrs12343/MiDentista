@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   Tooth,
   ArrowRight,
-  UsersThree,
-  ClipboardText,
   Sparkle,
   Syringe,
   Scissors,
@@ -14,7 +12,7 @@ import {
 import heroDashboard from "@/assets/banners/hero-dashboard.jpg";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { HangingBanner } from "@/components/ui/hanging-banner";
-import { StatTile } from "@/components/ui/stat-tile";
+import { DashboardStatCard } from "./DashboardStatCard";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useClinicaData } from "@/data/store";
@@ -106,13 +104,16 @@ export function DashboardOdontologo() {
           className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           aria-label="Ver los pacientes registrados"
         >
-          <StatTile
+          <DashboardStatCard
             interactive
             className="h-full"
-            icon={UsersThree}
-            iconTone="blue"
-            label="Pacientes registrados"
-            value={pacientes.length}
+            indicador={{
+              id: "pacientes-registrados",
+              etiqueta: "Pacientes registrados",
+              valor: String(pacientes.length),
+              icono: "UsersThree",
+              tono: "blue",
+            }}
             hint="Fichas clínicas abiertas"
           />
         </Link>
@@ -122,13 +123,16 @@ export function DashboardOdontologo() {
           className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           aria-label="Ver los diagnósticos registrados"
         >
-          <StatTile
+          <DashboardStatCard
             interactive
             className="h-full"
-            icon={ClipboardText}
-            iconTone="violet"
-            label="Diagnósticos registrados"
-            value={diagnosticosActivos}
+            indicador={{
+              id: "diagnosticos-registrados",
+              etiqueta: "Diagnósticos registrados",
+              valor: String(diagnosticosActivos),
+              icono: "ClipboardText",
+              tono: "violet",
+            }}
             hint="Piezas con condición distinta de sano"
           />
         </Link>
@@ -138,13 +142,16 @@ export function DashboardOdontologo() {
           className="block h-full rounded-tile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           aria-label="Ver los ítems en planes de tratamiento"
         >
-          <StatTile
+          <DashboardStatCard
             interactive
             className="h-full"
-            icon={Tooth}
-            iconTone="green"
-            label="Ítems en planes de tratamiento"
-            value={tratamientosPropuestos}
+            indicador={{
+              id: "planes-tratamiento",
+              etiqueta: "Ítems en planes de tratamiento",
+              valor: String(tratamientosPropuestos),
+              icono: "Tooth",
+              tono: "green",
+            }}
             hint="Procedimientos propuestos"
           />
         </Link>
