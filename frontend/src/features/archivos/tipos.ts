@@ -21,11 +21,38 @@ export const TIPOS_VISUALIZABLES = [
 export type TipoVisualizable = (typeof TIPOS_VISUALIZABLES)[number];
 
 /**
- * Categoría del archivo. Determina quién lo sube y quién lo ve:
- * `clinico` lo sube el odontólogo y lo ve el equipo médico; `administrativo` lo
- * sube recepción; `portal` lo sube el paciente y lo ve su clínica.
+ * Ámbito/origen del archivo. Los permisos efectivos los determina la RLS,
+ * no esta etiqueta por sí sola.
  */
 export type CategoriaArchivo = "clinico" | "administrativo" | "portal";
+
+export type TipoArchivo = "fotografia" | "radiografia" | "documento";
+export type TipoImagen = "fotografia" | "radiografia";
+
+export type AsociacionArchivo =
+  | { tipo: "general" }
+  | { tipo: "evolucion"; evolucionClinicaId: string }
+  | { tipo: "plan"; planTratamientoId: string };
+
+export interface SubidaImagen {
+  archivo: File;
+  pacienteId: string;
+  clinicaId: string;
+  subidoPor: string;
+  tipoArchivo: TipoImagen;
+  descripcion?: string;
+  asociacion?: AsociacionArchivo;
+}
+
+/** Entrada PDF: categoría y clasificación las determina el servicio. */
+export type SubidaDocumento = {
+  archivo: File;
+  pacienteId: string;
+  clinicaId: string;
+  subidoPor: string;
+  descripcion?: string;
+  asociacion?: AsociacionArchivo;
+};
 
 export interface Archivo {
   id: string;
@@ -39,26 +66,24 @@ export interface Archivo {
   /** Bytes. */
   tamano: number;
   categoria: CategoriaArchivo;
+  tipoArchivo: TipoArchivo;
   descripcion: string;
-  subidoPor: string | null;
+  subidoPor: string;
   creadoEl: string;
+  evolucionClinicaId: string | null;
+  planTratamientoId: string | null;
 }
 
 export type ArchivoNuevo = Omit<Archivo, "id" | "creadoEl" | "ruta">;
 
-/** Una imagen ya resuelta para pintar en la galería. */
-export interface ArchivoVisualizable extends Archivo {
-  /** URL firmada o pública. Se genera al cargar la galería, no se guarda. */
-  url: string;
-}
+/** Estado temporal de una miniatura; nunca forma parte de la fila persistida. */
+export type EstadoMiniatura =
+  | { estado: "pendiente" }
+  | { estado: "disponible"; url: string; venceEn: number }
+  | { estado: "fallida" };
+
+export type UrlsPorId = Record<string, EstadoMiniatura>;
 
 export function esVisualizable(mime: string): mime is TipoVisualizable {
   return TIPOS_VISUALIZABLES.some((tipo) => tipo === mime);
 }
-
-/**
- * `US-10.x`: la galería ordena por fecha, más reciente primero. El DDL ya tiene
- * `creado_en`, pero el índice ayuda porque la consulta siempre viene filtrada
- * por paciente.
- */
-export const ORDEN_GALERIA = "creado_el desc";

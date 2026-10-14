@@ -16,6 +16,37 @@ errores. Aviso de chunks grandes conservado. Sin cambios funcionales, SQL nuevo,
 modificaciones Supabase, git add, commit ni push en este cierre.
 Horas todavía por registrar por Angélica, sin inventar estimaciones.
 
+## Cierre de tareas del Módulo 10 — 2026-10-14
+
+T-10.1 a T-10.10 implementadas y validadas según confirmación final del equipo.
+Asociación con evolución/plan aplicada y validada; integración en ficha,
+imágenes/documentos, galería, visor con zoom y descarga funcionando.
+Los pendientes de validación de las entradas históricas M10 conservan el estado
+de cada avance, pero quedaron superados por esta confirmación final.
+
+- [x] T-10.1 Tabla archivos y RLS.
+- [x] T-10.2 Bucket privado y políticas de Storage.
+- [x] T-10.3 Componente de subida de archivos.
+- [x] T-10.4 Subida de imágenes JPG/PNG/WEBP y radiografías.
+- [x] T-10.5 Subida de PDF.
+- [x] T-10.6 Galería de archivos del paciente.
+- [x] T-10.7 Visor de imágenes con zoom.
+- [x] T-10.8 Descarga de imágenes y documentos.
+- [x] T-10.9 Asociación con evolución clínica o plan de tratamiento.
+- [x] T-10.10 Integración en ficha del paciente.
+
+Pendiente funcional separado: cuota global configurable de 5 GB por clínica,
+NO implementada; queda para una etapa posterior. El límite de 10 MiB por archivo
+no equivale a esa cuota. Limpieza durable de posibles huérfanos de Storage:
+deuda técnica no bloqueante para este commit.
+Sin SQL ejecutado, cambios Supabase, staging, commit ni push en esta auditoría.
+Horas pendientes de registrar por Angélica, sin estimaciones inventadas.
+
+Verificación local del cierre M10: 146 tests aprobados, 0 fallidos;
+`npm.cmd run build` correcto; `npm.cmd run lint` sin errores, 15 warnings
+externos existentes sin corregir; `git diff --check` sin errores. Aviso de
+chunks mayores de 500 kB conservado. Ninguna hora estimada ni registrada.
+
 ## Asignación (INDEX.md)
 
 | Fase | Mes | Responsabilidad |
@@ -93,6 +124,7 @@ superados por el cierre formal anterior; no son pendientes funcionales actuales.
 
 | Fecha | ID | Qué hice | Estado | Horas |
 |-------|----|----|--------|-------|
+| 2026-10-14 | Cierre T-10.1–T-10.10 | Confirmación final del equipo: diez tareas implementadas y validadas, asociación evolución/plan aplicada, subida de imágenes/PDF, galería, visor, descarga e integración en ficha funcionando. Auditados diffs, contrato SQL local y documentación; cuota global configurable de 5 GB pendiente para etapa posterior, limpieza durable de huérfanos como deuda técnica no bloqueante. Sin SQL/Supabase ni staging/commit/push. | T-10.1 a T-10.10 completadas; alcance de cuota excluido | Pendiente de registrar por Angélica |
 | | | | | |
 | 2026-10-13 | Cierre M05 / T-5.1–T-5.10 / US-5.1–US-5.7 | Confirmación de validación manual final y de las tres migraciones aplicadas/verificadas; cancelados suman, aprobado por Matías. Auditados criterios oficiales, implementación/tests, SQL local y owner_role, status/diff/exclusiones. README consolidados y checklist formal cerrado. Tests finales 429 aprobados, 0 fallidos; build correcto; lint sin errores y 15 warnings externos; diff check correcto. Commit propuesto selectivo con hunks M05 de archivos mixtos; cambios M10 conservados. Sin SQL/Supabase ni git add/commit/push. | Módulo 05 completado y listo para commit selectivo | Pendiente de registrar por Angélica |
 | 2026-10-13 | T-5.10 | Retoma tras corte de sesión: inspeccionados git diff y archivos actuales; frontend de total ya implementado, con relectura concreta, error parcial/reintento solo SELECT, reconciliación, aislamiento e impresión. Conservado código y 21 tests existentes sin rehacer trabajo válido. Reejecutados comandos solicitados: 429 tests aprobados, 0 fallidos; build correcto; lint sin errores, 15 warnings externos existentes y aviso de chunks grandes conservados. Portal compatible sin cambios. Solo registro documental, sin SQL/Supabase ni commit. | Implementada; lista para validación manual de navegador. Módulo 05 aún no cerrado | Pendiente de registrar por Angélica |
@@ -116,6 +148,11 @@ superados por el cierre formal anterior; no son pendientes funcionales actuales.
 | 2026-10-12 | T-5.6 | Implementación asistida de CRUD propio de procedimientos por id real del plan/clínica: tipos/mapper/servicio/permisos/hook/controladores y UI integrada en plan seleccionado. Prioridades/estados exactos, FDI y costo validado; creación pendiente, edición con lista blanca y DELETE confirmado tras confirmación visual. Reconciliación sin F5, cambio de plan y respuestas tardías aisladas. 34 tests nuevos, 312 totales aprobados; build correcto; lint sin errores y 15 warnings externos existentes. Sin SQL, cambios Supabase ni commit; sin modificar estado/costo_total del plan. T-5.7–T-5.10 pendientes. | Implementada; lista para validación manual | Pendiente de registrar por Angélica |
 | 2026-10-11 | T-5.4 | Validación manual confirmada por el equipo al continuar T-5.5; actualizado estado sin modificar el flujo validado de diagnósticos. | Completada y validada manualmente | Pendiente de registrar por Angélica |
 | 2026-10-11 | T-5.5 | Implementación asistida de planes explícitos: mapper/servicio/hooks/controladores propios, título obligatorio, notas sincronizadas con guardado explícito, selector por id real y estado de solo lectura. Permisos autor/clínica y RLS existente; eliminado INSERT automático del store y acciones implícitas antiguas. Integración e impresión por plan seleccionado. 28 tests nuevos, 278 totales aprobados; build correcto; lint sin errores, 15 warnings externos existentes. SQL/Supabase sin cambios y sin commit. T-5.6–T-5.10 pendientes. | Implementada; lista para validación manual | Pendiente de registrar por Angélica |
+| 2026-10-06 | T-10.6 | Implementación asistida de galería del paciente: consulta por UUID, orden creado_en descendente, miniaturas con URLs privadas y renovación, estados y recarga. Verificación: 85 tests aprobados, build correcto, lint sin errores y 15 warnings fuera del módulo. | Implementada a nivel de código; pendiente validación manual en navegador/Supabase e integración T-10.10 | Pendiente de registrar por Angélica |
+| 2026-10-06 | T-10.7 | Implementación asistida del visor de imágenes con Radix Dialog, zoom 1x–4x, scroll, cierre accesible, recuperación individual de firmas sin duplicados y conservación de zoom al renovar. Verificación: 97 tests aprobados, build correcto, lint sin errores y 15 warnings fuera del módulo. | Implementada a nivel de código; lista para validación manual con sesión y archivos reales | Pendiente de registrar por Angélica |
+| 2026-10-06 | T-10.8 | Implementación asistida de descarga autenticada JPG/PNG/WEBP/PDF desde galería y visor: metadatos confirmados por id/paciente, nombre original, Blob y revocación diferida, bloqueo por archivo y cancelación. Verificación: 117 tests aprobados, build correcto, lint sin errores y 15 warnings fuera del módulo. | Implementada a nivel de código; lista para validación manual con sesión y archivos reales | Pendiente de registrar por Angélica |
+| 2026-10-06 | T-10.9 | Reanudación: antes del corte solo existía el plan; se preservaron T-10.1–T-10.8. Preparada migración incremental con FKs compuestas, guard restrictivo e inmutabilidad y script de verificación manual; tipos, preflight, selectores y resúmenes implementados. 133 tests aprobados y build correcto. SQL no ejecutado. | Código preparado; pendiente aplicación por Matías y validación RLS/navegador | Pendiente de registrar por Angélica |
+| 2026-10-06 | T-10.10 | Integración autorizada de pestaña Archivos en ficha; contenedor/contexto real, diálogo Radix, permisos visuales, estado de escritura y refresh único de galería. 144 tests aprobados, build correcto, lint sin errores y 15 warnings existentes fuera del módulo. Sin SQL ni commits. Cuota 5 GB sigue como requisito funcional separado pendiente. | Implementada a nivel de código; pendiente validación manual final T-10.7–T-10.10 | Pendiente de registrar por Angélica |
 | 2026-10-11 | T-5.1 | Preparación asistida autorizada de migración incremental sobre las tres tablas existentes: UPDATE faltantes, RLS por rol/clínica/autor, seis FKs compuestas, CHECK/NOT NULL, contexto inmutable y preflight sin corrección automática. Script de verificación con catálogos y fixtures temporales, RLS simulado y ROLLBACK. Reutiliza helpers y triggers actuales; título nullable por compatibilidad. Revisión estática de sintaxis SQL/PLpgSQL; sin ejecutar SQL, sin cambios frontend y sin commits. | Preparada para revisión y aplicación controlada por Matías; pendiente validación SQL/JWT reales. T-5.1 no cerrada todavía | Pendiente de registrar por Angélica |
 | 2026-10-11 | T-5.1 | El equipo confirma aplicación y validación correcta de T-5.1 en Supabase real. Se actualiza el checklist; no se ejecutó SQL adicional por el agente. | Completada y validada según confirmación del equipo | Pendiente de registrar por Angélica |
 | 2026-10-11 | T-5.2 | Formulario asistido de diagnóstico con descripción, pieza FDI opcional, observaciones, edición y cambio de estado separado; loading, error accesible, bloqueo síncrono de doble envío y conservación de borrador ante fallo. Integración mínima en TreatmentTab y checklist manual preparada. Verificación conjunta T-5.2/T-5.3: 22 tests nuevos, 227 totales aprobados, build correcto y lint sin errores con 15 warnings externos existentes. | Implementada; pendiente validación manual con sesión y paciente reales | Pendiente de registrar por Angélica |

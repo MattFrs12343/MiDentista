@@ -15,6 +15,7 @@ import { EvolutionTab } from "@/features/evolucion/EvolutionTab";
 import { PagosTab } from "@/features/pagos/PagosTab";
 import { precargarVista3D } from "@/features/odontogram/precargaVista3D";
 import { esTabValida } from "@/features/patients/tabValue";
+import { PatientFilesSection } from "@/features/archivos/PatientFilesSection.tsx";
 import { usePacienteTratamiento } from "@/features/treatment/usePacienteTratamiento.ts";
 import { Button } from "@/components/ui/button";
 
@@ -90,7 +91,7 @@ export function PatientProfilePage() {
       <Tabs
         value={tabActiva}
         onValueChange={(v) => setSearchParams({ tab: v }, { replace: true })}
-        className="flex flex-col gap-5"
+        className="flex min-w-0 flex-col gap-5"
       >
         <TabsList>
           <TabsTrigger value="datos">Datos personales</TabsTrigger>
@@ -98,6 +99,7 @@ export function PatientProfilePage() {
           <TabsTrigger value="odontograma">Odontograma</TabsTrigger>
           <TabsTrigger value="tratamiento">Diagnóstico y tratamiento</TabsTrigger>
           <TabsTrigger value="evolucion">Evolución</TabsTrigger>
+          <TabsTrigger value="archivos">Archivos</TabsTrigger>
           <TabsTrigger value="pagos">Pagos</TabsTrigger>
         </TabsList>
 
@@ -126,6 +128,9 @@ export function PatientProfilePage() {
               Cargando perfil…
             </p>
           )}
+        </TabsContent>
+        <TabsContent value="archivos" className="min-w-0">
+          <PatientFilesSection pacienteId={paciente.id} perfil={miPerfil} rol={sesion?.rol ?? null} />
         </TabsContent>
         <TabsContent value="pagos">
           {miPerfil ? (
