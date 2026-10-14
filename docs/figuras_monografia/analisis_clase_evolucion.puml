@@ -1,0 +1,36 @@
+@startuml analisis_clase_evolucion
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+hide empty members
+
+title Análisis de la clase Evolución clínica (PK-06)
+
+class "Evolución clínica" as EvolucionClinica <<entity>> {
+  fecha de la consulta
+  motivo de la consulta
+  procedimiento realizado
+  pieza dental asociada (opcional)
+  observaciones
+  indicaciones para el paciente
+  próxima atención (opcional)
+}
+
+class Paciente <<entity>>
+class Odontólogo <<entity>>
+class "Plan de tratamiento" as PlanTratamiento <<entity>>
+class Procedimiento <<entity>>
+
+Paciente "1" -- "0..*" EvolucionClinica : acumula
+Odontólogo "1" -- "0..*" EvolucionClinica : registra
+EvolucionClinica "0..*" -- "0..1" PlanTratamiento : se atribuye a\n(solo lectura)
+EvolucionClinica "0..*" -- "0..1" Procedimiento : ejecuta\n(solo lectura)
+
+note bottom of EvolucionClinica
+  Responsabilidad: documentar lo que
+  ocurrió en una atención y, si corresponde,
+  la próxima cita. No conoce ni modifica el
+  estado del plan de tratamiento: esa
+  responsabilidad es del paquete PK-05.
+end note
+@enduml

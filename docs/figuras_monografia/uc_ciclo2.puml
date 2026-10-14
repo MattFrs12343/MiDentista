@@ -1,0 +1,49 @@
+@startuml uc_ciclo2
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  PackageBorderColor 1F2D3D
+  PackageFontColor 1F2D3D
+  PackageFontStyle bold
+  PackageBackgroundColor FFFFFF
+  UseCaseFontSize 11
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+}
+
+actor "Odontólogo\nadministrador" as ODOA
+actor "Odontólogo" as ODO
+actor "Paciente" as PAC
+
+package "PK-06\nEvolución clínica" as PK06 {
+  usecase "UC-31\nRegistrar evolución" as U31
+  usecase "UC-32\nRegistrar próxima atención" as U32
+  usecase "UC-33\nConsultar evolución cronológica" as U33
+}
+
+ODOA --> U31
+ODOA --> U33
+ODO --> U31
+ODO --> U33
+U32 .> U31 : <<extend>>
+PAC --> U33 : <<lectura propia>>
+
+note right of U32
+  Se registra junto con UC-31
+  en el mismo formulario; es
+  opcional y no genera un
+  recordatorio automático (hueco
+  documentado en validacion-us.md).
+end note
+
+note bottom of PK06
+  PK-06 depende de PK-05
+  (Diagnóstico y plan de
+  tratamiento) y de PK-07
+  (Agenda y citas): ver Figura 41.
+end note
+@enduml

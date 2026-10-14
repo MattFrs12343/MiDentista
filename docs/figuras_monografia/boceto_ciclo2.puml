@@ -1,0 +1,22 @@
+@startsalt
+{
+  Línea de tiempo (EvolutionTimeline)
+  {
+    [2026-10-05] Control de endodoncia pieza 36 - vinculado a Plan de endodoncia pieza 36
+    [2026-09-28] Limpieza y placa bacteriana - próxima atención: 2026-10-20
+    [2026-09-10] Primera consulta - motivo: dolor al masticar
+  }
+  ==
+  Nueva evolución (EvolutionForm)
+  {
+    Motivo de la consulta | "                    "
+    Procedimiento realizado | "                    "
+    Pieza dental (0-32, opcional) | "  "
+    Observaciones | "                    "
+    Indicaciones | "                    "
+    Plan de tratamiento (opcional, solo lectura) | ^Sin plan^
+    Próxima atención (opcional) | "aaaa-mm-dd"
+  }
+  [Cancelar] | [Guardar evolución]
+}
+@endsalt

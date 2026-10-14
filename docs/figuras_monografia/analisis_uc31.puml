@@ -1,0 +1,32 @@
+@startuml analisis_uc31
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+title Análisis del caso de uso UC-31. Registrar evolución clínica
+
+actor "Odontólogo" as ODO
+
+boundary "Pantalla de evolución\n(EvolutionTab / EvolutionForm)" as B1
+control "Controlador de registro\nde evolución\n(evolucionService)" as C1
+entity "Evolución clínica" as E1
+entity "Paciente" as E2
+entity "Plan de tratamiento\n(lectura, módulo 05)" as E3
+entity "Procedimiento\n(lectura, módulo 05)" as E4
+
+ODO -- B1
+B1 -- C1
+C1 -- E1
+C1 ..> E2 : valida que\npertenezca a la clínica
+C1 ..> E3 : lee planes\nvinculables
+C1 ..> E4 : lee procedimientos\ndel plan elegido
+E1 --> E2
+E1 ..> E3 : referencia opcional
+E1 ..> E4 : referencia opcional
+
+note right of E3
+  Solo lectura: este caso de uso
+  no escribe en planes_tratamiento
+  ni actualiza su estado (hueco 3
+  de validacion-us.md).
+end note
+@enduml
