@@ -4,7 +4,6 @@ import type {
   Paciente,
   HistoriaClinica,
   CondicionPieza,
-  Diagnostico,
   PlanTratamiento,
   ItemTratamiento,
   PrioridadTratamiento,
@@ -127,23 +126,12 @@ function piezasValidas(piezas: unknown): CondicionPieza[] {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapDiagnostico(r: any): Diagnostico {
-  return {
-    id: r.id,
-    descripcion: r.descripcion,
-    pieza: r.numero_pieza ?? undefined,
-    registradoEl: fechaCorta(r.fecha_diagnostico),
-  };
-}
-
 const PRIORIDAD_DB_A_FRONT: Record<string, PrioridadTratamiento> = {
   urgente: "alta",
   alta: "alta",
   normal: "media",
   baja: "baja",
 };
-const PRIORIDAD_FRONT_A_DB: Record<PrioridadTratamiento, string> = { alta: "alta", media: "normal", baja: "baja" };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapItemTratamiento(r: any): ItemTratamiento {
@@ -198,13 +186,7 @@ interface ClinicaStore {
   odontogramaDe: (pacienteId: string) => CondicionPieza[];
   registrarCondicion: (pacienteId: string, condicion: CondicionPieza) => void;
 
-  diagnosticosDe: (pacienteId: string) => Diagnostico[];
-  registrarDiagnostico: (pacienteId: string, descripcion: string, pieza?: number) => void;
-
   planDe: (pacienteId: string) => PlanTratamiento;
-  agregarItemPlan: (pacienteId: string, item: Omit<ItemTratamiento, "id">) => void;
-  quitarItemPlan: (pacienteId: string, itemId: string) => void;
-  actualizarObservacionesPlan: (pacienteId: string, observaciones: string) => void;
 
   /** Disponibilidad semanal del odontologo. */
   horarios: Horario[];
@@ -228,7 +210,6 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [historias, setHistorias] = useState<Record<string, HistoriaClinica>>({});
   const [odontogramas, setOdontogramas] = useState<Record<string, CondicionPieza[]>>({});
-  const [diagnosticos, setDiagnosticos] = useState<Record<string, Diagnostico[]>>({});
   const [planes, setPlanes] = useState<Record<string, PlanTratamiento>>({});
   const [citas, setCitas] = useState<Cita[]>([]);
   const [horarios, setHorarios] = useState<Horario[]>([]);
@@ -316,20 +297,11 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
         else setOdontogramas((prev) => ({ ...prev, [pacienteId]: piezasValidas(data?.piezas) }));
       });
 
-    supabase
-      .from("diagnosticos")
-      .select("*")
-      .eq("paciente_id", pacienteId)
-      .order("creado_en", { ascending: false })
-      .then(({ data, error }) => {
-        if (error) console.error("No se pudieron cargar los diagnósticos:", error);
-        else setDiagnosticos((prev) => ({ ...prev, [pacienteId]: (data ?? []).map(mapDiagnostico) }));
-      });
-
     cargarPlan(pacienteId);
   }
 
-  async function obtenerOCrearPlanRow(pacienteId: string) {
+  // Compatibilidad de lectura del dashboard; la pestaña usa su propio servicio.
+  async function obtenerPlanRow(pacienteId: string) {
     const existente = await supabase
       .from("planes_tratamiento")
       .select("*")
@@ -337,25 +309,19 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
       .order("creado_en", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (existente.data) return existente.data;
-
-    if (!miPerfil) throw new Error("No se pudo identificar tu perfil");
-    const creado = await supabase
-      .from("planes_tratamiento")
-      .insert({ clinica_id: miPerfil.clinicaId, paciente_id: pacienteId, odontologo_id: miPerfil.id })
-      .select("*")
-      .single();
-    if (creado.error || !creado.data) throw creado.error ?? new Error("No se pudo crear el plan");
-    return creado.data;
+    if (existente.error) throw existente.error;
+    return existente.data;
   }
 
   async function construirPlan(pacienteId: string): Promise<PlanTratamiento> {
-    const plan = await obtenerOCrearPlanRow(pacienteId);
-    const { data: items } = await supabase
+    const plan = await obtenerPlanRow(pacienteId);
+    if (!plan) return planVacio(pacienteId);
+    const { data: items, error } = await supabase
       .from("procedimientos_tratamiento")
       .select("*")
       .eq("plan_tratamiento_id", plan.id)
       .order("creado_en", { ascending: true });
+    if (error) throw error;
     return {
       pacienteId,
       items: (items ?? []).map(mapItemTratamiento),
@@ -568,69 +534,9 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
         });
       },
 
-      diagnosticosDe: (pacienteId) => {
-        cargarFicha(pacienteId);
-        return diagnosticos[pacienteId] ?? [];
-      },
-      registrarDiagnostico: (pacienteId, descripcion, pieza) => {
-        (async () => {
-          if (!miPerfil) throw new Error("No se pudo identificar tu perfil");
-          const { data, error } = await supabase
-            .from("diagnosticos")
-            .insert({
-              clinica_id: miPerfil.clinicaId,
-              paciente_id: pacienteId,
-              odontologo_id: miPerfil.id,
-              numero_pieza: pieza ?? null,
-              descripcion,
-            })
-            .select("*")
-            .single();
-          if (error || !data) throw error ?? new Error("No se pudo registrar el diagnóstico");
-          const nuevo = mapDiagnostico(data);
-          setDiagnosticos((prev) => ({ ...prev, [pacienteId]: [nuevo, ...(prev[pacienteId] ?? [])] }));
-        })().catch((e) => console.error("No se pudo registrar el diagnóstico:", e));
-      },
-
       planDe: (pacienteId) => {
         cargarFicha(pacienteId);
         return planes[pacienteId] ?? planVacio(pacienteId);
-      },
-      agregarItemPlan: (pacienteId, item) => {
-        (async () => {
-          const plan = await obtenerOCrearPlanRow(pacienteId);
-          const { error } = await supabase.from("procedimientos_tratamiento").insert({
-            clinica_id: miPerfil?.clinicaId,
-            plan_tratamiento_id: plan.id,
-            numero_pieza: item.pieza ?? null,
-            descripcion: item.procedimiento,
-            prioridad: PRIORIDAD_FRONT_A_DB[item.prioridad] ?? "normal",
-            costo: item.costoEstimado ?? 0,
-          });
-          if (error) throw error;
-          const actualizado = await construirPlan(pacienteId);
-          setPlanes((prev) => ({ ...prev, [pacienteId]: actualizado }));
-        })().catch((e) => console.error("No se pudo agregar el procedimiento:", e));
-      },
-      quitarItemPlan: (pacienteId, itemId) => {
-        (async () => {
-          const { error } = await supabase.from("procedimientos_tratamiento").delete().eq("id", itemId);
-          if (error) throw error;
-          const actualizado = await construirPlan(pacienteId);
-          setPlanes((prev) => ({ ...prev, [pacienteId]: actualizado }));
-        })().catch((e) => console.error("No se pudo quitar el procedimiento:", e));
-      },
-      actualizarObservacionesPlan: (pacienteId, observaciones) => {
-        (async () => {
-          const plan = await obtenerOCrearPlanRow(pacienteId);
-          const { error } = await supabase
-            .from("planes_tratamiento")
-            .update({ notas: observaciones })
-            .eq("id", plan.id);
-          if (error) throw error;
-          const actualizado = await construirPlan(pacienteId);
-          setPlanes((prev) => ({ ...prev, [pacienteId]: actualizado }));
-        })().catch((e) => console.error("No se pudieron guardar las observaciones del plan:", e));
       },
 
       horarios,
@@ -691,7 +597,7 @@ export function ClinicaDataProvider({ children }: { children: ReactNode }) {
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pacientes, historias, odontogramas, diagnosticos, planes, citas, horarios, correo, responsable, miPerfil],
+    [pacientes, historias, odontogramas, planes, citas, horarios, correo, responsable, miPerfil],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

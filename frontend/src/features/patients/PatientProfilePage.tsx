@@ -15,16 +15,20 @@ import { EvolutionTab } from "@/features/evolucion/EvolutionTab";
 import { PagosTab } from "@/features/pagos/PagosTab";
 import { precargarVista3D } from "@/features/odontogram/precargaVista3D";
 import { esTabValida } from "@/features/patients/tabValue";
+import { usePacienteTratamiento } from "@/features/treatment/usePacienteTratamiento.ts";
+import { Button } from "@/components/ui/button";
 
 export function PatientProfilePage() {
   const { pacienteId } = useParams<{ pacienteId: string }>();
   const { obtenerPaciente, miPerfil } = useClinicaData();
   const { sesion } = useAuth();
   const puedeCobrar = sesion?.rol === "recepcionista" || sesion?.rol === "odontologo_admin";
-  const paciente = pacienteId ? obtenerPaciente(pacienteId) : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const tabActiva = esTabValida(tabParam) ? tabParam : "datos";
+  const contextoTratamiento = usePacienteTratamiento(pacienteId ?? "", sesion, tabActiva === "tratamiento");
+  const paciente = tabActiva === "tratamiento" ? contextoTratamiento.datos?.paciente
+    : pacienteId ? obtenerPaciente(pacienteId) : undefined;
 
   // Anticipa la descarga del arco 3D al abrir cualquier ficha, así la pestaña
   // de odontograma no arranca con la vista en blanco.
@@ -40,6 +44,13 @@ export function PatientProfilePage() {
   });
 
   if (!pacienteId) return <Navigate to="/app/pacientes" replace />;
+  if (tabActiva === "tratamiento" && contextoTratamiento.estado !== "success") {
+    return <section aria-label="Ficha de diagnóstico y tratamiento" aria-busy={contextoTratamiento.estado === "loading"}>
+      {contextoTratamiento.estado === "error" ? <><p role="alert">{contextoTratamiento.error}</p>
+        <Button type="button" onClick={() => void contextoTratamiento.recargar()}>Reintentar carga del paciente</Button></>
+        : <p role="status">Cargando paciente para diagnóstico y tratamiento…</p>}
+    </section>;
+  }
   if (!paciente) {
     return (
       <div className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-ink-muted">
@@ -100,7 +111,8 @@ export function PatientProfilePage() {
           <OdontogramTab pacienteId={paciente.id} />
         </TabsContent>
         <TabsContent value="tratamiento">
-          <TreatmentTab pacienteId={paciente.id} />
+          <TreatmentTab key={JSON.stringify([paciente.id, sesion?.email, sesion?.rol, sesion?.clinicaSlug, contextoTratamiento.datos?.clinicaId])}
+            pacienteId={paciente.id} paciente={paciente} clinicaId={contextoTratamiento.datos?.clinicaId} />
         </TabsContent>
         <TabsContent value="evolucion">
           {miPerfil ? (
