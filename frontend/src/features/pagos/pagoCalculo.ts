@@ -64,3 +64,13 @@ export function montoAceptable(
   if (propuesto <= 0) return 0;
   return redondear(Math.min(propuesto, Math.max(0, saldoPendiente)));
 }
+
+/**
+ * Saldo que quedaría tras aplicar un abono (US-9.4).
+ *
+ * Un abono mayor que el saldo se topa con `montoAceptable`, así que el resultado
+ * nunca es negativo: pagar de más deja el saldo en cero, no en deuda.
+ */
+export function saldoTrasAbono(saldoPendiente: number, montoPropuesto: Decimal): number {
+  return redondear(Math.max(0, aNumero(saldoPendiente) - montoAceptable(saldoPendiente, montoPropuesto)));
+}
