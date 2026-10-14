@@ -373,11 +373,13 @@ export function DashboardOdontologo() {
             </CardContent>
           </Card>
 
-          <AtendidosHoy
-            citas={citas}
-            pacientes={pacientes}
-            onIr={(id) => navigate(`/app/pacientes/${id}`)}
-          />
+          <div className="dashboard-atendidos">
+            <AtendidosHoy
+              citas={citas}
+              pacientes={pacientes}
+              onIr={(id) => navigate(`/app/pacientes/${id}`)}
+            />
+          </div>
         </div>
       </section>
 
