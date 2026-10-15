@@ -6,10 +6,10 @@ import { cargarPagosPendientes } from "./dashboardRecepcionService";
 
 /**
  * Roles que pueden ver las deudas de la clínica (README del módulo 13):
- * recepción cobra, y el odontólogo administrador ve la clínica completa.
+ * recepción cobra.
  * Cualquier otro rol queda en `sinPermiso` sin tocar la red.
  */
-const ROLES_CON_DEUDAS: readonly string[] = ["recepcionista", "odontologo_admin"];
+const ROLES_CON_DEUDAS: readonly string[] = ["recepcionista"];
 
 /**
  * Carga los pagos pendientes de la clínica para el panel de recepción (T-13.3).

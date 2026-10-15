@@ -5,10 +5,10 @@ import { cargarTratamientosClinica } from "./dashboardOdontologoService";
 import { crearResumenTratamientosVacio, type ResumenTratamientos } from "./odontologoResumen";
 
 /**
- * Roles que pueden ver los tratamientos de la clínica: el odontólogo y su
- * administrador. Cualquier otro rol queda en `sinPermiso` sin tocar la red.
+ * Roles que pueden ver los tratamientos de la clínica: el odontólogo.
+ * Cualquier otro rol queda en `sinPermiso` sin tocar la red.
  */
-const ROLES_CON_TRATAMIENTOS: readonly string[] = ["odontologo", "odontologo_admin"];
+const ROLES_CON_TRATAMIENTOS: readonly string[] = ["odontologo"];
 
 /**
  * Carga el resumen de tratamientos por estado para el panel del odontólogo

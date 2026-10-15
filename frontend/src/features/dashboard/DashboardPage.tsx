@@ -1,28 +1,23 @@
 ﻿import type { ComponentType } from "react";
 import { useAuth } from "@/features/auth/AuthContext";
-import type { RolConDashboard } from "./tipos";
-import { DashboardAdmin } from "./DashboardAdmin";
+import type { Role } from "@/types";
 import { DashboardOdontologo } from "./DashboardOdontologo";
 import { DashboardPaciente } from "./DashboardPaciente";
 import { DashboardRecepcion } from "./DashboardRecepcion";
 import { DashboardSuperadmin } from "./DashboardSuperadmin";
+import { DashboardPlaceholder } from "./DashboardPlaceholder";
 
 /**
  * Selector del dashboard por rol (T-13.1).
  *
- * El modulo 13 es una matriz de roles: cada sesion ve un panel distinto segun
- * su `rol`. Este componente es solo el reparto; el panel real vive en cada
- * archivo de rol (`DashboardOdontologo`, `DashboardAdmin`, etc.). Los roles que
- * todavia no se implementaron apuntan a un andamiaje temporal.
- *
- * El registro se tipa con `RolConDashboard` (de `tipos.ts`), asi que TypeScript
- * obliga a cubrir los cinco roles y no se puede olvidar ninguno. No se toca
- * `App.tsx`: se conserva el mismo archivo y el mismo export `DashboardPage` que
- * importa su `lazy()`.
+ * Cuatro roles vigentes: superadmin, odontologo, recepcionista y paciente.
+ * `odontologo_admin` fue descartado del proyecto, pero `Role` de `@/types`
+ * todavia lo declara (archivo de integracion de Matias), asi que el mapa se
+ * tipa con `Partial<Record<Role, ...>>` y un rol sin panel cae en un estado
+ * "rol no disponible" en vez de una pantalla en blanco.
  */
-const DASHBOARDS: Record<RolConDashboard, ComponentType> = {
+const DASHBOARDS: Partial<Record<Role, ComponentType>> = {
   superadmin: DashboardSuperadmin,
-  odontologo_admin: DashboardAdmin,
   recepcionista: DashboardRecepcion,
   odontologo: DashboardOdontologo,
   paciente: DashboardPaciente,
@@ -30,9 +25,18 @@ const DASHBOARDS: Record<RolConDashboard, ComponentType> = {
 
 export function DashboardPage() {
   const { sesion } = useAuth();
-  // `RequireAuth` ya garantiza una sesion, pero el tipo admite null.
   if (!sesion) return null;
 
   const Panel = DASHBOARDS[sesion.rol];
+  if (!Panel) {
+    return (
+      <DashboardPlaceholder
+        titulo="Panel no disponible"
+        subtitulo="Rol sin dashboard asignado"
+        tono="violet"
+        descripcion="El rol de tu cuenta no tiene un panel asignado en esta versión de MiDentista."
+      />
+    );
+  }
   return <Panel />;
 }
