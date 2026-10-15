@@ -108,7 +108,7 @@ export function PaymentForm({
   };
 
   return (
-    <Card>
+    <Card className="fade-in-up">
       <CardHeader>
         <CardTitle>Registrar pago</CardTitle>
         <CardDescription>

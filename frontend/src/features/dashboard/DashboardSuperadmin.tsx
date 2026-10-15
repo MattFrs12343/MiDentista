@@ -40,7 +40,7 @@ export function DashboardSuperadmin() {
   const estado = estadoDashboard(datos, estaVacioResumen);
 
   return (
-    <div className="dashboard-page flex flex-col gap-6">
+    <div className="dashboard-page fade-in-up flex flex-col gap-6">
       {estado !== "listo" ? (
         <DashboardEmptyState
           datos={datos}

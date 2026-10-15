@@ -14,7 +14,7 @@ export function TratamientoFichaSections({ paciente, diagnosticos, planes, vista
   vista: ReturnType<typeof usePlanesPorEstado>; enlaceInvalido: boolean; limpiarEnlace: () => void;
   abrirPlan: (id: string) => void; listoImprimir: boolean; imprimir: () => void;
 }) {
-  return <div className="flex min-w-0 flex-col gap-5">
+  return <div className="fade-in-up flex min-w-0 flex-col gap-5">
     <header><h2 className="font-semibold">Diagnóstico y tratamiento</h2>
       <p>Ficha de {paciente.nombres} {paciente.apellidos}. Selecciona un plan del paciente para consultar sus procedimientos.</p></header>
     <DiagnosticosSection key={diagnosticos.clave} datos={diagnosticos} />

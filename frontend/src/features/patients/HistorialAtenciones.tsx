@@ -14,7 +14,7 @@ import {
   contarAtenciones,
   type AtencionHistorial,
   type TipoAtencion,
-} from "@/features/patients/historialAtenciones";
+} from "@/features/patients/historialAtencionesMapper";
 
 type Tono = "neutral" | "blue" | "green" | "red" | "yellow" | "violet";
 
@@ -85,7 +85,7 @@ export function HistorialAtenciones({ pacienteId }: { pacienteId: string }) {
         : `${conteo.total} atenciones en el historial`;
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4 fade-in-up">
       <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-2">
         <div className="min-w-0">
           <h3 className="title-ios text-[17px] font-semibold text-label">Historial de atenciones</h3>

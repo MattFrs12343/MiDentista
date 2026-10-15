@@ -8,6 +8,7 @@ import { useClinicaData } from "@/data/store";
 import { useAuth } from "@/features/auth/AuthContext";
 import { PatientHero } from "@/features/patients/PatientHero";
 import { PersonalDataTab } from "@/features/patients/PersonalDataTab";
+import { HistorialAtenciones } from "@/features/patients/HistorialAtenciones";
 import { ClinicalHistoryTab } from "@/features/clinical/ClinicalHistoryTab";
 import { OdontogramTab } from "@/features/odontogram/OdontogramTab";
 import { TreatmentTab } from "@/features/treatment/TreatmentTab";
@@ -79,6 +80,7 @@ export function PatientProfilePage() {
           <TabsTrigger value="evolucion">Evolución</TabsTrigger>
           <TabsTrigger value="archivos">Archivos</TabsTrigger>
           <TabsTrigger value="pagos">Pagos</TabsTrigger>
+          <TabsTrigger value="historial">Historial de atenciones</TabsTrigger>
         </TabsList>
 
         <TabsContent value="datos">
@@ -118,6 +120,9 @@ export function PatientProfilePage() {
           ) : (
             <EmptyState size="sm" title="Cargando perfil…" />
           )}
+        </TabsContent>
+        <TabsContent value="historial">
+          <HistorialAtenciones pacienteId={paciente.id} />
         </TabsContent>
       </Tabs>
     </div>

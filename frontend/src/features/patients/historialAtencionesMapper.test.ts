@@ -6,7 +6,7 @@ import {
   atencionDesdeEvolucion,
   construirHistorialAtenciones,
   contarAtenciones,
-} from "./historialAtenciones.ts";
+} from "./historialAtencionesMapper.ts";
 import type { Cita } from "@/types";
 import type { EvolucionClinica } from "@/features/evolucion/tipos.ts";
 

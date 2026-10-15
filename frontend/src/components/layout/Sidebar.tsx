@@ -35,6 +35,7 @@ const principal: ItemMenu[] = [
     icon: Stethoscope,
     end: false,
   },
+  { to: "/app/presupuestos", label: "Presupuestos", icon: ReceiptX, end: false },
 ];
 
 const administracion: ItemMenu[] = [
@@ -43,7 +44,6 @@ const administracion: ItemMenu[] = [
 
 const proximamente: { label: string; icon: Icon }[] = [
   { label: "Agenda y citas", icon: CalendarBlank },
-  { label: "Presupuestos", icon: ReceiptX },
   { label: "Pagos y cuentas", icon: Wallet },
 ];
 

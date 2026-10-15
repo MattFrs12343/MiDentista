@@ -76,7 +76,7 @@ function SeccionArchivos({ pacienteId, perfil, rol, clave }: Props & { clave: st
   }
   const bloquear = modal !== null || escritura.subiendo || escritura.requiereRevision;
   return (
-    <section ref={seccion} tabIndex={-1} aria-label="Sección Archivos del paciente" className="flex min-w-0 flex-col gap-4">
+    <section ref={seccion} tabIndex={-1} aria-label="Sección Archivos del paciente" className="fade-in-up flex min-w-0 flex-col gap-4">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-ink">Archivos del paciente</h2>
         <div className="flex flex-wrap gap-2">

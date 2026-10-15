@@ -38,7 +38,7 @@ export function PartialPayment({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 rounded-tile border border-pastel-green-fg/25 bg-pastel-green-bg/40 px-3 py-2.5",
+        "flex flex-col gap-2 rounded-tile border border-pastel-green-fg/25 bg-pastel-green-bg/40 px-3 py-2.5 fade-in-up",
         className,
       )}
     >

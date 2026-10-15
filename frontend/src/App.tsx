@@ -26,6 +26,9 @@ const PatientProfilePage = lazy(() =>
 const PatientPickerPage = lazy(() =>
   import("@/features/patients/PatientPickerPage").then((m) => ({ default: m.PatientPickerPage })),
 );
+const PresupuestosPage = lazy(() =>
+  import("@/features/presupuestos/PresupuestosPage").then((m) => ({ default: m.PresupuestosPage })),
+);
 
 const AdminPage = lazy(() =>
   import("@/features/admin/AdminPage").then((m) => ({ default: m.AdminPage })),
@@ -202,6 +205,14 @@ export default function App() {
                       foto={bannerTratamiento}
                       fotoPosicion="60% center"
                     />
+                  </RequireStaff>
+                }
+              />
+              <Route
+                path="presupuestos"
+                element={
+                  <RequireStaff>
+                    <PresupuestosPage />
                   </RequireStaff>
                 }
               />

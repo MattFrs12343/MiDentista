@@ -127,7 +127,7 @@ export function EvolutionTab({
       : `${total} atenciones registradas`;
 
   return (
-    <div className="flex min-w-0 flex-col gap-5">
+    <div className="fade-in-up flex min-w-0 flex-col gap-5">
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="title-ios text-[17px] font-semibold text-label">Evolución clínica</h3>

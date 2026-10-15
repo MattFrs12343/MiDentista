@@ -67,7 +67,7 @@ export function PagosTab({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 fade-in-up">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="title-ios flex items-center gap-2 text-[17px] font-semibold text-label">
