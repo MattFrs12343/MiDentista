@@ -35,6 +35,12 @@
 --   apuntan a otra clínica. La clínica anterior deja de verlas: decisión de
 --   producto, no un descuido. Citas, presupuestos y pagos NO se mueven (son
 --   el registro de un turno o un cobro real en la clínica anterior).
+--
+--   Saldo pendiente bloquea el cambio de clínica: si el paciente le debe a la
+--   clínica actual (presupuestado no rechazado/borrador, menos lo pagado
+--   confirmado, > 0), `afiliar_paciente` corta con una excepción antes de
+--   tocar ninguna fila. No aplica a la primera afiliación (no hay clínica
+--   anterior a la que deberle nada).
 -- ============================================================================
 
 create or replace function public.afiliar_paciente(
@@ -47,9 +53,11 @@ security definer
 set search_path = public
 as $$
 declare
-    v_perfil           public.perfiles%rowtype;
-    v_paciente_id      uuid;
-    v_clinica_anterior uuid;
+    v_perfil              public.perfiles%rowtype;
+    v_paciente_id         uuid;
+    v_clinica_anterior    uuid;
+    v_total_presupuestado numeric;
+    v_total_pagado        numeric;
 begin
     -- Perfil del usuario autenticado que está llamando (vía auth.uid()).
     select *
@@ -75,6 +83,43 @@ begin
     end if;
 
     v_clinica_anterior := v_perfil.clinica_id;
+
+    -- Cambio de clínica (no primera afiliación) con saldo pendiente en la
+    -- clínica actual: bloqueado. Mismo cálculo que `calcularEstadoCuenta`
+    -- (frontend/src/features/pagos/pagoService.ts) y que el `resumen` de
+    -- `paciente/mi-ficha` (supabase/functions/api/index.ts): presupuestado
+    -- (sin 'rechazado'/'borrador') menos pagado (solo 'confirmado'), nunca
+    -- negativo. Se resuelve ANTES de tocar ninguna fila: si hay deuda, la
+    -- función corta aquí y no cambia nada.
+    if v_clinica_anterior is not null and v_clinica_anterior <> p_clinica_id then
+        select id
+          into v_paciente_id
+          from public.pacientes
+         where perfil_id = v_perfil.id
+         limit 1;
+
+        if v_paciente_id is not null then
+            select coalesce(sum(total), 0)
+              into v_total_presupuestado
+              from public.presupuestos
+             where paciente_id = v_paciente_id
+               and clinica_id = v_clinica_anterior
+               and estado not in ('rechazado', 'borrador');
+
+            select coalesce(sum(monto), 0)
+              into v_total_pagado
+              from public.pagos
+             where paciente_id = v_paciente_id
+               and clinica_id = v_clinica_anterior
+               and estado = 'confirmado';
+
+            if greatest(0, v_total_presupuestado - v_total_pagado) > 0 then
+                raise exception
+                    'No podés cambiarte de clínica mientras tengas un saldo pendiente de % en tu clínica actual. Regularizá el pago antes de afiliarte a otra.',
+                    greatest(0, v_total_presupuestado - v_total_pagado);
+            end if;
+        end if;
+    end if;
 
     -- Afiliación (o cambio de clínica): la clínica pasa a ser la del perfil.
     -- El teléfono se actualiza solo si el formulario trae uno nuevo.

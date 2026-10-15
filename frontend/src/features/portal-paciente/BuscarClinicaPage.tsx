@@ -80,6 +80,10 @@ export function BuscarClinicaPage() {
   const [sugerenciasAbiertas, setSugerenciasAbiertas] = useState(false);
 
   const yaAfiliado = ficha?.clinica ?? null;
+  /** Mismo criterio que `afiliar_paciente` en la base: un saldo pendiente en
+   * la clínica actual bloquea el cambio. Esto es solo para avisar antes de
+   * intentarlo; la función SQL es quien realmente lo impide. */
+  const tieneSaldoPendiente = (ficha?.resumen.saldoPendiente ?? 0) > 0;
 
   /**
    * Sugerencias "mientras se escribe": no esperan el debounce de `termino` ni
@@ -333,6 +337,8 @@ export function BuscarClinicaPage() {
     <TarjetaInfoClinica
       info={clinicaInfo}
       clinicaActualId={yaAfiliado?.id ?? null}
+      clinicaActualNombre={yaAfiliado?.nombre ?? null}
+      bloqueadaPorSaldo={tieneSaldoPendiente}
       onCerrar={() => setClinicaInfo(null)}
       onAfiliarme={() => {
         setSeleccionada(clinicaInfo.clinica);
@@ -710,12 +716,22 @@ export function BuscarClinicaPage() {
                   ) : null}
                 </div>
 
+                {yaAfiliado && yaAfiliado.id !== clinica.id && tieneSaldoPendiente ? (
+                  <p className="flex items-start gap-1.5 text-[12px] leading-snug text-pastel-red-fg">
+                    <WarningCircle size={14} weight="fill" className="mt-0.5 shrink-0" />
+                    Tenés un saldo pendiente en {yaAfiliado.nombre}. Regularizalo antes de cambiarte.
+                  </p>
+                ) : null}
                 <div className="mt-2 pt-1">
                   <Button
                     type="button"
                     variant={yaAfiliado && yaAfiliado.id !== clinica.id ? "secondary" : "primary"}
                     className="w-full"
-                    disabled={Boolean(esDemo) || yaAfiliado?.id === clinica.id}
+                    disabled={
+                      Boolean(esDemo) ||
+                      yaAfiliado?.id === clinica.id ||
+                      (Boolean(yaAfiliado) && yaAfiliado?.id !== clinica.id && tieneSaldoPendiente)
+                    }
                     onClick={() => setSeleccionada(clinica)}
                   >
                     {esDemo ? (
@@ -789,17 +805,23 @@ function SugerenciasClinica({
 function TarjetaInfoClinica({
   info,
   clinicaActualId,
+  clinicaActualNombre,
+  bloqueadaPorSaldo,
   onCerrar,
   onAfiliarme,
 }: {
   info: ClinicaConDistancia;
   clinicaActualId: string | null;
+  clinicaActualNombre: string | null;
+  /** Saldo pendiente en la clínica actual: bloquea el cambio (no la primera afiliación). */
+  bloqueadaPorSaldo: boolean;
   onCerrar: () => void;
   onAfiliarme: () => void;
 }) {
   const { clinica, distancia, demo } = info;
   const esLaActual = clinicaActualId === clinica.id;
   const esCambio = clinicaActualId != null && !esLaActual;
+  const cambioBloqueado = esCambio && bloqueadaPorSaldo;
   return (
     <div
       role="dialog"
@@ -854,6 +876,11 @@ function TarjetaInfoClinica({
           <p className="flex items-center gap-1.5 text-[12.5px] font-medium text-pastel-green-fg">
             <CheckCircle size={14} weight="fill" className="shrink-0" />
             Esta es tu clínica actual
+          </p>
+        ) : cambioBloqueado ? (
+          <p className="flex items-start gap-1.5 text-[12.5px] leading-snug text-pastel-red-fg">
+            <WarningCircle size={14} weight="fill" className="mt-0.5 shrink-0" />
+            Tenés un saldo pendiente en {clinicaActualNombre}. Regularizalo antes de cambiarte.
           </p>
         ) : (
           <Button type="button" variant={esCambio ? "secondary" : "primary"} className="w-full" onClick={onAfiliarme}>
