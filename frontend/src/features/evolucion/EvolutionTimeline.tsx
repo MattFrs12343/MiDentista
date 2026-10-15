@@ -1,5 +1,5 @@
 ﻿import { useState, type ReactNode } from "react";
-import { CalendarBlank, CaretDown, PencilSimpleLine, Tooth } from "@phosphor-icons/react";
+import { CalendarBlank, CaretDown, ClipboardText, PencilSimpleLine, Tooth } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
@@ -51,6 +51,7 @@ function HitoFecha({ fecha }: { fecha: string }) {
  */
 function Entrada({
   evolucion,
+  tituloPlan,
   abierta,
   onAlternar,
   onEditar,
@@ -58,6 +59,8 @@ function Entrada({
   guardando,
 }: {
   evolucion: EvolucionClinica;
+  /** Título del plan vinculado, o `null` si no se pudo resolver (T-6.6). */
+  tituloPlan?: string;
   abierta: boolean;
   onAlternar: () => void;
   onEditar?: (evolucion: EvolucionClinica) => void;
@@ -66,10 +69,16 @@ function Entrada({
 }) {
   const panelId = `evolucion-detalle-${evolucion.id}`;
   const pendiente = tieneProximaAtencion(evolucion);
+  const vinculado = evolucion.planTratamientoId !== null;
+  // El plan vinculado solo se rotula si su título se pudo resolver. Si el plan se
+  // borró o el rol no puede leerlo, no se inventa un nombre: la atención se sigue
+  // viendo igual, sin la insignia.
+  const planResuelto = vinculado && tituloPlan?.trim() ? tituloPlan.trim() : null;
   const hayDetalle = Boolean(
     evolucion.observaciones.trim()
     || evolucion.indicaciones.trim()
     || evolucion.numeroPieza !== null
+    || planResuelto
     || pendiente,
   );
 
@@ -103,6 +112,12 @@ function Entrada({
               {evolucion.motivoConsulta.trim() || "Sin motivo de consulta registrado"}
             </span>
             <span className="mt-0.5 flex flex-wrap items-center gap-2">
+              {planResuelto ? (
+                <Badge tone="blue" className="gap-1 normal-case tracking-normal">
+                  <ClipboardText size={11} aria-hidden />
+                  Plan: {planResuelto}
+                </Badge>
+              ) : null}
               {pendiente ? (
                 <Badge tone="yellow" className="gap-1">
                   <CalendarBlank size={11} weight="fill" aria-hidden />
@@ -164,6 +179,19 @@ function Entrada({
                   {formatearFechaLarga(evolucion.fechaConsulta)}
                 </dd>
               </div>
+              {/* El plan se nombra solo si su título se pudo resolver. Con el id
+                  pero sin título —plan borrado o sin permiso de lectura— se dice
+                  que está vinculado sin inventar el nombre. */}
+              {vinculado ? (
+                <div className="min-w-0">
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+                    Plan de tratamiento
+                  </dt>
+                  <dd className="mt-1 break-words text-sm text-ink">
+                    {planResuelto ?? "Vinculado a un plan no disponible"}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
 
             {onProximaAtencion ? (
@@ -214,12 +242,18 @@ function Entrada({
  */
 export function EvolutionTimeline({
   evoluciones,
+  titulosDePlan,
   vacio,
   onEditar,
   onProximaAtencion,
   guardando,
 }: {
   evoluciones: EvolucionClinica[];
+  /**
+   * Títulos de plan indexados por id (T-6.6). Lo construye `usePlanesTratamiento`
+   * una sola vez, para no pedir el plan por evolución.
+   */
+  titulosDePlan?: ReadonlyMap<string, string>;
   /** Contenido a mostrar cuando no hay nada que listar. */
   vacio?: ReactNode;
   onEditar?: (evolucion: EvolucionClinica) => void;
@@ -293,6 +327,11 @@ export function EvolutionTimeline({
               <Entrada
                 key={evolucion.id}
                 evolucion={evolucion}
+                tituloPlan={
+                  evolucion.planTratamientoId === null
+                    ? undefined
+                    : titulosDePlan?.get(evolucion.planTratamientoId)
+                }
                 abierta={abiertas.has(evolucion.id)}
                 onAlternar={() => alternar(evolucion.id)}
                 onEditar={onEditar}

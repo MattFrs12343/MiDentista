@@ -1,0 +1,121 @@
+# Mensaje para Matías — Módulo 06, avance y cinco decisiones
+
+**Estado del mensaje: borrador, todavía NO enviado.** Copiar el cuerpo de abajo y
+mandarlo por el canal que usemos con el PO.
+
+Fecha de redacción: 2026-10-05. Rama: `feature/modulo-06-lucas`. Commits:
+`6dbaf31` (T-6.6), `758e78d` (validación de US-6.1 a US-6.4) y dos de documentación
+(`12fb657` y `5d12215`, con la prueba manual y sus hallazgos). Todo lo mío está en
+la rama, nada mergeado a `main`.
+
+---
+
+Hola Matías,
+
+Cerré **T-6.6** (vincular la evolución con el plan de tratamiento). Está en
+`feature/modulo-06-lucas`, commit `6dbaf31`. El formulario tiene dos desplegables
+en cascada, plan → procedimiento, y la línea de tiempo muestra a qué plan quedó
+vinculada cada atención. Es solo lectura: no toco `planes_tratamiento` ni
+`procedimientos_tratamiento`.
+
+También validé US-6.1 a US-6.4 contra el código. El detalle está en
+`docs/modules/06-evolucion-clinica/validacion-us.md`. Dos historias cumplen y dos
+quedan parciales, y **lo que falta depende de una decisión tuya**: o es cambio de
+esquema, o es trabajo de otro módulo.
+
+**1. US-6.1 pide registrar "diagnóstico" en la evolución, y la tabla no tiene esa
+columna.** `evoluciones_clinicas` (`bd_5clinicas_midentista.sql:242`) no tiene
+`diagnostico`; los diagnósticos viven en la tabla `diagnosticos`, que escribe el
+Módulo 05. ¿El criterio está mal y el diagnóstico no va en la evolución, o falta
+una columna? Si falta, es tu decisión porque es cambio de esquema.
+
+**2. US-6.3 dice que la próxima atención "aparece como recordatorio".** Hoy se ve
+como insignia en la línea de tiempo, en el detalle de cada atención, y el portal
+del paciente la muestra. Lo que no existe es un aviso en la vista de trabajo del
+odontólogo: ni la agenda ni el dashboard consultan `proxima_atencion`. ¿Eso entra
+como parte del Módulo 07 o del 13?
+
+**3. US-6.4 dice "y el progreso del plan se actualiza".** No lo implementé.
+Cambiar `procedimientos_tratamiento.estado` desde el módulo 06 haría que la
+pestaña de tratamiento mostrara un cambio de estado que nadie decidió ahí, y sin
+dejar registro de qué atenciones se imputaron a qué item. ¿Lo dejamos para el
+Módulo 05?
+
+**Corrección que salió de la validación.** El desplegable de planes ofrecía
+también los planes `cancelado`, y US-6.4 pide un plan "activo". Lo arreglé: ahora
+los cancelados no aparecen y cada opción muestra su estado. Un plan `completado`
+sí se ofrece, porque una consulta puede documentarse después de cerrar el plan.
+
+**Prueba manual con sesión real: las 4 comprobaciones pasan.** Las corrí contra la
+base con una sesión de odontólogo, usando el código del módulo y no una
+reimplementación. El alta con plan y procedimiento conserva los dos UUID y
+reaparece en la línea de tiempo; los procedimientos no se mezclan entre planes; el
+plan `cancelado` se excluye; y con RLS, un odontólogo de otra clínica ve 0
+evoluciones y 0 planes (control: sí ve sus propios pacientes, así que el cero es
+el aislamiento y no una consulta rota).
+
+**Dos cosas que salieron de esa prueba y que no sé a quién tocar.**
+
+**4. Ni `evoluciones_clinicas` ni `planes_tratamiento` tienen policy de `DELETE`.**
+Solo `select`, `insert` y `update`. Desde la app no se puede borrar ni una
+evolución clínica ni un plan de tratamiento: si un odontólogo se equivoca al
+registrar una atención, no hay forma de corregirla, solo editarla. ¿Se agregan las
+policies, o lo que corresponde es un `anular` en vez de un `borrar`?
+
+**5. El `DELETE` con RLS no falla: devuelve `HTTP 200` con `[]`.** Cero filas
+afectadas y `error: null`. En `store.tsx:617`, `quitarItemPlan` hace
+`if (error) throw error` y da la operación por buena, así que la UI confirmaría un
+borrado que no ocurrió. Es el caso que el `AGENTS.md` §4 prohíbe en todas partes,
+pero el store es tuyo. Necesita comparar el conteo de filas devolvido, como ya
+hacemos en el módulo 06.
+
+**Las 3 filas de prueba ya están borradas.** Rané el SQL a mano desde el editor de
+Supabase y lo verifiqué: 0 evoluciones de prueba, 0 planes temporales, y el seed
+intacto. El SQL te lo dejo igual en `validacion-us.md` por si querés revisarlo.
+Fue justamente el punto 4 el que me impedía borrarlas desde la app.
+
+**Sobre las migraciones.** Dijiste que había que hacerlas. Revisé el repo y no
+existe `supabase/migrations/` ni `supabase/config.toml`, así que no hay historial
+versionado de la base: arrancarlo es bootstrap completo, no agregar un archivo.
+Necesito dos decisiones tuyas:
+
+- ¿Una migración solo con el delta de RLS, o también una migración baseline del
+  esquema? Si es solo la del RLS, un `supabase db reset` en una máquina nueva
+  crearía una base sin tablas.
+- La CLI de Supabase no está instalada en mi máquina. ¿La instalo yo o lo hacés
+  vos?
+
+**T-6.1, lo que falta para cerrarlo** (todo es tuyo):
+
+- Integrar el SQL de `docs/modules/06-evolucion-clinica/sql.sql` en
+  `bd_5clinicas_midentista.sql`
+- Documentarlo en `docs/DATABASE.md`
+- Borrar la evolución de prueba que quedó en la tabla — **revisado el 2026-10-05:**
+  las de T-6.1 ya están borradas; las que quedan son las de la prueba manual de
+  T-6.6, y van en el bloque de `validacion-us.md`
+- Decidir sobre `force row level security`
+
+**Un favor de seguridad.** Me pasaste un PAT de Supabase por chat y quedó en el
+historial. Rotalo cuando puedas.
+
+También noté que `data/api.ts:360` lee las evoluciones para el portal del
+paciente pero no pide `plan_tratamiento_id`, así que el paciente no ve a qué plan
+quedó vinculada su atención. Es tu archivo, no lo toqué.
+
+**El PR.** Según el `AGENTS.md` §6 va uno por módulo, así que el PR sería del
+Módulo 06 completo, no solo de T-6.6. No lo abro todavía:preferiría esperar tus
+respuestas para que el PR llegue con T-6.1 resuelto y no a medias. Si preferís que
+lo abra igual, decímelo y lo abro.
+
+---
+
+## Notas para Lucas
+
+- **El PAT no va en este archivo.** Si hay que escribir el comando de rotación,
+  va solo el nombre del token, nunca el valor.
+- Las tres preguntas (1, 2, 3) son las que desbloquean el cierre del módulo. Sin
+  respuesta, US-6.1, US-6.3 y US-6.4 quedan parciales y eso hay que decirlo en la
+  entrega, no ocultarlo.
+- Si Matías contesta lo de las migraciones, el bootstrap se planifica aparte: son
+  pasos en tu máquina (`npm i -g supabase`, `supabase login`, `supabase init`) y
+  dos decisiones de esquema que son suyas.

@@ -7,6 +7,7 @@ import { EvolutionForm } from "./EvolutionForm.tsx";
 import { EvolutionTimeline } from "./EvolutionTimeline.tsx";
 import { hoyEnIso } from "./fechasEvolucion.ts";
 import { useEvolucionSupabase } from "./useEvolucionSupabase.ts";
+import { usePlanesTratamiento } from "./usePlanesTratamiento.ts";
 import type { BorradorEvolucion, EvolucionClinica } from "./tipos.ts";
 
 /**
@@ -36,6 +37,15 @@ export function EvolutionTab({
     actualizar,
     marcarProximaAtencion,
   } = useEvolucionSupabase();
+  const {
+    planes,
+    procedimientos,
+    cargandoPlanes,
+    cargandoProcedimientos,
+    cargar: cargarPlanes,
+    cargarItems: cargarItemsPlan,
+    titulos,
+  } = usePlanesTratamiento();
 
   const [formAbierto, setFormAbierto] = useState(false);
   const [editando, setEditando] = useState<EvolucionClinica | null>(null);
@@ -44,6 +54,12 @@ export function EvolutionTab({
     if (!pacienteId) return;
     void cargar(pacienteId);
   }, [pacienteId, cargar]);
+
+  /** Los planes son de solo lectura y se piden junto con la primera carga. */
+  useEffect(() => {
+    if (!pacienteId) return;
+    void cargarPlanes(pacienteId);
+  }, [pacienteId, cargarPlanes]);
 
   const abrirNueva = useCallback(() => {
     setEditando(null);
@@ -62,7 +78,16 @@ export function EvolutionTab({
 
   const reintentar = useCallback(() => {
     void cargar(pacienteId);
-  }, [pacienteId, cargar]);
+    void cargarPlanes(pacienteId);
+  }, [pacienteId, cargar, cargarPlanes]);
+
+  /** El formulario avisa qué plan quedó elegido; aquí se piden sus procedimientos. */
+  const elegirPlan = useCallback(
+    (planId: string | null) => {
+      void cargarItemsPlan(planId);
+    },
+    [cargarItemsPlan],
+  );
 
   /**
    * El formulario entrega solo el contenido. Aquí se decide si es un alta (se
@@ -155,6 +180,11 @@ export function EvolutionTab({
           key={editando?.id ?? "nueva-evolucion"}
           inicial={editando ?? undefined}
           guardando={guardando}
+          planes={planes}
+          procedimientos={procedimientos}
+          cargandoPlanes={cargandoPlanes}
+          cargandoProcedimientos={cargandoProcedimientos}
+          onElegirPlan={elegirPlan}
           onGuardar={enviarFormulario}
           onCancelar={cerrarFormulario}
         />
@@ -165,6 +195,7 @@ export function EvolutionTab({
       ) : (
         <EvolutionTimeline
           evoluciones={evoluciones}
+          titulosDePlan={titulos()}
           onEditar={abrirEdicion}
           onProximaAtencion={cambiarProximaAtencion}
           guardando={guardando}

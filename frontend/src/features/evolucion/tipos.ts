@@ -66,6 +66,57 @@ export interface BorradorEvolucion {
   indicaciones: string;
   proximaAtencion: string | null;
   numeroPieza: number | null;
+  /**
+   * Plan al que se atribuye esta atención (modulo 05). `null` cuando la consulta
+   * no se imputa a ningún plan, que es el caso normal de una urgencia.
+   */
+  planTratamientoId: string | null;
+  /** Procedimiento concreto del plan que se ejecutó, si se identificó cuál. */
+  procedimientoId: string | null;
+}
+
+/**
+ * Estados de `planes_tratamiento.estado`.
+ *
+ * La columna admite `null` (es nullable, tiene DEFAULT pero no NOT NULL), así
+ * que el tipo de la fila incluye ese caso y la UI no inventa un estado.
+ */
+export type EstadoPlan = "propuesto" | "aceptado" | "en_proceso" | "completado" | "cancelado";
+
+/** Estados de `procedimientos_tratamiento.estado`. Mismo criterio que arriba. */
+export type EstadoProcedimiento = "pendiente" | "en_proceso" | "completado" | "cancelado";
+
+/**
+ * Plan de tratamiento del modulo 05, en solo lectura.
+ *
+ * Este módulo no escribe en `planes_tratamiento`: la propone y administra el
+ * modulo 05 (ver `README.md`). Aquí solo se leen para vincular la evolución.
+ */
+export interface PlanTratamiento {
+  id: string;
+  clinicaId: string;
+  pacienteId: string;
+  odontologoId: string;
+  titulo: string | null;
+  estado: EstadoPlan | null;
+  costoTotal: number | null;
+  notas: string | null;
+  creadoEn: string | null;
+  actualizadoEn: string | null;
+}
+
+/** Procedimiento dentro de un plan, en solo lectura. */
+export interface ProcedimientoTratamiento {
+  id: string;
+  clinicaId: string;
+  planTratamientoId: string;
+  servicioId: string | null;
+  numeroPieza: number | null;
+  descripcion: string;
+  prioridad: "urgente" | "alta" | "normal" | "baja" | null;
+  costo: number | null;
+  estado: EstadoProcedimiento | null;
+  creadoEn: string | null;
 }
 
 /** Filtros de la vista cronologica (T-6.4). */
