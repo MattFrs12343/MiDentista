@@ -11,6 +11,7 @@
 //   /admin/listar                -> GET, sin body  (Authorization: superadmin)
 //   /admin/tamano-bd              -> GET, sin body  (Authorization: superadmin)
 //   /admin/crear-clinica         -> { nombre, slug?, ciudad?, pais?, email?, telefono?, direccion?, latitud?, longitud? }  (Authorization: superadmin)
+//   /admin/editar-clinica        -> { clinicaId, ciudad?, pais?, email?, telefono?, direccion?, latitud?, longitud? }  (Authorization: superadmin)
 //   /admin/invitar               -> { email, nombreCompleto, rol, clinicaId, especialidad? }  (Authorization: superadmin)
 //   /admin/reenviar-invitacion   -> { perfilId }
 //   /admin/cancelar-invitacion   -> { perfilId }
@@ -338,6 +339,50 @@ async function handleAdminCrearClinica(req: Request) {
   if (error || !nueva) return json({ error: "No se pudo crear la clínica" }, 503);
 
   return json(nueva, 201);
+}
+
+/** Edita los datos de contacto de una clínica existente (ciudad, país,
+ * correo, teléfono, dirección y coordenadas). El `nombre`/`slug` no se tocan
+ * acá: cambiarlos rompería los links ya compartidos del portal del paciente.
+ * Mismo motivo que el alta (ver `handleAdminCrearClinica`): no hay política
+ * RLS de `update` para `clinicas` a propósito, así que esta escritura pasa
+ * por acá con el chequeo de `requerirSuperadmin` explícito. */
+async function handleAdminEditarClinica(req: Request) {
+  const admin_ = await requerirSuperadmin(req);
+  if (!admin_) return json({ error: "Esta acción requiere una cuenta de administrador" }, 403);
+
+  const body = await req.json().catch(() => ({}));
+  const clinicaId = String(body?.clinicaId ?? "").trim();
+  if (!clinicaId) return json({ error: "La clínica es obligatoria" }, 400);
+
+  const ciudad = body?.ciudad ? String(body.ciudad).trim() : null;
+  const pais = body?.pais ? String(body.pais).trim() : null;
+  const email = body?.email ? String(body.email).trim() : null;
+  const telefono = body?.telefono ? String(body.telefono).trim() : null;
+  const direccion = body?.direccion ? String(body.direccion).trim() : null;
+  const latitud = body?.latitud !== undefined && body.latitud !== null && body.latitud !== "" ? Number(body.latitud) : null;
+  const longitud = body?.longitud !== undefined && body.longitud !== null && body.longitud !== "" ? Number(body.longitud) : null;
+
+  if (email && !EMAIL_REGEX.test(email)) return json({ error: "El correo no es válido" }, 400);
+  if (latitud !== null && (Number.isNaN(latitud) || latitud < -90 || latitud > 90)) {
+    return json({ error: "La latitud tiene que estar entre -90 y 90" }, 400);
+  }
+  if (longitud !== null && (Number.isNaN(longitud) || longitud < -180 || longitud > 180)) {
+    return json({ error: "La longitud tiene que estar entre -180 y 180" }, 400);
+  }
+
+  const { data: existente } = await admin.from("clinicas").select("id").eq("id", clinicaId).maybeSingle();
+  if (!existente) return json({ error: "Clínica no encontrada" }, 404);
+
+  const { data: actualizada, error } = await admin
+    .from("clinicas")
+    .update({ ciudad, pais, email, telefono, direccion, latitud, longitud })
+    .eq("id", clinicaId)
+    .select("id, nombre, slug, ciudad, pais, email, telefono, direccion, latitud, longitud")
+    .single();
+  if (error || !actualizada) return json({ error: "No se pudo guardar los cambios" }, 503);
+
+  return json(actualizada);
 }
 
 async function handleAdminInvitar(req: Request) {
@@ -711,6 +756,7 @@ Deno.serve(async (req) => {
     if (req.method === "GET" && ruta === "admin/listar") return await handleAdminListar(req);
     if (req.method === "GET" && ruta === "admin/tamano-bd") return await handleAdminTamanoBd(req);
     if (req.method === "POST" && ruta === "admin/crear-clinica") return await handleAdminCrearClinica(req);
+    if (req.method === "POST" && ruta === "admin/editar-clinica") return await handleAdminEditarClinica(req);
     if (req.method === "POST" && ruta === "admin/invitar") return await handleAdminInvitar(req);
     if (req.method === "POST" && ruta === "admin/reenviar-invitacion") return await handleAdminReenviarInvitacion(req);
     if (req.method === "POST" && ruta === "admin/cancelar-invitacion") return await handleAdminCancelarInvitacion(req);

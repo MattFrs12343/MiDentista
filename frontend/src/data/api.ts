@@ -154,6 +154,23 @@ export async function crearClinicaApi(datos: {
   return llamarFuncion<Clinica>("admin/crear-clinica", datos, token);
 }
 
+/** Edita los datos de contacto de una clínica existente (ciudad, país,
+ * correo, teléfono, dirección y coordenadas). El nombre/slug no se editan
+ * acá: ver el comentario de la Edge Function para el motivo. */
+export async function editarClinicaApi(datos: {
+  clinicaId: string;
+  ciudad?: string;
+  pais?: string;
+  email?: string;
+  telefono?: string;
+  direccion?: string;
+  latitud?: number;
+  longitud?: number;
+}): Promise<Clinica> {
+  const token = await tokenDeSesion();
+  return llamarFuncion<Clinica>("admin/editar-clinica", datos, token);
+}
+
 export interface TablaTamano {
   tabla: string;
   bytes: number;

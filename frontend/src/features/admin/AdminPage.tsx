@@ -17,6 +17,7 @@ import {
   CaretDown,
   MapPin,
   Database,
+  PencilSimple,
 } from "@phosphor-icons/react";
 import { Avatar } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -36,6 +37,7 @@ import {
   listarClinicas,
   listarPersonalApi,
   crearClinicaApi,
+  editarClinicaApi,
   invitarPersonalApi,
   reenviarInvitacionApi,
   cancelarInvitacionApi,
@@ -375,6 +377,7 @@ function ClinicaCard({
 }) {
   const [abierta, setAbierta] = useState(false);
   const [invitarAbierto, setInvitarAbierto] = useState(false);
+  const [editando, setEditando] = useState(false);
   const pendientes = personal.filter((p) => p.invitacionPendiente).length;
 
   return (
@@ -405,17 +408,39 @@ function ClinicaCard({
 
       {abierta ? (
         <div className="flex flex-col gap-4 border-t border-line p-4">
-          {clinica.direccion || clinica.telefono || clinica.email ? (
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5 rounded-tile bg-surface-sunken/60 px-3.5 py-3 text-xs text-ink-soft">
-              {clinica.direccion ? (
-                <span className="flex items-center gap-1">
-                  <MapPin size={13} weight="duotone" className="shrink-0 text-ink-muted" /> {clinica.direccion}
-                </span>
-              ) : null}
-              {clinica.telefono ? <span>{clinica.telefono}</span> : null}
-              {clinica.email ? <span>{clinica.email}</span> : null}
+          {editando ? (
+            <EditarClinicaForm
+              clinica={clinica}
+              onCancelar={() => setEditando(false)}
+              onGuardada={() => {
+                setEditando(false);
+                onCambio();
+              }}
+            />
+          ) : (
+            <div className="flex items-start justify-between gap-3 rounded-tile bg-surface-sunken/60 px-3.5 py-3 text-xs text-ink-soft">
+              {clinica.direccion || clinica.telefono || clinica.email ? (
+                <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                  {clinica.direccion ? (
+                    <span className="flex items-center gap-1">
+                      <MapPin size={13} weight="duotone" className="shrink-0 text-ink-muted" /> {clinica.direccion}
+                    </span>
+                  ) : null}
+                  {clinica.telefono ? <span>{clinica.telefono}</span> : null}
+                  {clinica.email ? <span>{clinica.email}</span> : null}
+                </div>
+              ) : (
+                <p className="text-ink-muted">Todavía no cargaste la dirección ni el contacto.</p>
+              )}
+              <button
+                type="button"
+                onClick={() => setEditando(true)}
+                className="flex shrink-0 items-center gap-1 rounded-ios px-1.5 py-0.5 font-medium text-brand-600 transition-colors hover:bg-brand-100"
+              >
+                <PencilSimple size={13} weight="bold" /> Editar
+              </button>
             </div>
-          ) : null}
+          )}
 
           <div className="flex flex-col gap-2.5">
             <p className="label-ios px-0.5 text-[11px] font-medium text-ink-muted">
@@ -446,6 +471,109 @@ function ClinicaCard({
         onInvitado={onCambio}
       />
     </Card>
+  );
+}
+
+/**
+ * Edición in-line de ciudad/dirección/teléfono/email de una clínica ya
+ * creada. El nombre y el slug no se tocan acá (ver el comentario de
+ * `handleAdminEditarClinica` en la Edge Function). Las coordenadas
+ * (latitud/longitud) tampoco se exponen en este form, pero se reenvían tal
+ * cual venían para no perderlas: el endpoint actualiza la fila completa.
+ */
+function EditarClinicaForm({
+  clinica,
+  onCancelar,
+  onGuardada,
+}: {
+  clinica: Clinica;
+  onCancelar: () => void;
+  onGuardada: () => void;
+}) {
+  const [ciudad, setCiudad] = useState(clinica.ciudad ?? "");
+  const [direccion, setDireccion] = useState(clinica.direccion ?? "");
+  const [telefono, setTelefono] = useState(clinica.telefono ?? "");
+  const [email, setEmail] = useState(clinica.email ?? "");
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (cargando) return;
+    setError(null);
+    setCargando(true);
+    try {
+      await editarClinicaApi({
+        clinicaId: clinica.id,
+        ciudad: ciudad.trim() || undefined,
+        direccion: direccion.trim() || undefined,
+        telefono: telefono.trim() || undefined,
+        email: email.trim() || undefined,
+        pais: clinica.pais ?? undefined,
+        latitud: clinica.latitud ?? undefined,
+        longitud: clinica.longitud ?? undefined,
+      });
+      onGuardada();
+    } catch (fallo) {
+      setCargando(false);
+      setError(fallo instanceof ApiError ? fallo.message : "No se pudo guardar los cambios");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-tile bg-surface-sunken/60 p-3.5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Field label="Ciudad" htmlFor={`editar-ciudad-${clinica.id}`}>
+          <Input id={`editar-ciudad-${clinica.id}`} value={ciudad} onChange={(e) => setCiudad(e.target.value)} placeholder="La Paz" />
+        </Field>
+        <Field label="Teléfono" htmlFor={`editar-telefono-${clinica.id}`}>
+          <Input
+            id={`editar-telefono-${clinica.id}`}
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            placeholder="+591 2 2345678"
+          />
+        </Field>
+      </div>
+
+      <Field label="Dirección" htmlFor={`editar-direccion-${clinica.id}`}>
+        <Input
+          id={`editar-direccion-${clinica.id}`}
+          value={direccion}
+          onChange={(e) => setDireccion(e.target.value)}
+          placeholder="Av. 6 de Agosto Nº 2240"
+        />
+      </Field>
+
+      <Field label="Correo" htmlFor={`editar-email-${clinica.id}`}>
+        <Input
+          id={`editar-email-${clinica.id}`}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="contacto@clinica.com"
+        />
+      </Field>
+
+      {error && (
+        <p
+          role="alert"
+          className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg"
+        >
+          <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </p>
+      )}
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="secondary" onClick={onCancelar} disabled={cargando}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={cargando}>
+          {cargando ? <SpinnerGap size={16} className="animate-spin" /> : "Guardar"}
+        </Button>
+      </div>
+    </form>
   );
 }
 
