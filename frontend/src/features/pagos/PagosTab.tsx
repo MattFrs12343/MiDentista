@@ -19,10 +19,9 @@ export interface PagosTabProps {
    */
   registradoPor?: string;
   /**
-   * Total presupuestado del paciente, que aporta el modulo 08. Por defecto 0:
+   * Total presupuestado del paciente, que aporta el modulo 08 via
+   * `PatientProfilePage.tsx` (unica costura entre 08 y 09). Por defecto 0:
    * sin presupuesto no hay saldo que mostrar y `AccountStatement` lo dice.
-   * Cuando el 08 este integrado, Matias pasa aqui el total real desde
-   * `PatientProfilePage.tsx` y esta es la unica costura que cambia.
    */
   totalPresupuestado?: Decimal;
   /**

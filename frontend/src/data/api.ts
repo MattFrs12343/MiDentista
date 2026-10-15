@@ -374,6 +374,9 @@ export interface FichaPaciente {
   sinClinica: boolean;
   perfil: { nombre: string; email: string | null; telefono: string | null; avatarUrl: string | null };
   clinica: ClinicaResumen | null;
+  /** URL firmada del QR de cobro de la clínica, vigente 5 minutos. `null` si la
+   * clínica todavía no subió uno. Se pide de nuevo al recargar la ficha. */
+  qrCobroUrl: string | null;
   paciente: PacientePortal | null;
   historia: HistoriaPortal | null;
   odontograma: OdontogramaPortal | null;
@@ -389,6 +392,7 @@ export interface FichaPaciente {
 interface RawMiFicha {
   perfil: { nombre: string; email: string | null; telefono: string | null; avatarUrl: string | null };
   clinica: ClinicaResumen | null;
+  qrCobroUrl: string | null;
   paciente: {
     id: string;
     ci: string | null;
@@ -505,6 +509,7 @@ function mapearFicha(raw: RawMiFicha): FichaPaciente {
     sinClinica: raw.paciente === null,
     perfil: raw.perfil,
     clinica: raw.clinica,
+    qrCobroUrl: raw.qrCobroUrl ?? null,
     paciente: raw.paciente
       ? {
           id: raw.paciente.id,

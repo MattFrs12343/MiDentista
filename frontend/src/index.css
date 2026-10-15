@@ -336,11 +336,18 @@
   }
 
   /* Banner colgante: soga + bandera balancean como un pendulo Around el
-     anclaje superior (transform-origin en el borde del header). */
+     anclaje superior (transform-origin en el borde del header). Exclusivo de
+     escritorio (`lg:` en adelante, igual que las sogas/ojales en
+     hanging-banner.tsx): en movil el banner queda estatico. */
   .hanger {
-    animation: hanger-sway 7s var(--ease-out-strong) infinite;
     transform-origin: 50% 0%;
     will-change: transform;
+  }
+
+  @media (min-width: 1024px) {
+    .hanger {
+      animation: hanger-sway 7s var(--ease-out-strong) infinite;
+    }
   }
 
   @keyframes hanger-sway {

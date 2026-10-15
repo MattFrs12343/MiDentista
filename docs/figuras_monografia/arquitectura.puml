@@ -7,19 +7,19 @@ title Arquitectura logica en tres capas
 
 package "Capa de presentacion" {
   [SPA React + Tailwind CSS] as p1
-  [React Router - 9 modulos funcionales] as p2
+  [React Router - 15 modulos funcionales] as p2
 }
 
 package "Capa de logica de negocio" {
   [Supabase Auth (JWT)] as l1
-  [Funciones helper obtenir_clinica_usuario / obtenir_rol_usuario] as l2
+  [Funciones helper current_perfil / es_superadmin / mi_clinica_id] as l2
   [Politicas RLS por tabla] as l3
-  [Triggers de actualizado_en] as l4
+  [Triggers de actualizado_en, sincronizacion y bitacora de auditoria] as l4
 }
 
 package "Capa de datos" {
-  database "PostgreSQL (Supabase) - 15 tablas" as d1
-  database "Storage: logo y QR estatico de referencia" as d2
+  database "PostgreSQL (Supabase) - 16+ tablas" as d1
+  database "Storage: QR de cobro por clinica y archivos clinicos" as d2
 }
 
 p1 --> p2

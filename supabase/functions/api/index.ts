@@ -603,6 +603,11 @@ async function handlePacienteMiFicha(req: Request) {
   }
 
   let clinica: Record<string, unknown> | null = null;
+  // Firmada acá con el service role: el paciente nunca tiene permiso directo
+  // sobre `storage.objects` del bucket `qr-cobros` (ver sql-qr-cobro.sql), así
+  // que esta ruta vía Edge Function es la única forma autorizada de que vea el
+  // QR de su propia clínica, igual que ya ve su historia o sus presupuestos.
+  let qrCobroUrl: string | null = null;
   if (perfil.clinica_id) {
     const { data } = await admin
       .from("clinicas")
@@ -610,6 +615,11 @@ async function handlePacienteMiFicha(req: Request) {
       .eq("id", perfil.clinica_id)
       .maybeSingle();
     clinica = data ?? null;
+
+    const { data: firmada } = await admin.storage
+      .from("qr-cobros")
+      .createSignedUrl(`${perfil.clinica_id}/qr`, 300);
+    qrCobroUrl = firmada?.signedUrl ?? null;
   }
 
   const { data: paciente } = await admin
@@ -628,6 +638,7 @@ async function handlePacienteMiFicha(req: Request) {
       avatarUrl: perfil.avatar_url,
     },
     clinica,
+    qrCobroUrl,
     paciente: paciente ?? null,
   };
 

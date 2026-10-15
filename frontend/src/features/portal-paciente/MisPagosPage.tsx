@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Money, Receipt, TrendUp } from "@phosphor-icons/react";
+import { Bank, Money, QrCode, Receipt, TrendUp, Wallet } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionStatStrip } from "@/components/ui/section-board";
@@ -9,20 +11,32 @@ import { PortalSubHeader } from "@/features/portal-paciente/PortalHero";
 import { PortalCargando, PortalError } from "@/features/portal-paciente/PortalEstado";
 import {
   etiquetaEstado,
+  etiquetaMetodoPago,
   formatearFecha,
   formatearMoneda,
   tonoEstado,
 } from "@/features/portal-paciente/portalFormato";
-import type { PagoPortal, PresupuestoPortal } from "@/data/api";
+import type { ClinicaResumen, PagoPortal, PresupuestoPortal } from "@/data/api";
+
+type MetodoElegido = "qr" | "transferencia" | "efectivo";
+
+const METODOS: Array<{ valor: MetodoElegido; etiqueta: string; icono: typeof QrCode }> = [
+  { valor: "qr", etiqueta: "QR", icono: QrCode },
+  { valor: "transferencia", etiqueta: "Transferencia", icono: Bank },
+  { valor: "efectivo", etiqueta: "Efectivo en la clínica", icono: Wallet },
+];
 
 export function MisPagosPage() {
   const { ficha, cargando, error, recargar } = usePortalPaciente();
+  const [metodo, setMetodo] = useState<MetodoElegido>("qr");
 
   if (cargando) return <PortalCargando />;
   if (error) return <PortalError mensaje={error} onReintentar={() => void recargar()} />;
 
   if (!ficha) return null;
   if (ficha.sinClinica) return <Navigate to="/portal/buscar" replace />;
+
+  const hayDeuda = ficha.resumen.saldoPendiente > 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -62,6 +76,40 @@ export function MisPagosPage() {
           },
         ]}
       />
+
+      {hayDeuda ? (
+        <section className="flex flex-col gap-3">
+          <CardTitle as="h2" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            ¿Cómo querés pagar?
+          </CardTitle>
+          <Card>
+            <CardContent className="flex flex-col gap-4 p-5">
+              <div className="flex flex-wrap gap-2">
+                {METODOS.map(({ valor, etiqueta, icono: Icono }) => (
+                  <Button
+                    key={valor}
+                    type="button"
+                    variant={metodo === valor ? "primary" : "secondary"}
+                    size="sm"
+                    aria-pressed={metodo === valor}
+                    onClick={() => setMetodo(valor)}
+                  >
+                    <Icono size={14} weight="bold" aria-hidden="true" />
+                    {etiqueta}
+                  </Button>
+                ))}
+              </div>
+
+              <ContenidoMetodo metodo={metodo} qrCobroUrl={ficha.qrCobroUrl} clinica={ficha.clinica} />
+
+              <p className="text-xs leading-snug text-ink-muted">
+                Esto no envía el pago: pagá por el medio que elegiste y tu clínica confirma el cobro.
+                Cuando lo confirme, lo vas a ver reflejado en tu historial de pagos.
+              </p>
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
 
       <section className="flex flex-col gap-3">
         <CardTitle as="h2" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
@@ -130,7 +178,7 @@ function CardPago({ pago }: { pago: PagoPortal }) {
         <div className="min-w-0">
           <p className="font-semibold tabular-nums text-ink">{formatearMoneda(pago.monto, "Bs")}</p>
           <p className="mt-0.5 text-xs text-ink-muted">
-            {pago.metodoPago} · {formatearFecha(pago.fechaPago)}
+            {etiquetaMetodoPago(pago.metodoPago)} · {formatearFecha(pago.fechaPago)}
           </p>
           {pago.codigoReferencia ? (
             <p className="mt-1 text-xs text-ink-muted">Referencia: {pago.codigoReferencia}</p>
@@ -139,5 +187,68 @@ function CardPago({ pago }: { pago: PagoPortal }) {
         <Badge tone={tonoEstado(pago.estado)}>{etiquetaEstado(pago.estado)}</Badge>
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * Instrucciones según el método elegido. No hay pasarela de pago real: el QR
+ * es el mismo que la clínica usa en persona (módulo 09), y acá solo se muestra
+ * para que el paciente pueda pagar sin tener que pedirlo. Nada de esto crea un
+ * pago: eso lo sigue haciendo la clínica al confirmarlo.
+ */
+function ContenidoMetodo({
+  metodo,
+  qrCobroUrl,
+  clinica,
+}: {
+  metodo: MetodoElegido;
+  qrCobroUrl: string | null;
+  clinica: ClinicaResumen | null;
+}) {
+  if (metodo === "qr") {
+    if (!qrCobroUrl) {
+      return (
+        <p className="text-sm text-ink-muted">
+          Tu clínica todavía no cargó un QR de cobro. Elegí otro método o consultale directamente.
+        </p>
+      );
+    }
+    return (
+      <div className="flex flex-col items-center gap-2 text-center">
+        <img
+          src={qrCobroUrl}
+          alt="QR de cobro de tu clínica"
+          className="h-48 w-48 rounded-xl border border-line bg-white object-contain"
+        />
+        <p className="max-w-xs text-xs leading-snug text-ink-muted">
+          Escaneá este código con tu app del banco o billetera móvil para pagar.
+        </p>
+      </div>
+    );
+  }
+
+  if (metodo === "transferencia") {
+    if (!clinica?.telefono && !clinica?.email) {
+      return (
+        <p className="text-sm text-ink-muted">
+          Tu clínica no registró datos de contacto. Consultale directamente en tu próxima visita.
+        </p>
+      );
+    }
+    return (
+      <div className="text-sm text-ink-soft">
+        <p>Coordiná la transferencia con tu clínica:</p>
+        <ul className="mt-1 flex flex-col gap-0.5">
+          {clinica.telefono ? <li>Teléfono: {clinica.telefono}</li> : null}
+          {clinica.email ? <li>Correo: {clinica.email}</li> : null}
+        </ul>
+      </div>
+    );
+  }
+
+  return (
+    <p className="text-sm text-ink-muted">
+      Podés pagar en efectivo en tu próxima visita a la clínica.
+    </p>
   );
 }

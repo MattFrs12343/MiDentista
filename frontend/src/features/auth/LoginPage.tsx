@@ -166,7 +166,7 @@ export function LoginPage() {
               marca hasta el formulario. Mismo degradé ya probado en el resto de
               la app (oscuro → brand-600, nunca hasta el extremo claro): texto
               blanco encima necesita ese piso de contraste. */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 px-5 pt-6 pb-10 sm:px-10 sm:pt-8 sm:pb-14 lg:hidden">
+          <div className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 px-5 pt-5 pb-7 sm:px-10 sm:pt-8 sm:pb-14 lg:hidden">
             <div className="mesh-blob-a absolute -right-1/4 -top-1/2 h-[160%] w-[65%] rounded-full bg-white/10 blur-3xl" />
             <div className="relative flex items-center gap-2.5">
               <LogoMark size={28} className="text-white" />
@@ -196,7 +196,7 @@ export function LoginPage() {
             </svg>
           </div>
 
-          <div className="flex flex-col gap-6 p-5 sm:gap-8 sm:p-10 lg:gap-8 lg:p-12">
+          <div className="flex flex-col gap-5 p-5 sm:gap-8 sm:p-10 lg:gap-8 lg:p-12">
           <div className="fade-in-up" style={{ animationDelay: "40ms" }}>
             <h2 className="text-[1.6rem] font-semibold leading-tight tracking-[-0.02em] text-ink min-[380px]:text-[2rem]">
               Bienvenido de vuelta
@@ -207,7 +207,7 @@ export function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
             <div className="fade-in-up" style={{ animationDelay: "80ms" }}>
               <Field label="Correo electrónico" htmlFor="correo" labelClassName="text-ink-soft">
                 <Input
@@ -288,14 +288,17 @@ export function LoginPage() {
                   tarjeta es un grid de 2 columnas y la foto de la izquierda
                   se estira para igualar el alto de este lado, así que un
                   cambio de alto acá se sentía como que "toda la tarjeta
-                  cambiaba de forma" al tipear o enviar el form. */}
+                  cambiaba de forma" al tipear o enviar el form. Ese problema
+                  no existe en móvil (no hay columna que igualar), así que ahí
+                  se oculta del todo sin error: reservar ~50px fijos era lo que
+                  empujaba el botón de Google fuera de la pantalla. */}
               <p
                 role="alert"
                 aria-hidden={!error}
-                className={`flex items-start gap-2 rounded-xl border px-3.5 py-3 text-sm transition-opacity duration-150 ${
+                className={`items-start gap-2 rounded-xl border px-3.5 py-3 text-sm transition-opacity duration-150 ${
                   error
-                    ? "border-pastel-red-fg/25 bg-pastel-red-bg text-pastel-red-fg opacity-100"
-                    : "pointer-events-none select-none border-transparent bg-transparent text-transparent opacity-0"
+                    ? "flex border-pastel-red-fg/25 bg-pastel-red-bg text-pastel-red-fg opacity-100"
+                    : "hidden pointer-events-none select-none border-transparent bg-transparent text-transparent opacity-0 lg:flex"
                 }`}
               >
                 <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
@@ -319,7 +322,7 @@ export function LoginPage() {
                 )}
               </Button>
 
-              <div className="my-4 flex items-center gap-3 text-xs text-ink-muted">
+              <div className="my-3 flex items-center gap-3 text-xs text-ink-muted sm:my-4">
                 <div className="h-px flex-1 bg-line" />
                 o
                 <div className="h-px flex-1 bg-line" />
