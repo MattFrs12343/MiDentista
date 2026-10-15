@@ -1067,6 +1067,57 @@ create policy pagos_update_staff on public.pagos
 -- Sin policy de DELETE: un pago es un registro contable, se anula con
 -- estado 'rechazado', no se borra.
 
+-- servicios, presupuestos, items_presupuesto: igual que pagos y evoluciones,
+-- existían desde el esquema base sin RLS (cualquier anon key leía/escribía
+-- presupuestos de las 5 clínicas). Ver docs/modules/08-presupuestos/sql.sql.
+alter table public.servicios enable row level security;
+drop policy if exists servicios_select on public.servicios;
+create policy servicios_select on public.servicios for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists servicios_insert on public.servicios;
+create policy servicios_insert on public.servicios for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists servicios_update on public.servicios;
+create policy servicios_update on public.servicios for update
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+-- Sin DELETE: un servicio se desactiva con activo = false, para no romper
+-- las partidas históricas que lo referencian.
+
+alter table public.presupuestos enable row level security;
+drop policy if exists presupuestos_select on public.presupuestos;
+create policy presupuestos_select on public.presupuestos for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists presupuestos_insert on public.presupuestos;
+create policy presupuestos_insert on public.presupuestos for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists presupuestos_update on public.presupuestos;
+create policy presupuestos_update on public.presupuestos for update
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+-- El borrado se acota a 'borrador' en la base, no solo en la UI: un
+-- presupuesto ya enviado o aceptado es historia clínica/financiera.
+drop policy if exists presupuestos_delete on public.presupuestos;
+create policy presupuestos_delete on public.presupuestos for delete
+  using (
+    (clinica_id = public.mi_clinica_id() and estado = 'borrador')
+    or public.es_superadmin()
+  );
+
+-- clinica_id está denormalizado en items_presupuesto: la policy no necesita
+-- un join a presupuestos.
+alter table public.items_presupuesto enable row level security;
+drop policy if exists items_presupuesto_select on public.items_presupuesto;
+create policy items_presupuesto_select on public.items_presupuesto for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists items_presupuesto_insert on public.items_presupuesto;
+create policy items_presupuesto_insert on public.items_presupuesto for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists items_presupuesto_update on public.items_presupuesto;
+create policy items_presupuesto_update on public.items_presupuesto for update
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists items_presupuesto_delete on public.items_presupuesto;
+create policy items_presupuesto_delete on public.items_presupuesto for delete
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
 -- ============================================================================
 -- 7.1 AFILIACIÓN DEL PACIENTE (módulo 01) — función SECURITY DEFINER
 -- ============================================================================
@@ -1246,6 +1297,129 @@ $$;
 
 revoke all on function public.afiliar_paciente(uuid, jsonb) from public;
 grant execute on function public.afiliar_paciente(uuid, jsonb) to authenticated;
+
+-- ============================================================================
+-- 7.2 PRESUPUESTO AUTOMÁTICO DESDE EL PLAN DE TRATAMIENTO
+-- ============================================================================
+-- El plan de tratamiento del odontólogo (módulo 05) y los presupuestos de
+-- recepción (módulo 08) eran dos sistemas sin ninguna conexión: un plan con
+-- costo no generaba nada que el paciente pudiera ver en "Mis pagos". En
+-- cuanto el plan tiene al menos un procedimiento, este trigger crea (o
+-- sincroniza, mientras siga en 'borrador') un presupuesto vinculado a él.
+-- Detalle completo: docs/modules/08-presupuestos/sql-generar-desde-plan.sql.
+alter table public.presupuestos
+  add column if not exists plan_tratamiento_id uuid references public.planes_tratamiento(id) on delete set null;
+
+create unique index if not exists presupuestos_plan_tratamiento_id_key
+  on public.presupuestos (plan_tratamiento_id)
+  where plan_tratamiento_id is not null;
+
+create or replace function public.sincronizar_presupuesto_desde_plan(p_plan_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    v_plan           public.planes_tratamiento%rowtype;
+    v_presupuesto_id uuid;
+    v_estado         text;
+    v_tiene_items    boolean;
+begin
+    select * into v_plan from public.planes_tratamiento where id = p_plan_id;
+    if not found then
+        return;
+    end if;
+
+    select exists(
+        select 1 from public.procedimientos_tratamiento where plan_tratamiento_id = p_plan_id
+    ) into v_tiene_items;
+
+    select id, estado into v_presupuesto_id, v_estado
+      from public.presupuestos
+     where plan_tratamiento_id = p_plan_id;
+
+    if v_presupuesto_id is null then
+        if not v_tiene_items then
+            return;
+        end if;
+        insert into public.presupuestos (
+            clinica_id, paciente_id, odontologo_id, titulo, total, estado, plan_tratamiento_id
+        ) values (
+            v_plan.clinica_id, v_plan.paciente_id, v_plan.odontologo_id,
+            v_plan.titulo, coalesce(v_plan.costo_total, 0), 'borrador', p_plan_id
+        )
+        returning id into v_presupuesto_id;
+    else
+        if v_estado <> 'borrador' then
+            return;
+        end if;
+        update public.presupuestos
+           set titulo         = v_plan.titulo,
+               total          = coalesce(v_plan.costo_total, 0),
+               actualizado_en = now()
+         where id = v_presupuesto_id;
+    end if;
+
+    delete from public.items_presupuesto where presupuesto_id = v_presupuesto_id;
+    insert into public.items_presupuesto (
+        clinica_id, presupuesto_id, servicio_id, descripcion, numero_pieza, cantidad, precio_unitario, subtotal
+    )
+    select pt.clinica_id, v_presupuesto_id, pt.servicio_id, pt.descripcion, pt.numero_pieza,
+           1, coalesce(pt.costo, 0), coalesce(pt.costo, 0)
+      from public.procedimientos_tratamiento pt
+     where pt.plan_tratamiento_id = p_plan_id;
+end;
+$$;
+
+revoke all on function public.sincronizar_presupuesto_desde_plan(uuid) from public, anon, authenticated;
+
+create or replace function public.trg_sincronizar_presupuesto_procedimiento()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    if tg_op = 'DELETE' then
+        perform public.sincronizar_presupuesto_desde_plan(old.plan_tratamiento_id);
+        return old;
+    end if;
+    perform public.sincronizar_presupuesto_desde_plan(new.plan_tratamiento_id);
+    if tg_op = 'UPDATE' and old.plan_tratamiento_id is distinct from new.plan_tratamiento_id then
+        perform public.sincronizar_presupuesto_desde_plan(old.plan_tratamiento_id);
+    end if;
+    return new;
+end;
+$$;
+
+revoke all on function public.trg_sincronizar_presupuesto_procedimiento() from public, anon, authenticated;
+
+drop trigger if exists trigger_sync_presupuesto_desde_procedimiento on public.procedimientos_tratamiento;
+create trigger trigger_sync_presupuesto_desde_procedimiento
+    after insert or update or delete on public.procedimientos_tratamiento
+    for each row execute function public.trg_sincronizar_presupuesto_procedimiento();
+
+create or replace function public.trg_sincronizar_presupuesto_plan()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    if new.costo_total is distinct from old.costo_total or new.titulo is distinct from old.titulo then
+        perform public.sincronizar_presupuesto_desde_plan(new.id);
+    end if;
+    return new;
+end;
+$$;
+
+revoke all on function public.trg_sincronizar_presupuesto_plan() from public, anon, authenticated;
+
+drop trigger if exists trigger_sync_presupuesto_desde_plan on public.planes_tratamiento;
+create trigger trigger_sync_presupuesto_desde_plan
+    after update on public.planes_tratamiento
+    for each row execute function public.trg_sincronizar_presupuesto_plan();
 
 -- ============================================================================
 -- 8. MONITOREO: tamaño de la base (card "Base de datos" del panel admin)
