@@ -29,6 +29,9 @@ const PatientPickerPage = lazy(() =>
 const PresupuestosPage = lazy(() =>
   import("@/features/presupuestos/PresupuestosPage").then((m) => ({ default: m.PresupuestosPage })),
 );
+const PagosPage = lazy(() =>
+  import("@/features/pagos/PagosPage").then((m) => ({ default: m.PagosPage })),
+);
 
 const AdminPage = lazy(() =>
   import("@/features/admin/AdminPage").then((m) => ({ default: m.AdminPage })),
@@ -213,6 +216,14 @@ export default function App() {
                 element={
                   <RequireStaff>
                     <PresupuestosPage />
+                  </RequireStaff>
+                }
+              />
+              <Route
+                path="pagos"
+                element={
+                  <RequireStaff>
+                    <PagosPage />
                   </RequireStaff>
                 }
               />

@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { ClipboardText, SquaresFour, Stethoscope, Tooth, UsersThree } from "@phosphor-icons/react";
+import { ClipboardText, SquaresFour, Stethoscope, Tooth, UsersThree, Wallet } from "@phosphor-icons/react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
@@ -31,6 +31,7 @@ const NAV_STAFF = [
     icono: Stethoscope,
     pista: "Plan del paciente",
   },
+  { to: "/app/pagos", end: false, label: "Pagos y cuentas", icono: Wallet, pista: "QR de cobro de la clínica" },
 ];
 
 /* Los dos accesos directos de la barra: lo que un odontólogo abre más — el
