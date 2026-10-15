@@ -161,10 +161,25 @@ export function BuscarClinicaPage() {
         return { clinica, distancia };
       });
 
-    if (ubicacion) {
+    // El radio de cercanía solo aplica a la búsqueda "cerca de mí" (sin
+    // término). Si el paciente escribió un nombre o ciudad, está buscando una
+    // clínica concreta: filtrarla por distancia (o descartarla porque no
+    // tiene coordenadas, como pasa con las clínicas que el admin crea sin
+    // lat/long) la dejaría invisible aunque coincida exacto.
+    if (ubicacion && !termino) {
       return conDistancia
         .filter((c) => c.distancia != null && c.distancia <= RADIO_KM)
         .sort((a, b) => (a.distancia ?? 0) - (b.distancia ?? 0));
+    }
+    if (ubicacion && termino) {
+      // Con término sí se ordena por cercanía, pero sin excluir a las que no
+      // tienen distancia conocida: van al final, no desaparecen.
+      return [...conDistancia].sort((a, b) => {
+        if (a.distancia == null && b.distancia == null) return 0;
+        if (a.distancia == null) return 1;
+        if (b.distancia == null) return -1;
+        return a.distancia - b.distancia;
+      });
     }
     return conDistancia;
   }, [clinicas, termino, ubicacion, haBuscado]);
@@ -554,7 +569,7 @@ export function BuscarClinicaPage() {
             <CardContent className="flex flex-col items-center gap-2 p-10 text-center">
               <Buildings size={28} weight="duotone" className="text-ink-muted" />
               <p className="text-sm text-ink-soft">
-                {ubicacion
+                {ubicacion && !termino
                   ? `No hay clínicas dentro de ${RADIO_KM} km. Probá sin usar la ubicación.`
                   : "No encontramos clínicas con ese criterio."}
               </p>
