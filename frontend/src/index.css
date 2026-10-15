@@ -135,6 +135,11 @@
     /* iOS Safari ignora el tamano de texto del navegador si no se fija esto */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Sin esto, pasar de la punta de un scroll dispara el pull-to-refresh de
+       Android o el rebote de pagina entera de iOS: en el portal del paciente
+       (`PortalPacienteLayout`), que scrollea el documento y no un contenedor
+       propio, eso se siente como que "la pagina no termina nunca". */
+    overscroll-behavior: none;
   }
 
   body {
@@ -149,6 +154,16 @@
     /* `manipulation` quita los 300ms de retardo del tap sin quitar el zoom
        pinch-to-zoom, que en iOS es esperado */
     touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+
+  /* Leaflet no pone `touch-action` en su contenedor: un dedo que arrastra el
+     mapa puede hacer que el navegador decida que en realidad se esta
+     scrolleando la pagina (la carrera entre el gesto nativo y el listener de
+     Leaflet), y el resultado se siente como que la pantalla entera se mueve
+     sola. `none` le entrega el gesto completo al mapa, sin pelear por el. */
+  .leaflet-container {
+    touch-action: none;
   }
 
   /* iOS no muestra contorno de foco al tocar, solo al navegar con teclado */

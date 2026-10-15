@@ -76,8 +76,44 @@ export function BuscarClinicaPage() {
    * directo al formulario completo: primero nombre/dirección/teléfono, y
    * "Afiliarme" recién ahí abre el alta. */
   const [clinicaInfo, setClinicaInfo] = useState<ClinicaConDistancia | null>(null);
+  /** Lista de sugerencias bajo el buscador, mientras se escribe. */
+  const [sugerenciasAbiertas, setSugerenciasAbiertas] = useState(false);
 
   const yaAfiliado = ficha?.clinica ?? null;
+
+  /**
+   * Sugerencias "mientras se escribe": no esperan el debounce de `termino` ni
+   * el radio de cercanía, para que se sientan vivas tecla por tecla. Tocar una
+   * va directo a la tarjeta de info de esa clínica (mismo paso que tocar un
+   * pin), nunca al formulario completo de alta.
+   */
+  const sugerencias = useMemo<Clinica[]>(() => {
+    const buscado = texto.trim().toLowerCase();
+    if (!buscado) return [];
+    return clinicas
+      .filter(
+        (c) =>
+          c.nombre.toLowerCase().includes(buscado) || (c.ciudad ?? "").toLowerCase().includes(buscado),
+      )
+      .slice(0, 6);
+  }, [clinicas, texto]);
+
+  const elegirSugerencia = useCallback(
+    (clinica: Clinica) => {
+      setTexto(clinica.nombre);
+      setHaBuscado(true);
+      setVista("mapa");
+      setSugerenciasAbiertas(false);
+      const tieneCoords = clinica.latitud != null && clinica.longitud != null;
+      const distancia =
+        ubicacion && tieneCoords
+          ? distanciaKm(ubicacion.lat, ubicacion.lon, clinica.latitud!, clinica.longitud!)
+          : null;
+      setIdEnfocada(clinica.id);
+      setClinicaInfo({ clinica, distancia });
+    },
+    [ubicacion],
+  );
 
   /** Un paciente sin clínica cae acá por `<Navigate>` apenas entra a la sesión
    * (ver `ficha.sinClinica` en el resto del portal): para esa primera vez, el
@@ -337,12 +373,16 @@ export function BuscarClinicaPage() {
             onChange={(e) => {
               const valor = e.target.value;
               setTexto(valor);
+              setSugerenciasAbiertas(Boolean(valor.trim()));
               if (valor.trim()) setHaBuscado(true);
             }}
+            onFocus={() => setSugerenciasAbiertas(Boolean(texto.trim()))}
+            onBlur={() => setSugerenciasAbiertas(false)}
             placeholder="Nombre de tu clínica o ciudad"
             className="bg-white pl-10 shadow-e1"
             aria-label="Buscar clínica por nombre o ciudad"
           />
+          {sugerenciasAbiertas ? <SugerenciasClinica items={sugerencias} onElegir={elegirSugerencia} /> : null}
         </div>
 
         {estadoUbicacion === "error" ? (
@@ -422,13 +462,17 @@ export function BuscarClinicaPage() {
             onChange={(e) => {
               const valor = e.target.value;
               setTexto(valor);
+              setSugerenciasAbiertas(Boolean(valor.trim()));
               // Escribir ya cuenta como buscar: no hace falta apretar el botón.
               if (valor.trim()) setHaBuscado(true);
             }}
+            onFocus={() => setSugerenciasAbiertas(Boolean(texto.trim()))}
+            onBlur={() => setSugerenciasAbiertas(false)}
             placeholder="Nombre de la clínica o ciudad"
             className="bg-white pl-10"
             aria-label="Buscar clínica por nombre o ciudad"
           />
+          {sugerenciasAbiertas ? <SugerenciasClinica items={sugerencias} onElegir={elegirSugerencia} /> : null}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Button type="button" onClick={() => setHaBuscado(true)} className="shrink-0">
@@ -690,6 +734,49 @@ export function BuscarClinicaPage() {
 
       {dialogoAfiliacion}
     </div>
+  );
+}
+
+/**
+ * Lista de sugerencias bajo el buscador, al estilo autocompletar.
+ *
+ * `onMouseDown` con `preventDefault` evita que el `onBlur` del input cierre
+ * la lista antes de que el `onClick` del item llegue a dispararse: es el
+ * truco estándar de los combobox para que tocar/clickear una sugerencia
+ * funcione en vez de que el campo se desenfoque primero y se pierda el tap.
+ */
+function SugerenciasClinica({
+  items,
+  onElegir,
+}: {
+  items: Clinica[];
+  onElegir: (clinica: Clinica) => void;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <ul
+      role="listbox"
+      aria-label="Sugerencias de clínicas"
+      className="absolute inset-x-0 top-full z-50 mt-1.5 max-h-64 overflow-y-auto rounded-ios border border-line bg-surface py-1 shadow-e2"
+    >
+      {items.map((clinica) => (
+        <li key={clinica.id}>
+          <button
+            type="button"
+            role="option"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onElegir(clinica)}
+            className="press flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm text-ink hover:bg-surface-sunken"
+          >
+            <MapPin size={15} weight="duotone" className="shrink-0 text-ink-muted" />
+            <span className="min-w-0 flex-1 truncate">
+              <span className="font-medium">{clinica.nombre}</span>
+              {clinica.ciudad ? <span className="text-ink-muted"> · {clinica.ciudad}</span> : null}
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
