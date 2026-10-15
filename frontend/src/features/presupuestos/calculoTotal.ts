@@ -2,6 +2,7 @@ import type {
   Decimal,
   ItemPresupuesto,
   ItemPresupuestoNuevo,
+  Presupuesto,
 } from "./tipos.ts";
 
 /** Una partida ya calculada, lista para insertar (todavia sin `id`). */
@@ -65,4 +66,23 @@ export function saldoPresupuesto(total: Decimal, pagado: Decimal): number {
 /** `US-8.x`: el presupuesto se puede enviar al paciente solo si tiene partidas. */
 export function esPresupuestoEnviable(items: readonly ItemPresupuesto[]): boolean {
   return items.length > 0 && items.every((item) => item.descripcion.trim() !== "");
+}
+
+/**
+ * Total presupuestado a un paciente: la suma de sus presupuestos vigentes.
+ *
+ * Es el contrato de lectura que consume el módulo 09 (Pagos) para el estado de
+ * cuenta. Un presupuesto `rechazado` no genera deuda, así que no suma; el resto
+ * sí, aunque esté en borrador o enviado. La operación es de solo lectura de
+ * números: importar esta función evita que Carlos reimplemente la suma por su
+ * lado y que el saldo de la cabecera y el del módulo 08 terminen distintos.
+ */
+export function totalPresupuestado(
+  presupuestos: readonly Pick<Presupuesto, "total" | "estado">[],
+): number {
+  return redondear(
+    presupuestos
+      .filter((presupuesto) => presupuesto.estado !== "rechazado")
+      .reduce((acc, presupuesto) => acc + aNumero(presupuesto.total), 0),
+  );
 }

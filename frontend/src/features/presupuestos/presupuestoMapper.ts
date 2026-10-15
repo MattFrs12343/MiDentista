@@ -7,6 +7,7 @@ import type {
   PresupuestoNuevo,
 } from "./tipos.ts";
 import { ESTADOS_PRESUPUESTO } from "./tipos.ts";
+import type { ItemConSubtotal } from "./calculoTotal.ts";
 
 /** Fila de `public.presupuestos`. */
 export interface PresupuestoFila {
@@ -46,6 +47,9 @@ export type PresupuestoPayload = Omit<
   PresupuestoFila,
   "id" | "creado_en" | "actualizado_en"
 >;
+
+/** Fila a insertar para una partida. `id` y `creado_en` los pone la base. */
+export type ItemPresupuestoPayload = Omit<ItemPresupuestoFila, "id" | "creado_en">;
 
 export function esUuid(valor: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(valor);
@@ -131,4 +135,27 @@ export function completarPresupuesto(
   items: ItemPresupuesto[],
 ): PresupuestoCompleto {
   return { ...presupuesto, items };
+}
+
+/**
+ * Fila a insertar para una partida del presupuesto.
+ *
+ * El `presupuesto_id` se pasa aparte porque en un alta el presupuesto todavía no
+ * tiene `id` cuando se arma el borrador; las partidas se enganchan recién al
+ * `id` real que devuelve la base.
+ */
+export function itemParaGuardar(
+  item: ItemConSubtotal,
+  presupuestoId: string,
+): ItemPresupuestoPayload {
+  return {
+    clinica_id: item.clinicaId,
+    presupuesto_id: presupuestoId,
+    servicio_id: item.servicioId,
+    descripcion: item.descripcion,
+    numero_pieza: item.numeroPieza,
+    cantidad: item.cantidad,
+    precio_unitario: item.precioUnitario,
+    subtotal: item.subtotal,
+  };
 }
