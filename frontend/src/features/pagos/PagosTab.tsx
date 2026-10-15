@@ -5,6 +5,7 @@ import { SectionLoader } from "@/components/ui/section-loader";
 import { AccountStatement } from "./AccountStatement.tsx";
 import { PaymentForm } from "./PaymentForm.tsx";
 import { PaymentHistory } from "./PaymentHistory.tsx";
+import { QrCobro } from "./QrCobro.tsx";
 import { calcularEstadoCuenta } from "./pagoService.ts";
 import { usePagosSupabase } from "./usePagosSupabase.ts";
 import type { Decimal, Pago } from "./tipos.ts";
@@ -24,6 +25,12 @@ export interface PagosTabProps {
    * `PatientProfilePage.tsx` y esta es la unica costura que cambia.
    */
   totalPresupuestado?: Decimal;
+  /**
+   * Odontólogo o recepción: pueden subir/cambiar el QR de cobro de la
+   * clínica. Es independiente de `registradoPor`: no habilita registrar
+   * pagos, solo gestionar el QR.
+   */
+  puedeGestionarQr?: boolean;
 }
 
 /**
@@ -38,6 +45,7 @@ export function PagosTab({
   clinicaId,
   registradoPor,
   totalPresupuestado = 0,
+  puedeGestionarQr = false,
 }: PagosTabProps) {
   const { pagos, cargando, guardando, error, cargar, registrar } = usePagosSupabase();
   const [formAbierto, setFormAbierto] = useState(false);
@@ -91,6 +99,8 @@ export function PagosTab({
           </Button>
         ) : null}
       </div>
+
+      <QrCobro clinicaId={clinicaId} puedeGestionar={puedeGestionarQr} />
 
       <AccountStatement estado={estadoCuenta} />
 

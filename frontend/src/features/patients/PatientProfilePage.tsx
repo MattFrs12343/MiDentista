@@ -25,6 +25,10 @@ export function PatientProfilePage() {
   const { obtenerPaciente, miPerfil } = useClinicaData();
   const { sesion } = useAuth();
   const puedeCobrar = sesion?.rol === "recepcionista" || sesion?.rol === "odontologo_admin";
+  // Gestionar el QR de cobro es un permiso aparte de cobrar: el odontólogo
+  // puede subir/cambiar el QR aunque no registre pagos (ver pagos/README.md
+  // "Permisos esperados", que no cambia con esto).
+  const puedeGestionarQr = sesion?.rol === "recepcionista" || sesion?.rol === "odontologo";
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const tabActiva = esTabValida(tabParam) ? tabParam : "datos";
@@ -116,6 +120,7 @@ export function PatientProfilePage() {
               pacienteId={paciente.id}
               clinicaId={miPerfil.clinicaId}
               registradoPor={puedeCobrar ? miPerfil.id : undefined}
+              puedeGestionarQr={puedeGestionarQr}
             />
           ) : (
             <EmptyState size="sm" title="Cargando perfil…" />

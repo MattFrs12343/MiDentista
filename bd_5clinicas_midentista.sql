@@ -983,6 +983,90 @@ create policy citas_update on public.citas for update
     or public.es_superadmin()
   );
 
+-- evoluciones_clinicas: aplicado en producción el 2026-10-04 (Lucas, módulo
+-- 06), integrado aquí. Recepción NO lee ni escribe evoluciones: es información
+-- clínica. El paciente lee solo las suyas, vía el vínculo pacientes.perfil_id.
+alter table public.evoluciones_clinicas enable row level security;
+drop policy if exists evoluciones_select on public.evoluciones_clinicas;
+create policy evoluciones_select on public.evoluciones_clinicas for select
+  using (
+    public.es_superadmin()
+    or (
+      public.mi_clinica_id() = clinica_id
+      and exists (
+        select 1 from public.current_perfil()
+         where rol in ('odontologo', 'odontologo_admin')
+      )
+    )
+    or exists (
+      select 1
+        from public.pacientes p
+        join public.current_perfil() cp on cp.perfil_id = p.perfil_id
+       where p.id = evoluciones_clinicas.paciente_id
+         and cp.rol = 'paciente'
+    )
+  );
+drop policy if exists evoluciones_insert on public.evoluciones_clinicas;
+create policy evoluciones_insert on public.evoluciones_clinicas for insert
+  with check (
+    public.es_superadmin()
+    or (
+      public.mi_clinica_id() = clinica_id
+      and exists (
+        select 1 from public.current_perfil()
+         where rol in ('odontologo', 'odontologo_admin')
+      )
+    )
+  );
+drop policy if exists evoluciones_update on public.evoluciones_clinicas;
+create policy evoluciones_update on public.evoluciones_clinicas for update
+  using (
+    public.es_superadmin()
+    or (
+      public.mi_clinica_id() = clinica_id
+      and exists (
+        select 1 from public.current_perfil()
+         where rol in ('odontologo', 'odontologo_admin')
+      )
+    )
+  );
+-- Sin policy de DELETE: el módulo 06 no borra evoluciones.
+
+-- pagos: tabla sin RLS desde su creación (hueco real: cualquier autenticado
+-- leía/escribía cobros de las 5 clínicas). Recepción registra y edita; el
+-- odontólogo solo consulta saldos y estados de cuenta (no registra cobros,
+-- ver features/pagos/README.md "Permisos esperados"). Por eso INSERT/UPDATE
+-- excluyen a `odontologo`, a diferencia de la propuesta original del módulo.
+alter table public.pagos enable row level security;
+drop policy if exists pagos_select_superadmin on public.pagos;
+create policy pagos_select_superadmin on public.pagos
+  for select using (public.es_superadmin());
+drop policy if exists pagos_select_staff on public.pagos;
+create policy pagos_select_staff on public.pagos
+  for select using (
+    clinica_id = public.mi_clinica_id()
+    and (select rol from public.current_perfil()) in ('recepcionista', 'odontologo')
+  );
+drop policy if exists pagos_insert_staff on public.pagos;
+create policy pagos_insert_staff on public.pagos
+  for insert with check (
+    clinica_id = public.mi_clinica_id()
+    and (select rol from public.current_perfil()) = 'recepcionista'
+    and registrado_por = public.mi_perfil_id()
+  );
+drop policy if exists pagos_update_staff on public.pagos;
+create policy pagos_update_staff on public.pagos
+  for update using (
+    clinica_id = public.mi_clinica_id()
+    and (select rol from public.current_perfil()) = 'recepcionista'
+  )
+  with check (
+    clinica_id = public.mi_clinica_id()
+    and (select rol from public.current_perfil()) = 'recepcionista'
+  );
+-- Sin policy de DELETE: un pago es un registro contable, se anula con
+-- estado 'rechazado', no se borra.
+
 -- ============================================================================
 -- 8. MONITOREO: tamaño de la base (card "Base de datos" del panel admin)
 -- ============================================================================

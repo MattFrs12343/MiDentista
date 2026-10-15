@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { FormActions, FormAlert, FormGroup, FormShell } from "@/components/ui/form-parts";
 import { PartialPayment } from "./PartialPayment.tsx";
+import { QrPasarela } from "./QrPasarela.tsx";
 import { aNumero, redondear } from "./pagoCalculo.ts";
 import { formatearMoneda, hoyIso } from "./pagoFormato.ts";
 import { METODOS_PAGO, type Decimal, type MetodoPago, type Pago } from "./tipos.ts";
@@ -197,6 +198,10 @@ export function PaymentForm({
                 </Field>
               </div>
             </FormGroup>
+
+            {metodoPago === "qr" ? (
+              <QrPasarela clinicaId={clinicaId} monto={montoNumero} />
+            ) : null}
 
             <Field label="Notas" htmlFor="pago-notas" hint="Opcional.">
               <Textarea
