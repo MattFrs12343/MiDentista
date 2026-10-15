@@ -197,27 +197,30 @@ export function BuscarClinicaPage() {
         return { clinica, distancia };
       });
 
-    // El radio de cercanía solo aplica a la búsqueda "cerca de mí" (sin
-    // término). Si el paciente escribió un nombre o ciudad, está buscando una
-    // clínica concreta: filtrarla por distancia (o descartarla porque no
-    // tiene coordenadas, como pasa con las clínicas que el admin crea sin
-    // lat/long) la dejaría invisible aunque coincida exacto.
-    if (ubicacion && !termino) {
-      return conDistancia
-        .filter((c) => c.distancia != null && c.distancia <= RADIO_KM)
-        .sort((a, b) => (a.distancia ?? 0) - (b.distancia ?? 0));
-    }
-    if (ubicacion && termino) {
-      // Con término sí se ordena por cercanía, pero sin excluir a las que no
-      // tienen distancia conocida: van al final, no desaparecen.
-      return [...conDistancia].sort((a, b) => {
-        if (a.distancia == null && b.distancia == null) return 0;
-        if (a.distancia == null) return 1;
-        if (b.distancia == null) return -1;
-        return a.distancia - b.distancia;
-      });
-    }
-    return conDistancia;
+    if (!ubicacion) return conDistancia;
+
+    // Se ordena por cercanía siempre, pero sin excluir a las que no tienen
+    // distancia conocida (p. ej. una clínica que el admin creó sin lat/long):
+    // van al final, no desaparecen.
+    const ordenadas = [...conDistancia].sort((a, b) => {
+      if (a.distancia == null && b.distancia == null) return 0;
+      if (a.distancia == null) return 1;
+      if (b.distancia == null) return -1;
+      return a.distancia - b.distancia;
+    });
+
+    // Con término, el radio no aplica: el paciente busca una clínica
+    // concreta, no "las de cerca". Mostrar todas las coincidencias.
+    if (termino) return ordenadas;
+
+    // "Cerca de mí" sin término: se prefieren las que están dentro del radio,
+    // pero si ninguna real cae ahí (clínicas reales lejos del dispositivo,
+    // el caso normal fuera de Bolivia) se muestran las reales más cercanas
+    // igual, aunque queden lejos — es mejor eso que una pantalla sin ninguna
+    // clínica afiliable. El fallback a datos de demostración (`demo`, abajo)
+    // queda solo para cuando no hay ninguna clínica real en el sistema.
+    const dentroDeRadio = ordenadas.filter((c) => c.distancia != null && c.distancia <= RADIO_KM);
+    return dentroDeRadio.length > 0 ? dentroDeRadio : ordenadas;
   }, [clinicas, termino, ubicacion, haBuscado]);
 
   /**
@@ -529,7 +532,10 @@ export function BuscarClinicaPage() {
               : `${visibles.length} ${visibles.length === 1 ? "clínica" : "clínicas"} encontrada${
                   visibles.length === 1 ? "" : "s"
                 }${
-                  ubicacion
+                  // Si alguna quedó fuera del radio (no había ninguna real
+                  // cerca y se mostraron las más próximas igual), no se
+                  // afirma un radio que ya no es cierto para todo el listado.
+                  ubicacion && visibles.every((v) => v.distancia == null || v.distancia <= RADIO_KM)
                     ? ` · buscando en un radio de ${alcanceEfectivo} km`
                     : ""
                 }`}
