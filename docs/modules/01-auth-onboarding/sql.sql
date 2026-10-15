@@ -43,11 +43,19 @@
 --   anterior a la que deberle nada).
 -- ============================================================================
 
+-- `out_` en las columnas de salida, no `paciente_id`/`clinica_id` a secas:
+-- `returns table (...)` las declara como variables PL/pgSQL visibles en toda
+-- la función, y esos dos nombres son columnas reales de `presupuestos`,
+-- `pagos`, `pacientes`, etc. Con el nombre corto, cualquier `where
+-- paciente_id = ...` dentro de la función es ambiguo ("column reference
+-- ... is ambiguous") entre la columna de la tabla y la variable de salida.
+-- Nadie lee estas columnas por nombre (`afiliarPacientePortalApi` solo mira
+-- `error`), así que renombrarlas no rompe a quien llama la función.
 create or replace function public.afiliar_paciente(
     p_clinica_id uuid,
     p_datos      jsonb default '{}'::jsonb
 )
-returns table (paciente_id uuid, clinica_id uuid)
+returns table (out_paciente_id uuid, out_clinica_id uuid)
 language plpgsql
 security definer
 set search_path = public

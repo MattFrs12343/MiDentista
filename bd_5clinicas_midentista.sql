@@ -1074,11 +1074,17 @@ create policy pagos_update_staff on public.pagos
 -- deje cambiar `clinica_id` también dejaría reescribir `rol`. Por eso la
 -- afiliación (alta o cambio de clínica) pasa por esta función acotada, no por
 -- una policy. Detalle completo: docs/modules/01-auth-onboarding/sql.sql.
+--
+-- `out_` en las columnas de salida: `returns table (...)` las declara como
+-- variables PL/pgSQL visibles en toda la función, y `paciente_id`/
+-- `clinica_id` a secas son columnas reales de `presupuestos`, `pagos`,
+-- `pacientes`, etc. — cualquier `where paciente_id = ...` dentro de la
+-- función sería ambiguo. Nadie lee estas columnas por nombre.
 create or replace function public.afiliar_paciente(
     p_clinica_id uuid,
     p_datos      jsonb default '{}'::jsonb
 )
-returns table (paciente_id uuid, clinica_id uuid)
+returns table (out_paciente_id uuid, out_clinica_id uuid)
 language plpgsql
 security definer
 set search_path = public
