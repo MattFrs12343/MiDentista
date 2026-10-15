@@ -11,13 +11,14 @@ import { cn } from "@/lib/cn";
 const LEFT_ROPE = "M 11 0 C 8 24, 4 42, 2 56";
 const RIGHT_ROPE = "M 89 0 C 92 24, 96 42, 98 56";
 
-/** Ojal: anillo metálico que une la soga con la bandera. */
+/** Ojal: anillo metálico que une la soga con la bandera. Oculto en móvil: ver
+ * nota de `HangingBanner` sobre por qué el colgante es exclusivo de `lg:`. */
 function Eyelet({ side }: { side: "left" | "right" }) {
   return (
     <span
       aria-hidden
       className={cn(
-        "absolute top-0 z-20 grid h-[18px] w-[18px] place-items-center rounded-full",
+        "absolute top-0 z-20 hidden h-[18px] w-[18px] place-items-center rounded-full lg:grid",
         "-translate-y-1/2",
         // `shadow-e2` en lugar del `shadow-[...]` escrito a mano: el metal pasa
         // a usar la misma escala de elevación que el resto de la app. e1 es
@@ -41,11 +42,17 @@ function Eyelet({ side }: { side: "left" | "right" }) {
  * su propia animación de entrada, p. ej. `fade-in-up`), nunca el wrapper, que
  * ya usa transform para el balanceo.
  *
+ * El colgante (sogas, ojales y el balanceo de `.hanger`, este último
+ * apagado por completo bajo `lg` en `index.css`) es exclusivo de escritorio:
+ * en una pantalla angosta las sogas quedaban apretadas contra los bordes y el
+ * balanceo se sentía como una distracción, no como un detalle. En móvil el
+ * banner queda estático y plano, sin ningún elemento colgante.
+ *
  * Este componente no crea ningún elemento interactivo (sogas y ojal son
  * decoración `aria-hidden`), así que no lleva anillo de foco propio: lo que
  * llega por `children` conserva el suyo (`Button` ya usa
  * `focus-visible:ring-2`). El péndulo y el contrato `hanger`/`hanger-panel`
- * quedan intactos.
+ * quedan intactos en `lg:` y superior.
  */
 export function HangingBanner({
   children,
@@ -55,13 +62,14 @@ export function HangingBanner({
   className?: string;
 }) {
   return (
-    // -mt-* cancela el pt-* del <main> para que la soga nazca pegada al
-    // header (deben coincidir: pt-5 sm:pt-6 lg:pt-8); pt-14 reserva los 56px
-    // de la catenaria. Mismo max-w-3xl que los banners para que las sogas
-    // caigan en sus esquinas.
+    // -mt-* cancela el pt-* del <main> para que el banner nazca pegado al
+    // header (deben coincidir: pt-5 sm:pt-6 lg:pt-8), con o sin soga. pt-14
+    // solo hace falta en lg: reserva los 56px de la catenaria; en móvil sin
+    // soga sería espacio vacío arriba del banner. Mismo max-w-3xl que los
+    // banners para que las sogas caigan en sus esquinas.
     <div
       className={cn(
-        "hanger relative -mt-5 mx-auto w-full max-w-3xl pt-14 sm:-mt-6 lg:-mt-8",
+        "hanger relative -mt-5 mx-auto w-full max-w-3xl pt-0 sm:-mt-6 lg:-mt-8 lg:pt-14",
         className,
       )}
     >
@@ -69,7 +77,7 @@ export function HangingBanner({
         aria-hidden
         viewBox="0 0 100 56"
         preserveAspectRatio="none"
-        className="pointer-events-none absolute inset-x-0 top-0 h-14 w-full overflow-visible"
+        className="pointer-events-none absolute inset-x-0 top-0 hidden h-14 w-full overflow-visible lg:block"
       >
         <defs>
           <linearGradient id="hanger-rope" x1="0" y1="0" x2="0" y2="1">

@@ -18,6 +18,8 @@ import {
   MapPin,
   Database,
   PencilSimple,
+  ClockCounterClockwise,
+  CaretRight,
 } from "@phosphor-icons/react";
 import { Avatar } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -48,6 +50,7 @@ import {
   type PerfilAdmin,
   type TamanoBaseDatos,
 } from "@/data/api";
+import { listarBitacora, type EntradaBitacora } from "./bitacoraService";
 import type { Role } from "@/types";
 
 const ROLES_INVITABLES: Role[] = ["odontologo", "recepcionista", "superadmin"];
@@ -224,6 +227,7 @@ export function AdminPage() {
             <TabsTrigger value="administradores">
               Administradores{administradores.length > 0 ? ` (${administradores.length})` : ""}
             </TabsTrigger>
+            <TabsTrigger value="bitacora">Bitácora</TabsTrigger>
           </TabsList>
 
           <TabsContent value="clinicas" className="flex flex-col gap-4">
@@ -288,6 +292,10 @@ export function AdminPage() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="bitacora" className="flex flex-col gap-4">
+            <BitacoraSection />
           </TabsContent>
         </Tabs>
       )}
@@ -1185,5 +1193,156 @@ function InvitarDialog({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+const ETIQUETA_ACCION: Record<EntradaBitacora["accion"], { texto: string; tono: string }> = {
+  INSERT: { texto: "Creó", tono: "text-ios-green" },
+  UPDATE: { texto: "Editó", tono: "text-ios-blue" },
+  DELETE: { texto: "Eliminó", tono: "text-pastel-red-fg" },
+};
+
+function formatoFechaHora(iso: string): string {
+  return new Date(iso).toLocaleString("es-BO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * Pestaña "Bitácora" (módulo 16): quién hizo qué, cuándo, desde qué IP y con
+ * qué detalle. Solo lectura — la tabla rechaza escritura directa del
+ * cliente, así que no hay acción de "crear" ni "borrar" entrada acá.
+ *
+ * Un error al cargar probablemente significa que `docs/modules/16-bitacora/
+ * sql.sql` todavía no se corrió en Supabase (la tabla `bitacora` no existe
+ * todavía), así que el mensaje lo dice explícito en vez de un error crudo.
+ */
+function BitacoraSection() {
+  const [entradas, setEntradas] = useState<EntradaBitacora[]>([]);
+  const [pagina, setPagina] = useState(0);
+  const [haySiguiente, setHaySiguiente] = useState(false);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandida, setExpandida] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelado = false;
+    setCargando(true);
+    setError(null);
+    listarBitacora(pagina)
+      .then(({ entradas: nuevas, haySiguiente: siguiente }) => {
+        if (cancelado) return;
+        setEntradas((previas) => (pagina === 0 ? nuevas : [...previas, ...nuevas]));
+        setHaySiguiente(siguiente);
+      })
+      .catch((causa: unknown) => {
+        if (cancelado) return;
+        const mensaje = causa instanceof Error ? causa.message : "No se pudo cargar la bitácora.";
+        setError(
+          /relation .*bitacora.* does not exist/i.test(mensaje)
+            ? "La bitácora todavía no está instalada en la base de datos. Corré docs/modules/16-bitacora/sql.sql en Supabase."
+            : mensaje,
+        );
+      })
+      .finally(() => {
+        if (!cancelado) setCargando(false);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [pagina]);
+
+  if (cargando && entradas.length === 0) {
+    return (
+      <div className="flex items-center gap-2 py-6 text-sm text-ink-muted">
+        <SpinnerGap size={16} className="animate-spin" /> Cargando…
+      </div>
+    );
+  }
+
+  if (error && entradas.length === 0) {
+    return (
+      <p className="flex items-start gap-2 rounded-xl border border-pastel-red-fg/25 bg-pastel-red-bg px-3.5 py-3 text-sm text-pastel-red-fg">
+        <WarningCircle size={17} weight="fill" className="mt-0.5 shrink-0" />
+        <span>{error}</span>
+      </p>
+    );
+  }
+
+  if (entradas.length === 0) {
+    return (
+      <EmptyState
+        size="sm"
+        icon={ClockCounterClockwise}
+        iconTone="brand"
+        title="Todavía no hay acciones registradas"
+        description="Cada alta, edición o eliminación de pacientes, citas, diagnósticos, planes, presupuestos, pagos y usuarios va a aparecer acá."
+      />
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Bitácora de auditoría</CardTitle>
+        <CardDescription>Quién hizo qué, cuándo y desde qué IP. Más reciente primero.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        {entradas.map((entrada) => {
+          const abierta = expandida === entrada.id;
+          const accion = ETIQUETA_ACCION[entrada.accion];
+          return (
+            <div key={entrada.id} className="rounded-xl border border-line">
+              <button
+                type="button"
+                onClick={() => setExpandida(abierta ? null : entrada.id)}
+                className="press flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left"
+              >
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-[13px] font-medium text-ink">
+                    <span className={accion.tono}>{accion.texto}</span> en{" "}
+                    <span className="font-semibold">{entrada.tablaAfectada}</span>
+                    {entrada.clinicaNombre ? ` · ${entrada.clinicaNombre}` : ""}
+                  </span>
+                  <span className="text-[12px] text-ink-muted">
+                    {formatoFechaHora(entrada.creadoEn)}
+                    {entrada.rol ? ` · ${ROLE_LABEL[entrada.rol as Role] ?? entrada.rol}` : ""}
+                    {entrada.ipAddress ? ` · IP ${entrada.ipAddress}` : ""}
+                  </span>
+                </div>
+                <CaretRight
+                  size={14}
+                  weight="bold"
+                  className={`shrink-0 text-ink-muted transition-transform ${abierta ? "rotate-90" : ""}`}
+                />
+              </button>
+              {abierta ? (
+                <pre className="overflow-x-auto border-t border-line bg-surface-sunken px-3.5 py-2.5 text-[11px] leading-snug text-ink-soft">
+                  {JSON.stringify(entrada.detalle, null, 2)}
+                </pre>
+              ) : null}
+            </div>
+          );
+        })}
+
+        {haySiguiente ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="self-center"
+            disabled={cargando}
+            onClick={() => setPagina((p) => p + 1)}
+          >
+            {cargando ? <SpinnerGap size={14} className="animate-spin" /> : null}
+            Cargar más
+          </Button>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }

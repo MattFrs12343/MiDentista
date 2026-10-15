@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import { IdentificationCard, UserCircleMinus } from "@phosphor-icons/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,8 @@ import { OdontogramTab } from "@/features/odontogram/OdontogramTab";
 import { TreatmentTab } from "@/features/treatment/TreatmentTab";
 import { EvolutionTab } from "@/features/evolucion/EvolutionTab";
 import { PagosTab } from "@/features/pagos/PagosTab";
+import { totalPresupuestado } from "@/features/presupuestos/calculoTotal.ts";
+import { cargarPresupuestos } from "@/features/presupuestos/presupuestoService.ts";
 import { precargarVista3D } from "@/features/odontogram/precargaVista3D";
 import { esTabValida } from "@/features/patients/tabValue";
 import { PatientFilesSection } from "@/features/archivos/PatientFilesSection.tsx";
@@ -41,6 +43,28 @@ export function PatientProfilePage() {
   useEffect(() => {
     void precargarVista3D().catch(() => {});
   }, []);
+
+  // Costura con el módulo 08: el total presupuestado real del paciente, para
+  // que "Estado de cuenta" deje de decir siempre "Sin presupuesto registrado".
+  // Se pide solo al abrir la pestaña de pagos, igual que el contexto de
+  // tratamiento se pide solo al abrir la suya.
+  const [totalPresupuestadoPaciente, setTotalPresupuestadoPaciente] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    if (tabActiva !== "pagos" || !paciente?.id) return;
+    let cancelado = false;
+    cargarPresupuestos(paciente.id)
+      .then((presupuestos) => {
+        if (!cancelado) setTotalPresupuestadoPaciente(totalPresupuestado(presupuestos));
+      })
+      .catch(() => {
+        // El total presupuestado es una ayuda del módulo 08: si falla, "Pagos"
+        // sigue funcionando con el estado por defecto (sin presupuesto).
+        if (!cancelado) setTotalPresupuestadoPaciente(undefined);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [tabActiva, paciente?.id]);
 
   usePageHeader({
     title: paciente ? `${paciente.nombres} ${paciente.apellidos}` : "Paciente",
@@ -121,6 +145,7 @@ export function PatientProfilePage() {
               clinicaId={miPerfil.clinicaId}
               registradoPor={puedeCobrar ? miPerfil.id : undefined}
               puedeGestionarQr={puedeGestionarQr}
+              totalPresupuestado={totalPresupuestadoPaciente}
             />
           ) : (
             <EmptyState size="sm" title="Cargando perfil…" />

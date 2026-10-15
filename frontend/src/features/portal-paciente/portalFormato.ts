@@ -54,6 +54,18 @@ export function etiquetaEstado(estado: string | null | undefined): string {
   return ETIQUETAS_ESTADO[estado] ?? estado;
 }
 
+const ETIQUETAS_METODO_PAGO: Record<string, string> = {
+  efectivo: "Efectivo",
+  qr: "QR",
+  transferencia: "Transferencia",
+  otro: "Otro",
+};
+
+export function etiquetaMetodoPago(metodo: string | null | undefined): string {
+  if (!metodo) return "—";
+  return ETIQUETAS_METODO_PAGO[metodo] ?? metodo;
+}
+
 export type TonoEstado = "neutral" | "blue" | "red" | "green" | "yellow" | "violet";
 
 export function tonoEstado(estado: string | null | undefined): TonoEstado {
