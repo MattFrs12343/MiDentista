@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import assert from "node:assert/strict";
 import test from "node:test";
-import { aNumero, montoAceptable, redondear, saldoPresupuesto, totalConfirmado } from "./pagoCalculo.ts";
+import { aNumero, montoAceptable, redondear, saldoPresupuesto, saldoTrasAbono, totalConfirmado } from "./pagoCalculo.ts";
 import { calcularEstadoCuenta } from "./pagoService.ts";
 import type { Decimal, EstadoPago, Pago } from "./tipos.ts";
 
@@ -71,6 +71,15 @@ test("montoAceptable limita al saldo pendiente y no baja de cero", () => {
   assert.equal(montoAceptable(0, 50), 0);
   assert.equal(montoAceptable(100, 0), 0);
   assert.equal(montoAceptable(100, -25), 0);
+});
+
+test("saldoTrasAbono descuenta el abono y nunca deja saldo negativo", () => {
+  // El caso de US-9.4: debe Bs 1300 y abona Bs 800 → queda Bs 500.
+  assert.equal(saldoTrasAbono(1300, 800), 500);
+  assert.equal(saldoTrasAbono(500, 500), 0);
+  assert.equal(saldoTrasAbono(500, 900), 0);
+  assert.equal(saldoTrasAbono(500, 0), 500);
+  assert.equal(saldoTrasAbono(0, 300), 0);
 });
 
 test("aNumero tolera el NUMERIC de Postgres como texto y null", () => {

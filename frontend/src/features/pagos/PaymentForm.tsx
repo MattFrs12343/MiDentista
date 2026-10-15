@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FormActions, FormAlert, FormGroup, FormShell } from "@/components/ui/form-parts";
+import { PartialPayment } from "./PartialPayment.tsx";
 import { aNumero, redondear } from "./pagoCalculo.ts";
-import { hoyIso } from "./pagoFormato.ts";
-import { METODOS_PAGO, type MetodoPago, type Pago } from "./tipos.ts";
+import { formatearMoneda, hoyIso } from "./pagoFormato.ts";
+import { METODOS_PAGO, type Decimal, type MetodoPago, type Pago } from "./tipos.ts";
 
 const METODO_ETIQUETA: Record<MetodoPago, string> = {
   efectivo: "Efectivo",
@@ -30,6 +31,13 @@ export interface PaymentFormProps {
    * capa de UI le pasa aqui el UUID.
    */
   presupuestoId?: string | null;
+  /**
+   * Saldo que el paciente aun debe (US-9.4). En 0 no hay presupuesto contra el
+   * cual abonar, y el formulario se comporta como un pago a cuenta normal. Si
+   * es mayor que cero, `PartialPayment` ofrece abonar el total o la mitad y el
+   * monto queda topado por el saldo.
+   */
+  saldoPendiente?: Decimal;
   /** Error de la ultima escritura, para no duplicarlo en el historial. */
   error?: string | null;
   onCancelar?: () => void;
@@ -50,6 +58,7 @@ export function PaymentForm({
   guardando,
   onRegistrar,
   presupuestoId = null,
+  saldoPendiente = 0,
   error,
   onCancelar,
 }: PaymentFormProps) {
@@ -60,14 +69,24 @@ export function PaymentForm({
   const [notas, setNotas] = useState("");
   const [fallo, setFallo] = useState<string | null>(null);
 
+  const saldo = redondear(aNumero(saldoPendiente));
   const montoNumero = redondear(aNumero(monto));
-  const montoValido = montoNumero > 0;
+  const excedeSaldo = saldo > 0 && montoNumero > saldo;
+  const montoValido = montoNumero > 0 && !excedeSaldo;
   const referencia = codigoReferencia.trim();
+
+  const errorMonto = !monto
+    ? null
+    : excedeSaldo
+      ? `No puede superar el saldo pendiente (${formatearMoneda(saldo)}).`
+      : montoNumero <= 0
+        ? "Debe ser mayor que cero."
+        : null;
 
   const enviar = (evento: FormEvent) => {
     evento.preventDefault();
     if (!montoValido) {
-      setFallo("El monto debe ser mayor que cero.");
+      setFallo(errorMonto ?? "El monto debe ser mayor que cero.");
       return;
     }
     setFallo(null);
@@ -102,18 +121,27 @@ export function PaymentForm({
             cifras tabulares las pone `Input` solo en los campos numéricos. */}
         <form onSubmit={enviar}>
           <FormShell section="pagos">
+            {saldo > 0 ? (
+              <PartialPayment
+                saldoPendiente={saldo}
+                montoActual={monto}
+                onSugerirMonto={(sugerido) => setMonto(String(sugerido))}
+              />
+            ) : null}
+
             <FormGroup titulo="Datos del cobro">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label="Monto (Bs)"
                   htmlFor="pago-monto"
-                  error={monto && !montoValido ? "Debe ser mayor que cero." : null}
+                  error={errorMonto}
                 >
                   <Input
                     id="pago-monto"
                     type="number"
                     inputMode="decimal"
                     min="0"
+                    max={saldo > 0 ? saldo : undefined}
                     step="0.01"
                     placeholder="0,00"
                     value={monto}

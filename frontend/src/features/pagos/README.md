@@ -23,7 +23,7 @@ agrega junto con tu entrada en la barra lateral.
 | `pagoCalculo.ts` | `saldoPresupuesto`, `totalConfirmado`, `montoAceptable` |
 | `pagoService.ts` | `cargarPagos`, `registrarPago`, `cambiarEstadoPago`, `calcularEstadoCuenta` |
 
-Los que te faltan crear: `PagosPage.tsx`, `PartialPayment.tsx`.
+Te falta crear: `PagosPage.tsx` (la ruta transversal `/app/pagos`).
 
 ### Ya creados (lectura de la pestaña de pagos)
 
@@ -34,6 +34,7 @@ Los que te faltan crear: `PagosPage.tsx`, `PartialPayment.tsx`.
 | `AccountStatement.tsx` | Tarjeta de totales. No recalcula nada |
 | `PaymentHistory.tsx` | Lista de pagos. Distingue "sin pagos" de "error" |
 | `PaymentForm.tsx` | Alta de pago a cuenta, nace `pendiente` |
+| `PartialPayment.tsx` | Banda de pago parcial: saldo, atajos "total"/"mitad" y previsualización. No resta por su cuenta |
 | `PagosTab.tsx` | La pestaña entera. Solo lectura si no llega `registradoPor` |
 | `pagoCalculo.test.ts` | Regla de los pagos confirmados (11 casos) |
 
@@ -61,14 +62,16 @@ Cuando los dos estén integrados, la capa de UI le pasa a
 
 ```tsx
 const estadoCuenta = useMemo(
-  () => calcularEstadoCuenta(pacienteId, pagos, 0), // <- el 0 es el placeholder
-  [pacienteId, pagos],
+  () => calcularEstadoCuenta(pacienteId, pagos, totalPresupuestado), // <- el placeholder
+  [pacienteId, pagos, totalPresupuestado],
 );
 ```
 
-Ese `0` es lo único que hay que cambiar cuando llegue el módulo 08. Basta con
-que `PagosTab` reciba una prop `totalPresupuestado?: Decimal` (por defecto `0`),
-que es la costura que resuelve Matías en `PatientProfilePage.tsx`.
+`PagosTab` ya recibe la prop `totalPresupuestado?: Decimal` (por defecto `0`):
+es la costura que resuelve Matías en `PatientProfilePage.tsx`. Mientras el 08 no
+esté integrado, ese `0` deja el saldo en cero y `AccountStatement` muestra "Sin
+presupuesto registrado" — nunca un saldo engañoso. Ese saldo también se le pasa
+a `PaymentForm` (`saldoPendiente`), que es lo que topa el pago parcial.
 `AccountStatement` ya sabe pintar "Sin presupuesto registrado" cuando ese total
 es `0`, así que hoy no se muestra ningún saldo engañoso.
 
@@ -112,6 +115,7 @@ import { PagosTab } from "@/features/pagos/PagosTab";
     pacienteId={pacienteId}
     clinicaId={paciente.clinicaId}
     registradoPor={sesion?.user.id}   // sin esto la pestaña es solo lectura
+    totalPresupuestado={totalPresupuesto}  // del módulo 08; 0 si aún no hay
   />
 </TabsContent>
 ```

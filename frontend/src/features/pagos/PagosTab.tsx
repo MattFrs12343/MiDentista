@@ -7,7 +7,7 @@ import { PaymentForm } from "./PaymentForm.tsx";
 import { PaymentHistory } from "./PaymentHistory.tsx";
 import { calcularEstadoCuenta } from "./pagoService.ts";
 import { usePagosSupabase } from "./usePagosSupabase.ts";
-import type { Pago } from "./tipos.ts";
+import type { Decimal, Pago } from "./tipos.ts";
 
 export interface PagosTabProps {
   pacienteId: string;
@@ -17,17 +17,28 @@ export interface PagosTabProps {
    * lectura: `registrarPago` exige `registradoPor` y no se puede inventar.
    */
   registradoPor?: string;
+  /**
+   * Total presupuestado del paciente, que aporta el modulo 08. Por defecto 0:
+   * sin presupuesto no hay saldo que mostrar y `AccountStatement` lo dice.
+   * Cuando el 08 este integrado, Matias pasa aqui el total real desde
+   * `PatientProfilePage.tsx` y esta es la unica costura que cambia.
+   */
+  totalPresupuestado?: Decimal;
 }
 
 /**
  * Pestaña "Pagos" de la ficha del paciente (modulo 09).
  *
- * Todavia no aporta el total: se le pasa `0` a proposito y
- * `AccountStatement` lo trata como "Sin presupuesto registrado". Cuando el
- * modulo 08 este integrado, este unico `0` se cambia por el total que llegue
- * del presupuesto. No hay otro calculo del saldo en toda la pestana.
+ * El estado de cuenta se calcula en un solo punto y se reparte: el saldo va a
+ * `AccountStatement` (lo pinta) y a `PaymentForm` (topea el pago parcial con
+ * `saldoPendiente`). Ninguna vista resta pagos por su cuenta.
  */
-export function PagosTab({ pacienteId, clinicaId, registradoPor }: PagosTabProps) {
+export function PagosTab({
+  pacienteId,
+  clinicaId,
+  registradoPor,
+  totalPresupuestado = 0,
+}: PagosTabProps) {
   const { pagos, cargando, guardando, error, cargar, registrar } = usePagosSupabase();
   const [formAbierto, setFormAbierto] = useState(false);
 
@@ -38,8 +49,8 @@ export function PagosTab({ pacienteId, clinicaId, registradoPor }: PagosTabProps
   // El estado de cuenta se calcula en un solo sitio. Ninguna otra vista resta
   // pagos por su cuenta.
   const estadoCuenta = useMemo(
-    () => calcularEstadoCuenta(pacienteId, pagos, 0),
-    [pacienteId, pagos],
+    () => calcularEstadoCuenta(pacienteId, pagos, totalPresupuestado),
+    [pacienteId, pagos, totalPresupuestado],
   );
 
   const manejarRegistro = (pago: Pago) => {
@@ -88,6 +99,7 @@ export function PagosTab({ pacienteId, clinicaId, registradoPor }: PagosTabProps
           clinicaId={clinicaId}
           pacienteId={pacienteId}
           registradoPor={registradoPor}
+          saldoPendiente={estadoCuenta.saldoPendiente}
           guardando={guardando}
           error={error}
           onRegistrar={manejarRegistro}
