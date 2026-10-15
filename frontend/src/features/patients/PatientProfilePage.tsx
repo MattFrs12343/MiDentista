@@ -15,16 +15,21 @@ import { EvolutionTab } from "@/features/evolucion/EvolutionTab";
 import { PagosTab } from "@/features/pagos/PagosTab";
 import { precargarVista3D } from "@/features/odontogram/precargaVista3D";
 import { esTabValida } from "@/features/patients/tabValue";
+import { PatientFilesSection } from "@/features/archivos/PatientFilesSection.tsx";
+import { usePacienteTratamiento } from "@/features/treatment/usePacienteTratamiento.ts";
+import { Button } from "@/components/ui/button";
 
 export function PatientProfilePage() {
   const { pacienteId } = useParams<{ pacienteId: string }>();
   const { obtenerPaciente, miPerfil } = useClinicaData();
   const { sesion } = useAuth();
   const puedeCobrar = sesion?.rol === "recepcionista" || sesion?.rol === "odontologo_admin";
-  const paciente = pacienteId ? obtenerPaciente(pacienteId) : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const tabActiva = esTabValida(tabParam) ? tabParam : "datos";
+  const contextoTratamiento = usePacienteTratamiento(pacienteId ?? "", sesion, tabActiva === "tratamiento");
+  const paciente = tabActiva === "tratamiento" ? contextoTratamiento.datos?.paciente
+    : pacienteId ? obtenerPaciente(pacienteId) : undefined;
 
   // Anticipa la descarga del arco 3D al abrir cualquier ficha, así la pestaña
   // de odontograma no arranca con la vista en blanco.
@@ -40,6 +45,13 @@ export function PatientProfilePage() {
   });
 
   if (!pacienteId) return <Navigate to="/app/pacientes" replace />;
+  if (tabActiva === "tratamiento" && contextoTratamiento.estado !== "success") {
+    return <section aria-label="Ficha de diagnóstico y tratamiento" aria-busy={contextoTratamiento.estado === "loading"}>
+      {contextoTratamiento.estado === "error" ? <><p role="alert">{contextoTratamiento.error}</p>
+        <Button type="button" onClick={() => void contextoTratamiento.recargar()}>Reintentar carga del paciente</Button></>
+        : <p role="status">Cargando paciente para diagnóstico y tratamiento…</p>}
+    </section>;
+  }
   if (!paciente) {
     return (
       <EmptyState
@@ -57,7 +69,7 @@ export function PatientProfilePage() {
       <Tabs
         value={tabActiva}
         onValueChange={(v) => setSearchParams({ tab: v }, { replace: true })}
-        className="flex flex-col gap-5"
+        className="flex min-w-0 flex-col gap-5"
       >
         <TabsList>
           <TabsTrigger value="datos">Datos personales</TabsTrigger>
@@ -65,6 +77,7 @@ export function PatientProfilePage() {
           <TabsTrigger value="odontograma">Odontograma</TabsTrigger>
           <TabsTrigger value="tratamiento">Diagnóstico y tratamiento</TabsTrigger>
           <TabsTrigger value="evolucion">Evolución</TabsTrigger>
+          <TabsTrigger value="archivos">Archivos</TabsTrigger>
           <TabsTrigger value="pagos">Pagos</TabsTrigger>
         </TabsList>
 
@@ -78,7 +91,8 @@ export function PatientProfilePage() {
           <OdontogramTab pacienteId={paciente.id} />
         </TabsContent>
         <TabsContent value="tratamiento">
-          <TreatmentTab pacienteId={paciente.id} />
+          <TreatmentTab key={JSON.stringify([paciente.id, sesion?.email, sesion?.rol, sesion?.clinicaSlug, contextoTratamiento.datos?.clinicaId])}
+            pacienteId={paciente.id} paciente={paciente} clinicaId={contextoTratamiento.datos?.clinicaId} />
         </TabsContent>
         <TabsContent value="evolucion">
           {miPerfil ? (
@@ -90,6 +104,9 @@ export function PatientProfilePage() {
           ) : (
             <EmptyState size="sm" title="Cargando perfil…" />
           )}
+        </TabsContent>
+        <TabsContent value="archivos" className="min-w-0">
+          <PatientFilesSection pacienteId={paciente.id} perfil={miPerfil} rol={sesion?.rol ?? null} />
         </TabsContent>
         <TabsContent value="pagos">
           {miPerfil ? (
