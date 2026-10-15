@@ -5,6 +5,7 @@ import {
   completarPresupuesto,
   esUuid,
   itemDesdeFila,
+  itemParaGuardar,
   presupuestoDesdeFila,
   presupuestoParaActualizar,
   presupuestoParaGuardar,
@@ -129,16 +130,7 @@ export async function guardarPresupuesto(
   const presupuesto = presupuestoDesdeFila(data as PresupuestoFila);
 
   if (partidas.length > 0) {
-    const filas = partidas.map((item) => ({
-      clinica_id: nuevo.clinicaId,
-      presupuesto_id: presupuesto.id,
-      servicio_id: item.servicioId,
-      descripcion: item.descripcion,
-      numero_pieza: item.numeroPieza,
-      cantidad: item.cantidad,
-      precio_unitario: item.precioUnitario,
-      subtotal: item.subtotal,
-    }));
+    const filas = partidas.map((item) => itemParaGuardar(item, presupuesto.id));
 
     const { error: errorItems } = await tablaItems(supabase).insert(filas);
     if (errorItems) {
@@ -156,8 +148,8 @@ export async function guardarPresupuesto(
  * Cambia el estado del presupuesto (US-8.4).
  *
  * Valida la transición con `transicionValida` antes de tocar la red: los estados
- * no retroceden, y un `rechazado` vuelve a `borrador` mediante una acción
- * explicita, no arrastrando el estado.
+ * solo avanzan (`borrador → enviado → aceptado | rechazado`) y `rechazado` es
+ * terminal. No se arrastra un estado hacia atrás.
  *
  * Devuelve `null` si la fila no se actualizo, lo que con RLS activo es
  * indistinguible de un fallo silencioso. No se confunde con exito.
@@ -187,4 +179,120 @@ export async function cambiarEstadoPresupuesto(
   if (error) throw new Error(`No se pudo actualizar el presupuesto: ${error.message}`);
   if (!data) return null;
   return presupuestoDesdeFila(data as PresupuestoFila);
+}
+
+/**
+ * Un presupuesto con sus partidas, por `id` (US-8.4, edición).
+ *
+ * Devuelve `null` si no existe o si RLS no lo deja ver; la UI debe tratar ese
+ * `null` como "no disponible", nunca como un presupuesto vacío.
+ */
+export async function cargarPresupuesto(
+  presupuestoId: string,
+  cliente?: SupabaseClient,
+): Promise<PresupuestoCompleto | null> {
+  exigirUuid(presupuestoId, "presupuestoId");
+  const supabase = cliente ?? obtenerSupabase();
+
+  const { data, error } = await tablaPresupuestos(supabase)
+    .select(COLUMNAS_PRESUPUESTO)
+    .eq("id", presupuestoId)
+    .maybeSingle();
+
+  if (error) throw new Error(`No se pudo cargar el presupuesto: ${error.message}`);
+  if (!data) return null;
+
+  const presupuesto = presupuestoDesdeFila(data as PresupuestoFila);
+  return completarPresupuesto(presupuesto, await itemsDe(presupuesto.id, supabase));
+}
+
+/**
+ * Modifica un presupuesto y reemplaza sus partidas (US-8.4).
+ *
+ * El total se recalcula aqui, igual que en el alta; nunca llega desde la UI. El
+ * reemplazo de partidas es deliberadamente "insertar primero, borrar despues":
+ * si el INSERT falla, las partidas viejas siguen guardadas y el peor caso es un
+ * duplicado visible que se reintenta, en vez de un presupuesto sin partidas.
+ *
+ * Devuelve `null` si la fila no se actualizo (no existe o RLS no lo permite).
+ */
+export async function actualizarPresupuesto(
+  presupuesto: Presupuesto,
+  items: readonly ItemPresupuestoNuevo[],
+  cliente?: SupabaseClient,
+): Promise<PresupuestoCompleto | null> {
+  exigirUuid(presupuesto.id, "id");
+  exigirUuid(presupuesto.clinicaId, "clinicaId");
+  exigirUuid(presupuesto.pacienteId, "pacienteId");
+  exigirUuid(presupuesto.odontologoId, "odontologoId");
+
+  const supabase = cliente ?? obtenerSupabase();
+  const partidas = itemsConSubtotal(items);
+  const total = totalPresupuesto(partidas, presupuesto.descuento);
+
+  const { data, error } = await tablaPresupuestos(supabase)
+    .update(presupuestoParaActualizar({ ...presupuesto, total }))
+    .eq("id", presupuesto.id)
+    .eq("clinica_id", presupuesto.clinicaId)
+    .select(COLUMNAS_PRESUPUESTO)
+    .maybeSingle();
+
+  if (error) throw new Error(`No se pudo actualizar el presupuesto: ${error.message}`);
+  if (!data) return null;
+
+  const actualizado = presupuestoDesdeFila(data as PresupuestoFila);
+
+  // Se leen las partidas actuales antes de tocar nada: sus `id` son los que hay
+  // que retirar despues de dejar guardadas las nuevas.
+  const previas = await itemsDe(actualizado.id, supabase);
+
+  if (partidas.length > 0) {
+    const filas = partidas.map((item) => itemParaGuardar(item, actualizado.id));
+    const { error: errorItems } = await tablaItems(supabase).insert(filas);
+    if (errorItems) {
+      throw new Error(
+        `No se pudieron guardar las partidas nuevas: ${errorItems.message}. Las partidas anteriores siguen guardadas; reintenta la edición.`,
+      );
+    }
+  }
+
+  if (previas.length > 0) {
+    const { error: errorBorrado } = await tablaItems(supabase)
+      .delete()
+      .in(
+        "id",
+        previas.map((item) => item.id),
+      );
+    if (errorBorrado) {
+      throw new Error(
+        `Las partidas nuevas se guardaron pero no se pudieron retirar las anteriores: ${errorBorrado.message}. Revisa el presupuesto antes de continuar.`,
+      );
+    }
+  }
+
+  return completarPresupuesto(actualizado, await itemsDe(actualizado.id, supabase));
+}
+
+/**
+ * Elimina un presupuesto. Sus partidas caen por `on delete cascade`.
+ *
+ * Devuelve `false` si no se borro ninguna fila (no existe, ya no está, o RLS no
+ * lo permite); eso no es éxito y la UI no debe anunciarlo como tal.
+ */
+export async function eliminarPresupuesto(
+  presupuesto: Presupuesto,
+  cliente?: SupabaseClient,
+): Promise<boolean> {
+  exigirUuid(presupuesto.id, "id");
+  exigirUuid(presupuesto.clinicaId, "clinicaId");
+
+  const { data, error } = await tablaPresupuestos(cliente ?? obtenerSupabase())
+    .delete()
+    .eq("id", presupuesto.id)
+    .eq("clinica_id", presupuesto.clinicaId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw new Error(`No se pudo eliminar el presupuesto: ${error.message}`);
+  return data !== null;
 }

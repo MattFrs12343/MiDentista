@@ -4,11 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormActions, FormAlert, FormGroup, FormShell } from "@/components/ui/form-parts";
+import {
+  hayErrores,
+  validarPaciente,
+  type BorradorPaciente,
+  type ErroresPaciente,
+} from "@/features/patients/validacionesPaciente";
 import type { Paciente, Sexo } from "@/types";
 
-type Borrador = Omit<Paciente, "id" | "creadoEl">;
-
-const vacio: Borrador = {
+const vacio: BorradorPaciente = {
   nombres: "",
   apellidos: "",
   ci: "",
@@ -28,18 +32,38 @@ export function PatientForm({
   textoBoton = "Registrar paciente",
 }: {
   inicial?: Paciente;
-  onSubmit: (datos: Borrador) => void | Promise<void>;
+  onSubmit: (datos: BorradorPaciente) => void | Promise<void>;
   textoBoton?: string;
 }) {
-  const [datos, setDatos] = useState<Borrador>(inicial ?? vacio);
+  const [datos, setDatos] = useState<BorradorPaciente>(inicial ?? vacio);
+  const [errores, setErrores] = useState<ErroresPaciente>({});
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const set = <K extends keyof Borrador>(key: K, value: Borrador[K]) =>
+  /** Al editar un campo se limpia su error y el resumen: el usuario ya lo está corrigiendo. */
+  const set = <K extends keyof BorradorPaciente>(key: K, value: BorradorPaciente[K]) => {
     setDatos((prev) => ({ ...prev, [key]: value }));
+    setError(null);
+    setErrores((prev) => {
+      if (prev[key] === undefined) return prev;
+      const limpio = { ...prev };
+      delete limpio[key];
+      return limpio;
+    });
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // La validación es nuestra, no la del navegador: `noValidate` desactiva los
+    // globos nativos para que los mensajes salgan en el idioma de la app.
+    const problemas = validarPaciente(datos);
+    setErrores(problemas);
+    if (hayErrores(problemas)) {
+      setError("Revisá los campos marcados antes de guardar.");
+      return;
+    }
+
     setError(null);
     setEnviando(true);
     try {
@@ -58,22 +82,20 @@ export function PatientForm({
   return (
     // El tema vive en `FormShell`: los `Field`, `Input` y `Select` de adentro
     // heredan solos el color y el tratamiento de la sección de pacientes.
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <FormShell section="pacientes">
         <FormGroup titulo="Identificación">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Nombres" htmlFor="nombres">
+            <Field label="Nombres" htmlFor="nombres" error={errores.nombres}>
               <Input
                 id="nombres"
-                required
                 value={datos.nombres}
                 onChange={(e) => set("nombres", e.target.value)}
               />
             </Field>
-            <Field label="Apellidos" htmlFor="apellidos">
+            <Field label="Apellidos" htmlFor="apellidos" error={errores.apellidos}>
               <Input
                 id="apellidos"
-                required
                 value={datos.apellidos}
                 onChange={(e) => set("apellidos", e.target.value)}
               />
@@ -81,14 +103,13 @@ export function PatientForm({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Carnet de identidad" htmlFor="ci">
-              <Input id="ci" required value={datos.ci} onChange={(e) => set("ci", e.target.value)} />
+            <Field label="Carnet de identidad" htmlFor="ci" error={errores.ci}>
+              <Input id="ci" value={datos.ci} onChange={(e) => set("ci", e.target.value)} />
             </Field>
-            <Field label="Fecha de nacimiento" htmlFor="fechaNacimiento">
+            <Field label="Fecha de nacimiento" htmlFor="fechaNacimiento" error={errores.fechaNacimiento}>
               <Input
                 id="fechaNacimiento"
                 type="date"
-                required
                 value={datos.fechaNacimiento}
                 onChange={(e) => set("fechaNacimiento", e.target.value)}
               />
@@ -108,10 +129,9 @@ export function PatientForm({
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Teléfono" htmlFor="telefono">
+            <Field label="Teléfono" htmlFor="telefono" error={errores.telefono}>
               <Input
                 id="telefono"
-                required
                 value={datos.telefono}
                 onChange={(e) => set("telefono", e.target.value)}
               />
@@ -120,7 +140,7 @@ export function PatientForm({
         </FormGroup>
 
         <FormGroup titulo="Contacto">
-          <Field label="Correo electrónico" htmlFor="email">
+          <Field label="Correo electrónico" htmlFor="email" error={errores.email}>
             <Input
               id="email"
               type="email"
@@ -129,7 +149,7 @@ export function PatientForm({
             />
           </Field>
 
-          <Field label="Dirección" htmlFor="direccion">
+          <Field label="Dirección" htmlFor="direccion" error={errores.direccion}>
             <Input
               id="direccion"
               value={datos.direccion}
@@ -143,14 +163,22 @@ export function PatientForm({
           descripcion="A quién llamamos si el paciente no responde durante la atención."
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Nombre" htmlFor="contactoEmergenciaNombre">
+            <Field
+              label="Nombre"
+              htmlFor="contactoEmergenciaNombre"
+              error={errores.contactoEmergenciaNombre}
+            >
               <Input
                 id="contactoEmergenciaNombre"
                 value={datos.contactoEmergenciaNombre ?? ""}
                 onChange={(e) => set("contactoEmergenciaNombre", e.target.value)}
               />
             </Field>
-            <Field label="Teléfono" htmlFor="contactoEmergenciaTelefono">
+            <Field
+              label="Teléfono"
+              htmlFor="contactoEmergenciaTelefono"
+              error={errores.contactoEmergenciaTelefono}
+            >
               <Input
                 id="contactoEmergenciaTelefono"
                 value={datos.contactoEmergenciaTelefono ?? ""}
