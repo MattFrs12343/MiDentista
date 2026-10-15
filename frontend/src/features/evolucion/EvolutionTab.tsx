@@ -42,6 +42,7 @@ export function EvolutionTab({
     procedimientos,
     cargandoPlanes,
     cargandoProcedimientos,
+    error: errorPlanes,
     cargar: cargarPlanes,
     cargarItems: cargarItemsPlan,
     titulos,
@@ -66,10 +67,17 @@ export function EvolutionTab({
     setFormAbierto(true);
   }, []);
 
-  const abrirEdicion = useCallback((evolucion: EvolucionClinica) => {
-    setEditando(evolucion);
-    setFormAbierto(true);
-  }, []);
+  const abrirEdicion = useCallback(
+    (evolucion: EvolucionClinica) => {
+      setEditando(evolucion);
+      setFormAbierto(true);
+      // Precarga el desplegable de procedimientos con el que ya quedó
+      // vinculado: sin esto, editar una evolución con plan la mostraría como
+      // "sin especificar" hasta que el usuario tocara el selector de plan.
+      if (evolucion.planTratamientoId) void cargarItemsPlan(evolucion.planTratamientoId);
+    },
+    [cargarItemsPlan],
+  );
 
   const cerrarFormulario = useCallback(() => {
     setFormAbierto(false);
@@ -145,8 +153,11 @@ export function EvolutionTab({
       </div>
 
       {/* El error se anuncia y no se traga el contenido ya cargado: si falla un
-          guardado, la línea de tiempo de antes sigue siendo válida. */}
-      {error ? (
+          guardado, la línea de tiempo de antes sigue siendo válida. Son dos
+          lecturas independientes (evoluciones y planes): si fallan las dos se
+          muestran las dos, para no confundir un fallo de red con "este
+          paciente no tiene planes activos". */}
+      {error || errorPlanes ? (
         <div
           role="alert"
           className="flex min-w-0 items-start gap-3 rounded-xl border border-pastel-red-fg/15 bg-pastel-red-bg/65 p-4"
@@ -158,7 +169,10 @@ export function EvolutionTab({
             <p className="text-sm font-semibold text-pastel-red-fg">
               No se pudo completar la operación
             </p>
-            <p className="mt-1 break-words text-sm text-pastel-red-fg">{error}</p>
+            {error ? <p className="mt-1 break-words text-sm text-pastel-red-fg">{error}</p> : null}
+            {errorPlanes ? (
+              <p className="mt-1 break-words text-sm text-pastel-red-fg">{errorPlanes}</p>
+            ) : null}
             <Button
               type="button"
               variant="secondary"

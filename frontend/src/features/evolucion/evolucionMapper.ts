@@ -1,3 +1,4 @@
+import { hoyEnIso } from "./fechasEvolucion.ts";
 import type { EvolucionClinica, EvolucionNueva } from "./tipos.ts";
 
 /** Fila de `public.evoluciones_clinicas` tal como la devuelve Supabase. */
@@ -37,9 +38,13 @@ function texto(valor: string | null): string {
   return valor ?? "";
 }
 
-/** `fecha_consulta` tiene default CURRENT_DATE, pero una fila vieja puede venir null. */
+/**
+ * `fecha_consulta` tiene default CURRENT_DATE, pero una fila vieja puede venir
+ * null. El fallback usa hora local (`hoyEnIso`), no `toISOString()`: esa
+ * devuelve el día en UTC, que en buena parte de América es la tarde anterior.
+ */
 function fecha(valor: string | null): string {
-  return valor ?? new Date().toISOString().slice(0, 10);
+  return valor ?? hoyEnIso();
 }
 
 export function evolucionDesdeFila(fila: EvolucionClinicaFila): EvolucionClinica {

@@ -30,15 +30,6 @@ export interface EvolucionClinica {
   creadoEn: string;
 }
 
-/**
- * Contenido editable de una evolucion. Lo que la UI envia al guardar.
- * Los ids de la BD nunca se inventan: los aporta el flujo de integracion.
- */
-export type EvolucionContenido = Omit<
-  EvolucionClinica,
-  "id" | "clinicaId" | "creadoEn"
->;
-
 /** Una evolucion sin persistir todavia. */
 export interface EvolucionNueva {
   clinicaId: string;
@@ -117,11 +108,4 @@ export interface ProcedimientoTratamiento {
   costo: number | null;
   estado: EstadoProcedimiento | null;
   creadoEn: string | null;
-}
-
-/** Filtros de la vista cronologica (T-6.4). */
-export interface FiltroEvolucion {
-  desde: string | null;
-  hasta: string | null;
-  soloPendientes: boolean;
 }

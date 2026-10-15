@@ -85,14 +85,15 @@ export function trozosDeFecha(valor: string | null): TrozosFecha | null {
   if (!fecha) return null;
   const dia = `${fecha.getDate()}`.padStart(2, "0");
   const anio = `${fecha.getFullYear()}`.padStart(4, "0");
+  const ahora = new Date();
   return {
     dia,
     mes: fecha.toLocaleDateString("es", { month: "short" }).replace(".", ""),
     anio,
     etiqueta: fecha.toLocaleDateString("es", OPCIONES_LARGA),
-    hoy: fecha.getFullYear() === new Date().getFullYear()
-      && fecha.getMonth() === new Date().getMonth()
-      && fecha.getDate() === new Date().getDate(),
+    hoy: fecha.getFullYear() === ahora.getFullYear()
+      && fecha.getMonth() === ahora.getMonth()
+      && fecha.getDate() === ahora.getDate(),
   };
 }
 
@@ -116,11 +117,6 @@ export function formatearFechaLarga(valor: string | null): string {
   return fecha.toLocaleDateString("es", OPCIONES_LARGA);
 }
 
-/** `true` si la fecha indicada es hoy en hora local. */
-export function esHoy(valor: string | null): boolean {
-  return trozosDeFecha(valor)?.hoy === true;
-}
-
 /**
  * Orden cronológico descendente: la atención más reciente primero.
  *
@@ -128,10 +124,18 @@ export function esHoy(valor: string | null): boolean {
  * orden de magnitud. El desempate por `creado_en` mantiene un orden estable
  * entre dos evoluciones del mismo día, y el id evita que la lista reordene sin
  * motivo al guardar otra fila.
+ *
+ * El desempate por `creado_en` solo se usa si ambos lados lo tienen: una fila
+ * vieja sin `creado_en` llega como `""`, y comparar eso como texto contra una
+ * fecha real la haría parecer siempre "la más antigua" sin que eso sea una
+ * decisión real. Sin ese dato confiable de ningún lado, se cae directo al
+ * desempate por `id`.
  */
 export function compararEvoluciones(a: EvolucionClinica, b: EvolucionClinica): number {
   if (a.fechaConsulta !== b.fechaConsulta) return a.fechaConsulta < b.fechaConsulta ? 1 : -1;
-  if (a.creadoEn !== b.creadoEn) return a.creadoEn < b.creadoEn ? 1 : -1;
+  if (a.creadoEn && b.creadoEn && a.creadoEn !== b.creadoEn) {
+    return a.creadoEn < b.creadoEn ? 1 : -1;
+  }
   if (a.id === b.id) return 0;
   return a.id < b.id ? 1 : -1;
 }

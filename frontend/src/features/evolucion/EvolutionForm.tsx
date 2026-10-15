@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { NextVisitPicker } from "./NextVisitPicker";
 import { hoyEnIso } from "./fechasEvolucion";
+import { esPiezaFdiValida, PIEZA_FDI_MAXIMA, PIEZA_FDI_MINIMA } from "./validacionEvolucion.ts";
 import {
   etiquetaDeEstadoPlan,
   etiquetaDeProcedimiento,
@@ -23,10 +24,6 @@ import type {
   PlanTratamiento,
   ProcedimientoTratamiento,
 } from "./tipos.ts";
-
-/** Rango aceptado para `numero_pieza`: un entero entre 0 y 32. */
-const PIEZA_MINIMO = 0;
-const PIEZA_MAXIMO = 32;
 
 type Errores = Partial<Record<"motivoConsulta" | "procedimientoRealizado" | "numeroPieza", string>>;
 
@@ -61,9 +58,9 @@ function validar(borrador: BorradorEvolucion, pieza: string): Errores {
   }
   const numero = interpretarPieza(pieza);
   if (numero !== null && !Number.isInteger(numero)) {
-    errores.numeroPieza = `La pieza debe ser un número entero entre ${PIEZA_MINIMO} y ${PIEZA_MAXIMO}.`;
-  } else if (numero !== null && (numero < PIEZA_MINIMO || numero > PIEZA_MAXIMO)) {
-    errores.numeroPieza = `La pieza debe estar entre ${PIEZA_MINIMO} y ${PIEZA_MAXIMO}.`;
+    errores.numeroPieza = "La pieza debe ser un número entero, en notación FDI (ej. 16, 36).";
+  } else if (numero !== null && !esPiezaFdiValida(numero)) {
+    errores.numeroPieza = "La pieza debe ser un número FDI válido: 11–18, 21–28, 31–38 o 41–48.";
   }
   return errores;
 }
@@ -261,7 +258,7 @@ export function EvolutionForm({
               htmlFor={idPieza}
               hint={
                 errores.numeroPieza
-                  ?? `Opcional. Entre ${PIEZA_MINIMO} y ${PIEZA_MAXIMO}.`
+                  ?? "Opcional. Notación FDI: 11–18, 21–28, 31–38 o 41–48."
               }
               labelClassName={errores.numeroPieza ? "text-ios-red" : undefined}
             >
@@ -269,8 +266,8 @@ export function EvolutionForm({
                 id={idPieza}
                 type="number"
                 inputMode="numeric"
-                min={PIEZA_MINIMO}
-                max={PIEZA_MAXIMO}
+                min={PIEZA_FDI_MINIMA}
+                max={PIEZA_FDI_MAXIMA}
                 step={1}
                 value={pieza}
                 disabled={guardando}

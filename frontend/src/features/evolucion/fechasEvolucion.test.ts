@@ -4,7 +4,6 @@ import test from "node:test";
 import {
   compararEvoluciones,
   esFechaIso,
-  esHoy,
   fechaDesdeIso,
   formatearFechaCorta,
   formatearFechaLarga,
@@ -90,9 +89,6 @@ test("trozosDeFecha separa día, mes y año, y marca el día de hoy", () => {
 
   const hoy = hoyEnIso();
   assert.equal(trozosDeFecha(hoy)?.hoy, true);
-  assert.equal(esHoy(hoy), true);
-  assert.equal(esHoy("2019-05-17"), false);
-  assert.equal(esHoy(null), false);
 });
 
 test("compararEvoluciones ordena de la atención más reciente a la más antigua", () => {
@@ -116,4 +112,19 @@ test("dos atenciones del mismo día se ordenan por fecha de creación", () => {
   const gemela = evolucion({ id: "a", fechaConsulta: "2026-10-03", creadoEn: "2026-10-03T18:00:00Z" });
   assert.equal(compararEvoluciones(nueva, nueva), 0);
   assert.notEqual(compararEvoluciones(gemela, nueva), 0);
+});
+
+test("un creado_en vacío no se compara como texto contra uno real", () => {
+  // Fila legacy sin `creado_en` (mapper la deja en ""): no debe tratarse como
+  // "más antigua que cualquier fecha real" solo porque "" es menor como texto.
+  // Sin dato confiable de ningún lado, el desempate cae directo al id.
+  const sinCreado = evolucion({ id: "a", fechaConsulta: "2026-10-03", creadoEn: "" });
+  const conCreado = evolucion({ id: "b", fechaConsulta: "2026-10-03", creadoEn: "2026-10-03T18:00:00Z" });
+  assert.deepEqual(
+    [sinCreado, conCreado].sort(compararEvoluciones).map((e) => e.id),
+    [sinCreado, conCreado].sort((x, y) => (x.id < y.id ? 1 : x.id > y.id ? -1 : 0)).map((e) => e.id),
+  );
+  // Ambos vacíos: también cae al id, no a comparar "" con "".
+  const otraSinCreado = evolucion({ id: "b", fechaConsulta: "2026-10-03", creadoEn: "" });
+  assert.equal(compararEvoluciones(sinCreado, otraSinCreado), 1);
 });
