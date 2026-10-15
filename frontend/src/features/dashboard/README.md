@@ -40,13 +40,18 @@ distintos. Un dashboard único con todo mezclado no le sirve a nadie.
 | Rol | Dashboard | Qué mira |
 |-----|-----------|----------|
 | `superadmin` | `DashboardSuperadmin` | Salud del sistema: clínicas, usuarios, Errors |
-| `odontologo_admin` | `DashboardAdmin` | La clínica completa: ocupación, ingresos, deuda |
 | `recepcionista` | `DashboardRecepcion` | Hoy: quién viene, quién falta, quién debe |
 | `odontologo` | `DashboardOdontologo` | Su agenda y sus pacientes |
 | `paciente` | `DashboardPaciente` | Sus citas, su saldo, su evolución |
 
 El mapa rol → componente ya está en `tipos.ts`, en `DASHBOARD_POR_ROL`. Cámbialo
 cuando crees los componentes.
+
+**Nota:** El rol `odontologo_admin` fue **descartado por decisión del equipo**.
+No forma parte de la matriz de roles del Módulo 13 ni requiere un dashboard
+propio. El selector de `DashboardPage` incluye un estado "rol no disponible"
+para mantener la compatibilidad con el tipo `Role` compartido (que, por ahora,
+todavía declara ese rol).
 
 ## Gráficos: 2D. Nada de 3D
 
@@ -67,7 +72,6 @@ Conéctalos al dashboard del odontólogo. Si necesitas otro gráfico, escribe SV
 | Rol | Alcance |
 |-----|---------|
 | `superadmin` | Sistema entero. Es el único sin `clinica` (`clinica: null`) |
-| `odontologo_admin` | Su clínica completa |
 | `recepcionista` | Agenda y deudas de la clínica; **no** historia clínica |
 | `odontologo` | **Solo suyos**: sus pacientes y sus citas, no los de sus colegas |
 | `paciente` | Solo lo suyo |
@@ -90,15 +94,28 @@ Con RLS activo, `[]` puede significar "sin permiso", no "cero". Usa
 
 | Archivo | Qué aporta |
 |---------|-----------|
-| `tipos.ts` | `Indicador`, `SerieGrafica`, `ResumenAgenda`, `ResumenIngresos`, `DASHBOARD_POR_ROL` |
-| `DashboardPage.tsx` | El dashboard de demostración actual (tuyo) |
-| `mapa-calor.tsx` | Mapa de calor SVG, sin conectar |
-| `ClinicalFindingsChart.tsx` | Hallazgos clínicos SVG, sin conectar |
+| `tipos.ts` | `Indicador`, `SerieGrafica`, `ResumenAgenda`, `ResumenIngresos`, `DASHBOARD_POR_ROL`, `DatosDashboard<T>` |
+| `dashboardCards.ts` | Lógica pura de tarjetas (tono, delta, estado) |
+| `dashboardCards.test.ts` | Pruebas unitarias de `dashboardCards.ts` |
+| `DashboardStatCard.tsx` | Adaptador `Indicador` → `StatTile` |
+| `DashboardEmptyState.tsx` | Adaptador `DatosDashboard<T>` → `EmptyState` |
+| `superadminResumen.ts` | Lógica pura del panel superadmin (conteos, indicadores) |
+| `superadminResumen.test.ts` | Pruebas unitarias de `superadminResumen.ts` |
+| `dashboardSuperadminService.ts` | Servicio de lectura (Supabase) para T-13.2 |
+| `dashboardSuperadminService.test.ts` | Pruebas del servicio con mock |
+| `useSuperadminResumen.ts` | Hook que carga el resumen con estados DatosDashboard |
+| `DashboardSuperadmin.tsx` | **Implementado (T-13.2):** panel con clínicas y usuarios activos |
+| `DashboardRecepcion.tsx` | Panel de recepción (citas, pagos pendientes) |
+| `DashboardOdontologo.tsx` | Panel real del odontólogo |
+| `DashboardPaciente.tsx` | Panel real del paciente |
+| `DashboardPlaceholder.tsx` | Estado para rol sin panel asignado |
+| `DashboardPage.tsx` | Selector por rol (T-13.1) |
+| `mapa-calor.tsx` | Mapa de calor SVG (sin conectar a paneles todavía) |
+| `ClinicalFindingsChart.tsx` | Hallazgos clínicos SVG (sin conectar) |
+| `clinica-calor.ts` | Lógica pura del mapa de calor |
 | `dashboard.css` | Estilos del módulo (tuyo) |
 
-Por crear: `DashboardSuperadmin.tsx`, `DashboardAdmin.tsx`,
-`DashboardRecepcion.tsx`, `DashboardOdontologo.tsx`, `DashboardPaciente.tsx`,
-`DashboardStatCard.tsx`, `DashboardEmptyState.tsx`.
+**Decisión sobre reutilización (T-13.2):** no se reutiliza `listarClinicas()` de `data/api.ts` porque filtra solo activas (no permite obtener total). `listarPersonalApi()` depende de la Edge Function. Por eso el módulo usa su propio servicio (`dashboardSuperadminService.ts`) leyendo `public.clinicas` y `public.perfiles` directamente con `obtenerSupabase()`, respetando RLS.
 
 ## Verificación
 

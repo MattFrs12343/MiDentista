@@ -12,7 +12,6 @@
 /** Roles que tienen dashboard propio (T-13.2 a T-13.5). */
 export const ROLES_CON_DASHBOARD = [
   "superadmin",
-  "odontologo_admin",
   "recepcionista",
   "odontologo",
   "paciente",
@@ -92,7 +91,6 @@ export interface IndicadoresClinica {
  */
 export const DASHBOARD_POR_ROL: Record<RolConDashboard, string> = {
   superadmin: "DashboardSuperadmin",
-  odontologo_admin: "DashboardAdmin",
   recepcionista: "DashboardRecepcion",
   odontologo: "DashboardOdontologo",
   paciente: "DashboardPaciente",

@@ -200,6 +200,43 @@
    descuenta el Sidebar global de 256px.
    ============================================================ */
 
+/* ============================================================
+   "ATENDIDOS HOY" EN COLUMNA ANGOSTA
+   ============================================================
+   La tarjeta "Atendidos hoy" vive en una de las dos columnas del
+   panel y su ancho maximo real es de ~566px: el area de contenido
+   ya descuenta el Sidebar (256px) y ademas esta topada a 72rem
+   (max-w-6xl en AppShell). La fila de metricas que renderiza
+   `SectionStatStrip` (componente compartido del modulo 07) usa
+   `lg:grid-cols-4`, que responde al ancho del *viewport*: a partir
+   de 1024px fuerza cuatro columnas aunque la tarjeta sea angosta,
+   y como el `<p>` de la etiqueta no trunca y el icono es
+   `shrink-0`, las fichas se apretaban y los iconos se solapaban.
+
+   Con una container query el limite depende del ancho real de la
+   tarjeta y no del viewport: cuatro columnas solo cuando caben de
+   verdad; si no, dos por dos. El selector apunta al unico grid con
+   la clase `lg:grid-cols-4` dentro de la tarjeta (la lista de
+   pacientes usa `sm:grid-cols-2 xl:grid-cols-3` y no se toca).
+   No se modifica ningun componente compartido: la correccion queda
+   encapsulada en este archivo. */
+.dashboard-atendidos {
+  container-type: inline-size;
+}
+
+@container (max-width: 44rem) {
+  .dashboard-atendidos [class~="lg:grid-cols-4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+
+  .dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 820px) {
 
   /* Las 3 métricas siguen en fila (como pidió el Dr), solo con menos aire:
