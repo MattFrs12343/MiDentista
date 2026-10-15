@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SectionLoader } from "@/components/ui/section-loader";
 import { SectionToolbar } from "@/components/ui/section-board";
 import { cn } from "@/lib/cn";
@@ -987,17 +988,22 @@ function DialogAfiliacion({
               />
             </Field>
             <Field label="Género" htmlFor="af-genero">
-              <select
-                id="af-genero"
-                value={datos.genero ?? ""}
-                onChange={(e) => actualizar("genero", e.target.value)}
-                className="h-11 w-full rounded-tile border border-line bg-white px-3 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              {/* Radix no admite `value=""` en un item: "sin_especificar" es el
+                  centinela que se traduce a "" al guardar. */}
+              <Select
+                value={datos.genero || "sin_especificar"}
+                onValueChange={(valor) => actualizar("genero", valor === "sin_especificar" ? "" : valor)}
               >
-                <option value="">Sin especificar</option>
-                <option value="F">Femenino</option>
-                <option value="M">Masculino</option>
-                <option value="Otro">Otro</option>
-              </select>
+                <SelectTrigger id="af-genero" aria-label="Género">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sin_especificar">Sin especificar</SelectItem>
+                  <SelectItem value="F">Femenino</SelectItem>
+                  <SelectItem value="M">Masculino</SelectItem>
+                  <SelectItem value="Otro">Otro</SelectItem>
+                </SelectContent>
+              </Select>
             </Field>
             <Field label="Teléfono" htmlFor="af-telefono">
               <Input

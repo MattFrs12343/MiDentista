@@ -438,6 +438,24 @@ export async function registrarPacientePortalApi(datos: { nombreCompleto: string
   await llamarFuncion("paciente/registrar", datos, token);
 }
 
+/**
+ * Mensajes que `afiliar_paciente` (bd_5clinicas_midentista.sql) levanta a
+ * propósito con `raise exception`, pensados para mostrarse tal cual. Un
+ * mensaje que no está en esta lista es un error interno sin traducir (un bug
+ * de SQL, una violación de constraint, etc.): mostrarlo crudo filtra detalles
+ * de la base de datos al paciente, así que se cambia por uno genérico.
+ */
+const MENSAJES_AFILIACION_ESPERADOS = [
+  "No hay una cuenta activa para este usuario",
+  "Solo las cuentas de paciente pueden afiliarse a una clínica",
+  "La clínica no existe o no está activa",
+];
+
+function esMensajeDeAfiliacionEsperado(mensaje: string): boolean {
+  return MENSAJES_AFILIACION_ESPERADOS.some((m) => mensaje.startsWith(m))
+    || mensaje.startsWith("No podés cambiarte de clínica");
+}
+
 /** Afiliación a una clínica. Va por RPC a la función SECURITY DEFINER
  * `afiliar_paciente`, que solo deja tocar la propia fila del paciente. */
 export async function afiliarPacientePortalApi(clinicaId: string, datos: DatosAfiliacion): Promise<void> {
@@ -446,7 +464,13 @@ export async function afiliarPacientePortalApi(clinicaId: string, datos: DatosAf
     p_clinica_id: clinicaId,
     p_datos: datos,
   });
-  if (error) throw new ApiError(error.message || "No se pudo completar la afiliación", 503);
+  if (error) {
+    const mensaje = typeof error.message === "string" ? error.message.trim() : "";
+    throw new ApiError(
+      mensaje && esMensajeDeAfiliacionEsperado(mensaje) ? mensaje : "No se pudo completar la afiliación",
+      503,
+    );
+  }
 }
 
 /** El JSONB `piezas` puede traer basura de bases viejas: se filtra igual que en

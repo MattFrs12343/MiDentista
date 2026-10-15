@@ -15,7 +15,13 @@ export const DialogContent = forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "dialog-animate fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-[28px] border border-white/50 bg-white/75 p-7 shadow-diffuse backdrop-blur-2xl focus:outline-none",
+        // `dvh`, no `vh`: en movil `vh` mide el viewport mas grande (barra del
+        // navegador colapsada), asi que un modal fixed con `85vh` puede
+        // quedar mas alto que el area realmente visible, con una punta
+        // recortada por el borde de la pantalla y sin forma de scrollear
+        // hasta ahi (el `overflow-y-auto` solo ayuda si el contenido interno
+        // excede la caja, no si la caja misma excede el viewport real).
+        "dialog-animate fixed left-1/2 top-1/2 z-50 max-h-[85dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-[28px] border border-white/50 bg-white/75 p-7 shadow-diffuse backdrop-blur-2xl focus:outline-none",
         className,
       )}
       {...props}
