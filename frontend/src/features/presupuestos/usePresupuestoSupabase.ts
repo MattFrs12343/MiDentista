@@ -96,6 +96,8 @@ export function usePresupuestoSupabase() {
         const guardado = await guardarPresupuesto(nuevo, items);
         // Se refleja la fila real que devolvió la base, no la que se envió.
         if (operacion === ultimaEscritura.current) {
+          // Una lectura encolada antes del alta no debe pisar la fila recién creada.
+          ultimaLectura.current += 1;
           setPresupuestos((previos) => ordenarPorFechaDescendente([guardado, ...previos]));
         }
         return guardado;
@@ -135,6 +137,8 @@ export function usePresupuestoSupabase() {
           return null;
         }
         if (operacion === ultimaEscritura.current) {
+          // Una lectura encolada antes de la edición no debe pisarla.
+          ultimaLectura.current += 1;
           setPresupuestos((previos) =>
             previos.map((p) => (p.id === actualizado.id ? actualizado : p)),
           );
@@ -171,6 +175,8 @@ export function usePresupuestoSupabase() {
           return null;
         }
         if (operacion === ultimaEscritura.current) {
+          // Una lectura encolada antes del cambio de estado no debe pisarlo.
+          ultimaLectura.current += 1;
           setPresupuestos((previos) =>
             previos.map((p) => (p.id === actualizado.id ? actualizado : p)),
           );
@@ -207,6 +213,8 @@ export function usePresupuestoSupabase() {
           return false;
         }
         if (operacion === ultimaEscritura.current) {
+          // Una lectura encolada antes del borrado no debe reincorporar la fila.
+          ultimaLectura.current += 1;
           setPresupuestos((previos) => previos.filter((p) => p.id !== presupuesto.id));
         }
         return true;
@@ -227,7 +235,12 @@ export function usePresupuestoSupabase() {
   const cargarUno = useCallback(async (presupuestoId: string): Promise<PresupuestoCompleto | null> => {
     setError(null);
     try {
-      return await cargarPresupuesto(presupuestoId);
+      const completo = await cargarPresupuesto(presupuestoId);
+      // `null` no es éxito: la fila ya no existe o RLS no la deja leer.
+      if (!completo) {
+        setError("No se pudo abrir el presupuesto. Puede haber sido eliminado o no tenés permiso para verlo.");
+      }
+      return completo;
     } catch (causa) {
       setError(mensaje(causa, "No se pudo cargar el presupuesto."));
       return null;

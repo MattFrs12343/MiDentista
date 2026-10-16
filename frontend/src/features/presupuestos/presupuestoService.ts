@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { obtenerSupabase } from "../../lib/supabase.ts";
-import { itemsConSubtotal, totalPresupuesto } from "./calculoTotal.ts";
+import { esPresupuestoEnviable, itemsConSubtotal, totalPresupuesto } from "./calculoTotal.ts";
 import {
   completarPresupuesto,
   esUuid,
@@ -169,7 +169,20 @@ export async function cambiarEstadoPresupuesto(
   exigirUuid(presupuesto.pacienteId, "pacienteId");
   exigirUuid(presupuesto.clinicaId, "clinicaId");
 
-  const { data, error } = await tablaPresupuestos(cliente ?? obtenerSupabase())
+  const supabase = cliente ?? obtenerSupabase();
+
+  // Un presupuesto sin partidas no es presentable: se exige lo mismo que muestra
+  // `esPresupuestoEnviable` antes de pasar a "enviado".
+  if (hacia === "enviado") {
+    const partidas = await itemsDe(presupuesto.id, supabase);
+    if (!esPresupuestoEnviable(partidas)) {
+      throw new Error(
+        "No se puede enviar un presupuesto sin partidas. Agregá al menos un procedimiento.",
+      );
+    }
+  }
+
+  const { data, error } = await tablaPresupuestos(supabase)
     .update(presupuestoParaActualizar({ ...presupuesto, estado: hacia }))
     .eq("id", presupuesto.id)
     .eq("clinica_id", presupuesto.clinicaId)

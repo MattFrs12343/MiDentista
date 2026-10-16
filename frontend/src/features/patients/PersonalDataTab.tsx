@@ -42,8 +42,8 @@ export function PersonalDataTab({ paciente }: { paciente: Paciente }) {
         <PatientForm
           inicial={paciente}
           textoBoton="Guardar cambios"
-          onSubmit={(datos) => {
-            actualizarPaciente(paciente.id, datos);
+          onSubmit={async (datos) => {
+            await actualizarPaciente(paciente.id, datos);
             setEditando(false);
             setGuardado(true);
             setTimeout(() => setGuardado(false), 3000);

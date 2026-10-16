@@ -769,14 +769,11 @@ export function ClinicalHistoryTab({ pacienteId }: { pacienteId: string }) {
         <ClinicalHistoryPrint
           paciente={paciente}
           clinica={sesion?.clinica}
-          historia={{
-            ...historia,
-            motivoConsulta: motivo,
-            antecedentesPersonales: personales,
-            antecedentesFamiliares: familiares,
-            antecedentesOdontologicos: odontologicos,
-            observacionesGenerales: observaciones,
-          }}
+          // Se imprime la historia ya guardada del store, no el borrador local:
+          // ese estado solo se inicializa al montar (la historia llega async) y
+          // nunca se resincroniza, así que el documento salía sin motivo,
+          // antecedentes ni observaciones aunque estuvieran en pantalla.
+          historia={historia}
         />
       ) : null}
     </div>

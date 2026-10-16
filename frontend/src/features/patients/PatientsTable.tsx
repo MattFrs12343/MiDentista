@@ -22,13 +22,38 @@ import { useClinicaData } from "@/data/store";
 import type { Paciente } from "@/types";
 import type { TabValue } from "@/features/patients/tabValue";
 
-function calcularEdad(fechaNacimiento: string) {
-  const nacimiento = new Date(fechaNacimiento);
+/**
+ * Edad en años a partir de `YYYY-MM-DD`, o `null` si la fecha no es válida.
+ *
+ * Se descompone el texto y se construye la fecha en hora local: `new Date("2026-10-03")`
+ * la interpreta como UTC y en América (UTC-4) adelanta un año la edad la noche
+ * anterior al cumpleaños. Una fecha vacía o inválida ya no da `NaN`.
+ */
+function calcularEdad(fechaNacimiento: string): number | null {
+  const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fechaNacimiento.trim());
+  if (!partes) return null;
+  const anio = Number(partes[1]);
+  const mes = Number(partes[2]);
+  const dia = Number(partes[3]);
+  const nacimiento = new Date(anio, mes - 1, dia);
+  if (
+    nacimiento.getFullYear() !== anio ||
+    nacimiento.getMonth() !== mes - 1 ||
+    nacimiento.getDate() !== dia
+  ) {
+    return null;
+  }
   const hoy = new Date();
   let edad = hoy.getFullYear() - nacimiento.getFullYear();
   const m = hoy.getMonth() - nacimiento.getMonth();
   if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
   return edad;
+}
+
+/** "34 años" o "—" cuando no hay fecha de nacimiento válida. */
+function edadTexto(fechaNacimiento: string): string {
+  const edad = calcularEdad(fechaNacimiento);
+  return edad === null ? "—" : `${edad} años`;
 }
 
 const ACCION_BTN =
@@ -127,7 +152,7 @@ export function PatientsTable({ pacientes, tab }: { pacientes: Paciente[]; tab: 
       header: "Edad",
       width: "9%",
       numeric: true,
-      cell: (p) => `${calcularEdad(p.fechaNacimiento)} años`,
+      cell: (p) => edadTexto(p.fechaNacimiento),
     },
     {
       key: "telefono",
@@ -240,7 +265,7 @@ export function PatientsTable({ pacientes, tab }: { pacientes: Paciente[]; tab: 
                 <div className="flex gap-1">
                   <dt className="text-ink-muted">Edad</dt>
                   <dd className="font-medium tabular-nums text-ink-soft">
-                    {calcularEdad(p.fechaNacimiento)} años
+                    {edadTexto(p.fechaNacimiento)}
                   </dd>
                 </div>
                 {p.telefono ? (
