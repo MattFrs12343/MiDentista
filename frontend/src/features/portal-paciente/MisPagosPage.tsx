@@ -36,8 +36,6 @@ export function MisPagosPage() {
   if (!ficha) return null;
   if (ficha.sinClinica) return <Navigate to="/portal/buscar" replace />;
 
-  const hayDeuda = ficha.resumen.saldoPendiente > 0;
-
   return (
     <div className="flex flex-col gap-6">
       <PortalSubHeader
@@ -77,39 +75,44 @@ export function MisPagosPage() {
         ]}
       />
 
-      {hayDeuda ? (
-        <section className="flex flex-col gap-3">
-          <CardTitle as="h2" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            ¿Cómo querés pagar?
-          </CardTitle>
-          <Card>
-            <CardContent className="flex flex-col gap-4 p-5">
-              <div className="flex flex-wrap gap-2">
-                {METODOS.map(({ valor, etiqueta, icono: Icono }) => (
-                  <Button
-                    key={valor}
-                    type="button"
-                    variant={metodo === valor ? "primary" : "secondary"}
-                    size="sm"
-                    aria-pressed={metodo === valor}
-                    onClick={() => setMetodo(valor)}
-                  >
-                    <Icono size={14} weight="bold" aria-hidden="true" />
-                    {etiqueta}
-                  </Button>
-                ))}
-              </div>
+      {/* Siempre visible, tenga o no saldo pendiente: es información estática
+          (el QR de la clínica, sus datos de contacto), no una pasarela real
+          que dependa de que haya una deuda calculada. Un presupuesto recién
+          generado desde el plan de tratamiento queda en 'borrador' y todavía
+          no suma al saldo pendiente (ver Edge Function), así que condicionar
+          esta sección a `saldoPendiente > 0` la escondía justo cuando el
+          paciente más la necesitaba. */}
+      <section className="flex flex-col gap-3">
+        <CardTitle as="h2" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          ¿Cómo querés pagar?
+        </CardTitle>
+        <Card>
+          <CardContent className="flex flex-col gap-4 p-5">
+            <div className="flex flex-wrap gap-2">
+              {METODOS.map(({ valor, etiqueta, icono: Icono }) => (
+                <Button
+                  key={valor}
+                  type="button"
+                  variant={metodo === valor ? "primary" : "secondary"}
+                  size="sm"
+                  aria-pressed={metodo === valor}
+                  onClick={() => setMetodo(valor)}
+                >
+                  <Icono size={14} weight="bold" aria-hidden="true" />
+                  {etiqueta}
+                </Button>
+              ))}
+            </div>
 
-              <ContenidoMetodo metodo={metodo} qrCobroUrl={ficha.qrCobroUrl} clinica={ficha.clinica} />
+            <ContenidoMetodo metodo={metodo} qrCobroUrl={ficha.qrCobroUrl} clinica={ficha.clinica} />
 
-              <p className="text-xs leading-snug text-ink-muted">
-                Esto no envía el pago: pagá por el medio que elegiste y tu clínica confirma el cobro.
-                Cuando lo confirme, lo vas a ver reflejado en tu historial de pagos.
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-      ) : null}
+            <p className="text-xs leading-snug text-ink-muted">
+              Esto no envía el pago: pagá por el medio que elegiste y tu clínica confirma el cobro.
+              Cuando lo confirme, lo vas a ver reflejado en tu historial de pagos.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
 
       <section className="flex flex-col gap-3">
         <CardTitle as="h2" className="text-xs font-semibold uppercase tracking-wide text-ink-muted">

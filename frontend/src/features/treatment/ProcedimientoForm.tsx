@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { crearFormularioProcedimiento } from "./procedimientoFormulario.ts";
-import { ESTADOS_PROCEDIMIENTO, PRIORIDADES_PROCEDIMIENTO } from "./procedimientoMapper.ts";
+import {
+  ESTADOS_PROCEDIMIENTO,
+  ETIQUETAS_ESTADO_PROCEDIMIENTO,
+  ETIQUETAS_PRIORIDAD_PROCEDIMIENTO,
+  PRIORIDADES_PROCEDIMIENTO,
+} from "./procedimientoMapper.ts";
 import type { ContenidoProcedimiento, EstadoProcedimiento, NuevoProcedimiento, PrioridadProcedimiento, ProcedimientoTratamiento } from "./tipos.ts";
 
 export function ProcedimientoForm({ procedimiento, bloqueado, guardar, motivoBloqueo }: {
@@ -31,20 +36,15 @@ export function ProcedimientoForm({ procedimiento, bloqueado, guardar, motivoBlo
     <label htmlFor={`${prefijo}-prioridad`}>Prioridad</label>
     <select id={`${prefijo}-prioridad`} disabled={disabled} value={b.prioridad}
       onChange={(e) => formulario.cambiar("prioridad", e.target.value as PrioridadProcedimiento)} className="rounded-md border border-line p-2">
-      {PRIORIDADES_PROCEDIMIENTO.map((p) => <option key={p} value={p}>{p}</option>)}
+      {PRIORIDADES_PROCEDIMIENTO.map((p) => <option key={p} value={p}>{ETIQUETAS_PRIORIDAD_PROCEDIMIENTO[p]}</option>)}
     </select>
     {procedimiento ? <>
       <label htmlFor={`${prefijo}-estado`}>Estado del procedimiento</label>
       <select id={`${prefijo}-estado`} disabled={disabled} value={b.estado}
         onChange={(e) => formulario.cambiar("estado", e.target.value as EstadoProcedimiento)} className="rounded-md border border-line p-2">
-        {ESTADOS_PROCEDIMIENTO.map((p) => <option key={p} value={p}>{p}</option>)}
+        {ESTADOS_PROCEDIMIENTO.map((p) => <option key={p} value={p}>{ETIQUETAS_ESTADO_PROCEDIMIENTO[p]}</option>)}
       </select>
-    </> : <>
-      <p>Estado inicial: pendiente</p>
-      <label htmlFor={`${prefijo}-servicio`}>Id de servicio (UUID opcional, sin catálogo integrado)</label>
-      <Input id={`${prefijo}-servicio`} disabled={disabled} value={b.servicioId}
-        onChange={(e) => formulario.cambiar("servicioId", e.target.value)} />
-    </>}
+    </> : <p>Estado inicial: pendiente</p>}
     <Button type="submit" disabled={disabled}>{procedimiento ? "Guardar procedimiento" : "Crear procedimiento"}</Button>
     {b.error && <p role="alert">{b.error}</p>}
     {b.mensaje && <p role="status">{b.mensaje}</p>}

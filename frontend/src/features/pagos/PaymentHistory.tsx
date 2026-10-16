@@ -1,5 +1,6 @@
-import { Receipt } from "@phosphor-icons/react";
+import { Check, Receipt, X } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatearFecha, formatearMoneda } from "./pagoFormato.ts";
 import type { EstadoPago, MetodoPago, Pago } from "./tipos.ts";
@@ -24,8 +25,22 @@ const ESTADO_ETIQUETA: Record<EstadoPago, string> = {
   rechazado: "Rechazado",
 };
 
+export interface PaymentHistoryProps {
+  pagos: Pago[];
+  error?: string | null;
+  /**
+   * Quien puede registrar pagos (recepción u odontólogo) también puede
+   * confirmarlos o rechazarlos: es el mismo permiso, no uno nuevo. Sin esto
+   * la columna de acciones no se monta — ni para el paciente ni para un
+   * perfil de solo lectura.
+   */
+  puedeConfirmar?: boolean;
+  guardando?: boolean;
+  onCambiarEstado?: (pago: Pago, estado: EstadoPago) => void;
+}
+
 /**
- * Historial de pagos del paciente (US-9.5).
+ * Historial de pagos del paciente (US-9.5, US-9.6).
  *
  * Distingue dos cosas que se parecen en pantalla pero significan lo opuesto:
  *
@@ -33,8 +48,12 @@ const ESTADO_ETIQUETA: Record<EstadoPago, string> = {
  *   ver los pagos. Un `SELECT` vacio llega como lista vacia, no como error.
  * - `error`: la consulta fallo de verdad (red, permisos o sesion). Ahi no se
  *   muestra el estado vacio, porque "no hay pagos" seria mentira.
+ *
+ * Confirmar/rechazar (US-9.6) solo aparece en filas `pendiente`: un pago ya
+ * `confirmado` o `rechazado` es un registro contable cerrado, no se revierte
+ * desde acá.
  */
-export function PaymentHistory({ pagos, error }: { pagos: Pago[]; error?: string | null }) {
+export function PaymentHistory({ pagos, error, puedeConfirmar = false, guardando = false, onCambiarEstado }: PaymentHistoryProps) {
   // Con error y sin filas no se afirma nada: solo se muestra lo que fallo.
   const soloError = Boolean(error) && pagos.length === 0;
   const vacio = !error && pagos.length === 0;
@@ -73,6 +92,11 @@ export function PaymentHistory({ pagos, error }: { pagos: Pago[]; error?: string
                   <th scope="col" className="px-4 py-2.5 font-semibold">Método</th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">Estado</th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">Referencia</th>
+                  {puedeConfirmar ? (
+                    <th scope="col" className="px-4 py-2.5 font-semibold">
+                      <span className="sr-only">Acciones</span>
+                    </th>
+                  ) : null}
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -89,6 +113,38 @@ export function PaymentHistory({ pagos, error }: { pagos: Pago[]; error?: string
                       <Badge tone={ESTADO_TONE[pago.estado]}>{ESTADO_ETIQUETA[pago.estado]}</Badge>
                     </td>
                     <td className="px-4 py-2.5 text-ink-muted">{pago.codigoReferencia || "—"}</td>
+                    {puedeConfirmar ? (
+                      <td className="whitespace-nowrap px-4 py-2.5">
+                        {pago.estado === "pendiente" ? (
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              disabled={guardando}
+                              onClick={() => onCambiarEstado?.(pago, "confirmado")}
+                              aria-label={`Confirmar pago de ${formatearMoneda(pago.monto)} del ${formatearFecha(pago.fechaPago)}`}
+                              className="h-7 gap-1 px-2.5 text-[12px] text-ios-green hover:bg-pastel-green-bg"
+                            >
+                              <Check size={13} weight="bold" aria-hidden="true" />
+                              Confirmar
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              disabled={guardando}
+                              onClick={() => onCambiarEstado?.(pago, "rechazado")}
+                              aria-label={`Rechazar pago de ${formatearMoneda(pago.monto)} del ${formatearFecha(pago.fechaPago)}`}
+                              className="h-7 gap-1 px-2.5 text-[12px] text-pastel-red-fg hover:bg-pastel-red-bg"
+                            >
+                              <X size={13} weight="bold" aria-hidden="true" />
+                              Rechazar
+                            </Button>
+                          </div>
+                        ) : null}
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>

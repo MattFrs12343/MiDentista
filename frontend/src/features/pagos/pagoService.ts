@@ -44,8 +44,8 @@ export async function cargarPagos(
 }
 
 /**
- * Registra un pago (US-9.4). Lo hace recepción, no el odontólogo, y por eso
- * `registradoPor` es obligatorio: queda quien cobró.
+ * Registra un pago (US-9.4). Lo hace recepción u odontólogo —hay clínicas sin
+ * recepcionista—, y por eso `registradoPor` es obligatorio: queda quien cobró.
  */
 export async function registrarPago(pago: Pago, cliente?: SupabaseClient): Promise<Pago> {
   exigirUuid(pago.clinicaId, "clinicaId");

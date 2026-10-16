@@ -22,7 +22,7 @@ const METODO_ETIQUETA: Record<MetodoPago, string> = {
 export interface PaymentFormProps {
   clinicaId: string;
   pacienteId: string;
-  /** Quien cobra: recepcion. `pagoService` lo exige como UUID real. */
+  /** Quien cobra: recepción u odontólogo. `pagoService` lo exige como UUID real. */
   registradoPor: string;
   guardando: boolean;
   onRegistrar: (pago: Pago) => void;

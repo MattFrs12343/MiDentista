@@ -34,7 +34,7 @@ const renderizar = (d: ReturnType<typeof useProcedimientos>) => renderToStaticMa
 test("lista React real muestra descripción/pieza/prioridad/estado/costo exactos y acciones del autor", () => {
   const html = renderizar(datos());
   assert.match(html, /aria-label="Lista de procedimientos"/); assert.match(html, /Endodoncia urgente/);
-  assert.match(html, /Pieza FDI: 46/); assert.match(html, /Prioridad: urgente/); assert.match(html, /Estado del procedimiento: en_proceso/);
+  assert.match(html, /Pieza FDI: 46/); assert.match(html, /Prioridad: Urgente/); assert.match(html, /Estado del procedimiento: En proceso/);
   assert.match(html, /125.50/); assert.match(html, /Editar procedimiento: Endodoncia urgente/);
   assert.match(html, /Eliminar procedimiento: Endodoncia urgente/); assert.match(html, /Crear procedimiento/);
   assert.doesNotMatch(html, /value="media"|Cambiar estado del plan|Total automático/);
@@ -70,7 +70,7 @@ test("confirmación de borrado identifica el procedimiento y ofrece cancelar/con
   assert.match(pendiente, /Endodoncia urgente/);
 });
 
-test("formulario de edición precarga urgente y estado real; creación muestra pendiente fijo y servicio opcional", () => {
+test("formulario de edición precarga urgente y estado real; creación muestra pendiente fijo sin campo de servicio", () => {
   const guardar = async () => p;
   const editar = renderToStaticMarkup(createElement(Formulario, { procedimiento: p, bloqueado: false, guardar }));
   assert.match(editar, /value="urgente" selected=""/); assert.match(editar, /value="en_proceso" selected=""/);
@@ -78,7 +78,8 @@ test("formulario de edición precarga urgente y estado real; creación muestra p
   for (const prioridad of ["urgente", "alta", "normal", "baja"]) assert.match(editar, new RegExp(`value="${prioridad}"`));
   for (const estado of ["pendiente", "en_proceso", "completado", "cancelado"]) assert.match(editar, new RegExp(`value="${estado}"`));
   const nuevo = renderToStaticMarkup(createElement(Formulario, { bloqueado: false, guardar }));
-  assert.match(nuevo, /Estado inicial: pendiente/); assert.match(nuevo, /UUID opcional/);
+  assert.match(nuevo, /Estado inicial: pendiente/);
+  assert.doesNotMatch(nuevo, /UUID|Id de servicio/);
   assert.doesNotMatch(nuevo, /Estado del procedimiento<\/label>/);
 });
 

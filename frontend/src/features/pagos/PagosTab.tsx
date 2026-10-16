@@ -14,8 +14,8 @@ export interface PagosTabProps {
   pacienteId: string;
   clinicaId: string;
   /**
-   * UUID del usuario que cobra (recepcion). Sin el, la pestaña es de solo
-   * lectura: `registrarPago` exige `registradoPor` y no se puede inventar.
+   * UUID del usuario que cobra (recepción u odontólogo). Sin el, la pestaña es
+   * de solo lectura: `registrarPago` exige `registradoPor` y no se puede inventar.
    */
   registradoPor?: string;
   /**
@@ -46,7 +46,7 @@ export function PagosTab({
   totalPresupuestado = 0,
   puedeGestionarQr = false,
 }: PagosTabProps) {
-  const { pagos, cargando, guardando, error, cargar, registrar } = usePagosSupabase();
+  const { pagos, cargando, guardando, error, cargar, registrar, cambiarEstado } = usePagosSupabase();
   const [formAbierto, setFormAbierto] = useState(false);
 
   useEffect(() => {
@@ -116,7 +116,13 @@ export function PagosTab({
         />
       ) : null}
 
-      <PaymentHistory pagos={pagos} error={error} />
+      <PaymentHistory
+        pagos={pagos}
+        error={error}
+        puedeConfirmar={!!registradoPor}
+        guardando={guardando}
+        onCambiarEstado={(pago, estado) => void cambiarEstado(pago, estado)}
+      />
     </div>
   );
 }

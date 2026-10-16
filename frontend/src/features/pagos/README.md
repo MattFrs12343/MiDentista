@@ -94,14 +94,18 @@ o el número de operación.
 
 | Rol | Acceso |
 |-----|--------|
-| `recepcionista` | Registra y edita pagos. Es el rol que cobra |
-| `odontologo` | Consulta saldos y estados de cuenta |
-| `odontologo_admin` | Consulta y gestiona |
+| `recepcionista` | Registra y edita pagos |
+| `odontologo` | Registra y edita pagos (igual que recepción: hay clínicas que operan sin recepcionista) |
+| `odontologo_admin` | Registra y edita pagos |
 | `paciente` | Solo su estado de cuenta |
 
-Esto viene de `ENTREVISTAS_USIARIO.txt`: *"Yo como recepcionista necesito ver
-cuánto debe cada paciente"*. Por eso el módulo 08 y este son de recepción, y por
-eso `/app/pagos` es una ruta de listado transversal y no una pestaña del paciente.
+El diseño original (de `ENTREVISTAS_USIARIO.txt`: *"Yo como recepcionista
+necesito ver cuánto debe cada paciente"*) dejaba a `odontologo` solo como
+lectura. Se amplió a escritura porque, en la práctica, no todas las clínicas
+tienen recepcionista — el odontólogo es quien termina cobrando. La policy
+`pagos_insert_staff`/`pagos_update_staff` (`docs/modules/09-pagos/sql.sql`) ya
+incluía `odontologo`; lo que cambió es que `PatientProfilePage.tsx` ahora
+también le muestra el botón "Registrar pago".
 
 ## Lo que necesita Matías para enganchar la pestaña
 

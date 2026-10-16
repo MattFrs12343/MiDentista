@@ -4,6 +4,13 @@ import type { ContenidoProcedimiento, EstadoProcedimiento, PrioridadProcedimient
 export const PRIORIDADES_PROCEDIMIENTO: readonly PrioridadProcedimiento[] = ["urgente", "alta", "normal", "baja"];
 export const ESTADOS_PROCEDIMIENTO: readonly EstadoProcedimiento[] = ["pendiente", "en_proceso", "completado", "cancelado"];
 
+export const ETIQUETAS_PRIORIDAD_PROCEDIMIENTO: Record<PrioridadProcedimiento, string> = {
+  urgente: "Urgente", alta: "Alta", normal: "Normal", baja: "Baja",
+};
+export const ETIQUETAS_ESTADO_PROCEDIMIENTO: Record<EstadoProcedimiento, string> = {
+  pendiente: "Pendiente", en_proceso: "En proceso", completado: "Completado", cancelado: "Cancelado",
+};
+
 export function validarCostoProcedimiento(costo: number) {
   if (typeof costo !== "number" || !Number.isFinite(costo) || costo < 0 || costo > 99999999.99
       || costo !== Number(costo.toFixed(2))) {

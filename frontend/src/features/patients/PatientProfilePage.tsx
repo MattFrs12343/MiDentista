@@ -26,7 +26,12 @@ export function PatientProfilePage() {
   const { pacienteId } = useParams<{ pacienteId: string }>();
   const { obtenerPaciente, miPerfil } = useClinicaData();
   const { sesion } = useAuth();
-  const puedeCobrar = sesion?.rol === "recepcionista" || sesion?.rol === "odontologo_admin";
+  // El odontólogo también cobra, no solo recepción: hay clínicas que
+  // trabajan sin recepcionista. La policy `pagos_insert_staff` (docs/modules/
+  // 09-pagos/sql.sql) ya lo permite a nivel de base; esto solo alinea el
+  // frontend con ese permiso.
+  const puedeCobrar =
+    sesion?.rol === "recepcionista" || sesion?.rol === "odontologo" || sesion?.rol === "odontologo_admin";
   // Gestionar el QR de cobro es un permiso aparte de cobrar: el odontólogo
   // puede subir/cambiar el QR aunque no registre pagos (ver pagos/README.md
   // "Permisos esperados", que no cambia con esto).

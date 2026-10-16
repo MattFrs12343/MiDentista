@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ProcedimientoForm } from "./ProcedimientoForm.tsx";
+import { ETIQUETAS_ESTADO_PROCEDIMIENTO, ETIQUETAS_PRIORIDAD_PROCEDIMIENTO } from "./procedimientoMapper.ts";
 import { useProcedimientos } from "./useProcedimientos.ts";
 import type { PlanProcedimientos } from "./procedimientoPermisos.ts";
 import type { PerfilDiagnosticos } from "./tipos.ts";
@@ -35,8 +36,9 @@ export function ProcedimientosSection({ datos, bloqueadoTotal = false }: { datos
             {datos.procedimientos.slice((paginaActual - 1) * 20, paginaActual * 20).map((p) => <li key={p.id} className="rounded-md border border-line p-3">
               <p className="whitespace-pre-wrap">{p.descripcion}</p>
               {p.numeroPieza !== null && <p>Pieza FDI: {p.numeroPieza}</p>}
-              <p>Prioridad: {p.prioridad}</p><p>Estado del procedimiento: {p.estado}</p><p>Costo: Bs {p.costo.toFixed(2)}</p>
-              {p.servicioId && <p>Servicio: {p.servicioId}</p>}
+              <p>Prioridad: {ETIQUETAS_PRIORIDAD_PROCEDIMIENTO[p.prioridad]}</p>
+              <p>Estado del procedimiento: {ETIQUETAS_ESTADO_PROCEDIMIENTO[p.estado]}</p>
+              <p>Costo: Bs {p.costo.toFixed(2)}</p>
               {datos.editable && <div className="flex flex-wrap gap-2">
                 <Button type="button" disabled={bloqueado} onClick={() => setEditarId(p.id)} aria-label={`Editar procedimiento: ${p.descripcion}`}>Editar</Button>
                 <Button type="button" disabled={bloqueado} onClick={() => datos.solicitarEliminar(p.id)} aria-label={`Eliminar procedimiento: ${p.descripcion}`}>Eliminar</Button>

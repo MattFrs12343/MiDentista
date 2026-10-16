@@ -9,6 +9,7 @@ import type { PlanesTratamientoSection } from "./PlanesTratamientoSection.tsx";
 import type { PlanTratamientoForm } from "./PlanTratamientoForm.tsx";
 import type { usePlanesTratamiento } from "./usePlanesTratamiento.ts";
 import type { PlanTratamientoPaciente } from "./tipos.ts";
+import { ETIQUETAS_PLAN } from "./planesPorEstado.ts";
 
 let servidor: ViteDevServer;
 let Seccion: typeof PlanesTratamientoSection;
@@ -40,8 +41,8 @@ const renderizar = (d: ReturnType<typeof usePlanesTratamiento>) => renderToStati
 test("UI real muestra selector con varios ids y metadatos del seleccionado, sin selector de estado", () => {
   const html = renderizar(datos({ planes: [plan, { ...plan, id: AUTOR, titulo: "Segundo plan" }] }));
   assert.match(html, /Seleccionar plan de tratamiento \(2\)/);
-  assert.match(html, /Segundo plan/); assert.match(html, /Id del plan:/); assert.match(html, /456.50/);
-  assert.match(html, /Estado: en_proceso/); assert.match(html, /Notas reales precargadas<\/textarea>/);
+  assert.match(html, /Segundo plan/); assert.doesNotMatch(html, /Id del plan:/); assert.match(html, /456.50/);
+  assert.match(html, /Estado: En proceso/); assert.match(html, /Notas reales precargadas<\/textarea>/);
   assert.match(html, /Guardar título/); assert.match(html, /Guardar notas/); assert.match(html, /Nuevo plan/);
   assert.equal((html.match(/<select /g) ?? []).length, 1);
   assert.doesNotMatch(html, /Agregar procedimiento/);
@@ -98,7 +99,7 @@ test("T-5.7 UI real ofrece exactamente botones válidos por estado y ninguno en 
     const p = { ...plan, estado };
     const html = renderizar(datos({ seleccionado: p, planes: [p] }));
     for (const accion of acciones) assert.equal(html.includes(`>${accion}</button>`), (esperadas[estado] as string[]).includes(accion));
-    assert.match(html, new RegExp(`Estado: ${estado}`));
+    assert.match(html, new RegExp(`Estado: ${ETIQUETAS_PLAN[estado]}`));
   }
 });
 test("T-5.7 UI no muestra transiciones a perfiles de lectura ni inactivos", () => {
@@ -124,7 +125,7 @@ test("T-5.7 UI muestra loading y bloqueos, error sin ocultar plan y éxito confi
   assert.match(enviando, /disabled=""[^>]*>Completar plan/);
   assert.match(enviando, /disabled=""[^>]*>Cancelar plan/);
   const error = renderizar(datos({ errorEstado: "El estado del plan cambió en otra sesión. Recarga." }));
-  assert.match(error, /role="alert"/); assert.match(error, /otra sesión/); assert.match(error, /Estado: en_proceso/);
+  assert.match(error, /role="alert"/); assert.match(error, /otra sesión/); assert.match(error, /Estado: En proceso/);
   assert.match(error, /Recargar planes/); assert.doesNotMatch(error, /confirmado\./);
   assert.match(renderizar(datos({ exitoEstado: "Estado en_proceso confirmado." })), /role="status">Estado en_proceso confirmado/);
 });

@@ -15,8 +15,8 @@
 -- ese hueco.
 --
 -- ALCANCE (ver README del módulo, "Permisos esperados")
---   - Recepción registra y edita pagos: es el rol que cobra.
---   - El odontólogo consulta saldos y estados de cuenta.
+--   - Recepción y odontólogo registran y editan pagos: hay clínicas que
+--     operan sin recepcionista, así que el odontólogo también cobra.
 --   - El paciente NO entra por RLS. Su estado de cuenta lo sirve la Edge
 --     Function `paciente/mi-ficha` (service_role), que solo devuelve sus filas.
 --     Por eso las políticas EXCLUYEN el rol 'paciente': con el patrón
