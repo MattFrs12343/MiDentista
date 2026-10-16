@@ -38,20 +38,20 @@
 
 ### Mes 2 — Apoyo Módulo 06 + Testing
 
-- [ ] T-6.6 Vincular evolución con plan de tratamiento (apoyo, depende del Módulo 05)
+- [ ] T-6.6 Vincular evolución con plan de tratamiento (apoyo, depende del Módulo 05) — vinculación implementada y completa (el selector de plan/procedimiento ya está en origin/main); falta la actualización del progreso del plan, pendiente de integración por el responsable del Módulo 05
 - [x] Revisión de reglas clínicas en el Módulo 06
 - [x] Testing de integración de la Fase 2 (módulos 05, 06, 07)
 
 ### Mes 3 — Módulo 09 (lideras, en pareja con Bianca que lidera el 08)
 
-- [ ] T-9.1 Crear tabla `pagos` + RLS ⚠️ toca BD
+- [ ] T-9.1 Crear tabla `pagos` + RLS ⚠️ toca BD — tabla y políticas RLS integradas en el código de origin/main (`bd_5clinicas_midentista.sql`); no se verificó su aplicación en producción
 - [x] T-9.4 Crear flujo de registro de pago
 - [x] T-9.6 Crear vista de historial de pagos
 - [x] T-9.5 Implementar pago parcial
 - [x] T-9.7 Implementar estado de cuenta (total/pagado/pendiente) (depende del Módulo 08)
 - [x] T-9.8 Integrar pagos en ficha del paciente
 - [x] Validar US-9.3, US-9.4, US-9.5, US-9.6
-- [ ] Apoyar/revisar el PR de Bianca en el Módulo 08
+- [ ] Apoyar/revisar el PR de Bianca en el Módulo 08 — pendiente: no existe un PR abierto que revisar
 
 ## Registro de avance
 
@@ -74,3 +74,6 @@
 | 2026-10-14 | T-6.6 | Apoyo al Módulo 06 (Evolución, dueño Lucas): `tipos.ts`, `evolucionMapper.ts` y `evolucionService.ts` ya aceptan `planTratamientoId`/`procedimientoId`, pero `EvolutionForm` no ofrece selector de plan y ningún punto actualiza el progreso del plan. Falta la costura con el Módulo 05 y que Lucas exponga el vínculo en la UI | en progreso | 2 |
 | 2026-10-14 | REGLAS-06 | Revisión de las reglas del Módulo 06 en `evolucionService`/`useEvolucionSupabase`: solo UUIDs reales (se rechazan ids demo `p1`/`p_...`), `lecturaSinFilas` distingue un SELECT vacío (RLS) de un error real, no se pisa el contenido previo ante un fallo, se rechaza el guardado concurrente y se respeta la matriz de roles (recepcionista sin acceso, paciente solo lectura) | completado | 2 |
 | 2026-10-14 | TESTING | Testing de integración de la Fase 2: `node --test src/features/evolucion/*.test.ts` (22/22), `npm run build` (tsc + vite) y `npm run lint` (oxlint, 0 errores) en verde. Los módulos 05 y 07 no tienen tests automatizados y quedan cubiertos solo por el typecheck del build | completado | 2 |
+| 2026-10-15 | T-6.6 | Estado tras revisión: mi vinculación de la evolución con el plan está completa (acepta `planTratamientoId`/`procedimientoId` con UUIDs estrictos; el selector de plan/procedimiento ya está en origin/main, en `CarlosBianca` no). La actualización del progreso del plan sigue pendiente de integración por el responsable del Módulo 05 | en progreso | 1 |
+| 2026-10-15 | T-9.1 | Estado tras revisión: la tabla `pagos` y sus políticas RLS (`pagos_select_superadmin`, `pagos_select_staff`, `pagos_insert_staff`, `pagos_update_staff`) ya están integradas en el código de origin/main (`bd_5clinicas_midentista.sql`), según verificación del repositorio. No se comprobó su aplicación en producción, así que no se afirma que estén activas en la BD | en progreso | 1 |
+| 2026-10-15 | REVIEW | Revisión del PR de Bianca (Módulo 08): sigue pendiente porque no existe un PR abierto; todavía no hay nada que revisar | pendiente | 1 |

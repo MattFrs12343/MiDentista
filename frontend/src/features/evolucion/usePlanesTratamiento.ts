@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { cargarPlanes, cargarProcedimientos } from "./planesTratamientoService.ts";
+import { tituloDePlan } from "./planesTratamientoMapper.ts";
 import type { PlanTratamiento, ProcedimientoTratamiento } from "./tipos.ts";
 
 /** Texto legible de un rechazo, sin inventar la causa. */
@@ -102,7 +103,11 @@ export function usePlanesTratamiento() {
   /** Título de un plan por id, para mostrarlo en la línea de tiempo. */
   const titulos = useCallback(() => {
     const mapa = new Map<string, string>();
-    for (const plan of planes) mapa.set(plan.id, plan.titulo ?? "");
+    // `tituloDePlan` aplica el mismo rótulo que el desplegable: un plan sin
+    // título se muestra como "Plan sin título" en vez de quedar vacío. Con el
+    // vacío, la línea de tiempo lo trataba como un plan no disponible y no
+    // pintaba la insignia del vínculo (T-6.6).
+    for (const plan of planes) mapa.set(plan.id, tituloDePlan(plan));
     return mapa;
   }, [planes]);
 

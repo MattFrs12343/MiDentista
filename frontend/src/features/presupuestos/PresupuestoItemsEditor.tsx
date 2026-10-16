@@ -78,6 +78,8 @@ export interface PresupuestoItemsEditorProps {
   /** Partidas con las que arranca la edición. */
   iniciales?: readonly ItemPresupuestoNuevo[];
   servicios: Servicio[];
+  /** `true` cuando el catálogo no se pudo cargar (distinto de estar vacío). */
+  catalogoError?: boolean;
   clinicaId: string;
   /** UUID del presupuesto; en un alta todavía no existe, así que va vacío. */
   presupuestoId: string;
@@ -97,6 +99,7 @@ export function PresupuestoItemsEditor({
   clave,
   iniciales,
   servicios,
+  catalogoError = false,
   clinicaId,
   presupuestoId,
   disabled = false,
@@ -172,8 +175,9 @@ export function PresupuestoItemsEditor({
           </div>
         ) : (
           <p className="flex-1 text-[12px] leading-snug text-ink-muted">
-            El catálogo de servicios de la clínica está vacío. Agregá partidas libres y cargá los
-            precios a mano.
+            {catalogoError
+              ? "No se pudo cargar el catálogo de servicios. Agregá partidas libres y cargá los precios a mano."
+              : "El catálogo de servicios de la clínica está vacío. Agregá partidas libres y cargá los precios a mano."}
           </p>
         )}
 

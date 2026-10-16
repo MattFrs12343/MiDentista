@@ -69,12 +69,11 @@ export interface PresupuestoCompleto extends Presupuesto {
 }
 
 /**
- * Cycle of life de un presupuesto.
+ * Ciclo de vida de un presupuesto.
  *
- * sigue el mismo criterio documentado en `docs/figuras_monografia/` para las
- * citas: los estados no retroceden. Un presupuesto rechazado vuelve a
- * `borrador` para editarse, y eso se hace con una acción explícita, no
- * arrastrando el estado.
+ * Sigue el mismo criterio documentado en `docs/figuras_monografia/` para las
+ * citas: los estados no retroceden (`borrador → enviado → aceptado | rechazado`).
+ * `aceptado` y `rechazado` son terminales; no se arrastra el estado hacia atrás.
  */
 export function transicionValida(desde: EstadoPresupuesto, hacia: EstadoPresupuesto): boolean {
   if (desde === hacia) return false;

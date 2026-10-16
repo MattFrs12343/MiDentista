@@ -32,6 +32,8 @@ export interface PresupuestoFormProps {
   odontologoId: string;
   pacientes: PacienteOpcion[];
   servicios: Servicio[];
+  /** `true` cuando el catálogo de servicios no se pudo cargar (distinto de estar vacío). */
+  catalogoError?: boolean;
   /** Presupuesto a editar. Sin esto, el formulario es un alta. */
   inicial?: PresupuestoCompleto;
   /** Paciente fijado desde el contexto; si llega, no se puede cambiar. */
@@ -69,6 +71,7 @@ export function PresupuestoForm({
   odontologoId,
   pacientes,
   servicios,
+  catalogoError,
   inicial,
   pacienteFijado,
   guardando,
@@ -188,6 +191,7 @@ export function PresupuestoForm({
             clave={inicial?.id ?? "nuevo"}
             iniciales={inicial ? itemInicial(inicial) : []}
             servicios={servicios}
+            catalogoError={catalogoError}
             clinicaId={clinicaId}
             presupuestoId={inicial?.id ?? ""}
             disabled={guardando}

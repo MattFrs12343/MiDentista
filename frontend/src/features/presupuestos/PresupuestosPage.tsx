@@ -73,6 +73,7 @@ export function PresupuestosPage() {
   const [editando, setEditando] = useState<PresupuestoCompleto | null>(null);
   const [cargandoEdicion, setCargandoEdicion] = useState(false);
   const [servicios, setServicios] = useState<Servicio[]>([]);
+  const [catalogoFallo, setCatalogoFallo] = useState(false);
 
   usePageHeader({
     title: "Presupuestos",
@@ -92,12 +93,19 @@ export function PresupuestosPage() {
     let cancelado = false;
     cargarServicios(clinicaId)
       .then((lista) => {
-        if (!cancelado) setServicios(lista);
+        if (!cancelado) {
+          setServicios(lista);
+          setCatalogoFallo(false);
+        }
       })
       .catch(() => {
         // El catálogo es una ayuda: si falla, se siguen pudiendo crear partidas
-        // libres. No se pisa la pantalla con el error del catálogo.
-        if (!cancelado) setServicios([]);
+        // libres. No se pisa la pantalla con el error del catálogo, pero sí se
+        // avisa dentro del formulario que no se pudo cargar (y no "está vacío").
+        if (!cancelado) {
+          setServicios([]);
+          setCatalogoFallo(true);
+        }
       });
     return () => {
       cancelado = true;
@@ -159,8 +167,13 @@ export function PresupuestosPage() {
     void (async () => {
       if (editando) {
         // `presupuesto` trae los campos del formulario y no el `id`/`estado`;
-        // se combinan sobre el presupuesto cargado para conservarlos.
-        const actualizado = await actualizar({ ...editando, ...presupuesto }, items);
+        // se combinan sobre el presupuesto cargado para conservarlos. El
+        // odontólogo que presupuestó se conserva: editar el monto no debe
+        // reasignar la autoría a quien edita.
+        const actualizado = await actualizar(
+          { ...editando, ...presupuesto, odontologoId: editando.odontologoId },
+          items,
+        );
         if (actualizado) setDialogoAbierto(false);
       } else {
         const creado = await crear(presupuesto, items);
@@ -262,7 +275,7 @@ export function PresupuestosPage() {
         </Button>
       </SectionToolbar>
 
-      {error && presupuestos.length === 0 && !cargando ? (
+      {error && !cargando && !dialogoAbierto ? (
         <div
           role="alert"
           className="rounded-panel border border-pastel-red-fg/25 bg-pastel-red-bg px-4 py-3 text-[13px] text-pastel-red-fg"
@@ -332,6 +345,7 @@ export function PresupuestosPage() {
             odontologoId={miPerfil.id}
             pacientes={opciones}
             servicios={servicios}
+            catalogoError={catalogoFallo}
             inicial={editando ?? undefined}
             guardando={guardando}
             error={error}
