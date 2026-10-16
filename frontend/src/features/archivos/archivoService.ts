@@ -258,7 +258,7 @@ async function subirValidado(
       throw new Error("El autor no corresponde a un perfil activo del usuario Auth actual.");
     }
     if (flujo === "documento") {
-      if (perfil.rol === "odontologo" || perfil.rol === "superadmin") categoria = "clinico";
+      if (perfil.rol === "odontologo" || perfil.rol === "odontologo_admin" || perfil.rol === "superadmin") categoria = "clinico";
       else if (perfil.rol === "recepcionista") categoria = "administrativo";
       else throw new Error("La subida de PDF requiere un perfil odontologo o recepcionista, o superadmin activo.");
     }

@@ -80,7 +80,7 @@ function SeccionArchivos({ pacienteId, perfil, rol, clave }: Props & { clave: st
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-ink">Archivos del paciente</h2>
         <div className="flex flex-wrap gap-2">
-          {rol === "odontologo" || rol === "recepcionista" ? (
+          {rol === "odontologo" || rol === "odontologo_admin" || rol === "recepcionista" ? (
             <>
               <Button type="button" variant="secondary" disabled={!capacidades.imagen || bloquear} onClick={(evento) => abrir("imagen", evento.currentTarget)}><Image size={18} aria-hidden />Subir imagen</Button>
               <Button type="button" variant="secondary" disabled={!capacidades.pdf || bloquear} onClick={(evento) => abrir("pdf", evento.currentTarget)}><FilePdf size={18} aria-hidden />Subir PDF</Button>
@@ -91,7 +91,7 @@ function SeccionArchivos({ pacienteId, perfil, rol, clave }: Props & { clave: st
       {!contexto && !errorContexto ? <p role="status" className="text-sm text-ink-muted">Cargando contexto del paciente…</p> : null}
       {contexto && !perfil ? <p role="status" className="text-sm text-ink-muted">Cargando perfil para habilitar la subida…</p> : null}
       {errorContexto ? <p role="alert" className="text-sm text-pastel-red-fg">{errorContexto}</p> : null}
-      {contexto && perfil && !capacidades.imagen && (rol === "odontologo" || rol === "recepcionista") ? (
+      {contexto && perfil && !capacidades.imagen && (rol === "odontologo" || rol === "odontologo_admin" || rol === "recepcionista") ? (
         <p role="alert" className="text-sm text-pastel-red-fg">No se confirmó un perfil y clínica compatibles para subir archivos de este paciente.</p>
       ) : null}
       {escritura.subiendo && !modal ? <p role="status" className="text-sm text-ink-muted">Hay una subida de este paciente en curso.</p> : null}

@@ -3,11 +3,11 @@ import type { DiagnosticoPaciente, PerfilDiagnosticos } from "./tipos.ts";
 
 export function puedeLeerDiagnosticos(perfil: PerfilDiagnosticos | null): boolean {
   return Boolean(perfil?.activo && esUuid(perfil.id) && (perfil.rol === "superadmin"
-    || ((perfil.rol === "odontologo" || perfil.rol === "recepcionista") && perfil.clinicaId && esUuid(perfil.clinicaId))));
+    || ((perfil.rol === "odontologo" || perfil.rol === "odontologo_admin" || perfil.rol === "recepcionista") && perfil.clinicaId && esUuid(perfil.clinicaId))));
 }
 
 export function puedeCrearDiagnostico(perfil: PerfilDiagnosticos | null): boolean {
-  return Boolean(perfil?.activo && perfil.rol === "odontologo" && esUuid(perfil.id)
+  return Boolean(perfil?.activo && (perfil.rol === "odontologo" || perfil.rol === "odontologo_admin") && esUuid(perfil.id)
     && perfil.clinicaId && esUuid(perfil.clinicaId));
 }
 

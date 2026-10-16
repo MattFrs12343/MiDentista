@@ -35,7 +35,8 @@ export function PatientProfilePage() {
   // Gestionar el QR de cobro es un permiso aparte de cobrar: el odontólogo
   // puede subir/cambiar el QR aunque no registre pagos (ver pagos/README.md
   // "Permisos esperados", que no cambia con esto).
-  const puedeGestionarQr = sesion?.rol === "recepcionista" || sesion?.rol === "odontologo";
+  const puedeGestionarQr =
+    sesion?.rol === "recepcionista" || sesion?.rol === "odontologo" || sesion?.rol === "odontologo_admin";
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const tabActiva = esTabValida(tabParam) ? tabParam : "datos";

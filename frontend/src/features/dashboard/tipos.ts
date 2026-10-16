@@ -14,6 +14,7 @@ export const ROLES_CON_DASHBOARD = [
   "superadmin",
   "recepcionista",
   "odontologo",
+  "odontologo_admin",
   "paciente",
 ] as const;
 
@@ -93,6 +94,7 @@ export const DASHBOARD_POR_ROL: Record<RolConDashboard, string> = {
   superadmin: "DashboardSuperadmin",
   recepcionista: "DashboardRecepcion",
   odontologo: "DashboardOdontologo",
+  odontologo_admin: "DashboardOdontologo",
   paciente: "DashboardPaciente",
 };
 

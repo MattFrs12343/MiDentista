@@ -16,7 +16,7 @@ export function exigirEstadoFiltro(estado: EstadoPlanTratamiento) {
 }
 /** Superadmin necesita una clínica explícita; el personal nunca puede cambiar la propia. */
 export function clinicaParaVista(perfil: PerfilDiagnosticos | null, explicita?: string): string {
-  if (!perfil?.activo || !["odontologo", "recepcionista", "superadmin"].includes(perfil.rol)) throw new Error("Perfil sin permiso de lectura de tratamientos.");
+  if (!perfil?.activo || !["odontologo", "odontologo_admin", "recepcionista", "superadmin"].includes(perfil.rol)) throw new Error("Perfil sin permiso de lectura de tratamientos.");
   exigirUuid(perfil.id, "perfilId");
   const clinica = perfil.rol === "superadmin" ? explicita : perfil.clinicaId;
   exigirUuid(clinica, "clínica explícita");

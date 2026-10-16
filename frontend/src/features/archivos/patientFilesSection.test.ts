@@ -20,11 +20,11 @@ function archivo(cambios: Partial<Archivo> = {}): Archivo {
     evolucionClinicaId: null, planTratamientoId: null, ...cambios };
 }
 
-test("capacidades de la ficha: odontólogo/recepción; no inventa admin ni portal", () => {
-  for (const rol of ["odontologo", "recepcionista"]) {
+test("capacidades de la ficha: odontólogo/odontólogo_admin/recepción; no inventa portal", () => {
+  for (const rol of ["odontologo", "odontologo_admin", "recepcionista"]) {
     assert.deepEqual(capacidadesArchivos(PACIENTE, contexto, perfil, rol), { imagen: true, pdf: true });
   }
-  for (const rol of ["superadmin", "paciente", "odontologo_admin", "otro", null]) {
+  for (const rol of ["superadmin", "paciente", "otro", null]) {
     assert.deepEqual(capacidadesArchivos(PACIENTE, contexto, perfil, rol), { imagen: false, pdf: false });
   }
 });

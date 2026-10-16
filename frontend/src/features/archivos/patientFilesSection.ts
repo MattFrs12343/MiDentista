@@ -19,7 +19,7 @@ export function capacidadesArchivos(pacienteId: string, contexto: ContextoPacien
     && contexto.pacienteId.toLowerCase() === pacienteId.toLowerCase()
     && contexto.clinicaId.toLowerCase() === perfil.clinicaId.toLowerCase();
   // Esta ficha es de personal; no inventar navegación/privilegios de otros roles.
-  const equipo = rol === "odontologo" || rol === "recepcionista";
+  const equipo = rol === "odontologo" || rol === "odontologo_admin" || rol === "recepcionista";
   return { imagen: valido && equipo, pdf: valido && equipo };
 }
 

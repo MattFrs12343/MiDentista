@@ -65,7 +65,11 @@ test("permisos visuales distinguen autor, colega, clínica, recepcionista y audi
   assert.equal(puedeEditarDiagnostico(perfil, diagnostico), true);
   assert.equal(puedeEditarDiagnostico({ ...perfil, id: ID }, diagnostico), false);
   assert.equal(puedeEditarDiagnostico({ ...perfil, clinicaId: PACIENTE }, diagnostico), false);
-  for (const rol of ["recepcionista", "superadmin", "paciente", "odontologo_admin", "otro"]) {
+  // odontologo_admin (módulo 17): mismo permiso que odontologo, no un rol aparte.
+  const perfilAdmin = { ...perfil, rol: "odontologo_admin" };
+  assert.equal(puedeCrearDiagnostico(perfilAdmin), true);
+  assert.equal(puedeEditarDiagnostico(perfilAdmin, diagnostico), true);
+  for (const rol of ["recepcionista", "superadmin", "paciente", "otro"]) {
     const actor = { ...perfil, rol };
     assert.equal(puedeCrearDiagnostico(actor), false);
     assert.equal(puedeEditarDiagnostico(actor, diagnostico), false);

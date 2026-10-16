@@ -582,7 +582,7 @@ test("el error común conserva compatibilidad de constructor e instanceof con im
 });
 
 test("PDF deriva categoría del perfil real y devuelve la fila confirmada", async () => {
-  for (const [rol, categoria] of [["odontologo", "clinico"], ["recepcionista", "administrativo"]]) {
+  for (const [rol, categoria] of [["odontologo", "clinico"], ["odontologo_admin", "clinico"], ["recepcionista", "administrativo"]]) {
     const fake = simulado({ perfil: { id: PERFIL, auth_user_id: AUTH, activo: true, rol } });
     const entrada = documento();
     const resultado = await subirDocumento(entrada, fake.cliente);
@@ -635,7 +635,7 @@ test("PDF ignora categoría, clasificación, rol y metadatos extras enviados des
 
 test("PDF rechaza roles no soportados antes de generar ruta o subir", async (contexto) => {
   contexto.mock.method(globalThis.crypto, "randomUUID", () => { throw new Error("No generar ruta para roles incompatibles"); });
-  for (const rol of ["paciente", "odontologo_admin", "otro", undefined]) {
+  for (const rol of ["paciente", "otro", undefined]) {
     const fake = simulado({ perfil: { id: PERFIL, auth_user_id: AUTH, activo: true, rol } });
     const error = await exigirError(subirDocumento(documento(), fake.cliente));
     assert.equal(error.etapa, "autoria");

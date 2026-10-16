@@ -23,7 +23,7 @@ export async function puedeElegirAsociacion(perfilId: string, cliente?: Supabase
   if (error || !data || data.id !== perfilId.toLowerCase() || data.auth_user_id !== identidad.user.id || data.activo !== true) {
     throw new Error("No se pudo verificar el perfil activo.");
   }
-  return ["odontologo", "recepcionista", "superadmin"].includes(data.rol);
+  return ["odontologo", "odontologo_admin", "recepcionista", "superadmin"].includes(data.rol);
 }
 
 function exigirContexto(pacienteId: string, clinicaId: string) {
@@ -65,7 +65,7 @@ export async function validarDestinoArchivo(
 ): Promise<void> {
   const id = referencias.evolucion_clinica_id ?? referencias.plan_tratamiento_id;
   if (!id) return;
-  if (!["odontologo", "recepcionista", "superadmin"].includes(rol) || categoria === "portal") {
+  if (!["odontologo", "odontologo_admin", "recepcionista", "superadmin"].includes(rol) || categoria === "portal") {
     throw new Error("El perfil no puede asociar archivos a entidades clínicas.");
   }
   const evolucion = referencias.evolucion_clinica_id !== null;

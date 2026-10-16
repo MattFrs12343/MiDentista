@@ -8,6 +8,7 @@ import {
   PencilSimple,
   Plus,
 } from "@phosphor-icons/react";
+import bannerPresupuestos from "@/assets/banners/banner-presupuestos.jpg";
 import { HangingBanner } from "@/components/ui/hanging-banner";
 import { SectionHeroStrip } from "@/components/ui/section-hero";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -200,6 +201,7 @@ export function PresupuestosPage() {
         <SectionHeroStrip
           icon={FileText}
           tone="yellow"
+          photo={bannerPresupuestos}
           className="hanger-panel fade-in-up"
         />
       </HangingBanner>

@@ -8,7 +8,7 @@ import { crearResumenTratamientosVacio, type ResumenTratamientos } from "./odont
  * Roles que pueden ver los tratamientos de la clínica: el odontólogo.
  * Cualquier otro rol queda en `sinPermiso` sin tocar la red.
  */
-const ROLES_CON_TRATAMIENTOS: readonly string[] = ["odontologo"];
+const ROLES_CON_TRATAMIENTOS: readonly string[] = ["odontologo", "odontologo_admin"];
 
 /**
  * Carga el resumen de tratamientos por estado para el panel del odontólogo

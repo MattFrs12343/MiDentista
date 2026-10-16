@@ -53,7 +53,7 @@ import {
 import { listarBitacora, type EntradaBitacora } from "./bitacoraService";
 import type { Role } from "@/types";
 
-const ROLES_INVITABLES: Role[] = ["odontologo", "recepcionista", "superadmin"];
+const ROLES_INVITABLES: Role[] = ["odontologo", "odontologo_admin", "recepcionista", "superadmin"];
 
 /** Acción de la tarjeta móvil: 44px de alto, con su texto y no solo el
  * ícono — mismo patrón que `PatientsTable`. */
@@ -1051,7 +1051,7 @@ function InvitarDialog({
       await invitarPersonalApi({
         email: email.trim(),
         nombreCompleto: nombreCompleto.trim(),
-        rol: rol as "odontologo" | "recepcionista" | "superadmin",
+        rol: rol as "odontologo" | "odontologo_admin" | "recepcionista" | "superadmin",
         clinicaId: rol === "superadmin" ? undefined : clinicaElegida,
         especialidad: especialidad.trim() || undefined,
       });
@@ -1157,7 +1157,7 @@ function InvitarDialog({
               </p>
             ) : null}
 
-            {rol === "odontologo" && (
+            {(rol === "odontologo" || rol === "odontologo_admin") && (
               <Field label="Especialidad (opcional)" htmlFor="invitar-especialidad">
                 <Input
                   id="invitar-especialidad"

@@ -26,7 +26,8 @@ export function PagosPage() {
 
   // Mismo criterio que PatientProfilePage: odontólogo o recepción gestionan
   // el QR. No habilita registrar cobros, esa regla no cambia acá.
-  const puedeGestionarQr = sesion?.rol === "recepcionista" || sesion?.rol === "odontologo";
+  const puedeGestionarQr =
+    sesion?.rol === "recepcionista" || sesion?.rol === "odontologo" || sesion?.rol === "odontologo_admin";
 
   if (!miPerfil) {
     return <EmptyState size="sm" title="Cargando perfil…" />;

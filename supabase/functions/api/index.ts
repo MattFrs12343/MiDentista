@@ -400,7 +400,7 @@ async function handleAdminInvitar(req: Request) {
 
   if (!email || !EMAIL_REGEX.test(email)) return json({ error: "El correo no es válido" }, 400);
   if (!nombreCompleto) return json({ error: "El nombre completo es obligatorio" }, 400);
-  if (!["odontologo", "recepcionista", "superadmin"].includes(rol)) return json({ error: "Rol inválido" }, 400);
+  if (!["odontologo", "odontologo_admin", "recepcionista", "superadmin"].includes(rol)) return json({ error: "Rol inválido" }, 400);
   if (!esSuperadmin && !clinicaId) return json({ error: "La clínica es obligatoria" }, 400);
 
   const { data: existente } = await admin.from("perfiles").select("id").ilike("email", email).maybeSingle();

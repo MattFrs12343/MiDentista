@@ -10,16 +10,19 @@ import { DashboardPlaceholder } from "./DashboardPlaceholder";
 /**
  * Selector del dashboard por rol (T-13.1).
  *
- * Cuatro roles vigentes: superadmin, odontologo, recepcionista y paciente.
- * `odontologo_admin` fue descartado del proyecto, pero `Role` de `@/types`
- * todavia lo declara (archivo de integracion de Matias), asi que el mapa se
- * tipa con `Partial<Record<Role, ...>>` y un rol sin panel cae en un estado
- * "rol no disponible" en vez de una pantalla en blanco.
+ * Cinco roles vigentes: superadmin, odontologo, odontologo_admin,
+ * recepcionista y paciente. `odontologo_admin` había sido descartado del
+ * proyecto y reactivado después (módulo 17): usa el mismo panel que
+ * `odontologo` — es la misma vista clínica, con permisos administrativos de
+ * más, no un dashboard distinto. El mapa sigue tipado con
+ * `Partial<Record<Role, ...>>` por si en el futuro se agrega un rol sin
+ * panel: cae en "rol no disponible" en vez de una pantalla en blanco.
  */
 const DASHBOARDS: Partial<Record<Role, ComponentType>> = {
   superadmin: DashboardSuperadmin,
   recepcionista: DashboardRecepcion,
   odontologo: DashboardOdontologo,
+  odontologo_admin: DashboardOdontologo,
   paciente: DashboardPaciente,
 };
 
