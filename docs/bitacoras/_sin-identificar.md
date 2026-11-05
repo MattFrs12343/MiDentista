@@ -6,9 +6,9 @@ integrante conocido (email o nombre no reconocido por
 y agregar el email que falte al `EMAIL_MAP` del script para que la próxima
 vez se asigne solo.
 
-## Registro automático (Git)
+## Registro (Git)
 
 <!-- AUTO-LOG:START -->
 | Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
-|---|---|---|---|
+|--------------|---------|------------------------|----------------------|
 <!-- AUTO-LOG:END -->

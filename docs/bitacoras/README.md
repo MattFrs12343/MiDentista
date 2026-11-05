@@ -1,8 +1,8 @@
 # Bitácoras del equipo
 
-Registro individual de avance por desarrollador, ligado a los módulos y a los
-IDs de historias de usuario (`US-x.x`) y tareas técnicas (`T-x.x`) definidos en
-[`docs/modules/`](../modules/) y en la asignación de [`INDEX.md`](../INDEX.md).
+Registro individual de cambios por desarrollador. Cada archivo se llena solo:
+un hook de git agrega una fila por commit, con quién lo hizo, cuándo y qué
+cambió. Nadie edita estas tablas a mano (ver "Cómo funciona" más abajo).
 
 ## Equipo (6 desarrolladores)
 
@@ -40,40 +40,15 @@ de `docs/` que describa el esquema o la arquitectura.
    (ej. `feature/modulo-02-bianca`, `feature/testing-melissa`).
 3. Lee el `README.md`, `user-stories.md` y `tasks.md` de tu módulo en
    `docs/modules/`.
-4. Sigue el **checklist de tareas** de tu bitácora (abajo, en tu archivo) en
-   el orden dado — respeta las dependencias entre tareas.
-5. Si tu tarea toca base de datos, RLS o arquitectura, lee
+4. Si tu tarea toca base de datos, RLS o arquitectura, lee
    [`CONTRIBUTING.md`](../../CONTRIBUTING.md) **antes** de escribir código:
    necesitas la aprobación de Matías.
-6. Abre un Pull Request hacia `main` cuando termines. Matías debe revisarlo
+5. Abre un Pull Request hacia `main` cuando termines. Matías debe revisarlo
    y aprobarlo antes de mergear.
-7. Marca cada tarea como hecha en tu checklist y agrega la entrada
-   correspondiente en tu "Registro de avance".
+6. Cada commit que hagas queda solo en tu bitácora (`docs/bitacoras/<tu-nombre>.md`):
+   no hay nada que llenar a mano.
 
-## Cómo llenar tu bitácora
-
-Cada entrada de la tabla "Registro de avance" de tu archivo debe tener:
-
-- **Fecha**: `AAAA-MM-DD`.
-- **ID**: el identificador de la historia o tarea en la que trabajaste
-  (`US-2.3`, `T-5.4`, etc.), tal como aparece en `user-stories.md`/`tasks.md`
-  de tu módulo. Si el trabajo no corresponde a un ID puntual (setup, testing
-  general, reuniones), usa una etiqueta libre como `SETUP` o `TESTING`.
-- **Qué hice**: descripción breve y concreta (qué se implementó, qué se
-  decidió, qué bloqueó el avance).
-- **Estado**: `pendiente` · `en progreso` · `completado` · `bloqueado`.
-- **Horas**: horas dedicadas esa fecha (aproximado).
-
-No dupliques aquí la definición de las historias/tareas — esa vive en
-`docs/modules/`. La bitácora es solo el registro de *quién hizo qué y cuándo*.
-
-## Actualización automática (Git)
-
-Cada bitácora tiene, además del "Registro de avance" manual de arriba, una
-sección **"Registro automático (Git)"** al final del archivo. Esa tabla la
-llena sola un hook de git en cada commit — nadie la edita a mano.
-
-**Cómo funciona:**
+## Cómo funciona la bitácora automática (Git)
 
 1. El hook `post-commit` (en `.githooks/post-commit`, versionado en el repo)
    corre después de cada commit.
@@ -102,7 +77,19 @@ Requiere `node` en el `PATH` (ya es un requisito del proyecto, ver
 por consola que no pudo actualizar la bitácora.
 
 **Límite conocido:** la identificación es por email/nombre de git, no por
-persona real. Bianca y Carlos no tienen cuentas de git separadas todavía
-(ver commits de "Derek598"); mientras eso no se resuelva, sus commits deben
-hacerse con `git config user.name`/`user.email` reconocibles, o revisar
-`_sin-identificar.md` después de commitear.
+persona real — no hay ninguna verificación: cualquiera que commitee con el
+email de otro aparecerá como esa persona. Alcanza para una bitácora de
+equipo, no como prueba de autoría a prueba de manipulación. Los emails
+reconocidos hoy en `EMAIL_MAP` (`scripts/log-bitacora.cjs`):
+
+| Persona | Email(s) de git |
+|---|---|
+| Matías | `francosalvatierram@gmail.com` |
+| Angélica | `4ngelica021222@gmail.com` |
+| Lucas | `cortezcacereslucas@gmail.com` |
+| Melissa | `melissaduranperez@gmail.com` |
+| Carlos | `federicosepi4@gmail.com` (cuenta vieja "Derek598"), `ignaciocarlos08@gmail.com` |
+| Bianca | `biansaye@gmail.com` |
+
+Si alguien commitea desde un email que no está en esta tabla, la fila cae en
+`docs/bitacoras/_sin-identificar.md` y el hook avisa en la consola.

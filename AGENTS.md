@@ -123,9 +123,9 @@ integra en `bd_5clinicas_midentista.sql`.
 
 ## 8. Bitácora
 
-Al terminar una tarea del checklist, registrar la entrada en
-`docs/bitacoras/<tu-nombre>.md` con fecha, ID (`T-6.3`, `US-8.1`), qué se hizo,
-estado y horas. El comando `/bitacora` ayuda a redactarla.
+`docs/bitacoras/<tu-nombre>.md` se actualiza solo: un hook de git
+(`post-commit`) agrega una fila por cada commit con fecha, autor, descripción
+y archivos tocados. No se edita a mano — ver `docs/bitacoras/README.md`.
 
 ## 9. Reglas de la casa
 
