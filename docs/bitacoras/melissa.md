@@ -45,3 +45,12 @@
 - Build (Vite): **exitoso**.
 - Lint (oxlint): **sin errores** (solo warnings preexistentes).
 - Git: `git diff --check` **limpio**; working tree con cambios (3 eliminados, 5 modificados) — no commiteados (petición de revisión previa).
+## Registro automático (Git)
+
+Cada fila la agrega sola el hook `post-commit` (ver `docs/bitacoras/README.md`).
+No editar a mano entre los marcadores: la próxima automática puede pisar el formato.
+
+<!-- AUTO-LOG:START -->
+| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
+|---|---|---|---|
+<!-- AUTO-LOG:END -->

@@ -159,3 +159,13 @@ superados por el cierre formal anterior; no son pendientes funcionales actuales.
 | 2026-10-11 | T-5.3 | Servicio/mapper/tipos/hook propios: listar, crear, actualizar y cambiar estado, perfil Auth real, UUID, filtros de paciente/clínica/autor, fila confirmada y timestamps del servidor. Sin DELETE; retirada solo la lógica antigua de diagnósticos del store para evitar duplicación. Tests de mapper/servicio/permisos/controlador: 227 totales aprobados; build correcto; lint sin errores y 15 warnings externos. Sin SQL ni commits. | Implementada; pendiente validación manual de persistencia y RLS desde UI | Pendiente de registrar por Angélica |
 | 2026-10-11 | T-5.2 / T-5.3 | El equipo confirma validación manual correcta del formulario y servicio de diagnósticos en Supabase real. Se actualizan checklist y documentación; no se ejecutó SQL por el agente. | Completadas y validadas según confirmación del equipo | Pendiente de registrar por Angélica |
 | 2026-10-11 | T-5.4 | Lista completa de diagnósticos con campos opcionales, estado textual, fechas semánticas, loading/error/vacío/resultados y acciones por autoría. Reintentos y lecturas coalescidas; reconciliación confirmada sin recargas; orden con microsegundos e id. Paginación local a 20 exigida por SPEC §12.8, con lectura completa por rangos y conteo para evitar truncamiento API. 23 tests nuevos, 45 del módulo y 250 totales aprobados; build correcto; lint sin errores y 15 warnings externos existentes. Checklist manual preparada. Sin SQL, cambios Supabase ni commits. | Implementada; pendiente validación manual de lista, paginación, reintentos y accesibilidad | Pendiente de registrar por Angélica |
+
+## Registro automático (Git)
+
+Cada fila la agrega sola el hook `post-commit` (ver `docs/bitacoras/README.md`).
+No editar a mano entre los marcadores: la próxima automática puede pisar el formato.
+
+<!-- AUTO-LOG:START -->
+| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
+|---|---|---|---|
+<!-- AUTO-LOG:END -->

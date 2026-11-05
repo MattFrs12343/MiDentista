@@ -163,3 +163,13 @@ Repaso de todo lo marcado `[x]`/`[~]` para separar **implementado**, **probado**
 | 2026-10-14 | M0X | Verificación integral de lo marcado: `node --test src/features/**/*.test.ts` → 95/95; `npm run build` y `npm run lint` en verde. M02/08 implementados y probados a nivel unitario; M09 parcial. Se separó implementado/probado de pendiente (integración de rutas/pestañas y RLS, a cargo del PO) | Verificado | 3 |
 | 2026-10-14 | M08 | Confirmado que `PresupuestosPage` no tiene ruta en `App.tsx` ni entrada activa en `Sidebar.tsx`; RLS de `servicios`/`presupuestos`/`items_presupuesto` sigue sin aplicar en `bd_5clinicas_midentista.sql` | Pendiente (integración) | 1 |
 | 2026-10-14 | M09 | Revisión de los IDs de Bianca en el Módulo 09: T-9.4/9.6/9.8 hechos; T-9.5/9.7 dependen de la unión con el M08 (`totalPresupuestado` placeholder `0`) y del paso confirmar/rechazar; T-9.1 sin RLS ni propuesta. Falta `PagosPage.tsx` y `PartialPayment.tsx` (tramo de Carlos) | Parcial | 3 |
+
+## Registro automático (Git)
+
+Cada fila la agrega sola el hook `post-commit` (ver `docs/bitacoras/README.md`).
+No editar a mano entre los marcadores: la próxima automática puede pisar el formato.
+
+<!-- AUTO-LOG:START -->
+| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
+|---|---|---|---|
+<!-- AUTO-LOG:END -->

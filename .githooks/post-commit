@@ -1,0 +1,16 @@
+#!/bin/sh
+# Autogenerado: ver docs/bitacoras/README.md ("Actualizacion automatica").
+# Activar una vez por clon con:
+#   git config core.hooksPath .githooks
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$ROOT" ]; then
+  exit 0
+fi
+
+if command -v node >/dev/null 2>&1; then
+  node "$ROOT/scripts/log-bitacora.cjs"
+else
+  echo "[bitacora-auto] node no esta en el PATH, no se pudo actualizar la bitacora." >&2
+fi
+
+exit 0

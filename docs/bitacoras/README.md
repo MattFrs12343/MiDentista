@@ -66,3 +66,43 @@ Cada entrada de la tabla "Registro de avance" de tu archivo debe tener:
 
 No dupliques aquí la definición de las historias/tareas — esa vive en
 `docs/modules/`. La bitácora es solo el registro de *quién hizo qué y cuándo*.
+
+## Actualización automática (Git)
+
+Cada bitácora tiene, además del "Registro de avance" manual de arriba, una
+sección **"Registro automático (Git)"** al final del archivo. Esa tabla la
+llena sola un hook de git en cada commit — nadie la edita a mano.
+
+**Cómo funciona:**
+
+1. El hook `post-commit` (en `.githooks/post-commit`, versionado en el repo)
+   corre después de cada commit.
+2. Llama a `scripts/log-bitacora.cjs`, que lee el autor, la fecha, el mensaje
+   y los archivos del commit recién hecho.
+3. Según el email/nombre del autor, identifica a quién corresponde (`matias`,
+   `melissa`, `bianca`, `carlos`, `lucas` o `angelica`) y agrega una fila con
+   **Fecha y hora | Usuario | Descripción del cambio | Archivos modificados**
+   en `docs/bitacoras/<persona>.md`.
+4. Esa fila se guarda en un **commit aparte**, automático, con mensaje
+   `chore(bitacora-auto): registrar cambio de <Nombre> (<hash>)`. Así el
+   commit original queda limpio y la bitácora se actualiza sin que nadie
+   tenga que acordarse de hacerlo.
+5. Si el autor no coincide con nadie conocido, la fila cae en
+   `docs/bitacoras/_sin-identificar.md` y el hook avisa en la consola qué
+   email agregar al mapa (`EMAIL_MAP` en `scripts/log-bitacora.cjs`).
+
+**Activarlo (una sola vez por clon del repo):**
+
+```sh
+git config core.hooksPath .githooks
+```
+
+Requiere `node` en el `PATH` (ya es un requisito del proyecto, ver
+[`SETUP.md`](../SETUP.md)). Si falta, el hook no rompe el commit: solo avisa
+por consola que no pudo actualizar la bitácora.
+
+**Límite conocido:** la identificación es por email/nombre de git, no por
+persona real. Bianca y Carlos no tienen cuentas de git separadas todavía
+(ver commits de "Derek598"); mientras eso no se resuelva, sus commits deben
+hacerse con `git config user.name`/`user.email` reconocibles, o revisar
+`_sin-identificar.md` después de commitear.

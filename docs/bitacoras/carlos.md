@@ -77,3 +77,13 @@
 | 2026-10-15 | T-6.6 | Estado tras revisión: mi vinculación de la evolución con el plan está completa (acepta `planTratamientoId`/`procedimientoId` con UUIDs estrictos; el selector de plan/procedimiento ya está en origin/main, en `CarlosBianca` no). La actualización del progreso del plan sigue pendiente de integración por el responsable del Módulo 05 | en progreso | 1 |
 | 2026-10-15 | T-9.1 | Estado tras revisión: la tabla `pagos` y sus políticas RLS (`pagos_select_superadmin`, `pagos_select_staff`, `pagos_insert_staff`, `pagos_update_staff`) ya están integradas en el código de origin/main (`bd_5clinicas_midentista.sql`), según verificación del repositorio. No se comprobó su aplicación en producción, así que no se afirma que estén activas en la BD | en progreso | 1 |
 | 2026-10-15 | REVIEW | Revisión del PR de Bianca (Módulo 08): sigue pendiente porque no existe un PR abierto; todavía no hay nada que revisar | pendiente | 1 |
+
+## Registro automático (Git)
+
+Cada fila la agrega sola el hook `post-commit` (ver `docs/bitacoras/README.md`).
+No editar a mano entre los marcadores: la próxima automática puede pisar el formato.
+
+<!-- AUTO-LOG:START -->
+| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
+|---|---|---|---|
+<!-- AUTO-LOG:END -->

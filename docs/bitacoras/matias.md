@@ -125,3 +125,13 @@ cambio de esquema antes de que el equipo lo aplique.
 > [`docs/modules/01-auth-onboarding/sql.sql`](../modules/01-auth-onboarding/sql.sql)
 > en `bd_5clinicas_midentista.sql` y desplegar la Edge Function
 > (`supabase functions deploy api`) para que el flujo funcione contra Supabase.
+
+## Registro automático (Git)
+
+Cada fila la agrega sola el hook `post-commit` (ver `docs/bitacoras/README.md`).
+No editar a mano entre los marcadores: la próxima automática puede pisar el formato.
+
+<!-- AUTO-LOG:START -->
+| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
+|---|---|---|---|
+<!-- AUTO-LOG:END -->
