@@ -16,6 +16,7 @@ import { SectionTransition } from "@/components/layout/section-transition";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { useAuth } from "@/features/auth/AuthContext";
 import { PortalPacienteProvider } from "@/features/portal-paciente/PortalPacienteContext";
+import { AsistenteSintomasFlotante } from "@/features/portal-paciente/AsistenteSintomasFlotante";
 import { cn } from "@/lib/cn";
 
 const NAVEGACION = [
@@ -132,6 +133,8 @@ export function PortalPacienteLayout() {
             <Outlet />
           </SectionTransition>
         </main>
+
+        <AsistenteSintomasFlotante />
       </div>
     </PortalPacienteProvider>
   );

@@ -348,6 +348,11 @@ export function BuscarClinicaPage() {
     />
   ) : null;
 
+  // Capturado antes de afiliarse: decide si al terminar corresponde el
+  // wizard de síntomas (solo en la primera afiliación, nunca en un cambio de
+  // clínica — ver docs/modules/17-asistente-ia/README.md pieza A).
+  const esPrimeraAfiliacion = !yaAfiliado;
+
   const dialogoAfiliacion = seleccionada ? (
     <DialogAfiliacion
       clinica={seleccionada}
@@ -360,7 +365,7 @@ export function BuscarClinicaPage() {
       onExito={async () => {
         await refrescarSesion();
         await recargar();
-        navigate("/portal", { replace: true });
+        navigate(esPrimeraAfiliacion ? "/portal/sintomas" : "/portal", { replace: true });
       }}
     />
   ) : null;

@@ -177,6 +177,23 @@ create table if not exists public.historiales_clinicos (
 alter table public.historiales_clinicos add column if not exists antecedentes_familiares text;
 alter table public.historiales_clinicos add column if not exists actualizado_por text;
 
+-- 2.5.1 prediagnosticos_sintomas — Módulo 17 MiDentista IA (pieza A).
+-- Snapshot inmutable del wizard de síntomas (docs/modules/17-asistente-ia/
+-- arbol-sintomas.md), guardado una sola vez en el primer ingreso al portal.
+-- Sin UPDATE/DELETE a propósito: es un registro de punto en el tiempo.
+create table if not exists public.prediagnosticos_sintomas (
+    id              uuid primary key default gen_random_uuid(),
+    clinica_id      uuid not null references public.clinicas(id) on delete cascade,
+    paciente_id     uuid not null references public.pacientes(id) on delete cascade,
+    -- Array de SintomaId (ver sintomasArbol.ts), ej. ["dolor_muela", "fiebre"].
+    sintomas        jsonb not null default '[]'::jsonb,
+    intensidad      text check (intensidad in ('leve', 'moderado', 'severo')),
+    duracion        text check (duracion in ('horas', 'dias', 'mas_dias')),
+    severidad       text not null check (severidad in ('emergencia', 'urgente', 'rutina')),
+    creado_en       timestamptz default now()
+);
+create index if not exists idx_prediagnosticos_paciente on public.prediagnosticos_sintomas (paciente_id);
+
 -- 2.6 odontogramas (piezas en JSONB)
 create table if not exists public.odontogramas (
     id              uuid primary key default gen_random_uuid(),
@@ -913,6 +930,15 @@ create policy historiales_insert on public.historiales_clinicos for insert
 drop policy if exists historiales_update on public.historiales_clinicos;
 create policy historiales_update on public.historiales_clinicos for update
   using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+
+-- prediagnosticos_sintomas: solo select + insert (sin update/delete a propósito).
+alter table public.prediagnosticos_sintomas enable row level security;
+drop policy if exists prediagnosticos_select on public.prediagnosticos_sintomas;
+create policy prediagnosticos_select on public.prediagnosticos_sintomas for select
+  using (clinica_id = public.mi_clinica_id() or public.es_superadmin());
+drop policy if exists prediagnosticos_insert on public.prediagnosticos_sintomas;
+create policy prediagnosticos_insert on public.prediagnosticos_sintomas for insert
+  with check (clinica_id = public.mi_clinica_id() or public.es_superadmin());
 
 -- odontogramas
 alter table public.odontogramas enable row level security;

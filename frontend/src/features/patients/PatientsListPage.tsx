@@ -11,13 +11,19 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { usePageHeader } from "@/components/layout/PageHeaderContext";
 import { useClinicaData } from "@/data/store";
+import { useAuth } from "@/features/auth/AuthContext";
 import { PatientForm } from "@/features/patients/PatientForm";
 import { PatientsTable } from "@/features/patients/PatientsTable";
+import { ReporteImprimible } from "@/features/reportes/ReporteImprimible";
+import { BotonesReporte } from "@/features/reportes/BotonesReporte";
 
 const POR_PAGINA = 20;
 
+const COLUMNAS_REPORTE_PACIENTES = ["Nombre completo", "CI", "Teléfono", "Correo", "Dirección", "Registrado el"] as const;
+
 export function PatientsListPage() {
   const { pacientes, registrarPaciente } = useClinicaData();
+  const { sesion } = useAuth();
   const [busqueda, setBusqueda] = useState("");
   const [pagina, setPagina] = useState(1);
   const [busquedaVista, setBusquedaVista] = useState("");
@@ -47,6 +53,21 @@ export function PatientsListPage() {
         .includes(q),
     );
   }, [pacientes, busqueda]);
+
+  // Reporte (módulo 17, pieza C): exporta lo filtrado, no solo la página
+  // visible — paginar es una cuestión de pantalla, no de qué incluye el reporte.
+  const filasReporte = useMemo(
+    () =>
+      filtrados.map((p) => [
+        `${p.nombres} ${p.apellidos}`,
+        p.ci,
+        p.telefono,
+        p.email,
+        p.direccion,
+        p.creadoEl,
+      ]),
+    [filtrados],
+  );
 
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
   const paginaSegura = Math.min(pagina, totalPaginas);
@@ -139,6 +160,12 @@ export function PatientsListPage() {
             />
           </DialogContent>
         </Dialog>
+
+        <BotonesReporte
+          nombreArchivoCsv="pacientes.csv"
+          columnas={COLUMNAS_REPORTE_PACIENTES}
+          filas={filasReporte}
+        />
       </SectionToolbar>
 
       {filtrados.length === 0 ? (
@@ -194,6 +221,13 @@ export function PatientsListPage() {
           )}
         </>
       )}
+
+      <ReporteImprimible
+        titulo="REPORTE DE PACIENTES"
+        clinica={sesion?.clinica}
+        columnas={COLUMNAS_REPORTE_PACIENTES}
+        filas={filasReporte}
+      />
     </div>
   );
 }

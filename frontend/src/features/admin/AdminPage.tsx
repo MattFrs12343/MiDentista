@@ -51,7 +51,11 @@ import {
   type TamanoBaseDatos,
 } from "@/data/api";
 import { listarBitacora, type EntradaBitacora } from "./bitacoraService";
+import { ReporteImprimible } from "@/features/reportes/ReporteImprimible";
+import { BotonesReporte } from "@/features/reportes/BotonesReporte";
 import type { Role } from "@/types";
+
+const COLUMNAS_REPORTE_PERSONAL = ["Nombre", "Correo", "Rol", "Clínica", "Estado"] as const;
 
 const ROLES_INVITABLES: Role[] = ["odontologo", "odontologo_admin", "recepcionista", "superadmin"];
 
@@ -199,11 +203,36 @@ export function AdminPage() {
     ];
   }, [personal, clinicas, tamanoBd, cargandoTamano]);
 
+  // Reporte de personal (módulo 17, pieza C): el superadmin es el único rol
+  // cuyo reporte cruza todas las clínicas a propósito — el resto solo ve la
+  // propia (RLS real en cada consulta de `personal`/`clinicas` ya lo acota).
+  const filasReportePersonal = useMemo(
+    () =>
+      personal.map((p) => [
+        p.nombre,
+        p.email,
+        ROLE_LABEL[p.rol],
+        p.clinica ?? "Sin clínica (superadmin)",
+        p.invitacionPendiente ? "Invitación pendiente" : p.activo ? "Activo" : "Inactivo",
+      ]),
+    [personal],
+  );
+
   return (
     <div className="flex flex-col gap-5">
       {!cargando && !errorLista ? <SectionStatStrip metrics={metricas} className="fade-in-up" /> : null}
 
       <TarjetaBaseDatos datos={tamanoBd} cargando={cargandoTamano} />
+
+      {!cargando && !errorLista ? (
+        <div className="flex items-center justify-end">
+          <BotonesReporte
+            nombreArchivoCsv="personal-midentista.csv"
+            columnas={COLUMNAS_REPORTE_PERSONAL}
+            filas={filasReportePersonal}
+          />
+        </div>
+      ) : null}
 
       {cargando ? (
         <div className="flex items-center gap-2 py-6 text-sm text-ink-muted">
@@ -302,6 +331,13 @@ export function AdminPage() {
 
       <InvitarDialog open={invitarAbierto} onOpenChange={setInvitarAbierto} clinicas={clinicas} onInvitado={cargar} />
       <CrearClinicaDialog open={crearClinicaAbierto} onOpenChange={setCrearClinicaAbierto} onCreada={cargar} />
+
+      <ReporteImprimible
+        titulo="REPORTE DE PERSONAL"
+        clinica={null}
+        columnas={COLUMNAS_REPORTE_PERSONAL}
+        filas={filasReportePersonal}
+      />
     </div>
   );
 }

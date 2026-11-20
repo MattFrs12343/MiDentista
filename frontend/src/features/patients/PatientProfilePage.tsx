@@ -21,6 +21,7 @@ import { esTabValida } from "@/features/patients/tabValue";
 import { PatientFilesSection } from "@/features/archivos/PatientFilesSection.tsx";
 import { usePacienteTratamiento } from "@/features/treatment/usePacienteTratamiento.ts";
 import { Button } from "@/components/ui/button";
+import { PrediagnosticoBanner } from "@/features/portal-paciente/PrediagnosticoBanner";
 
 export function PatientProfilePage() {
   const { pacienteId } = useParams<{ pacienteId: string }>();
@@ -100,6 +101,7 @@ export function PatientProfilePage() {
   return (
     <div className="flex flex-col gap-6 fade-in-up">
       <PatientHero paciente={paciente} />
+      <PrediagnosticoBanner pacienteId={paciente.id} />
 
       <Tabs
         value={tabActiva}

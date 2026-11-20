@@ -49,6 +49,9 @@ const PortalHomePage = lazy(() =>
 const BuscarClinicaPage = lazy(() =>
   import("@/features/portal-paciente/BuscarClinicaPage").then((m) => ({ default: m.BuscarClinicaPage })),
 );
+const SintomasWizardPage = lazy(() =>
+  import("@/features/portal-paciente/SintomasWizardPage").then((m) => ({ default: m.SintomasWizardPage })),
+);
 const MiHistoriaPage = lazy(() =>
   import("@/features/portal-paciente/MiHistoriaPage").then((m) => ({ default: m.MiHistoriaPage })),
 );
@@ -118,6 +121,9 @@ export default function App() {
             >
               <Route index element={<PortalHomePage />} />
               <Route path="buscar" element={<BuscarClinicaPage />} />
+              {/* Wizard de síntomas (módulo 17, pieza A): se llega acá una sola
+                  vez, justo tras la primera afiliación — ver BuscarClinicaPage. */}
+              <Route path="sintomas" element={<SintomasWizardPage />} />
               {/* La cita es la accion que el paciente mas busca, asi que tiene
                   ruta propia y no comparte pantalla con la historia clinica. */}
               <Route path="citas" element={<MisCitasPage />} />

@@ -22,6 +22,11 @@ export function PrintDocument({
   clinica,
   paciente,
   ariaLabel,
+  // Los reportes administrativos (módulo 17, pieza C) no son un documento
+  // clínico de un paciente: no tiene sentido pedir firma de un odontólogo
+  // responsable. Por defecto `true` para no cambiar nada en los 4
+  // documentos clínicos que ya usan este componente.
+  firma = true,
   children,
 }: {
   /** Título del documento, ej. "HISTORIA CLÍNICA ODONTOLÓGICA". */
@@ -34,6 +39,7 @@ export function PrintDocument({
   /** Si se pasa, renderiza el bloque "Datos del paciente" reutilizable. */
   paciente?: Paciente;
   ariaLabel?: string;
+  firma?: boolean;
   children?: ReactNode;
 }) {
   return createPortal(
@@ -51,13 +57,15 @@ export function PrintDocument({
 
       {children}
 
-      <footer className="print-doc-signature">
-        <div className="print-doc-signature-line" />
-        <p>
-          <span>Odontólogo responsable</span>
-          <span>Firma y sello</span>
-        </p>
-      </footer>
+      {firma ? (
+        <footer className="print-doc-signature">
+          <div className="print-doc-signature-line" />
+          <p>
+            <span>Odontólogo responsable</span>
+            <span>Firma y sello</span>
+          </p>
+        </footer>
+      ) : null}
     </article>,
     document.body,
   );

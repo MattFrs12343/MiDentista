@@ -7,6 +7,7 @@ import { PageHeaderProvider } from "@/components/layout/PageHeaderContext";
 import { AppBackground } from "@/components/ui/app-background";
 import { SectionTransition } from "@/components/layout/section-transition";
 import { useAuth } from "@/features/auth/AuthContext";
+import { AsistenteFlotante } from "@/features/asistente-ia/AsistenteFlotante";
 
 /* Mismas cinco secciones que `Sidebar` (fuente de navegación de escritorio),
  * con la "pista" que pide `MobileTabBar` para la hoja. No se reusa el array
@@ -83,6 +84,7 @@ export function AppShell() {
           />
         )}
       </div>
+      <AsistenteFlotante />
     </PageHeaderProvider>
   );
 }
