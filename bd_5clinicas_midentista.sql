@@ -335,6 +335,9 @@ create table if not exists public.pagos (
     creado_en           timestamptz default now()
 );
 
+-- Red de seguridad para bases ya inicializadas con una version anterior.
+alter table public.pagos add column if not exists motivo text;
+
 -- ============================================================================
 -- 3. ÍNDICES
 -- ============================================================================

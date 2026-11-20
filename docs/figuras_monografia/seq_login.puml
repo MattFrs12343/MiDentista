@@ -1,25 +1,34 @@
 @startuml seq_login
 skinparam shadowing false
 skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+skinparam dpi 150
 autonumber
 
-title Inicio de sesion de un usuario
+title Inicio de sesión de un usuario
 
-actor Usuario as U
-participant "SPA (React)" as SPA
-participant "Supabase Auth" as AUTH
-database "PostgreSQL" as DB
+actor "Usuario" as U
+boundary "SPA (React)" as SPA
+control "Supabase Auth" as AUTH
+entity "PostgreSQL" as DB
 
-U -> SPA : email + contrasena
-SPA -> AUTH : signInWithPassword(email, password)
-alt Credenciales validas
+U -> SPA : correo electrónico y contraseña
+activate SPA
+SPA -> AUTH : signInWithPassword(correo, contraseña)
+activate AUTH
+alt Credenciales válidas
   AUTH -->> SPA : access_token (JWT) + refresh_token
-  SPA -> DB : listas con token + authorization header
-  DB -> DB : RLS (obtener_clinica_usuario / obtener_rol_usuario)
-  DB -->> SPA : datos filtrados por clinica y rol
-  SPA -->> U : pantalla principal del rol
-else Credenciales invalidas
-  AUTH -->> SPA : error 400 (invalid_credentials)
-  SPA -->> U : mensaje de error en pantalla
+  deactivate AUTH
+  SPA -> DB : consultar perfil con el JWT
+  activate DB
+  DB -> DB : RLS: obtener_clinica_usuario()\ny obtener_rol_usuario()
+  DB -->> SPA : perfil filtrado por clínica y rol
+  deactivate DB
+  SPA -->> U : panel principal según el rol
+else Credenciales inválidas
+  AUTH -->> SPA : error 400 invalid_credentials
+  deactivate AUTH
+  SPA -->> U : mensaje «Correo o contraseña incorrectos»
 end
+deactivate SPA
 @enduml

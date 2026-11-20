@@ -11,7 +11,7 @@ import {
 import type { Decimal, EstadoCuenta, EstadoPago, Pago } from "./tipos.ts";
 
 const COLUMNAS =
-  "id,clinica_id,paciente_id,presupuesto_id,monto,metodo_pago,fecha_pago,codigo_referencia,notas,estado,registrado_por,creado_en";
+  "id,clinica_id,paciente_id,presupuesto_id,monto,metodo_pago,fecha_pago,codigo_referencia,notas,motivo,estado,registrado_por,creado_en";
 
 function exigirUuid(valor: string, campo: string) {
   if (!esUuid(valor)) {

@@ -1,0 +1,49 @@
+@startuml seq_cita
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+skinparam dpi 150
+autonumber
+
+title Agendamiento de una cita odontológica
+
+actor "Recepcionista" as R
+actor "Paciente" as P
+boundary "CalendarioAgenda" as CAL
+control "Gestor de agenda" as SVC
+entity "Cita" as CITA
+entity "Horario" as HOR
+database "PostgreSQL" as DB
+
+R -> CAL : elegir paciente, odontólogo y fecha
+activate CAL
+CAL -> SVC : consultar disponibilidad
+activate SVC
+SVC -> DB : SELECT horarios y citas del día
+activate DB
+DB -->> SVC : bloques ocupados
+deactivate DB
+SVC -->> CAL : bloques libres
+deactivate SVC
+R -> CAL : seleccionar hora y confirmar
+CAL -> SVC : crearCita(paciente, odontólogo, fecha, hora)
+activate SVC
+SVC -> DB : verificar solapamiento
+activate DB
+DB -->> SVC : resultado de la verificación
+deactivate DB
+alt Horario libre
+  SVC -> DB : INSERT citas (estado = reservada)
+  activate DB
+  DB -->> SVC : cita creada
+  deactivate DB
+  SVC -->> CAL : cita reservada
+  CAL -->> R : confirmación de la reserva
+  CAL -->> P : aviso de cita programada
+else Horario ocupado
+  SVC -->> CAL : conflicto de horario
+  CAL -->> R : solicitar otra fecha u hora
+end
+deactivate SVC
+deactivate CAL
+@enduml

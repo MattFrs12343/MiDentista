@@ -12,6 +12,7 @@ export interface PagoFila {
   fecha_pago: string | null;
   codigo_referencia: string | null;
   notas: string | null;
+  motivo: string | null;
   estado: string | null;
   registrado_por: string | null;
   creado_en: string | null;
@@ -47,6 +48,7 @@ export function pagoDesdeFila(fila: PagoFila): Pago {
     fechaPago: fila.fecha_pago ?? new Date().toISOString().slice(0, 10),
     codigoReferencia: fila.codigo_referencia,
     notas: fila.notas ?? "",
+    motivo: fila.motivo ?? "",
     estado: estadoDesdeTexto(fila.estado),
     registradoPor: fila.registrado_por,
     creadoEl: fila.creado_en ?? "",
@@ -63,6 +65,7 @@ export function pagoParaGuardar(pago: Pago): PagoPayload {
     fecha_pago: pago.fechaPago,
     codigo_referencia: pago.codigoReferencia,
     notas: pago.notas,
+    motivo: pago.motivo,
     estado: pago.estado,
     registrado_por: pago.registradoPor,
   };

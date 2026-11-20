@@ -90,6 +90,7 @@ export function PaymentHistory({ pagos, error, puedeConfirmar = false, guardando
                   <th scope="col" className="px-4 py-2.5 font-semibold">Fecha</th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">Monto</th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">Método</th>
+                  <th scope="col" className="px-4 py-2.5 font-semibold">Motivo</th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">Estado</th>
                   <th scope="col" className="px-4 py-2.5 font-semibold">Referencia</th>
                   {puedeConfirmar ? (
@@ -109,6 +110,7 @@ export function PaymentHistory({ pagos, error, puedeConfirmar = false, guardando
                       {formatearMoneda(pago.monto)}
                     </td>
                     <td className="px-4 py-2.5 text-ink-soft">{METODO_ETIQUETA[pago.metodoPago]}</td>
+                    <td className="px-4 py-2.5 text-ink-muted">{pago.motivo || "—"}</td>
                     <td className="px-4 py-2.5">
                       <Badge tone={ESTADO_TONE[pago.estado]}>{ESTADO_ETIQUETA[pago.estado]}</Badge>
                     </td>

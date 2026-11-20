@@ -29,6 +29,8 @@ export interface Pago {
   fechaPago: string;
   codigoReferencia: string | null;
   notas: string;
+  /** Motivo del cobro (p. ej. "Abono plan de tratamiento"). */
+  motivo: string;
   estado: EstadoPago;
   /** Quién registró el pago: recepción normalmente, no el odontólogo. */
   registradoPor: string | null;

@@ -1,0 +1,45 @@
+@startuml seq_presupuesto
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+skinparam dpi 150
+autonumber
+
+title Elaboración de un presupuesto a partir del plan de tratamiento
+
+actor "Odontólogo" as O
+boundary "PresupuestoForm" as FORM
+control "presupuestoService" as SVC
+entity "Presupuesto" as PRE
+entity "Servicio" as SERV
+database "PostgreSQL" as DB
+
+O -> FORM : crear presupuesto desde el plan de tratamiento
+activate FORM
+FORM -> SVC : cargar procedimientos del plan
+activate SVC
+SVC -> DB : SELECT procedimientos y servicios
+activate DB
+DB -->> SVC : procedimientos con precio de catálogo
+deactivate DB
+SVC -->> FORM : partidas precargadas
+deactivate SVC
+FORM -->> O : ítems y total preliminar
+O -> FORM : ajustar cantidades y descuento
+FORM -> FORM : calcular subtotal, descuento y total
+alt Existe al menos una partida
+  FORM -> SVC : guardarPresupuesto(cabecera, items)
+  activate SVC
+  SVC -> SVC : recalcular el total en el servidor
+  SVC -> DB : INSERT presupuestos + items_presupuesto
+  activate DB
+  DB -->> SVC : presupuesto creado (estado emitido)
+  deactivate DB
+  SVC -->> FORM : número, total y estado
+  deactivate SVC
+  FORM -->> O : presupuesto listo para enviar al paciente
+else Sin partidas
+  FORM -->> O : no se puede emitir un presupuesto vacío
+end
+deactivate FORM
+@enduml

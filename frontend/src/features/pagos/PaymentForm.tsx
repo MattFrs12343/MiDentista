@@ -67,6 +67,7 @@ export function PaymentForm({
   const [metodoPago, setMetodoPago] = useState<MetodoPago>("efectivo");
   const [fechaPago, setFechaPago] = useState(hoyIso);
   const [codigoReferencia, setCodigoReferencia] = useState("");
+  const [motivo, setMotivo] = useState("");
   const [notas, setNotas] = useState("");
   const [fallo, setFallo] = useState<string | null>(null);
 
@@ -102,6 +103,7 @@ export function PaymentForm({
       fechaPago,
       codigoReferencia: referencia ? referencia : null,
       notas: notas.trim(),
+      motivo: motivo.trim(),
       estado: "pendiente",
       registradoPor,
       creadoEl: "",
@@ -179,6 +181,17 @@ export function PaymentForm({
                     onChange={(e) => setFechaPago(e.target.value)}
                     disabled={guardando}
                     required
+                  />
+                </Field>
+
+                <Field label="Motivo" htmlFor="pago-motivo" hint="Opcional.">
+                  <Input
+                    id="pago-motivo"
+                    type="text"
+                    placeholder="Ej. Abono plan de tratamiento"
+                    value={motivo}
+                    onChange={(e) => setMotivo(e.target.value)}
+                    disabled={guardando}
                   />
                 </Field>
 

@@ -1,0 +1,48 @@
+@startuml seq_evolucion
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+skinparam dpi 150
+autonumber
+
+title Registro de la evolución clínica de un paciente
+
+actor "Odontólogo" as O
+boundary "EvolutionTab" as TAB
+control "evolucionService" as SVC
+entity "Evolución clínica" as EVO
+entity "Plan de tratamiento" as PLAN
+database "PostgreSQL" as DB
+
+O -> TAB : abrir la pestaña Evolución del paciente
+activate TAB
+TAB -> SVC : cargarEvoluciones(pacienteId)
+activate SVC
+SVC -> DB : SELECT evoluciones_clinicas
+activate DB
+DB -->> SVC : evoluciones ordenadas por fecha
+deactivate DB
+SVC -->> TAB : línea de tiempo
+deactivate SVC
+TAB -->> O : historial cronológico
+O -> TAB : registrar evolución (fecha, descripción y próxima atención)
+TAB -> TAB : validar fecha y campos obligatorios
+alt Datos válidos
+  TAB -> SVC : guardarEvolucion(datos)
+  activate SVC
+  SVC -> DB : INSERT evoluciones_clinicas
+  activate DB
+  DB -->> SVC : evolución creada
+  deactivate DB
+  SVC -> DB : SELECT plan de tratamiento (solo lectura)
+  activate DB
+  DB -->> SVC : plan y procedimientos asociados
+  deactivate DB
+  SVC -->> TAB : evolución confirmada
+  deactivate SVC
+  TAB -->> O : confirmación y línea de tiempo actualizada
+else Datos inválidos
+  TAB -->> O : mensaje de validación
+end
+deactivate TAB
+@enduml

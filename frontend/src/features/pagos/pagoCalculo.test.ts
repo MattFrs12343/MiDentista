@@ -25,6 +25,7 @@ function fila(monto: Decimal, estado: EstadoPago): Pago {
     fechaPago: "2026-10-01",
     codigoReferencia: null,
     notas: "",
+    motivo: "",
     estado,
     registradoPor: null,
     creadoEl: "2026-10-01T10:00:00Z",
