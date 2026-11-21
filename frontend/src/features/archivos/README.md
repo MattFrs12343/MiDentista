@@ -2,7 +2,56 @@
 
 **Dueña: Angélica.** Carpeta con escritura exclusiva: `frontend/src/features/archivos/`.
 
-## Estado final — 2026-10-14
+## Ciclo 4 — cuota y auditoría (implementación local)
+
+La referencia técnica y el procedimiento de activación/defensa están en
+`docs/modules/10-archivos/README.md`, sección Ciclo 4. No se aplicó SQL remoto
+ni se desplegó backend. **El frontend nuevo requiere la migración y la función
+`archivos`; no hay fallback de escritura directa.**
+
+- 5 GB decimales = **5.000.000.000 bytes**, configurables por clínica en BD.
+  No son 5 GiB (5.368.709.120 bytes). Sigue el máximo individual de 10 MiB.
+- Alcance: objetos vigentes de `archivos-clinica`, no `qr-cobros` ni archivados.
+- `archivoService.ts`: mismas entradas subirArchivo/subirDocumento, preflight
+  y resultado Archivo. Envía File/paciente/operación/destino a Edge Function.
+  No hace upload/INSERT directo ni compensación destructiva. La ruta y categoría
+  autoritativas las deriva el backend. Conserva causas/operacionId ante incertidumbre.
+- Backend: JWT, perfil activo, clínica/paciente reales, asociación bajo RLS del
+  usuario, MIME/extensión/cabecera, tamaño real y hash. RPC reserva con FOR UPDATE
+  antes de Storage; un único upload por operación, confirmación atómica de SQL/cupo.
+- Timeout/409/5xx no liberan reserva. Repetir una operación no duplica bytes ni
+  transferencia. No se relajan permisos de recepción/evoluciones ni otros roles.
+- `archivoCuotaService.ts`, `useCuotaArchivos.ts`, `CuotaArchivos.tsx`: resumen
+  autorizado de uso/disponible/reservas. PatientFilesSection refresca tras éxito.
+  Los errores de lectura no se convierten en cuota cero; el backend siempre valida.
+- Contabilidad conservadora: bajas/borrados externos no reducen cupo por sí solos.
+  El inventario inicial incluye objetos anteriores sin metadata. Una reconciliación
+  reductora y la limpieza quedan fuera de este ciclo.
+- `archivoAuditoriaService.ts` solicita reporte superadmin. Tipo A: objeto sin fila;
+  B: fila sin objeto vigente. Pendientes/menos de 24 h, error o inventario incompleto
+  son indeterminados. Consulta de catálogo MVCC, no prueba de bytes físicos.
+- `archivoHuerfanos.ts` permite probar el cruce puro sin red ni escrituras.
+  El backend aplica el mismo criterio directamente en SQL para evitar paginación
+  incompleta. Más de 5000 candidatos devuelve indeterminado, no éxito parcial.
+- `ArchivosAuditoriaPanel.tsx` está integrado en AdminPage, en “Auditoría de archivos”
+  después de Bitácora, solo para superadmin. Sin botón de borrado ni llamadas remove.
+- No se modifican formularios, wrappers, mapper, visor, galería, descarga ni URLs.
+  La función histórica eliminarArchivo no participa en esta tarea ni en el reporte.
+
+Validación desde raíz:
+`node --test "frontend/src/features/archivos/*.test.ts" "supabase/functions/archivos/*.test.ts"`.
+Build/lint desde frontend. Prueba SQL efímera opcional y verificador manual en docs.
+Validación local actual: 187 tests módulo/backend; suite completa 697/697 desde
+frontend con `--test-concurrency=1`; SQL efímero 8/8; Deno check y build correctos;
+lint sin errores (21 advertencias existentes fuera del módulo).
+La defensa usa cuota pequeña SOLO en una clínica descartable; se prueban 5 GB
+numéricamente y no se suben 5 GB físicos. No alterar tamano ni contadores reales.
+No hay borrado automático: los candidatos requieren investigación administrativa.
+
+## Registro histórico T-10.1–T-10.10 — 2026-10-14
+
+Las secciones históricas siguientes describen el cierre anterior. Donde hablan
+de subida directa, compensación o cuota pendiente, prevalece el contrato Ciclo 4.
 
 T-10.1 a T-10.10 completadas e implementadas/validadas según confirmación final
 del equipo: tabla/RLS, bucket privado, selector de archivos, subida de imágenes
@@ -11,11 +60,8 @@ integración en ficha funcionando. La migración y verificación T-10.9 están
 aplicadas y validadas según esa confirmación; esta auditoría no ejecuta SQL ni
 consulta/modifica Supabase. Las cifras de pruebas de cada sección son históricas.
 
-Pendiente funcional separado: cuota global configurable de 5 GB por clínica,
-NO implementada y reservada para una etapa posterior. Se mantiene el límite
-actual de 10 MiB por archivo. Limpieza durable de posibles huérfanos de Storage:
-deuda técnica no bloqueante; no se garantiza atomicidad entre SQL y Storage.
-El cierre de estas diez tareas no implica implementar la cuota ni esa limpieza.
+En aquel cierre estaban pendientes cuota y detección durable; ahora implementadas
+localmente en Ciclo 4. La limpieza sigue fuera de alcance. Se conservan los 10 MiB.
 
 Auditoría local final: 146 tests aprobados, 0 fallidos con
 `node --test "src/features/archivos/*.test.ts"`; `npm.cmd run build` correcto;

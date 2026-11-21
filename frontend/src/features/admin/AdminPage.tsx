@@ -53,6 +53,7 @@ import {
 import { listarBitacora, type EntradaBitacora } from "./bitacoraService";
 import { ReporteImprimible } from "@/features/reportes/ReporteImprimible";
 import { BotonesReporte } from "@/features/reportes/BotonesReporte";
+import { ArchivosAuditoriaPanel } from "@/features/archivos/ArchivosAuditoriaPanel.tsx";
 import type { Role } from "@/types";
 
 const COLUMNAS_REPORTE_PERSONAL = ["Nombre", "Correo", "Rol", "Clínica", "Estado"] as const;
@@ -257,6 +258,9 @@ export function AdminPage() {
               Administradores{administradores.length > 0 ? ` (${administradores.length})` : ""}
             </TabsTrigger>
             <TabsTrigger value="bitacora">Bitácora</TabsTrigger>
+            {sesion?.rol === "superadmin" ? (
+              <TabsTrigger value="auditoria-archivos">Auditoría de archivos</TabsTrigger>
+            ) : null}
           </TabsList>
 
           <TabsContent value="clinicas" className="flex flex-col gap-4">
@@ -326,6 +330,11 @@ export function AdminPage() {
           <TabsContent value="bitacora" className="flex flex-col gap-4">
             <BitacoraSection />
           </TabsContent>
+          {sesion?.rol === "superadmin" ? (
+            <TabsContent value="auditoria-archivos" className="flex flex-col gap-4">
+              <ArchivosAuditoriaPanel rol={sesion.rol} />
+            </TabsContent>
+          ) : null}
         </Tabs>
       )}
 

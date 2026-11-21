@@ -2,9 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { obtenerSupabase } from "../../lib/supabase.ts";
 import {
   archivoDesdeFila,
-  archivoParaGuardar,
   esUuid,
-  rutaEnBucket,
   referenciasDesdeAsociacion,
   type ArchivoPayload,
   type ArchivoFila,
@@ -94,7 +92,7 @@ export async function descargarArchivo(
   }
 }
 
-export type EtapaSubidaArchivo = "validacion" | "autoria" | "subida" | "registro" | "confirmacion" | "limpieza";
+export type EtapaSubidaArchivo = "validacion" | "autoria" | "subida" | "registro" | "confirmacion" | "limpieza" | "cuota";
 export type EtapaSubidaImagen = EtapaSubidaArchivo;
 export type EstadoLimpieza = "no_intentada" | "confirmada" | "fallida" | "incierta";
 
@@ -107,6 +105,7 @@ export class ErrorSubidaArchivo extends Error {
   readonly errorConfirmacion: unknown;
   readonly limpieza: EstadoLimpieza;
   readonly requiereRevision: boolean;
+  readonly operacionId: string | null;
 
   constructor(mensaje: string, datos: {
     etapa: EtapaSubidaArchivo;
@@ -116,6 +115,7 @@ export class ErrorSubidaArchivo extends Error {
     errorConfirmacion?: unknown;
     limpieza?: EstadoLimpieza;
     requiereRevision?: boolean;
+    operacionId?: string;
   }) {
     super(mensaje, { cause: datos.errorOriginal });
     this.name = "ErrorSubidaArchivo";
@@ -126,6 +126,7 @@ export class ErrorSubidaArchivo extends Error {
     this.errorConfirmacion = datos.errorConfirmacion;
     this.limpieza = datos.limpieza ?? "no_intentada";
     this.requiereRevision = datos.requiereRevision ?? false;
+    this.operacionId = datos.operacionId ?? null;
   }
 }
 
@@ -137,14 +138,6 @@ function mensajeDe(causa: unknown): string {
     return causa.message;
   }
   return "Respuesta no confirmada.";
-}
-
-// Solo familias conocidas de rechazo SQL (datos, constraints, transacción,
-// permisos/sintaxis y excepciones PL/pgSQL). No confundir EPIPE u otros códigos
-// de transporte de cinco letras con SQLSTATE; lo desconocido se recupera.
-function rechazoSqlConfirmado(causa: unknown): boolean {
-  return Boolean(causa && typeof causa === "object" && "code" in causa
-    && typeof causa.code === "string" && /^(22|23|40|42|44|P0)[0-9A-Z]{3}$/.test(causa.code));
 }
 
 function confirmarFila(fila: ArchivoFila, payload: ArchivoPayload): Archivo {
@@ -162,52 +155,9 @@ function confirmarFila(fila: ArchivoFila, payload: ArchivoPayload): Archivo {
   return archivo;
 }
 
-async function recuperarRegistro(
-  supabase: SupabaseClient, payload: ArchivoPayload, causa: unknown,
-): Promise<Archivo> {
-  let errorConfirmacion: unknown;
-  try {
-    const { data, error } = await tabla(supabase).select(COLUMNAS)
-      .eq("clinica_id", payload.clinica_id).eq("paciente_id", payload.paciente_id)
-      .eq("ruta", payload.ruta).maybeSingle();
-    if (error) throw error;
-    if (!data) throw new Error("No se encontró una fila visible que confirme el registro.");
-    return confirmarFila(data as ArchivoFila, payload);
-  } catch (error) {
-    errorConfirmacion = error;
-  }
-  // Una consulta vacía también puede ser RLS o un INSERT todavía en tránsito.
-  // No borrar a ciegas ni repetir la operación con una clave nueva.
-  throw new ErrorSubidaArchivo("Registro no confirmado. Revisa el intento antes de volver a subir el archivo.", {
-    etapa: "confirmacion", ruta: payload.ruta, errorOriginal: causa,
-    errorConfirmacion, requiereRevision: true,
-  });
-}
-
-async function compensarRegistro(supabase: SupabaseClient, ruta: string, causa: unknown): Promise<never> {
-  let limpieza: EstadoLimpieza = "incierta";
-  let errorLimpieza: unknown;
-  try {
-    const { data, error } = await storage(supabase).remove([ruta]);
-    if (error) {
-      limpieza = "fallida";
-      errorLimpieza = error;
-    } else if (data?.some((objeto) => objeto.name === ruta)) {
-      limpieza = "confirmada";
-    } else {
-      errorLimpieza = new Error("Storage no confirmó la eliminación de la ruta solicitada.");
-    }
-  } catch (error) {
-    errorLimpieza = error;
-  }
-  const confirmada = limpieza === "confirmada";
-  throw new ErrorSubidaArchivo(confirmada
-    ? `No se pudo registrar el archivo; el objeto fue retirado. ${mensajeDe(causa)}`
-    : `No se pudo registrar el archivo ni confirmar su limpieza. ${mensajeDe(causa)}`, {
-    etapa: confirmada ? "registro" : "limpieza", ruta, errorOriginal: causa,
-    errorLimpieza, limpieza, requiereRevision: !confirmada,
-  });
-}
+// Repetir el mismo File/destino conserva la clave si la red quedó incierta.
+// Solo memoria: nunca persistir File, rutas, JWT ni datos clínicos en localStorage.
+const operaciones = new WeakMap<File, Map<string, string>>();
 
 /** T-10.4 sigue aceptando exclusivamente fotografía/radiografía y MIME de imagen. */
 export function subirArchivo(datos: SubidaImagen, cliente?: SupabaseClient): Promise<Archivo> {
@@ -268,56 +218,50 @@ async function subirValidado(
     throw new ErrorSubidaArchivo(mensajeDe(causa), { etapa: "autoria", errorOriginal: causa });
   }
 
-  // Solo tras confirmar identidad/rol. La clave es nueva para cada intento y
-  // los metadatos se derivan del File; las propiedades extra del caller se ignoran.
-  let payload: ArchivoPayload;
+  const datosBackend = { tipo_archivo: tipoArchivo, descripcion: intento.descripcion?.trim() ?? "", ...referencias };
+  const clave = JSON.stringify([intento.pacienteId.toLowerCase(), intento.clinicaId.toLowerCase(), intento.subidoPor.toLowerCase(), datosBackend]);
+  const porArchivo = operaciones.get(intento.archivo) ?? new Map<string, string>();
+  let operacionId: string;
+  try { operacionId = porArchivo.get(clave) ?? globalThis.crypto.randomUUID(); }
+  catch (causa) { throw new ErrorSubidaArchivo("Utiliza un navegador compatible en un contexto seguro.", { etapa: "validacion", errorOriginal: causa }); }
+  porArchivo.set(clave, operacionId);
+  operaciones.set(intento.archivo, porArchivo);
+  const extension = intento.archivo.type === "image/jpeg" ? "jpg" : intento.archivo.type === "image/png" ? "png"
+    : intento.archivo.type === "image/webp" ? "webp" : "pdf";
+  const payload: ArchivoPayload = {
+    clinica_id: intento.clinicaId.toLowerCase(), paciente_id: intento.pacienteId.toLowerCase(),
+    subido_por: intento.subidoPor.toLowerCase(), nombre: intento.archivo.name, mime: intento.archivo.type,
+    tamano: intento.archivo.size, categoria, ...datosBackend,
+    ruta: `${intento.clinicaId.toLowerCase()}/${intento.pacienteId.toLowerCase()}/${operacionId}.${extension}`,
+  };
+  const form = new FormData();
+  form.set("archivo", intento.archivo);
+  form.set("pacienteId", payload.paciente_id);
+  form.set("operacionId", operacionId);
+  form.set("datos", JSON.stringify(datosBackend));
   try {
-    const ruta = rutaEnBucket(intento.clinicaId, intento.pacienteId, intento.archivo.type);
-    payload = archivoParaGuardar({
-      clinicaId: intento.clinicaId, pacienteId: intento.pacienteId, subidoPor: intento.subidoPor,
-      nombre: intento.archivo.name, mime: intento.archivo.type, tamano: intento.archivo.size,
-      ruta, categoria, tipoArchivo, descripcion: intento.descripcion ?? "",
-      evolucionClinicaId: referencias.evolucion_clinica_id,
-      planTratamientoId: referencias.plan_tratamiento_id,
-    });
-  } catch (causa) {
-    throw new ErrorSubidaArchivo(mensajeDe(causa), { etapa: "validacion", errorOriginal: causa });
-  }
-
-  try {
-    const { data, error } = await storage(supabase).upload(payload.ruta, intento.archivo, {
-      contentType: payload.mime, upsert: false,
-    });
-    if (error) {
-      const codigo = "statusCode" in error ? Number(error.statusCode) : NaN;
-      throw new ErrorSubidaArchivo(`No se pudo subir el archivo. ${mensajeDe(error)}`, {
-        etapa: "subida", ruta: payload.ruta, errorOriginal: error,
-        requiereRevision: ![400, 401, 403, 404, 409, 413, 415, 422].includes(codigo),
-      });
+    const { data, error } = await supabase.functions.invoke("archivos", { body: form });
+    if (error) throw error;
+    if (data?.codigo === "CUOTA_EXCEDIDA") {
+      throw new ErrorSubidaArchivo("No hay espacio suficiente en el almacenamiento de la clínica.", { etapa: "cuota", operacionId });
     }
-    if (!data || data.path !== payload.ruta) throw new Error("Storage no confirmó la ruta subida.");
+    if (data?.codigo && data.requiereRevision === false
+        && ["ACCESO_DENEGADO", "ARCHIVO_INVALIDO", "SUBIDA_RECHAZADA"].includes(data.codigo)) {
+      porArchivo.delete(clave);
+      throw new ErrorSubidaArchivo("El servidor rechazó la subida antes de confirmarla.", { etapa: "subida", operacionId });
+    }
+    if (!data?.archivo || data.operacionId !== operacionId) throw new Error("Respuesta de subida no confirmada.");
+    return confirmarFila(data.archivo as ArchivoFila, payload);
   } catch (causa) {
     if (causa instanceof ErrorSubidaArchivo) throw causa;
-    throw new ErrorSubidaArchivo("No se confirmó la subida a Storage. Revisa el intento antes de repetirlo.", {
-      etapa: "subida", ruta: payload.ruta, errorOriginal: causa, requiereRevision: true,
+    // Consultar la operación durable, no reintentar upload ni borrar objetos.
+    try {
+      const { data, error } = await supabase.functions.invoke("archivos", { body: { accion: "estado", operacionId } });
+      if (!error && data?.estado === "confirmada" && data.archivo) return confirmarFila(data.archivo as ArchivoFila, payload);
+    } catch { /* Una consulta fallida no acredita ausencia. */ }
+    throw new ErrorSubidaArchivo("Registro no confirmado. Revisa el intento antes de volver a subir el archivo.", {
+      etapa: "confirmacion", ruta: payload.ruta, operacionId, errorOriginal: causa, requiereRevision: true,
     });
-  }
-
-  let respuesta;
-  try {
-    respuesta = await tabla(supabase).insert(payload).select(COLUMNAS).single();
-  } catch (causa) {
-    return recuperarRegistro(supabase, payload, causa);
-  }
-  if (respuesta.error) {
-    if (rechazoSqlConfirmado(respuesta.error)) return compensarRegistro(supabase, payload.ruta, respuesta.error);
-    return recuperarRegistro(supabase, payload, respuesta.error);
-  }
-  if (!respuesta.data) return recuperarRegistro(supabase, payload, new Error("El INSERT no devolvió una fila."));
-  try {
-    return confirmarFila(respuesta.data as ArchivoFila, payload);
-  } catch (causa) {
-    return recuperarRegistro(supabase, payload, causa);
   }
 }
 

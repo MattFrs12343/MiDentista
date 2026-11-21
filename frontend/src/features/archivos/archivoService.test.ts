@@ -259,6 +259,7 @@ function guardada(payload: ArchivoPayload): ArchivoFila {
 }
 
 type Opciones = {
+  codigoBackend?: string;
   entidad?: { id: string; paciente_id: string; clinica_id: string } | null;
   errorEntidad?: unknown;
   permisoAsociacion?: boolean;
@@ -283,7 +284,8 @@ type Opciones = {
   limpiezaVacia?: boolean;
 };
 
-/** Simula Auth, PostgREST y Storage sin red ni credenciales. */
+/** Regresiones T-10.4/5/9 adaptadas a Edge Function: no escritura directa.
+ * El doble solo emula el contrato remoto; flujo backend real se prueba aparte. */
 function simulado(opciones: Opciones = {}) {
   const llamadas: string[] = [];
   const filtrosPerfil: [string, unknown][] = [];
@@ -296,6 +298,38 @@ function simulado(opciones: Opciones = {}) {
   const payloads: ArchivoPayload[] = [];
   const columnas: string[] = [];
   const cliente = {
+    functions: {
+      async invoke(nombre: string, { body }: { body: FormData | { accion: string; operacionId: string } }) {
+        assert.equal(nombre, "archivos");
+        if (!(body instanceof FormData)) {
+          llamadas.push("recuperar");
+          filtrosRecuperacion.push(["operacionId", body.operacionId]);
+          if (opciones.excepcionRecuperacion) throw opciones.excepcionRecuperacion;
+          const payload = payloads[payloads.length - 1];
+          return { data: opciones.recuperar ? { estado: "confirmada", archivo: (opciones.filaRecuperada ?? guardada)(payload) } : null,
+            error: opciones.errorRecuperacion ?? null };
+        }
+        llamadas.push("edge");
+        const file = body.get("archivo") as File;
+        const meta = JSON.parse(String(body.get("datos")));
+        const op = String(body.get("operacionId"));
+        const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "pdf";
+        const ruta = `${CLINICA.toLowerCase()}/${PACIENTE.toLowerCase()}/${op}.${ext}`;
+        const rol = opciones.perfil?.rol ?? "odontologo";
+        const payload: ArchivoPayload = { ...meta, nombre: file.name, mime: file.type, tamano: file.size,
+          descripcion: meta.descripcion || null, ruta, clinica_id: CLINICA.toLowerCase(), paciente_id: PACIENTE.toLowerCase(), subido_por: PERFIL,
+          categoria: rol === "paciente" ? "portal" : file.type === "application/pdf" && rol === "recepcionista" ? "administrativo" : "clinico" };
+        // Ruta/payload son la respuesta emulada, NO datos enviados por la interfaz.
+        assert.deepEqual([...body.keys()].sort(), ["archivo", "datos", "operacionId", "pacienteId"]);
+        rutas.push(ruta); payloads.push(payload); uploads.push({ file, opciones: { contentType: file.type, upsert: false } });
+        if (opciones.codigoBackend) return { data: { codigo: opciones.codigoBackend, requiereRevision: false, operacionId: op }, error: null };
+        if (opciones.excepcionUpload) throw opciones.excepcionUpload;
+        if (opciones.excepcionInsert) throw opciones.excepcionInsert;
+        if (opciones.uploadSinDatos || opciones.insertSinFila) return { data: null, error: null };
+        if (opciones.errorUpload || opciones.errorInsert) return { data: { codigo: "OPERACION_INCIERTA", requiereRevision: true, operacionId: op }, error: null };
+        return { data: { archivo: (opciones.filaInsert ?? guardada)(payload), operacionId: op }, error: null };
+      },
+    },
     auth: {
       async getUser() {
         llamadas.push("auth");
@@ -332,7 +366,7 @@ function simulado(opciones: Opciones = {}) {
           const consulta = {
             select(valor: string) { columnas.push(valor); return consulta; },
             eq(campo: string, valor: unknown) { filtrosRecuperacion.push([campo, valor]); return consulta; },
-            insert(payload: ArchivoPayload) { llamadas.push("insert"); payloads.push(payload); return consulta; },
+            insert(_payload: ArchivoPayload) { assert.fail("No INSERT directo desde frontend"); return consulta; },
             async single() {
               if (opciones.excepcionInsert) throw opciones.excepcionInsert;
               const payload = payloads[payloads.length - 1];
@@ -364,11 +398,7 @@ function simulado(opciones: Opciones = {}) {
       from(bucket: string) {
         assert.equal(bucket, "archivos-clinica");
         return {
-          async upload(ruta: string, file: File, opcionesUpload: { contentType: string; upsert: boolean }) {
-            llamadas.push("upload"); rutas.push(ruta); uploads.push({ file, opciones: opcionesUpload });
-            if (opciones.excepcionUpload) throw opciones.excepcionUpload;
-            return { data: opciones.uploadSinDatos || opciones.errorUpload ? null : { path: ruta }, error: opciones.errorUpload ?? null };
-          },
+          async upload() { assert.fail("No upload directo desde frontend"); },
           async remove(objetos: string[]) {
             llamadas.push("remove"); borradas.push(objetos);
             if (opciones.excepcionLimpieza) throw opciones.excepcionLimpieza;
@@ -394,12 +424,11 @@ async function exigirError(promesa: Promise<unknown>): Promise<ErrorSubidaImagen
   }
 }
 
-test("sube objeto antes de insertar, con datos del File y fila real confirmada", async () => {
+test("delegación segura conserva datos del File y fila real confirmada sin escritura directa", async () => {
   const fake = simulado({ filaInsert: (payload) => ({ ...guardada(payload), descripcion: "Respuesta real de la base" }) });
   const entrada = datos();
   const resultado = await subirArchivo(entrada, fake.cliente);
-  assert.deepEqual(fake.llamadas, ["auth", "perfil", "upload", "insert"]);
-  assert.deepEqual(fake.uploads[0].opciones, { contentType: entrada.archivo.type, upsert: false });
+  assert.deepEqual(fake.llamadas, ["auth", "perfil", "edge"]);
   assert.strictEqual(fake.uploads[0].file, entrada.archivo);
   const payload = fake.payloads[0];
   assert.equal(payload.nombre, entrada.archivo.name);
@@ -417,7 +446,6 @@ test("sube objeto antes de insertar, con datos del File y fila real confirmada",
   assert.match(payload.ruta, /\.jpg$/);
   assert.equal("id" in payload, false);
   assert.equal("creado_en" in payload, false);
-  assert.equal(fake.columnas[0].includes("tipo_archivo"), true);
   assert.equal(resultado.id, ID);
   assert.equal(resultado.creadoEl, "2026-10-04T14:00:00Z");
   assert.equal(resultado.descripcion, "Respuesta real de la base");
@@ -472,7 +500,7 @@ test("usuario ausente y perfiles ajenos/inactivos impiden subir", async () => {
 
 test("fallo de Storage no intenta INSERT ni borrar un objeto posiblemente ajeno", async () => {
   const fake = simulado({ errorUpload: { message: "Object already exists", statusCode: "409" } });
-  assert.equal((await exigirError(subirArchivo(datos(), fake.cliente))).etapa, "subida");
+  assert.equal((await exigirError(subirArchivo(datos(), fake.cliente))).etapa, "confirmacion");
   assert.equal(fake.llamadas.includes("insert"), false);
   assert.equal(fake.llamadas.includes("remove"), false);
 });
@@ -481,52 +509,50 @@ test("excepción o respuesta sin datos de Storage no anuncia éxito", async () =
   for (const opciones of [{ excepcionUpload: new Error("timeout") }, { uploadSinDatos: true }]) {
     const fake = simulado(opciones);
     const error = await exigirError(subirArchivo(datos(), fake.cliente));
-    assert.equal(error.etapa, "subida");
+    assert.equal(error.etapa, "confirmacion");
     assert.equal(error.requiereRevision, true);
     assert.equal(fake.llamadas.includes("insert"), false);
   }
 });
 
-test("rechazo SQL confirmado compensa solo la ruta exacta y conserva la causa", async () => {
+test("rechazo SQL remoto conserva ruta y reserva sin compensación destructiva", async () => {
   const fake = simulado({ errorInsert: RECHAZO });
   const error = await exigirError(subirArchivo(datos(), fake.cliente));
-  assert.equal(error.etapa, "registro");
-  assert.equal(error.limpieza, "confirmada");
-  assert.strictEqual(error.errorOriginal, RECHAZO);
+  assert.equal(error.etapa, "confirmacion");
+  assert.equal(error.limpieza, "no_intentada");
   assert.equal(error.ruta, fake.rutas[0]);
-  assert.deepEqual(fake.borradas, [[fake.rutas[0]]]);
-  assert.match(error.message, /objeto fue retirado/);
-  assert.equal(fake.llamadas.includes("recuperar"), false);
+  assert.deepEqual(fake.borradas, []);
+  assert.equal(error.requiereRevision, true);
+  assert.equal(fake.llamadas.includes("recuperar"), true);
 });
 
-test("limpieza fallida conserva ambas causas y exige revisión", async () => {
+test("un fallo remoto no activa limpieza aunque Storage no permita borrado", async () => {
   const causaLimpieza = { message: "permission denied" };
   const fake = simulado({ errorInsert: RECHAZO, errorLimpieza: causaLimpieza });
   const error = await exigirError(subirArchivo(datos(), fake.cliente));
-  assert.equal(error.etapa, "limpieza");
-  assert.equal(error.limpieza, "fallida");
-  assert.strictEqual(error.errorOriginal, RECHAZO);
-  assert.strictEqual(error.errorLimpieza, causaLimpieza);
+  assert.equal(error.etapa, "confirmacion");
+  assert.equal(error.limpieza, "no_intentada");
+  assert.deepEqual(fake.borradas, []);
   assert.equal(error.requiereRevision, true);
 });
 
-test("limpieza vacía o con excepción queda incierta, no confirmada", async () => {
+test("la revisión pendiente nunca depende de intentar borrar objetos", async () => {
   for (const opciones of [{ limpiezaVacia: true }, { excepcionLimpieza: new Error("fetch failed") }]) {
     const fake = simulado({ errorInsert: RECHAZO, ...opciones });
     const error = await exigirError(subirArchivo(datos(), fake.cliente));
-    assert.equal(error.limpieza, "incierta");
-    assert.ok(error.errorLimpieza);
+    assert.equal(error.limpieza, "no_intentada");
+    assert.deepEqual(fake.borradas, []);
     assert.equal(error.requiereRevision, true);
   }
 });
 
-test("timeout de INSERT recupera una fila compatible por ruta, sin borrar ni reintentar", async () => {
+test("timeout recupera una fila compatible por operación durable, sin borrar ni reintentar", async () => {
   const fake = simulado({ excepcionInsert: new Error("timeout"), recuperar: true });
   const resultado = await subirArchivo(datos(), fake.cliente);
   assert.equal(resultado.id, ID);
-  assert.deepEqual(fake.filtrosRecuperacion, [["clinica_id", CLINICA.toLowerCase()], ["paciente_id", PACIENTE.toLowerCase()], ["ruta", fake.rutas[0]]]);
-  assert.equal(fake.llamadas.filter((valor) => valor === "upload").length, 1);
-  assert.equal(fake.llamadas.filter((valor) => valor === "insert").length, 1);
+  assert.equal(fake.filtrosRecuperacion.length, 1);
+  assert.equal(fake.filtrosRecuperacion[0][0], "operacionId");
+  assert.equal(fake.llamadas.filter((valor) => valor === "edge").length, 1);
   assert.equal(fake.borradas.length, 0);
 });
 
@@ -558,7 +584,7 @@ test("registro no confirmado mantiene ruta y causas sin borrar ni volver a subir
     assert.equal(error.limpieza, "no_intentada");
     assert.equal(error.requiereRevision, true);
     assert.strictEqual(error.errorOriginal, causa);
-    assert.ok(error.errorConfirmacion);
+    assert.ok(error.operacionId);
     assert.equal(error.ruta, fake.rutas[0]);
     assert.match(error.message, /Registro no confirmado/);
     assert.equal(fake.borradas.length, 0);
@@ -586,9 +612,8 @@ test("PDF deriva categoría del perfil real y devuelve la fila confirmada", asyn
     const fake = simulado({ perfil: { id: PERFIL, auth_user_id: AUTH, activo: true, rol } });
     const entrada = documento();
     const resultado = await subirDocumento(entrada, fake.cliente);
-    assert.deepEqual(fake.llamadas, ["auth", "perfil", "upload", "insert"]);
+    assert.deepEqual(fake.llamadas, ["auth", "perfil", "edge"]);
     assert.equal(fake.columnasPerfil[0].includes("rol"), true);
-    assert.deepEqual(fake.uploads[0].opciones, { contentType: "application/pdf", upsert: false });
     assert.strictEqual(fake.uploads[0].file, entrada.archivo);
     const payload = fake.payloads[0];
     assert.equal(payload.categoria, categoria);
@@ -680,35 +705,33 @@ test("PDF: Storage falla o no se confirma y no se intenta INSERT ni remove", asy
     { excepcionUpload: new Error("timeout") }, { uploadSinDatos: true },
   ]) {
     const fake = simulado(opciones);
-    assert.equal((await exigirError(subirDocumento(documento(), fake.cliente))).etapa, "subida");
-    assert.equal(fake.payloads.length, 0);
+    assert.equal((await exigirError(subirDocumento(documento(), fake.cliente))).etapa, "confirmacion");
+    assert.equal(fake.llamadas.includes("insert"), false);
     assert.equal(fake.borradas.length, 0);
   }
 });
 
-test("PDF: rechazo SQL retira la ruta exacta y conserva el error original", async () => {
+test("PDF: rechazo SQL conserva ruta y revisión, sin retirar objetos", async () => {
   const fake = simulado({ errorInsert: RECHAZO });
   const error = await exigirError(subirDocumento(documento(), fake.cliente));
-  assert.equal(error.etapa, "registro");
-  assert.equal(error.limpieza, "confirmada");
-  assert.strictEqual(error.errorOriginal, RECHAZO);
+  assert.equal(error.etapa, "confirmacion");
+  assert.equal(error.limpieza, "no_intentada");
   assert.equal(error.ruta, fake.rutas[0]);
-  assert.deepEqual(fake.borradas, [[fake.rutas[0]]]);
-  assert.deepEqual(fake.llamadas, ["auth", "perfil", "upload", "insert", "remove"]);
-  assert.match(error.message, /archivo; el objeto fue retirado/);
+  assert.deepEqual(fake.borradas, []);
+  assert.deepEqual(fake.llamadas, ["auth", "perfil", "edge", "recuperar"]);
+  assert.equal(error.requiereRevision, true);
 });
 
-test("PDF: limpieza fallida o incierta conserva causas, ruta y bloqueo de revisión", async () => {
+test("PDF: sin limpieza automática conserva ruta y bloqueo de revisión", async () => {
   for (const opciones of [
     { errorLimpieza: { message: "denied" } },
     { limpiezaVacia: true }, { excepcionLimpieza: new Error("timeout remove") },
   ]) {
     const fake = simulado({ errorInsert: RECHAZO, ...opciones });
     const error = await exigirError(subirDocumento(documento(), fake.cliente));
-    assert.equal(error.etapa, "limpieza");
-    assert.equal(error.limpieza, "errorLimpieza" in opciones ? "fallida" : "incierta");
-    assert.strictEqual(error.errorOriginal, RECHAZO);
-    assert.ok(error.errorLimpieza);
+    assert.equal(error.etapa, "confirmacion");
+    assert.equal(error.limpieza, "no_intentada");
+    assert.deepEqual(fake.borradas, []);
     assert.equal(error.ruta, fake.rutas[0]);
     assert.equal(error.requiereRevision, true);
   }
@@ -726,7 +749,8 @@ test("PDF: timeout, error de transporte y respuesta sin fila recuperan por ruta 
     assert.equal(fake.rutas.length, 1);
     assert.equal(fake.payloads.length, 1);
     assert.equal(fake.borradas.length, 0);
-    assert.deepEqual(fake.filtrosRecuperacion, [["clinica_id", CLINICA.toLowerCase()], ["paciente_id", PACIENTE.toLowerCase()], ["ruta", fake.rutas[0]]]);
+    assert.equal(fake.filtrosRecuperacion.length, 1);
+    assert.equal(fake.filtrosRecuperacion[0][0], "operacionId");
   }
 });
 
@@ -743,7 +767,7 @@ test("PDF: registro incierto o incompatible no borra ni repite la subida", async
     assert.equal(error.etapa, "confirmacion");
     assert.equal(error.limpieza, "no_intentada");
     assert.strictEqual(error.errorOriginal, original);
-    assert.ok(error.errorConfirmacion);
+    assert.ok(error.operacionId);
     assert.equal(error.ruta, fake.rutas[0]);
     assert.equal(error.requiereRevision, true);
     assert.match(error.message, /Registro no confirmado/);
@@ -753,7 +777,7 @@ test("PDF: registro incierto o incompatible no borra ni repite la subida", async
   }
 });
 
-test("PDF genera claves nuevas después de un intento rechazado y compensado", async () => {
+test("PDF genera claves distintas para archivos distintos tras rechazo", async () => {
   const fake = simulado({ errorInsert: RECHAZO });
   await exigirError(subirDocumento(documento(), fake.cliente));
   await exigirError(subirDocumento(documento(), fake.cliente));
@@ -770,11 +794,11 @@ test("asociación general omite destino y persiste referencias null", async () =
   assert.equal(fake.llamadas.includes("destino"), false);
 });
 
-test("evolución y plan se validan antes de Storage y persisten en el único INSERT", async () => {
+test("evolución y plan se validan antes de invocar backend y viajan en un único intento", async () => {
   for (const asociacion of [{ tipo: "evolucion", evolucionClinicaId: ID }, { tipo: "plan", planTratamientoId: ID }] as const) {
     const fake = simulado();
     const resultado = await subirArchivo(datos({ asociacion }), fake.cliente);
-    assert.deepEqual(fake.llamadas, ["auth", "perfil", "destino", "permisoAsociacion", "upload", "insert"]);
+    assert.deepEqual(fake.llamadas, ["auth", "perfil", "destino", "permisoAsociacion", "edge"]);
     assert.deepEqual(fake.filtrosDestino, [["id", ID], ["paciente_id", PACIENTE.toLowerCase()], ["clinica_id", CLINICA.toLowerCase()]]);
     assert.equal(fake.payloads.length, 1);
     assert.equal(resultado.evolucionClinicaId, asociacion.tipo === "evolucion" ? ID : null);
@@ -826,15 +850,33 @@ test("paciente portal no puede asociar; superadmin con acceso puede asociar imá
   assert.equal(general.planTratamientoId, null);
 });
 
-test("rechazo FK de asociación compensa la ruta y recuperación incierta compara destino", async () => {
+test("rechazo FK de asociación conserva objetos y recuperación compara destino", async () => {
   const entrada = datos({ asociacion: { tipo: "plan", planTratamientoId: ID } });
   const rechazo = simulado({ errorInsert: { code: "23503", message: "FK destino eliminado" } });
-  assert.equal((await exigirError(subirArchivo(entrada, rechazo.cliente))).limpieza, "confirmada");
-  assert.deepEqual(rechazo.borradas, [[rechazo.rutas[0]]]);
+  assert.equal((await exigirError(subirArchivo(entrada, rechazo.cliente))).limpieza, "no_intentada");
+  assert.deepEqual(rechazo.borradas, []);
   const recuperada = simulado({ excepcionInsert: new Error("timeout"), recuperar: true });
   assert.equal((await subirArchivo(entrada, recuperada.cliente)).planTratamientoId, ID);
   const distinta = simulado({ excepcionInsert: new Error("timeout"), recuperar: true,
     filaRecuperada: (payload) => ({ ...guardada(payload), plan_tratamiento_id: AUTH }) });
   assert.equal((await exigirError(subirArchivo(entrada, distinta.cliente))).etapa, "confirmacion");
   assert.deepEqual(distinta.borradas, []);
+});
+
+test("cuota agotada ofrece error específico y no activa fallback de escritura directa", async () => {
+  const fake = simulado({ codigoBackend: "CUOTA_EXCEDIDA" });
+  const error = await exigirError(subirArchivo(datos(), fake.cliente));
+  assert.equal(error.etapa, "cuota"); assert.equal(error.requiereRevision, false);
+  assert.equal(error.message, "No hay espacio suficiente en el almacenamiento de la clínica.");
+  assert.deepEqual(fake.llamadas, ["auth", "perfil", "edge"]);
+  assert.equal(fake.borradas.length, 0);
+});
+
+test("mismo File y destino conservan idempotencia después de una respuesta incierta", async () => {
+  const fake = simulado({ excepcionInsert: new Error("timeout") });
+  const entrada = datos();
+  const primero = await exigirError(subirArchivo(entrada, fake.cliente));
+  const segundo = await exigirError(subirArchivo(entrada, fake.cliente));
+  assert.equal(primero.operacionId, segundo.operacionId);
+  assert.equal(fake.rutas[0], fake.rutas[1]);
 });

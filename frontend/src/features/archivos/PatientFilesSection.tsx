@@ -8,6 +8,8 @@ import { FileUploadDialog } from "./FileUploadDialog.tsx";
 import { capacidadesArchivos, crearCoordinadorArchivos, registroEscritura, type PerfilArchivos } from "./patientFilesSection.ts";
 import { cargarContextoPacienteArchivos, type ContextoPacienteArchivos } from "./patientFilesSectionService.ts";
 import type { Archivo } from "./tipos.ts";
+import { useCuotaArchivos } from "./useCuotaArchivos.ts";
+import { CuotaArchivos } from "./CuotaArchivos.tsx";
 
 type Props = { pacienteId: string; perfil: PerfilArchivos | null; rol: string | null };
 
@@ -32,6 +34,8 @@ function SeccionArchivos({ pacienteId, perfil, rol, clave }: Props & { clave: st
   const escritura = useSyncExternalStore(registro.suscribir, registro.leer, registro.leer);
   const capacidades = capacidadesArchivos(pacienteId, contexto, perfil, rol);
   const perfilId = perfil?.id;
+  const cuota = useCuotaArchivos(contexto?.clinicaId ?? null);
+  const recargarCuota = cuota.recargar;
 
   useLayoutEffect(() => {
     montado.current = true;
@@ -52,12 +56,12 @@ function SeccionArchivos({ pacienteId, perfil, rol, clave }: Props & { clave: st
     coordinador.current = crearCoordinadorArchivos({ ...contexto, perfilId }, {
       vigente: () => montado.current,
       cerrar: () => setModal(null),
-      confirmar: (archivo) => { setConfirmacion(`Archivo subido y registrado correctamente: ${archivo.nombre}`); setErrorRefresh(false); },
+      confirmar: (archivo) => { setConfirmacion(`Archivo subido y registrado correctamente: ${archivo.nombre}`); setErrorRefresh(false); void recargarCuota(); },
       reload: () => galeria.current?.reload() ?? Promise.resolve(),
       errorRefresh: () => setErrorRefresh(true),
     });
     return () => { coordinador.current = null; };
-  }, [contexto, perfilId]);
+  }, [contexto, perfilId, recargarCuota]);
   const confirmarSubida = useCallback((archivo: Archivo) => coordinador.current?.(archivo) ?? Promise.resolve(false), []);
   // Si la escritura termina tras salir/volver a la pestaña, solo el consumidor
   // del mismo contexto puede confirmar/refrescar; nunca la ficha siguiente.
@@ -88,6 +92,7 @@ function SeccionArchivos({ pacienteId, perfil, rol, clave }: Props & { clave: st
           ) : null}
         </div>
       </div>
+      {contexto ? <CuotaArchivos cuota={cuota.cuota} cargando={cuota.cargando} error={cuota.error} onActualizar={() => { void recargarCuota(); }} /> : null}
       {!contexto && !errorContexto ? <p role="status" className="text-sm text-ink-muted">Cargando contexto del paciente…</p> : null}
       {contexto && !perfil ? <p role="status" className="text-sm text-ink-muted">Cargando perfil para habilitar la subida…</p> : null}
       {errorContexto ? <p role="alert" className="text-sm text-pastel-red-fg">{errorContexto}</p> : null}

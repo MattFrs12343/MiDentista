@@ -51,6 +51,7 @@ export function crearCoordinadorArchivos(contexto: ContextoSeccionArchivos, efec
 
 export function mensajePublicoSubida(error: { etapa: string; requiereRevision: boolean }): string {
   if (error.requiereRevision) return "No se confirmó la operación. Revisa el intento antes de volver a subir el archivo.";
+  if (error.etapa === "cuota") return "No hay espacio suficiente en el almacenamiento de la clínica.";
   if (error.etapa === "validacion") return "Revisa el formato, tamaño y datos seleccionados antes de subir.";
   if (error.etapa === "autoria") return "No pudimos confirmar el acceso al paciente o al destino seleccionado.";
   return "No pudimos subir y registrar el archivo. Intenta nuevamente.";
