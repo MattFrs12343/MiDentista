@@ -7,6 +7,7 @@ commit reescribe la tabla completa.
 ## Registro (Git)
 
 <!-- AUTO-LOG:START -->
-| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
-|--------------|---------|------------------------|----------------------|
+| Fecha y hora     | Usuario  | Descripción del cambio                          | Archivos modificados                               |
+|------------------|----------|-------------------------------------------------|----------------------------------------------------|
+| 2026-11-21 14:37 | Angélica | feat: implementar cuota y auditoria de archivos | docs/modules/10-archivos/README.md, docs/modules/… |
 <!-- AUTO-LOG:END -->
