@@ -7,6 +7,7 @@ commit reescribe la tabla completa.
 ## Registro (Git)
 
 <!-- AUTO-LOG:START -->
-| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
-|--------------|---------|------------------------|----------------------|
+| Fecha y hora     | Usuario | Descripción del cambio                                                 | Archivos modificados                               |
+|------------------|---------|------------------------------------------------------------------------|----------------------------------------------------|
+| 2026-11-22 11:47 | Melissa | feat(dashboard): integrar mapa de calor y recordatorio de proxima ate… | frontend/src/features/dashboard/DashboardOdontolo… |
 <!-- AUTO-LOG:END -->
