@@ -29,6 +29,7 @@ import {
   hoyISO,
 } from "@/features/agenda/agenda";
 import { ClinicalFindingsChart } from "./ClinicalFindingsChart";
+import { MapaCalor } from "./mapa-calor";
 import { contarHallazgos } from "./odontologoGraficos";
 import { resumenDelDia } from "./recepcionResumen";
 import { proximaActividad } from "./odontologoResumen";
@@ -91,14 +92,16 @@ export function DashboardOdontologo() {
    * destructurarlos antes de poder agregar. Con 14 pacientes es lo bastante
    * chico para hacerlo en render y no necesita un indice en el store.
    */
-  const { planes, piezasConHallazgos, hallazgos } = useMemo(() => {
+  const { planes, odontogramas, nombresPorId, piezasConHallazgos, hallazgos } = useMemo(() => {
     const planes_: Record<string, ReturnType<typeof planDe>> = {};
     const odontogramas: Record<string, ReturnType<typeof odontogramaDe>> = {};
+    const nombresPorId: Record<string, string> = {};
     let piezas = 0;
 
     for (const p of pacientes) {
       const odontograma = odontogramaDe(p.id);
       odontogramas[p.id] = odontograma;
+      nombresPorId[p.id] = nombreDePaciente(p);
       planes_[p.id] = planDe(p.id);
       // Cada pieza con condición distinta de `sano`. NO son filas de la tabla
       // `diagnosticos`: es el mismo tipo de conteo que el gráfico de hallazgos.
@@ -106,6 +109,8 @@ export function DashboardOdontologo() {
     }
     return {
       planes: planes_,
+      odontogramas,
+      nombresPorId,
       piezasConHallazgos: piezas,
       // Mismo criterio que las tarjetas (piezas por condicion, sin `sano`),
       // reutilizado por el grafico de hallazgos.
@@ -388,6 +393,29 @@ export function DashboardOdontologo() {
           los odontogramas reales de los pacientes (sin `sano`). */}
       <section className="dashboard-blocks">
         <ClinicalFindingsChart conteos={hallazgos} />
+      </section>
+
+      <section className="dashboard-blocks">
+        <Card className="fade-in-up">
+          <CardHeader divided>
+            <CardTitle>Mapa de calor clínico</CardTitle>
+            <CardDescription>
+              Condición más urgente por pieza e intensidad según pacientes afectados.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {pacientes.length > 0 ? (
+              <MapaCalor odontogramas={odontogramas} nombresPorId={nombresPorId} />
+            ) : (
+              <DashboardEmptyState
+                datos={SIN_DATOS}
+                size="sm"
+                vacioTitle="No hay pacientes para analizar"
+                vacioDescription="El mapa se completará con los odontogramas de los pacientes registrados."
+              />
+            )}
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

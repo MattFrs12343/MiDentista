@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
 import {
   CalendarBlank,
@@ -9,12 +9,18 @@ import {
   Receipt,
   Tooth,
 } from "@phosphor-icons/react";
+import { Card, CardContent } from "@/components/ui/card";
 import { SectionStatStrip, type SectionMetric } from "@/components/ui/section-board";
 import { usePortalPaciente } from "@/features/portal-paciente/PortalPacienteContext";
 import { CardAcceso } from "@/features/portal-paciente/CardAcceso";
 import { PortalHero } from "@/features/portal-paciente/PortalHero";
 import { PortalCargando, PortalError } from "@/features/portal-paciente/PortalEstado";
-import { formatearFechaCorta, formatearHora, formatearMoneda } from "@/features/portal-paciente/portalFormato";
+import {
+  formatearFecha,
+  formatearFechaCorta,
+  formatearHora,
+  formatearMoneda,
+} from "@/features/portal-paciente/portalFormato";
 
 export function PortalHomePage() {
   const { ficha, cargando, error, recargar } = usePortalPaciente();
@@ -34,6 +40,21 @@ export function PortalHomePage() {
   const proximaCita = ficha.citas
     .filter((c) => c.fechaCita >= hoy && (c.estado === "reservada" || c.estado === "confirmada"))
     .sort((a, b) => a.fechaCita.localeCompare(b.fechaCita))[0];
+
+  /* Una evolución antigua puede conservar una recomendación ya vencida. Entre
+     las fechas vigentes se muestra solo la más cercana, sin convertirla en cita. */
+  const proximaAtencion = ficha.evoluciones.reduce<string | null>((fechaMasCercana, evolucion) => {
+    const fecha = evolucion.proximaAtencion;
+    if (!fecha || fecha < hoy) return fechaMasCercana;
+    return fechaMasCercana === null || fecha < fechaMasCercana ? fecha : fechaMasCercana;
+  }, null);
+  const tieneCitaParaProximaAtencion =
+    proximaAtencion !== null &&
+    ficha.citas.some(
+      (cita) =>
+        cita.fechaCita === proximaAtencion &&
+        (cita.estado === "reservada" || cita.estado === "confirmada"),
+    );
 
   /* Porcentaje ya pagado, para la barra de la tarjeta de pagos. Se calcula sobre
      pagado + pendiente y no sobre el total histórico: si el paciente pagó cinco
@@ -104,6 +125,50 @@ export function PortalHomePage() {
       />
 
       <SectionStatStrip metrics={metricas} />
+
+      {proximaAtencion ? (
+        <section aria-labelledby="proxima-atencion-recomendada">
+          <Card variant="flat" tone="brand" accent>
+            <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand-700 shadow-e1">
+                  <CalendarBlank size={20} weight="duotone" aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <h2
+                    id="proxima-atencion-recomendada"
+                    className="text-[11px] font-semibold uppercase tracking-wide text-brand-700"
+                  >
+                    Próxima atención recomendada
+                  </h2>
+                  <p className="mt-1 text-base font-semibold text-ink">
+                    {formatearFecha(proximaAtencion)}
+                  </p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+                    {tieneCitaParaProximaAtencion
+                      ? "Ya tenés una cita reservada o confirmada para ese día."
+                      : "Es una recomendación clínica; todavía no es una cita reservada ni confirmada."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
+                <Link
+                  to="/portal/evoluciones"
+                  className="press inline-flex min-h-10 items-center rounded-full px-3.5 text-[13px] font-semibold text-brand-700 hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+                >
+                  Ver evolución
+                </Link>
+                <Link
+                  to="/portal/citas"
+                  className="press inline-flex min-h-10 items-center rounded-full bg-brand-700 px-4 text-[13px] font-semibold text-white shadow-e1 hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
+                >
+                  {tieneCitaParaProximaAtencion ? "Ver cita" : "Agendar cita"}
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
 
       {/* Accesos directos: lo único que hay bajo la fila de métricas. Antes de este
           bloque vivían aquí dos tarjetas de consulta ("Tu clínica" y "Resumen de

@@ -44,9 +44,8 @@ export function MapaCalor({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* las arcadas se apilan por debajo de `lg`: emparejadas necesitan ~780px
-          y el mapa vive en una columna estrecha, asi que antes de eso cada
-          cuadrante ocupa el ancho completo y se lee sin desplazamiento */}
+      {/* Cada fila ocupa dos cuadrantes en escritorio. En pantallas menores se
+          apilan para que las piezas crezcan sin introducir scroll interno. */}
       <FilaArcadas
         izquierda={ARCADA_SUPERIOR_DERECHA}
         derecha={ARCADA_SUPERIOR_IZQUIERDA}
@@ -95,7 +94,7 @@ function FilaArcadas({
   onSelect: (r: ResumenPieza) => void;
 }) {
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
       <Arcada
         piezas={izquierda}
         arcada={arcada}
@@ -132,40 +131,50 @@ function Arcada({
   onSelect: (r: ResumenPieza) => void;
 }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-label-3">
+    <div className="flex h-full min-w-0 flex-col gap-2 rounded-ios-lg bg-black/[0.025] p-2.5 sm:p-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-label-2">
         {etiqueta}
       </p>
-      {/* 8 piezas a 36px caben en un movil de 390; a partir de lg grows a 44px
-          para cumplir el objetivo tactil de iOS donde hay espacio de sobra */}
-      <ul className="flex w-full gap-1 overflow-x-auto overscroll-x-contain pb-1 lg:gap-0.5">
+      {/* Cuatro columnas dan presencia a las piezas en móvil; desde `sm` las
+          ocho piezas vuelven a una sola fila. La grilla evita ambos overflows. */}
+      <ul className="grid w-full grid-cols-4 items-start gap-x-2 gap-y-1 sm:grid-cols-8 sm:gap-x-1.5 lg:gap-x-1">
         {piezas.map((pieza) => {
           const r = resumen(pieza);
           const activo = seleccion?.pieza === pieza;
           const color = COLOR_CONDICION[r.dominante];
           const vacio = r.pacientesAfectados === 0;
           return (
-            <li key={pieza}>
+            <li key={pieza} className="flex min-w-0 justify-center">
               <button
                 type="button"
                 onClick={() => onSelect(r)}
                 aria-pressed={activo}
                 aria-label={`Pieza ${pieza}, ${nombrePieza(pieza)}. ${color.etiqueta} en ${r.pacientesDominante} de ${r.totalPacientes} pacientes`}
                 className={cn(
-                  "press flex w-9 flex-col items-center gap-0.5 rounded-xl p-1 hover:bg-black/[0.04] lg:w-11",
+                  "press flex h-[4.25rem] w-full max-w-14 min-w-0 flex-col items-center gap-0.5 rounded-xl px-0.5 py-1 hover:bg-black/[0.05]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                   activo && "bg-black/[0.06] ring-2 ring-brand-400",
                 )}
               >
                 <span
-                  className={cn("flex h-8 w-8 items-center justify-center", color.clase)}
-                  style={{ opacity: vacio ? 0.28 : intensidadDe(r) }}
+                  className={cn("flex h-11 w-full shrink-0 items-center justify-center", color.clase)}
+                  style={{ opacity: vacio ? 0.68 : intensidadDe(r) }}
                 >
-                  <DienteSvg pieza={pieza} arcada={arcada} className="h-full w-full" />
+                  {/* La inversión propia de `DienteSvg` incluye una traslación
+                      pensada para su lienzo fijo. Aquí se invierte alrededor
+                      del centro para que el tamaño responsive no la desplace. */}
+                  <DienteSvg
+                    pieza={pieza}
+                    arcada="inferior"
+                    className={cn(
+                      "h-10 w-9 shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.14)]",
+                      arcada === "superior" && "origin-center scale-y-[-1]",
+                    )}
+                  />
                 </span>
                 <span
                   className={cn(
-                    "text-[9px] font-semibold tabular-nums",
+                    "block h-3 shrink-0 text-[10px] font-semibold leading-3 tabular-nums sm:text-[11px]",
                     vacio ? "text-label-3" : "text-label-2",
                   )}
                 >
