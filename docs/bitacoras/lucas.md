@@ -7,6 +7,7 @@ commit reescribe la tabla completa.
 ## Registro (Git)
 
 <!-- AUTO-LOG:START -->
-| Fecha y hora | Usuario | Descripción del cambio | Archivos modificados |
-|--------------|---------|------------------------|----------------------|
+| Fecha y hora     | Usuario | Descripción del cambio            | Archivos modificados                               |
+|------------------|---------|-----------------------------------|----------------------------------------------------|
+| 2026-11-22 21:22 | Lucas   | doc a medias, acomodar y terminar | APOYO.pdf, Implement prueba NOV.pdf, PROYECTOCOMP… |
 <!-- AUTO-LOG:END -->

@@ -1,0 +1,19 @@
+@startuml uc25_UC25
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+actor "Odontólogo" as A1
+rectangle "Sistema MiDentista" {
+  usecase "UC-25\nComparar odontogramas" as UC25
+}
+A0 --> UC25
+A1 --> UC25
+@enduml

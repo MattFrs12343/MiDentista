@@ -1,0 +1,21 @@
+@startuml uc42_UC42
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+actor "Odontólogo" as A1
+actor "Recepcionista" as A2
+rectangle "Sistema MiDentista" {
+  usecase "UC-42\nAplicar descuentos\ny calcular total" as UC42
+}
+A0 --> UC42
+A1 --> UC42
+A2 --> UC42
+@enduml

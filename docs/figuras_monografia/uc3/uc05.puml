@@ -1,0 +1,17 @@
+@startuml uc05_UC05
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Paciente" as A0
+rectangle "Sistema MiDentista" {
+  usecase "UC-05\nBuscar clínica por\nnombre o cercanía" as UC05
+}
+A0 --> UC05
+@enduml

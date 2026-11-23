@@ -1,0 +1,21 @@
+@startuml uc45_UC45
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+actor "Recepcionista" as A1
+actor "Odontólogo" as A2
+rectangle "Sistema MiDentista" {
+  usecase "UC-45\nRegistrar pago y\nestado de cuenta" as UC45
+}
+A0 --> UC45
+A1 --> UC45
+A2 --> UC45
+@enduml

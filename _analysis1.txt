@@ -1,0 +1,21 @@
+﻿python : Traceback (most recent call last):
+En línea: 1 Carácter: 1
++ python -c "
++ ~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "<string>", line 3, in <module>
+    d = docx.Document('PROYECTOCOMPLETO1.docx')
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\api.py", line 27, in Document
+    document_part = cast("DocumentPart", Package.open(docx).main_document_part)
+                                         ~~~~~~~~~~~~^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 126, in open
+    pkg_reader = PackageReader.from_file(pkg_file)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgreader.py", line 22, in 
+from_file
+    phys_reader = PhysPkgReader(pkg_file)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 21, in 
+__new__
+    raise PackageNotFoundError("Package not found at '%s'" % pkg_file)
+docx.opc.exceptions.PackageNotFoundError: Package not found at 'PROYECTOCOMPLETO1.docx'

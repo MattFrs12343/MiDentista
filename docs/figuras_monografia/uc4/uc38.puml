@@ -1,0 +1,23 @@
+@startuml uc38_UC38
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+actor "Odontólogo" as A1
+actor "Recepcionista" as A2
+actor "Paciente" as A3
+rectangle "Sistema MiDentista" {
+  usecase "UC-38\nReprogramar o cancelar" as UC38
+}
+A0 --> UC38
+A1 --> UC38
+A2 --> UC38
+A3 --> UC38
+@enduml

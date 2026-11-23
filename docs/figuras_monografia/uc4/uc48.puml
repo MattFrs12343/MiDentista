@@ -1,0 +1,21 @@
+@startuml uc48_UC48
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Recepcionista" as A0
+actor "Odontólogo\nadministrador" as A1
+actor "Paciente" as A2
+rectangle "Sistema MiDentista" {
+  usecase "UC-48\nMostrar código QR\nde cobro" as UC48
+}
+A0 --> UC48
+A1 --> UC48
+A2 --> UC48
+@enduml

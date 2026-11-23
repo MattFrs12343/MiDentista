@@ -1,0 +1,117 @@
+@startuml uc_ciclo3
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  PackageBorderColor 1F2D3D
+  PackageFontColor 1F2D3D
+  PackageFontStyle bold
+  PackageBackgroundColor FFFFFF
+  UseCaseFontSize 11
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+}
+
+actor "Odontólogo\nadministrador" as ODOA
+actor "Odontólogo" as ODO
+actor "Recepcionista" as REC
+actor "Paciente" as PAC
+
+package "PK-01\nAcceso y onboarding" as PK01 {
+  usecase "UC-02\nAfiliarse a una clínica" as U02
+  usecase "UC-03\nRegistrarse en el sistema" as U03
+  usecase "UC-04\nCrear la clínica" as U04
+  usecase "UC-05\nBuscar clínica por\nnombre o cercanía" as U05
+  usecase "UC-06\nRecuperar la contraseña" as U06
+  usecase "UC-07\nDar de alta al personal" as U07
+  usecase "UC-08\nConfigurar moneda y datos" as U08
+  usecase "UC-09\nCerrar sesión" as U09
+}
+
+package "PK-02\nGestión de pacientes" as PK02 {
+  usecase "UC-13\nRegistrar contacto\nde emergencia" as U13
+  usecase "UC-15\nListar y filtrar pacientes" as U15
+}
+
+package "PK-03\nHistoria clínica" as PK03 {
+  usecase "UC-19\nRegistrar observaciones" as U19
+  usecase "UC-20\nConsultar y actualizar" as U20
+}
+
+package "PK-04\nOdontograma" as PK04 {
+  usecase "UC-22\nVisualizar piezas dentales" as U22
+  usecase "UC-24\nRegistrar observaciones\npor pieza" as U24
+  usecase "UC-25\nComparar odontogramas" as U25
+}
+
+package "PK-05\nDiagnóstico y plan\nde tratamiento" as PK05 {
+  usecase "UC-27\nCambiar estado\ndel diagnóstico" as U27
+  usecase "UC-29\nAgregar procedimientos\ny costos" as U29
+  usecase "UC-30\nAceptar y activar el plan" as U30
+}
+
+' PK-01
+PAC --> U02
+ODOA --> U02
+PAC --> U03
+ODOA --> U04
+PAC --> U05
+PAC --> U06
+ODOA --> U06
+ODO --> U06
+REC --> U06
+ODOA --> U07
+ODOA --> U08
+ODOA --> U09
+ODO --> U09
+REC --> U09
+PAC --> U09
+
+U05 .> U02 : <<extend>>
+
+' PK-02
+ODOA --> U13
+ODO --> U13
+REC --> U13
+ODOA --> U15
+ODO --> U15
+REC --> U15
+
+' PK-03
+ODOA --> U19
+ODO --> U19
+ODOA --> U20
+ODO --> U20
+
+' PK-04
+ODOA --> U22
+ODO --> U22
+REC --> U22
+ODOA --> U24
+ODO --> U24
+ODOA --> U25
+ODO --> U25
+
+' PK-05
+ODOA --> U27
+ODO --> U27
+ODOA --> U29
+ODO --> U29
+ODOA --> U30
+ODO --> U30
+PAC --> U30 : <<recibe decisión>>
+
+note bottom of PK01
+  Ciclo 3 completa los flujos restantes de PK-01 a PK-05.
+  UC-02 a UC-09 cubren acceso, administración de clínica y cuenta.
+end note
+
+note bottom of PK05
+  UC-29 y UC-30 completan la gestión del plan de tratamiento
+  iniciado en el Ciclo 1 (UC-28).
+end note
+
+@enduml
