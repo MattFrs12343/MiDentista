@@ -1,0 +1,23 @@
+@startuml uc35_UC35
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+actor "Odontólogo" as A1
+actor "Recepcionista" as A2
+actor "Paciente" as A3
+rectangle "Sistema MiDentista" {
+  usecase "UC-35\nConsultar disponibilidad" as UC35
+}
+A0 --> UC35
+A1 --> UC35
+A2 --> UC35
+A3 --> UC35
+@enduml

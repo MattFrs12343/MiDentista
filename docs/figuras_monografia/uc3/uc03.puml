@@ -1,0 +1,17 @@
+@startuml uc03_UC03
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Paciente" as A0
+rectangle "Sistema MiDentista" {
+  usecase "UC-03\nRegistrarse en el sistema" as UC03
+}
+A0 --> UC03
+@enduml

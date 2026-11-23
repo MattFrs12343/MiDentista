@@ -1,0 +1,115 @@
+@startuml uc_ciclo4
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  PackageBorderColor 1F2D3D
+  PackageFontColor 1F2D3D
+  PackageFontStyle bold
+  PackageBackgroundColor FFFFFF
+  UseCaseFontSize 11
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+}
+
+actor "Odontólogo\nadministrador" as ODOA
+actor "Odontólogo" as ODO
+actor "Recepcionista" as REC
+actor "Paciente" as PAC
+
+package "PK-07\nAgenda y citas" as PK07 {
+  usecase "UC-34\nAsignar horarios" as U34
+  usecase "UC-35\nConsultar disponibilidad" as U35
+  usecase "UC-36\nAgendar una cita" as U36
+  usecase "UC-37\nConfirmar la cita" as U37
+  usecase "UC-38\nReprogramar o cancelar" as U38
+  usecase "UC-39\nAtender la agenda del día" as U39
+}
+
+package "PK-08\nPresupuestos" as PK08 {
+  usecase "UC-40\nGestionar catálogo\nde servicios" as U40
+  usecase "UC-41\nElaborar presupuesto" as U41
+  usecase "UC-42\nAplicar descuentos\ny calcular total" as U42
+  usecase "UC-43\nEnviar y cambiar estado" as U43
+  usecase "UC-44\nConsultar y modificar" as U44
+}
+
+package "PK-09\nPagos y cuentas" as PK09 {
+  usecase "UC-45\nRegistrar pago y\nestado de cuenta" as U45
+  usecase "UC-46\nConsultar historial\nde pagos" as U46
+  usecase "UC-47\nConsultar saldo pendiente" as U47
+  usecase "UC-48\nMostrar código QR\nde cobro" as U48
+}
+
+' PK-07
+ODOA --> U34
+ODOA --> U35
+ODO --> U35
+REC --> U35
+PAC --> U35
+ODOA --> U36
+ODO --> U36
+REC --> U36
+PAC --> U36
+ODOA --> U37
+ODO --> U37
+REC --> U37
+PAC --> U37
+ODOA --> U38
+ODO --> U38
+REC --> U38
+PAC --> U38
+ODOA --> U39
+ODO --> U39
+REC --> U39
+
+U35 .> U36 : <<include>>
+
+' PK-08
+ODOA --> U40
+ODOA --> U41
+ODO --> U41
+REC --> U41
+ODOA --> U42
+ODO --> U42
+REC --> U42
+ODOA --> U43
+ODO --> U43
+REC --> U43
+ODOA --> U44
+ODO --> U44
+REC --> U44
+
+U42 .> U41 : <<extend>>
+
+' PK-09
+ODOA --> U45
+REC --> U45
+ODO --> U45
+ODOA --> U46
+ODO --> U46
+REC --> U46
+PAC --> U46
+ODOA --> U47
+ODO --> U47
+REC --> U47
+PAC --> U47
+ODOA --> U48
+REC --> U48
+PAC --> U48 : <<recibe QR>>
+
+note bottom of PK07
+  El flujo de agenda cubre desde la configuración de horarios
+  hasta la atención del día, incluyendo reserva, confirmación
+  y cambios de cita.
+end note
+
+note bottom of PK09
+  El ciclo económico cierra con registro de pagos, consulta
+  de historial/saldo y presentación del QR de cobro.
+end note
+
+@enduml

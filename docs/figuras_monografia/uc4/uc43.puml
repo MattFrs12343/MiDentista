@@ -1,0 +1,21 @@
+@startuml uc43_UC43
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+actor "Odontólogo" as A1
+actor "Recepcionista" as A2
+rectangle "Sistema MiDentista" {
+  usecase "UC-43\nEnviar y cambiar estado" as UC43
+}
+A0 --> UC43
+A1 --> UC43
+A2 --> UC43
+@enduml

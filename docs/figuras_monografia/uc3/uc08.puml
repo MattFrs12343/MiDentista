@@ -1,0 +1,17 @@
+@startuml uc08_UC08
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+rectangle "Sistema MiDentista" {
+  usecase "UC-08\nConfigurar moneda y datos" as UC08
+}
+A0 --> UC08
+@enduml

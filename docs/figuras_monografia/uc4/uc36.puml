@@ -1,0 +1,23 @@
+@startuml uc36_UC36
+skinparam shadowing false
+skinparam defaultFontName Arial
+left to right direction
+skinparam actorStyle awesome
+skinparam {
+  UseCaseFontSize 13
+  UseCaseBorderColor 5B6B7B
+  UseCaseBackgroundColor FFFFFF
+  ActorBorderColor 1F2D3D
+}
+actor "Odontólogo\nadministrador" as A0
+actor "Odontólogo" as A1
+actor "Recepcionista" as A2
+actor "Paciente" as A3
+rectangle "Sistema MiDentista" {
+  usecase "UC-36\nAgendar una cita" as UC36
+}
+A0 --> UC36
+A1 --> UC36
+A2 --> UC36
+A3 --> UC36
+@enduml
