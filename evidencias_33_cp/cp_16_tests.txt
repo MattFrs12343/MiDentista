@@ -1,0 +1,73 @@
+{
+  "cp": "CP-16",
+  "command": "node --test --test-reporter=tap src/features/pagos/qrCobroService.test.ts",
+  "started_at": "2026-11-23T14:32:05.933488-04:00",
+  "duration_seconds": 0.168,
+  "exit_code": 0,
+  "tests": 8,
+  "pass": 8,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: rutaQrCobro es fija por clínica, sin extensión
+ok 1 - rutaQrCobro es fija por clínica, sin extensión
+  ---
+  duration_ms: 0.4702
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro exige un UUID real de clínica
+ok 2 - obtenerUrlQrCobro exige un UUID real de clínica
+  ---
+  duration_ms: 0.3214
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro devuelve la URL firmada cuando el objeto existe
+ok 3 - obtenerUrlQrCobro devuelve la URL firmada cuando el objeto existe
+  ---
+  duration_ms: 0.3857
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro devuelve null si todavía no hay QR subido
+ok 4 - obtenerUrlQrCobro devuelve null si todavía no hay QR subido
+  ---
+  duration_ms: 0.1398
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro relanza otros errores de Storage
+ok 5 - obtenerUrlQrCobro relanza otros errores de Storage
+  ---
+  duration_ms: 0.1078
+  type: 'test'
+  ...
+# Subtest: subirQrCobro rechaza un archivo que no pasa la validación local, sin tocar la red
+ok 6 - subirQrCobro rechaza un archivo que no pasa la validación local, sin tocar la red
+  ---
+  duration_ms: 0.3015
+  type: 'test'
+  ...
+# Subtest: subirQrCobro sube con upsert y devuelve una URL firmada nueva
+ok 7 - subirQrCobro sube con upsert y devuelve una URL firmada nueva
+  ---
+  duration_ms: 0.183
+  type: 'test'
+  ...
+# Subtest: subirQrCobro propaga el error si Storage rechaza la subida
+ok 8 - subirQrCobro propaga el error si Storage rechaza la subida
+  ---
+  duration_ms: 0.1378
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 129.2134
+

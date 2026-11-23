@@ -1,0 +1,73 @@
+{
+  "cp": "CP-07",
+  "command": "node --test --test-reporter=tap src/features/clinical/clinicalHistoryMapper.test.ts",
+  "started_at": "2026-11-23T14:32:04.613586-04:00",
+  "duration_seconds": 0.123,
+  "exit_code": 0,
+  "tests": 8,
+  "pass": 8,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: JSON conserva textos, listas, alergias y antecedentes sin separadores ambiguos
+ok 1 - JSON conserva textos, listas, alergias y antecedentes sin separadores ambiguos
+  ---
+  duration_ms: 0.9581
+  type: 'test'
+  ...
+# Subtest: columnas null devuelven una historia vacía válida
+ok 2 - columnas null devuelven una historia vacía válida
+  ---
+  duration_ms: 0.098
+  type: 'test'
+  ...
+# Subtest: texto legado se conserva en antecedentes y como un único elemento de lista
+ok 3 - texto legado se conserva en antecedentes y como un único elemento de lista
+  ---
+  duration_ms: 0.0759
+  type: 'test'
+  ...
+# Subtest: JSON inválido o con tipos incorrectos produce error, no datos vacíos
+ok 4 - JSON inválido o con tipos incorrectos produce error, no datos vacíos
+  ---
+  duration_ms: 0.2712
+  type: 'test'
+  ...
+# Subtest: no se inventa la severidad de alergias antiguas
+ok 5 - no se inventa la severidad de alergias antiguas
+  ---
+  duration_ms: 0.1027
+  type: 'test'
+  ...
+# Subtest: alergias JSON sin id reciben solo un identificador local y conservan severidad
+ok 6 - alergias JSON sin id reciben solo un identificador local y conservan severidad
+  ---
+  duration_ms: 0.0701
+  type: 'test'
+  ...
+# Subtest: trazabilidad lee la fecha del servidor sin fabricar responsable
+ok 7 - trazabilidad lee la fecha del servidor sin fabricar responsable
+  ---
+  duration_ms: 0.4451
+  type: 'test'
+  ...
+# Subtest: IDs locales no pasan la validación de UUID
+ok 8 - IDs locales no pasan la validación de UUID
+  ---
+  duration_ms: 0.124
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 79.7177
+

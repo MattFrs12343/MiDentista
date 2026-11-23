@@ -1,0 +1,4211 @@
+{
+  "id": "suite",
+  "command": "node --test --test-concurrency=1 --test-reporter=tap src/**/*.test.ts ../supabase/functions/archivos/*.test.ts",
+  "directory": "C:\\angelicaaa\\si1\\proyecto clinica dental\\MiDentista\\frontend",
+  "started_at": "2026-11-23T13:53:15.496618-04:00",
+  "ended_at": "2026-11-23T13:53:58.335664-04:00",
+  "duration_seconds": 42.839,
+  "exit_code": 0,
+  "tests": 697,
+  "suites": 0,
+  "pass": 697,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "duration_ms": 42778.7553
+}
+
+TAP version 13
+# Subtest: cuota decimal: espacio, límite exacto, un byte por encima y configuración pequeña
+ok 1 - cuota decimal: espacio, límite exacto, un byte por encima y configuración pequeña
+  ---
+  duration_ms: 0.8976
+  type: 'test'
+  ...
+# Subtest: subida con espacio confirma y actualiza consumo sin doble contabilización
+ok 2 - subida con espacio confirma y actualiza consumo sin doble contabilización
+  ---
+  duration_ms: 7.2381
+  type: 'test'
+  ...
+# Subtest: reserva rechazada no crea objeto y devuelve código claro
+ok 3 - reserva rechazada no crea objeto y devuelve código claro
+  ---
+  duration_ms: 0.1732
+  type: 'test'
+  ...
+# Subtest: confirmación e idempotencia no duplican upload ni consumo
+ok 4 - confirmación e idempotencia no duplican upload ni consumo
+  ---
+  duration_ms: 0.1434
+  type: 'test'
+  ...
+# Subtest: dos operaciones simultáneas conceptuales: quedan 6, dos de 4, solo una reserva
+ok 5 - dos operaciones simultáneas conceptuales: quedan 6, dos de 4, solo una reserva
+  ---
+  duration_ms: 0.3547
+  type: 'test'
+  ...
+# Subtest: confirmación incierta conserva bytes y nunca elimina objetos
+ok 6 - confirmación incierta conserva bytes y nunca elimina objetos
+  ---
+  duration_ms: 0.1433
+  type: 'test'
+  ...
+# Subtest: timeout/409/500 Storage conservan reserva, sin nuevo upload al consultar otra vez
+ok 7 - timeout/409/500 Storage conservan reserva, sin nuevo upload al consultar otra vez
+  ---
+  duration_ms: 0.242
+  type: 'test'
+  ...
+# Subtest: rechazo HTTP definitivo del único upload cancela reserva con confirmación SQL
+ok 8 - rechazo HTTP definitivo del único upload cancela reserva con confirmación SQL
+  ---
+  duration_ms: 0.1581
+  type: 'test'
+  ...
+# Subtest: si cancelar un rechazo falla, no se anuncia liberación segura
+ok 9 - si cancelar un rechazo falla, no se anuncia liberación segura
+  ---
+  duration_ms: 0.2222
+  type: 'test'
+  ...
+# Subtest: fallar al marcar incierta conserva el estado durable subiendo y los bytes
+ok 10 - fallar al marcar incierta conserva el estado durable subiendo y los bytes
+  ---
+  duration_ms: 0.1963
+  type: 'test'
+  ...
+# Subtest: cuota/actor denegados y payload idempotente incompatible no inician upload
+ok 11 - cuota/actor denegados y payload idempotente incompatible no inician upload
+  ---
+  duration_ms: 0.2047
+  type: 'test'
+  ...
+# Subtest: una operación incierta puede confirmarse después sin repetir transferencia
+ok 12 - una operación incierta puede confirmarse después sin repetir transferencia
+  ---
+  duration_ms: 0.1317
+  type: 'test'
+  ...
+# Subtest: seguridad clínica A/B y perfil inactivo: backend no usa clínica arbitraria
+ok 13 - seguridad clínica A/B y perfil inactivo: backend no usa clínica arbitraria
+  ---
+  duration_ms: 0.3566
+  type: 'test'
+  ...
+# Subtest: recepción no gana evoluciones; odontologo_admin mantiene acceso y paciente no asocia
+ok 14 - recepción no gana evoluciones; odontologo_admin mantiene acceso y paciente no asocia
+  ---
+  duration_ms: 0.0726
+  type: 'test'
+  ...
+# Subtest: auditoría global solo superadmin activo, ni siquiera odontologo_admin
+ok 15 - auditoría global solo superadmin activo, ni siquiera odontologo_admin
+  ---
+  duration_ms: 0.0737
+  type: 'test'
+  ...
+# Subtest: tamaño real y firmas binarias JPEG/PNG/WEBP/PDF, no solo MIME declarado
+ok 16 - tamaño real y firmas binarias JPEG/PNG/WEBP/PDF, no solo MIME declarado
+  ---
+  duration_ms: 0.462
+  type: 'test'
+  ...
+# Subtest: opciones evolución filtran paciente/clínica y piden fecha, creación e id descendentes
+ok 17 - opciones evolución filtran paciente/clínica y piden fecha, creación e id descendentes
+  ---
+  duration_ms: 77.1343
+  type: 'test'
+  ...
+# Subtest: planes se leen sin crear y se ordenan por creación/id; fallback no muestra UUID
+ok 18 - planes se leen sin crear y se ordenan por creación/id; fallback no muestra UUID
+  ---
+  duration_ms: 0.6638
+  type: 'test'
+  ...
+# Subtest: errores/null no son lista vacía; UUID inválido no toca red; otro contexto se rechaza
+ok 19 - errores/null no son lista vacía; UUID inválido no toca red; otro contexto se rechaza
+  ---
+  duration_ms: 0.7654
+  type: 'test'
+  ...
+# Subtest: etiquetas usan procedimiento o motivo y fallback de plan
+ok 20 - etiquetas usan procedimiento o motivo y fallback de plan
+  ---
+  duration_ms: 0.4574
+  type: 'test'
+  ...
+# Subtest: galería general no consulta asociaciones; evolución/plan visibles muestran resumen
+ok 21 - galería general no consulta asociaciones; evolución/plan visibles muestran resumen
+  ---
+  duration_ms: 1.0958
+  type: 'test'
+  ...
+# Subtest: asociación invisible/error mantiene archivo y muestra texto neutro
+ok 22 - asociación invisible/error mantiene archivo y muestra texto neutro
+  ---
+  duration_ms: 0.2466
+  type: 'test'
+  ...
+# Subtest: selector solo ofrece asociaciones al equipo real activo, no a portal
+ok 23 - selector solo ofrece asociaciones al equipo real activo, no a portal
+  ---
+  duration_ms: 0.3025
+  type: 'test'
+  ...
+# Subtest: reporte administrativo se obtiene sin ninguna API de escritura o borrado
+ok 24 - reporte administrativo se obtiene sin ninguna API de escritura o borrado
+  ---
+  duration_ms: 1.4898
+  type: 'test'
+  ...
+# Subtest: inventario truncado/indeterminado no publica falsos A o B
+ok 25 - inventario truncado/indeterminado no publica falsos A o B
+  ---
+  duration_ms: 0.2221
+  type: 'test'
+  ...
+# Subtest: denegación administrativa, error y respuesta nula no son inventario vacío exitoso
+ok 26 - denegación administrativa, error y respuesta nula no son inventario vacío exitoso
+  ---
+  duration_ms: 0.3803
+  type: 'test'
+  ...
+# Subtest: cuota usa RPC autorizada, devuelve bytes y cuenta reservas en disponibilidad
+ok 27 - cuota usa RPC autorizada, devuelve bytes y cuenta reservas en disponibilidad
+  ---
+  duration_ms: 13.3506
+  type: 'test'
+  ...
+# Subtest: cuota configurable y sobreconsumo anterior no producen disponibles negativos
+ok 28 - cuota configurable y sobreconsumo anterior no producen disponibles negativos
+  ---
+  duration_ms: 0.1327
+  type: 'test'
+  ...
+# Subtest: UUID demo, respuesta null, error RLS y clínica ajena no se convierten en uso cero
+ok 29 - UUID demo, respuesta null, error RLS y clínica ajena no se convierten en uso cero
+  ---
+  duration_ms: 0.5216
+  type: 'test'
+  ...
+# Subtest: recargar después de éxito refleja aumento de consumo y mensaje de cuota no filtra SQL
+ok 30 - recargar después de éxito refleja aumento de consumo y mensaje de cuota no filtra SQL
+  ---
+  duration_ms: 0.1525
+  type: 'test'
+  ...
+# Subtest: descargables dependen del MIME, sin filtro por categoría ni clasificación
+ok 31 - descargables dependen del MIME, sin filtro por categoría ni clasificación
+  ---
+  duration_ms: 1.1645
+  type: 'test'
+  ...
+# Subtest: doble clic queda bloqueado antes de red y otro archivo descarga independientemente
+ok 32 - doble clic queda bloqueado antes de red y otro archivo descarga independientemente
+  ---
+  duration_ms: 0.8098
+  type: 'test'
+  ...
+# Subtest: id fuera de lista, paciente incorrecto y MIME no permitido nunca acceden a red
+ok 33 - id fuera de lista, paciente incorrecto y MIME no permitido nunca acceden a red
+  ---
+  duration_ms: 0.1061
+  type: 'test'
+  ...
+# Subtest: invalidación cancela señal y una respuesta tardía no inicia descarga ni publica estado
+ok 34 - invalidación cancela señal y una respuesta tardía no inicia descarga ni publica estado
+  ---
+  duration_ms: 0.1583
+  type: 'test'
+  ...
+# Subtest: error es local, no expone detalles y permite reintentar el mismo archivo
+ok 35 - error es local, no expone detalles y permite reintentar el mismo archivo
+  ---
+  duration_ms: 0.265
+  type: 'test'
+  ...
+# Subtest: resultado con id o paciente incompatibles no se entrega
+ok 36 - resultado con id o paciente incompatibles no se entrega
+  ---
+  duration_ms: 0.1818
+  type: 'test'
+  ...
+# Subtest: entrega usa Blob, nombre original, click y elimina enlace; revoca diferido
+ok 37 - entrega usa Blob, nombre original, click y elimina enlace; revoca diferido
+  ---
+  duration_ms: 0.2347
+  type: 'test'
+  ...
+# Subtest: fallos previos a la entrega revocan inmediatamente y retiran enlace si existe
+ok 38 - fallos previos a la entrega revocan inmediatamente y retiran enlace si existe
+  ---
+  duration_ms: 0.2421
+  type: 'test'
+  ...
+# Subtest: si no puede programarse cleanup, la URL tampoco queda sin revocar
+ok 39 - si no puede programarse cleanup, la URL tampoco queda sin revocar
+  ---
+  duration_ms: 0.0967
+  type: 'test'
+  ...
+# Subtest: validación de Blob conserva bytes y rechaza contenido inválido o demasiado grande
+ok 40 - validación de Blob conserva bytes y rechaza contenido inválido o demasiado grande
+  ---
+  duration_ms: 4.7116
+  type: 'test'
+  ...
+# Subtest: clasifica códigos y transporte sin publicar mensajes técnicos
+ok 41 - clasifica códigos y transporte sin publicar mensajes técnicos
+  ---
+  duration_ms: 0.2206
+  type: 'test'
+  ...
+# Subtest: objeto vigente con fila correcta no es huérfano
+ok 42 - objeto vigente con fila correcta no es huérfano
+  ---
+  duration_ms: 1.5724
+  type: 'test'
+  ...
+# Subtest: objeto vigente sin fila se reporta como A
+ok 43 - objeto vigente sin fila se reporta como A
+  ---
+  duration_ms: 0.2733
+  type: 'test'
+  ...
+# Subtest: fila sin objeto vigente se reporta como B
+ok 44 - fila sin objeto vigente se reporta como B
+  ---
+  duration_ms: 0.1694
+  type: 'test'
+  ...
+# Subtest: dos clínicas y filtro exacto no mezclan rutas
+ok 45 - dos clínicas y filtro exacto no mezclan rutas
+  ---
+  duration_ms: 0.2135
+  type: 'test'
+  ...
+# Subtest: qr-cobros y cualquier otro bucket se ignoran
+ok 46 - qr-cobros y cualquier otro bucket se ignoran
+  ---
+  duration_ms: 0.2267
+  type: 'test'
+  ...
+# Subtest: archivo archivado no acredita objeto vigente y nunca se propone como A
+ok 47 - archivo archivado no acredita objeto vigente y nunca se propone como A
+  ---
+  duration_ms: 0.2117
+  type: 'test'
+  ...
+# Subtest: inventario incompleto no prueba ausencia en ninguno de los dos sentidos
+ok 48 - inventario incompleto no prueba ausencia en ninguno de los dos sentidos
+  ---
+  duration_ms: 0.2065
+  type: 'test'
+  ...
+# Subtest: subida reciente, operación pendiente y fecha desconocida son indeterminados
+ok 49 - subida reciente, operación pendiente y fecha desconocida son indeterminados
+  ---
+  duration_ms: 0.2089
+  type: 'test'
+  ...
+# Subtest: detección no muta ni elimina ningún objeto o registro
+ok 50 - detección no muta ni elimina ningún objeto o registro
+  ---
+  duration_ms: 9.27
+  type: 'test'
+  ...
+# Subtest: fotografía y radiografía se mapean sin inferir la clasificación por MIME
+ok 51 - fotografía y radiografía se mapean sin inferir la clasificación por MIME
+  ---
+  duration_ms: 1.7747
+  type: 'test'
+  ...
+# Subtest: la descripción escrita se recorta y vacía se guarda como null
+ok 52 - la descripción escrita se recorta y vacía se guarda como null
+  ---
+  duration_ms: 0.2842
+  type: 'test'
+  ...
+# Subtest: categorías y clasificaciones desconocidas producen errores explícitos
+ok 53 - categorías y clasificaciones desconocidas producen errores explícitos
+  ---
+  duration_ms: 0.5382
+  type: 'test'
+  ...
+# Subtest: el autor es obligatorio y los campos NOT NULL no se inventan
+ok 54 - el autor es obligatorio y los campos NOT NULL no se inventan
+  ---
+  duration_ms: 0.2563
+  type: 'test'
+  ...
+# Subtest: la ruta usa tres segmentos, UUID normalizados y extensión canónica
+ok 55 - la ruta usa tres segmentos, UUID normalizados y extensión canónica
+  ---
+  duration_ms: 4.3734
+  type: 'test'
+  ...
+# Subtest: cada intento genera una ruta distinta sin utilizar Date.now
+ok 56 - cada intento genera una ruta distinta sin utilizar Date.now
+  ---
+  duration_ms: 0.6738
+  type: 'test'
+  ...
+# Subtest: la ruta rechaza ids de demo y MIME no soportado por el módulo
+ok 57 - la ruta rechaza ids de demo y MIME no soportado por el módulo
+  ---
+  duration_ms: 0.1256
+  type: 'test'
+  ...
+# Subtest: la falta de crypto.randomUUID produce un error explícito
+ok 58 - la falta de crypto.randomUUID produce un error explícito
+  ---
+  duration_ms: 0.141
+  type: 'test'
+  ...
+# Subtest: el mapper no acepta rutas que mezclen clínica y paciente
+ok 59 - el mapper no acepta rutas que mezclen clínica y paciente
+  ---
+  duration_ms: 0.102
+  type: 'test'
+  ...
+# Subtest: ruta PDF única de tres segmentos con UUID en minúsculas y sin nombre original
+ok 60 - ruta PDF única de tres segmentos con UUID en minúsculas y sin nombre original
+  ---
+  duration_ms: 0.1626
+  type: 'test'
+  ...
+# Subtest: PDF se mapea como documento con categoría clínica o administrativa
+ok 61 - PDF se mapea como documento con categoría clínica o administrativa
+  ---
+  duration_ms: 0.1443
+  type: 'test'
+  ...
+# Subtest: metadata de galería conserva timestamp completo y normaliza descripción null
+ok 62 - metadata de galería conserva timestamp completo y normaliza descripción null
+  ---
+  duration_ms: 0.0596
+  type: 'test'
+  ...
+# Subtest: documento escaneado con MIME de imagen sigue permitido y no cambia categoría
+ok 63 - documento escaneado con MIME de imagen sigue permitido y no cambia categoría
+  ---
+  duration_ms: 0.0566
+  type: 'test'
+  ...
+# Subtest: archivos anteriores tras migración son generales y referencias se mapean sin inferir
+ok 64 - archivos anteriores tras migración son generales y referencias se mapean sin inferir
+  ---
+  duration_ms: 0.0742
+  type: 'test'
+  ...
+# Subtest: mapper rechaza referencias simultáneas, UUID inválido y columnas omitidas
+ok 65 - mapper rechaza referencias simultáneas, UUID inválido y columnas omitidas
+  ---
+  duration_ms: 0.0826
+  type: 'test'
+  ...
+# Subtest: DTO discriminado se normaliza a null/UUID sin aceptar ambos destinos
+ok 66 - DTO discriminado se normaliza a null/UUID sin aceptar ambos destinos
+  ---
+  duration_ms: 0.5362
+  type: 'test'
+  ...
+# Subtest: acepta foto.jpg con su MIME y conserva el File original
+ok 67 - acepta foto.jpg con su MIME y conserva el File original
+  ---
+  duration_ms: 1.6362
+  type: 'test'
+  ...
+# Subtest: acepta foto.jpeg con su MIME y conserva el File original
+ok 68 - acepta foto.jpeg con su MIME y conserva el File original
+  ---
+  duration_ms: 0.1485
+  type: 'test'
+  ...
+# Subtest: acepta foto.png con su MIME y conserva el File original
+ok 69 - acepta foto.png con su MIME y conserva el File original
+  ---
+  duration_ms: 0.0889
+  type: 'test'
+  ...
+# Subtest: acepta foto.webp con su MIME y conserva el File original
+ok 70 - acepta foto.webp con su MIME y conserva el File original
+  ---
+  duration_ms: 0.0636
+  type: 'test'
+  ...
+# Subtest: acepta informe.pdf con su MIME y conserva el File original
+ok 71 - acepta informe.pdf con su MIME y conserva el File original
+  ---
+  duration_ms: 0.0705
+  type: 'test'
+  ...
+# Subtest: rechaza archivos vacíos
+ok 72 - rechaza archivos vacíos
+  ---
+  duration_ms: 0.1463
+  type: 'test'
+  ...
+# Subtest: acepta exactamente 10 MiB
+ok 73 - acepta exactamente 10 MiB
+  ---
+  duration_ms: 3.8691
+  type: 'test'
+  ...
+# Subtest: rechaza 10 MiB más un byte
+ok 74 - rechaza 10 MiB más un byte
+  ---
+  duration_ms: 4.8708
+  type: 'test'
+  ...
+# Subtest: rechaza MIME no permitido y el comodín image/*
+ok 75 - rechaza MIME no permitido y el comodín image/*
+  ---
+  duration_ms: 0.2334
+  type: 'test'
+  ...
+# Subtest: rechaza extensión no permitida aunque el MIME esté permitido
+ok 76 - rechaza extensión no permitida aunque el MIME esté permitido
+  ---
+  duration_ms: 0.1421
+  type: 'test'
+  ...
+# Subtest: rechaza nombres sin extensión y extensiones dobles engañosas
+ok 77 - rechaza nombres sin extensión y extensiones dobles engañosas
+  ---
+  duration_ms: 0.1049
+  type: 'test'
+  ...
+# Subtest: rechaza correspondencias incorrectas de extensión y MIME
+ok 78 - rechaza correspondencias incorrectas de extensión y MIME
+  ---
+  duration_ms: 0.1274
+  type: 'test'
+  ...
+# Subtest: rechaza nombre vacío
+ok 79 - rechaza nombre vacío
+  ---
+  duration_ms: 0.0453
+  type: 'test'
+  ...
+# Subtest: rechaza nombre compuesto solo por espacios
+ok 80 - rechaza nombre compuesto solo por espacios
+  ---
+  duration_ms: 0.038
+  type: 'test'
+  ...
+# Subtest: rechaza más de un archivo sin modificar la colección
+ok 81 - rechaza más de un archivo sin modificar la colección
+  ---
+  duration_ms: 0.3804
+  type: 'test'
+  ...
+# Subtest: devuelve un error explícito cuando no hay archivo
+ok 82 - devuelve un error explícito cuando no hay archivo
+  ---
+  duration_ms: 0.0534
+  type: 'test'
+  ...
+# Subtest: rechaza MIME vacío aunque la extensión sea válida
+ok 83 - rechaza MIME vacío aunque la extensión sea válida
+  ---
+  duration_ms: 0.0452
+  type: 'test'
+  ...
+# Subtest: acepta extensiones en mayúsculas para todos los formatos
+ok 84 - acepta extensiones en mayúsculas para todos los formatos
+  ---
+  duration_ms: 0.0924
+  type: 'test'
+  ...
+# Subtest: acepta una colección similar a FileList sin requerir un array
+ok 85 - acepta una colección similar a FileList sin requerir un array
+  ---
+  duration_ms: 0.0602
+  type: 'test'
+  ...
+# Subtest: el flujo de imágenes rechaza PDF sin cambiar el selector genérico
+ok 86 - el flujo de imágenes rechaza PDF sin cambiar el selector genérico
+  ---
+  duration_ms: 0.0578
+  type: 'test'
+  ...
+# Subtest: JPG, PNG y WEBP son válidos como fotografías o radiografías explícitas
+ok 87 - JPG, PNG y WEBP son válidos como fotografías o radiografías explícitas
+  ---
+  duration_ms: 0.0671
+  type: 'test'
+  ...
+# Subtest: el flujo de imágenes rechaza una clasificación inválida
+ok 88 - el flujo de imágenes rechaza una clasificación inválida
+  ---
+  duration_ms: 0.0655
+  type: 'test'
+  ...
+# Subtest: el flujo de imágenes conserva las validaciones de tamaño y selección única
+ok 89 - el flujo de imágenes conserva las validaciones de tamaño y selección única
+  ---
+  duration_ms: 0.0396
+  type: 'test'
+  ...
+# Subtest: el flujo documental acepta PDF y extensión .PDF sin alterar el File
+ok 90 - el flujo documental acepta PDF y extensión .PDF sin alterar el File
+  ---
+  duration_ms: 0.0525
+  type: 'test'
+  ...
+# Subtest: el flujo documental rechaza todas las imágenes permitidas por el selector
+ok 91 - el flujo documental rechaza todas las imágenes permitidas por el selector
+  ---
+  duration_ms: 0.0665
+  type: 'test'
+  ...
+# Subtest: el flujo documental rechaza MIME vacío, desconocido y discrepancias con .pdf
+ok 92 - el flujo documental rechaza MIME vacío, desconocido y discrepancias con .pdf
+  ---
+  duration_ms: 0.0453
+  type: 'test'
+  ...
+# Subtest: el flujo documental rechaza extensiones no PDF o incompatibles
+ok 93 - el flujo documental rechaza extensiones no PDF o incompatibles
+  ---
+  duration_ms: 0.0391
+  type: 'test'
+  ...
+# Subtest: el flujo documental conserva nombres obligatorios y selección única
+ok 94 - el flujo documental conserva nombres obligatorios y selección única
+  ---
+  duration_ms: 0.0515
+  type: 'test'
+  ...
+# Subtest: el flujo documental rechaza PDF vacío
+ok 95 - el flujo documental rechaza PDF vacío
+  ---
+  duration_ms: 0.0266
+  type: 'test'
+  ...
+# Subtest: el flujo documental acepta exactamente 10 MiB y rechaza un byte más
+ok 96 - el flujo documental acepta exactamente 10 MiB y rechaza un byte más
+  ---
+  duration_ms: 6.5772
+  type: 'test'
+  ...
+# Subtest: descarga autenticada jpg: fila real, nombre original, ruta y MIME
+ok 97 - descarga autenticada jpg: fila real, nombre original, ruta y MIME
+  ---
+  duration_ms: 3.0171
+  type: 'test'
+  ...
+# Subtest: descarga autenticada png: fila real, nombre original, ruta y MIME
+ok 98 - descarga autenticada png: fila real, nombre original, ruta y MIME
+  ---
+  duration_ms: 0.3656
+  type: 'test'
+  ...
+# Subtest: descarga autenticada webp: fila real, nombre original, ruta y MIME
+ok 99 - descarga autenticada webp: fila real, nombre original, ruta y MIME
+  ---
+  duration_ms: 0.1525
+  type: 'test'
+  ...
+# Subtest: descarga autenticada pdf: fila real, nombre original, ruta y MIME
+ok 100 - descarga autenticada pdf: fila real, nombre original, ruta y MIME
+  ---
+  duration_ms: 0.1776
+  type: 'test'
+  ...
+# Subtest: descarga valida ambos UUID y señal cancelada antes de red
+ok 101 - descarga valida ambos UUID y señal cancelada antes de red
+  ---
+  duration_ms: 0.5397
+  type: 'test'
+  ...
+# Subtest: descarga rechaza consulta, fila invisible y fila de otro paciente sin tocar Storage
+ok 102 - descarga rechaza consulta, fila invisible y fila de otro paciente sin tocar Storage
+  ---
+  duration_ms: 0.6327
+  type: 'test'
+  ...
+# Subtest: descarga transforma errores de Storage en mensajes amigables
+ok 103 - descarga transforma errores de Storage en mensajes amigables
+  ---
+  duration_ms: 0.4434
+  type: 'test'
+  ...
+# Subtest: descarga rechaza Blob nulo, vacío, MIME contradictorio y metadatos inválidos
+ok 104 - descarga rechaza Blob nulo, vacío, MIME contradictorio y metadatos inválidos
+  ---
+  duration_ms: 0.3066
+  type: 'test'
+  ...
+# Subtest: MIME vacío u octet-stream se normaliza sin alterar bytes
+ok 105 - MIME vacío u octet-stream se normaliza sin alterar bytes
+  ---
+  duration_ms: 0.4265
+  type: 'test'
+  ...
+# Subtest: galería consulta public.archivos con columnas, paciente y orden descendente explícitos
+ok 106 - galería consulta public.archivos con columnas, paciente y orden descendente explícitos
+  ---
+  duration_ms: 0.331
+  type: 'test'
+  ...
+# Subtest: galería rechaza UUID demo antes de tocar la red
+ok 107 - galería rechaza UUID demo antes de tocar la red
+  ---
+  duration_ms: 0.1283
+  type: 'test'
+  ...
+# Subtest: galería acepta [] y conserva el orden recibido sin reordenar el mapper
+ok 108 - galería acepta [] y conserva el orden recibido sin reordenar el mapper
+  ---
+  duration_ms: 0.1213
+  type: 'test'
+  ...
+# Subtest: galería no confunde error, excepción o data null con lista vacía
+ok 109 - galería no confunde error, excepción o data null con lista vacía
+  ---
+  duration_ms: 0.1316
+  type: 'test'
+  ...
+# Subtest: firma utiliza bucket privado, ruta real y 300 segundos o duración explícita
+ok 110 - firma utiliza bucket privado, ruta real y 300 segundos o duración explícita
+  ---
+  duration_ms: 0.1496
+  type: 'test'
+  ...
+# Subtest: firma rechaza errores, excepciones y URLs ausentes o vacías
+ok 111 - firma rechaza errores, excepciones y URLs ausentes o vacías
+  ---
+  duration_ms: 0.1775
+  type: 'test'
+  ...
+# Subtest: delegación segura conserva datos del File y fila real confirmada sin escritura directa
+ok 112 - delegación segura conserva datos del File y fila real confirmada sin escritura directa
+  ---
+  duration_ms: 24.2663
+  type: 'test'
+  ...
+# Subtest: radiografía explícita, PNG y WEBP mantienen clasificación y extensión canónica
+ok 113 - radiografía explícita, PNG y WEBP mantienen clasificación y extensión canónica
+  ---
+  duration_ms: 0.4377
+  type: 'test'
+  ...
+# Subtest: cada intento tiene una ruta nueva incluso después de un rechazo
+ok 114 - cada intento tiene una ruta nueva incluso después de un rechazo
+  ---
+  duration_ms: 0.3883
+  type: 'test'
+  ...
+# Subtest: ids demo, PDF y clasificación incorrecta se rechazan antes de tocar la red
+ok 115 - ids demo, PDF y clasificación incorrecta se rechazan antes de tocar la red
+  ---
+  duration_ms: 0.2578
+  type: 'test'
+  ...
+# Subtest: usuario ausente y perfiles ajenos/inactivos impiden subir
+ok 116 - usuario ausente y perfiles ajenos/inactivos impiden subir
+  ---
+  duration_ms: 0.3478
+  type: 'test'
+  ...
+# Subtest: fallo de Storage no intenta INSERT ni borrar un objeto posiblemente ajeno
+ok 117 - fallo de Storage no intenta INSERT ni borrar un objeto posiblemente ajeno
+  ---
+  duration_ms: 0.2202
+  type: 'test'
+  ...
+# Subtest: excepción o respuesta sin datos de Storage no anuncia éxito
+ok 118 - excepción o respuesta sin datos de Storage no anuncia éxito
+  ---
+  duration_ms: 0.2165
+  type: 'test'
+  ...
+# Subtest: rechazo SQL remoto conserva ruta y reserva sin compensación destructiva
+ok 119 - rechazo SQL remoto conserva ruta y reserva sin compensación destructiva
+  ---
+  duration_ms: 0.1265
+  type: 'test'
+  ...
+# Subtest: un fallo remoto no activa limpieza aunque Storage no permita borrado
+ok 120 - un fallo remoto no activa limpieza aunque Storage no permita borrado
+  ---
+  duration_ms: 0.1307
+  type: 'test'
+  ...
+# Subtest: la revisión pendiente nunca depende de intentar borrar objetos
+ok 121 - la revisión pendiente nunca depende de intentar borrar objetos
+  ---
+  duration_ms: 0.1847
+  type: 'test'
+  ...
+# Subtest: timeout recupera una fila compatible por operación durable, sin borrar ni reintentar
+ok 122 - timeout recupera una fila compatible por operación durable, sin borrar ni reintentar
+  ---
+  duration_ms: 0.1389
+  type: 'test'
+  ...
+# Subtest: respuesta sin fila se recupera sin tratar null como éxito
+ok 123 - respuesta sin fila se recupera sin tratar null como éxito
+  ---
+  duration_ms: 0.1054
+  type: 'test'
+  ...
+# Subtest: error de transporte devuelto por el cliente también se recupera
+ok 124 - error de transporte devuelto por el cliente también se recupera
+  ---
+  duration_ms: 0.4157
+  type: 'test'
+  ...
+# Subtest: registro no confirmado mantiene ruta y causas sin borrar ni volver a subir
+ok 125 - registro no confirmado mantiene ruta y causas sin borrar ni volver a subir
+  ---
+  duration_ms: 0.4836
+  type: 'test'
+  ...
+# Subtest: una fila incompatible del INSERT no se acepta como resultado
+ok 126 - una fila incompatible del INSERT no se acepta como resultado
+  ---
+  duration_ms: 0.1461
+  type: 'test'
+  ...
+# Subtest: el error común conserva compatibilidad de constructor e instanceof con imágenes
+ok 127 - el error común conserva compatibilidad de constructor e instanceof con imágenes
+  ---
+  duration_ms: 0.0458
+  type: 'test'
+  ...
+# Subtest: PDF deriva categoría del perfil real y devuelve la fila confirmada
+ok 128 - PDF deriva categoría del perfil real y devuelve la fila confirmada
+  ---
+  duration_ms: 0.4013
+  type: 'test'
+  ...
+# Subtest: PDF ignora categoría, clasificación, rol y metadatos extras enviados desde fuera
+ok 129 - PDF ignora categoría, clasificación, rol y metadatos extras enviados desde fuera
+  ---
+  duration_ms: 0.2084
+  type: 'test'
+  ...
+# Subtest: PDF rechaza roles no soportados antes de generar ruta o subir
+ok 130 - PDF rechaza roles no soportados antes de generar ruta o subir
+  ---
+  duration_ms: 1.0466
+  type: 'test'
+  ...
+# Subtest: PDF rechaza usuario ausente, perfil ajeno, autor distinto y perfil inactivo
+ok 131 - PDF rechaza usuario ausente, perfil ajeno, autor distinto y perfil inactivo
+  ---
+  duration_ms: 0.2282
+  type: 'test'
+  ...
+# Subtest: PDF valida UUID y formato antes de realizar consultas de red
+ok 132 - PDF valida UUID y formato antes de realizar consultas de red
+  ---
+  duration_ms: 0.192
+  type: 'test'
+  ...
+# Subtest: PDF: Storage falla o no se confirma y no se intenta INSERT ni remove
+ok 133 - PDF: Storage falla o no se confirma y no se intenta INSERT ni remove
+  ---
+  duration_ms: 0.2038
+  type: 'test'
+  ...
+# Subtest: PDF: rechazo SQL conserva ruta y revisión, sin retirar objetos
+ok 134 - PDF: rechazo SQL conserva ruta y revisión, sin retirar objetos
+  ---
+  duration_ms: 0.0912
+  type: 'test'
+  ...
+# Subtest: PDF: sin limpieza automática conserva ruta y bloqueo de revisión
+ok 135 - PDF: sin limpieza automática conserva ruta y bloqueo de revisión
+  ---
+  duration_ms: 0.2063
+  type: 'test'
+  ...
+# Subtest: PDF: timeout, error de transporte y respuesta sin fila recuperan por ruta sin reintentar
+ok 136 - PDF: timeout, error de transporte y respuesta sin fila recuperan por ruta sin reintentar
+  ---
+  duration_ms: 0.1929
+  type: 'test'
+  ...
+# Subtest: PDF: registro incierto o incompatible no borra ni repite la subida
+ok 137 - PDF: registro incierto o incompatible no borra ni repite la subida
+  ---
+  duration_ms: 0.3428
+  type: 'test'
+  ...
+# Subtest: PDF genera claves distintas para archivos distintos tras rechazo
+ok 138 - PDF genera claves distintas para archivos distintos tras rechazo
+  ---
+  duration_ms: 0.1146
+  type: 'test'
+  ...
+# Subtest: asociación general omite destino y persiste referencias null
+ok 139 - asociación general omite destino y persiste referencias null
+  ---
+  duration_ms: 0.0968
+  type: 'test'
+  ...
+# Subtest: evolución y plan se validan antes de invocar backend y viajan en un único intento
+ok 140 - evolución y plan se validan antes de invocar backend y viajan en un único intento
+  ---
+  duration_ms: 0.2849
+  type: 'test'
+  ...
+# Subtest: asociaciones manipuladas o UUID inválido se rechazan antes de red
+ok 141 - asociaciones manipuladas o UUID inválido se rechazan antes de red
+  ---
+  duration_ms: 0.127
+  type: 'test'
+  ...
+# Subtest: inexistente/invisible, paciente/clínica distintos o permiso incierto no suben objeto
+ok 142 - inexistente/invisible, paciente/clínica distintos o permiso incierto no suben objeto
+  ---
+  duration_ms: 0.4766
+  type: 'test'
+  ...
+# Subtest: paciente portal no puede asociar; superadmin con acceso puede asociar imágenes
+ok 143 - paciente portal no puede asociar; superadmin con acceso puede asociar imágenes
+  ---
+  duration_ms: 0.2166
+  type: 'test'
+  ...
+# Subtest: rechazo FK de asociación conserva objetos y recuperación compara destino
+ok 144 - rechazo FK de asociación conserva objetos y recuperación compara destino
+  ---
+  duration_ms: 0.2749
+  type: 'test'
+  ...
+# Subtest: cuota agotada ofrece error específico y no activa fallback de escritura directa
+ok 145 - cuota agotada ofrece error específico y no activa fallback de escritura directa
+  ---
+  duration_ms: 0.1298
+  type: 'test'
+  ...
+# Subtest: mismo File y destino conservan idempotencia después de una respuesta incierta
+ok 146 - mismo File y destino conservan idempotencia después de una respuesta incierta
+  ---
+  duration_ms: 0.1282
+  type: 'test'
+  ...
+# Subtest: indicador React muestra usados/disponibles, GB decimales y progreso accesible
+ok 147 - indicador React muestra usados/disponibles, GB decimales y progreso accesible
+  ---
+  duration_ms: 775.012
+  type: 'test'
+  ...
+# Subtest: actualizar los datos confirmados cambia el uso visible y las reservas reducen disponible
+ok 148 - actualizar los datos confirmados cambia el uso visible y las reservas reducen disponible
+  ---
+  duration_ms: 0.6022
+  type: 'test'
+  ...
+# Subtest: error/carga de cuota no anuncian éxito vacío ni uso cero
+ok 149 - error/carga de cuota no anuncian éxito vacío ni uso cero
+  ---
+  duration_ms: 0.3015
+  type: 'test'
+  ...
+# Subtest: sin espacio hay un mensaje claro y el progreso no supera el máximo
+ok 150 - sin espacio hay un mensaje claro y el progreso no supera el máximo
+  ---
+  duration_ms: 0.3401
+  type: 'test'
+  ...
+# Subtest: panel preparado solo muestra detectar al superadmin y no tiene acción de borrado
+ok 151 - panel preparado solo muestra detectar al superadmin y no tiene acción de borrado
+  ---
+  duration_ms: 1.2606
+  type: 'test'
+  ...
+# Subtest: integración AdminPage registra auditoría después de Bitácora y conserva pestañas/default
+ok 152 - integración AdminPage registra auditoría después de Bitácora y conserva pestañas/default
+  ---
+  duration_ms: 2.0285
+  type: 'test'
+  ...
+# Subtest: pestaña y montaje de auditoría exigen superadmin sin acciones destructivas nuevas
+ok 153 - pestaña y montaje de auditoría exigen superadmin sin acciones destructivas nuevas
+  ---
+  duration_ms: 0.8974
+  type: 'test'
+  ...
+# Subtest: miniatura depende del MIME: fotografía, radiografía y documento escaneado sí; PDF no
+ok 154 - miniatura depende del MIME: fotografía, radiografía y documento escaneado sí; PDF no
+  ---
+  duration_ms: 1.0256
+  type: 'test'
+  ...
+# Subtest: etiquetas de clasificación y categoría son independientes
+ok 155 - etiquetas de clasificación y categoría son independientes
+  ---
+  duration_ms: 10.4177
+  type: 'test'
+  ...
+# Subtest: presentación recorta descripción y reutiliza fecha local del timestamp
+ok 156 - presentación recorta descripción y reutiliza fecha local del timestamp
+  ---
+  duration_ms: 0.2386
+  type: 'test'
+  ...
+# Subtest: lista vacía no firma y pendientes incluye solo imágenes
+ok 157 - lista vacía no firma y pendientes incluye solo imágenes
+  ---
+  duration_ms: 0.4841
+  type: 'test'
+  ...
+# Subtest: una URL fallida conserva archivos y aísla su estado; PDF no firma
+ok 158 - una URL fallida conserva archivos y aísla su estado; PDF no firma
+  ---
+  duration_ms: 0.2224
+  type: 'test'
+  ...
+# Subtest: respuestas en distinto orden conservan asociación y orden original
+ok 159 - respuestas en distinto orden conservan asociación y orden original
+  ---
+  duration_ms: 0.1475
+  type: 'test'
+  ...
+# Subtest: URL vacía es fallo individual y la recarga obtiene una firma nueva
+ok 160 - URL vacía es fallo individual y la recarga obtiene una firma nueva
+  ---
+  duration_ms: 0.1307
+  type: 'test'
+  ...
+# Subtest: vencimiento conservador permite renovar antes de los 300 segundos
+ok 161 - vencimiento conservador permite renovar antes de los 300 segundos
+  ---
+  duration_ms: 0.0863
+  type: 'test'
+  ...
+# Subtest: una firma demorada fuera de la vigencia conservadora no se publica ni causa un bucle de renovación
+ok 162 - una firma demorada fuera de la vigencia conservadora no se publica ni causa un bucle de renovación
+  ---
+  duration_ms: 0.1089
+  type: 'test'
+  ...
+# Subtest: visor reutiliza firma válida y renueva al llegar al vencimiento conservador
+ok 163 - visor reutiliza firma válida y renueva al llegar al vencimiento conservador
+  ---
+  duration_ms: 0.3569
+  type: 'test'
+  ...
+# Subtest: recuperación individual reemplaza solo la firma solicitada y mantiene las otras
+ok 164 - recuperación individual reemplaza solo la firma solicitada y mantiene las otras
+  ---
+  duration_ms: 0.3046
+  type: 'test'
+  ...
+# Subtest: peticiones concurrentes del mismo archivo comparten promesa incluso al forzar
+ok 165 - peticiones concurrentes del mismo archivo comparten promesa incluso al forzar
+  ---
+  duration_ms: 0.1381
+  type: 'test'
+  ...
+# Subtest: firma fallida puede recuperarse y un PDF o id desconocido no solicita URL
+ok 166 - firma fallida puede recuperarse y un PDF o id desconocido no solicita URL
+  ---
+  duration_ms: 0.2001
+  type: 'test'
+  ...
+# Subtest: invalidar generación descarta respuestas tardías y nuevas solicitudes
+ok 167 - invalidar generación descarta respuestas tardías y nuevas solicitudes
+  ---
+  duration_ms: 0.1743
+  type: 'test'
+  ...
+# Subtest: visor admite JPG, PNG y WEBP por MIME y excluye PDF y otros formatos
+ok 168 - visor admite JPG, PNG y WEBP por MIME y excluye PDF y otros formatos
+  ---
+  duration_ms: 0.5983
+  type: 'test'
+  ...
+# Subtest: documento escaneado admite imagen y alt conserva clasificación y nombre
+ok 169 - documento escaneado admite imagen y alt conserva clasificación y nombre
+  ---
+  duration_ms: 0.1222
+  type: 'test'
+  ...
+# Subtest: zoom inicia en 1x, cambia de 0.5 en 0.5 y restablece
+ok 170 - zoom inicia en 1x, cambia de 0.5 en 0.5 y restablece
+  ---
+  duration_ms: 0.5709
+  type: 'test'
+  ...
+# Subtest: zoom nunca supera 4x ni baja de 1x
+ok 171 - zoom nunca supera 4x ni baja de 1x
+  ---
+  duration_ms: 0.0742
+  type: 'test'
+  ...
+# Subtest: dimensiones mantienen proporción y crecen en layout para scroll en ambos ejes
+ok 172 - dimensiones mantienen proporción y crecen en layout para scroll en ambos ejes
+  ---
+  duration_ms: 0.4628
+  type: 'test'
+  ...
+# Subtest: visor distingue firma pendiente, ausente, fallida y carga visible/error
+ok 173 - visor distingue firma pendiente, ausente, fallida y carga visible/error
+  ---
+  duration_ms: 0.1283
+  type: 'test'
+  ...
+# Subtest: a 100% el lienzo cabe en content boxes fraccionarios sin el desborde de clientWidth redondeado
+ok 174 - a 100% el lienzo cabe en content boxes fraccionarios sin el desborde de clientWidth redondeado
+  ---
+  duration_ms: 0.1996
+  type: 'test'
+  ...
+# Subtest: medición del viewport descarta dimensiones inválidas y estabiliza variaciones subpíxel
+ok 175 - medición del viewport descarta dimensiones inválidas y estabiliza variaciones subpíxel
+  ---
+  duration_ms: 0.0852
+  type: 'test'
+  ...
+# Subtest: renovación y reintento con igual URL invalidan la carga de la fuente anterior
+ok 176 - renovación y reintento con igual URL invalidan la carga de la fuente anterior
+  ---
+  duration_ms: 0.1219
+  type: 'test'
+  ...
+# Subtest: capacidades de la ficha: odontólogo/odontólogo_admin/recepción; no inventa portal
+ok 177 - capacidades de la ficha: odontólogo/odontólogo_admin/recepción; no inventa portal
+  ---
+  duration_ms: 1.0087
+  type: 'test'
+  ...
+# Subtest: perfil/contexto/UUID faltantes y clínica incompatible deshabilitan escrituras
+ok 178 - perfil/contexto/UUID faltantes y clínica incompatible deshabilitan escrituras
+  ---
+  duration_ms: 0.1502
+  type: 'test'
+  ...
+# Subtest: confirmación cierra y solicita un único refresh pese a callbacks repetidos
+ok 179 - confirmación cierra y solicita un único refresh pese a callbacks repetidos
+  ---
+  duration_ms: 0.2124
+  type: 'test'
+  ...
+# Subtest: resultado ajeno, fallo de subida y contexto desmontado no cierran ni refrescan
+ok 180 - resultado ajeno, fallo de subida y contexto desmontado no cierran ni refrescan
+  ---
+  duration_ms: 0.1126
+  type: 'test'
+  ...
+# Subtest: refresh fallido conserva subida confirmada y no solicita una nueva subida
+ok 181 - refresh fallido conserva subida confirmada y no solicita una nueva subida
+  ---
+  duration_ms: 0.1418
+  type: 'test'
+  ...
+# Subtest: requiereRevision sobrevive a cerrar/reabrir y un idle no elimina alerta
+ok 182 - requiereRevision sobrevive a cerrar/reabrir y un idle no elimina alerta
+  ---
+  duration_ms: 0.1567
+  type: 'test'
+  ...
+# Subtest: terminar fuera de la pestaña comunica confirmación solo al mismo contexto
+ok 183 - terminar fuera de la pestaña comunica confirmación solo al mismo contexto
+  ---
+  duration_ms: 0.1101
+  type: 'test'
+  ...
+# Subtest: contexto real consulta únicamente id y clínica, bajo public.pacientes
+ok 184 - contexto real consulta únicamente id y clínica, bajo public.pacientes
+  ---
+  duration_ms: 0.1935
+  type: 'test'
+  ...
+# Subtest: contexto inválido/no visible/error no habilita subida ni inventa clínica
+ok 185 - contexto inválido/no visible/error no habilita subida ni inventa clínica
+  ---
+  duration_ms: 0.3789
+  type: 'test'
+  ...
+# Subtest: mensajes de subida no exponen rutas/tokens y mantienen revisión pendiente
+ok 186 - mensajes de subida no exponen rutas/tokens y mantienen revisión pendiente
+  ---
+  duration_ms: 0.1716
+  type: 'test'
+  ...
+# Subtest: tab archivos válido conserva navegación de ficha y rechaza valores ajenos
+ok 187 - tab archivos válido conserva navegación de ficha y rechaza valores ajenos
+  ---
+  duration_ms: 0.0876
+  type: 'test'
+  ...
+# Subtest: encuentra una coincidencia unica, ignorando tildes y mayusculas
+ok 188 - encuentra una coincidencia unica, ignorando tildes y mayusculas
+  ---
+  duration_ms: 1.1462
+  type: 'test'
+  ...
+# Subtest: coincidencia parcial (solo nombre) tambien funciona si es unica
+ok 189 - coincidencia parcial (solo nombre) tambien funciona si es unica
+  ---
+  duration_ms: 0.1116
+  type: 'test'
+  ...
+# Subtest: mas de una coincidencia no elige por vos: devuelve null
+ok 190 - mas de una coincidencia no elige por vos: devuelve null
+  ---
+  duration_ms: 0.07
+  type: 'test'
+  ...
+# Subtest: sin coincidencias devuelve null
+ok 191 - sin coincidencias devuelve null
+  ---
+  duration_ms: 0.0601
+  type: 'test'
+  ...
+# Subtest: nombre buscado vacio devuelve null sin recorrer nada raro
+ok 192 - nombre buscado vacio devuelve null sin recorrer nada raro
+  ---
+  duration_ms: 0.0726
+  type: 'test'
+  ...
+# Subtest: esSaludo: reconoce variantes cortas con o sin puntuacion
+ok 193 - esSaludo: reconoce variantes cortas con o sin puntuacion
+  ---
+  duration_ms: 0.7678
+  type: 'test'
+  ...
+# Subtest: esSaludo: un pedido real que empieza con saludo no cuenta como saludo puro
+ok 194 - esSaludo: un pedido real que empieza con saludo no cuenta como saludo puro
+  ---
+  duration_ms: 0.1149
+  type: 'test'
+  ...
+# Subtest: esDespedida: reconoce variantes cortas
+ok 195 - esDespedida: reconoce variantes cortas
+  ---
+  duration_ms: 0.0869
+  type: 'test'
+  ...
+# Subtest: esAgradecimiento: reconoce variantes cortas
+ok 196 - esAgradecimiento: reconoce variantes cortas
+  ---
+  duration_ms: 0.6229
+  type: 'test'
+  ...
+# Subtest: generarSaludo: usa el primer nombre y menciona las intenciones
+ok 197 - generarSaludo: usa el primer nombre y menciona las intenciones
+  ---
+  duration_ms: 0.1982
+  type: 'test'
+  ...
+# Subtest: generarNoEntendido: lista las intenciones disponibles
+ok 198 - generarNoEntendido: lista las intenciones disponibles
+  ---
+  duration_ms: 0.0733
+  type: 'test'
+  ...
+# Subtest: esAfirmacion: reconoce variantes cortas de confirmacion
+ok 199 - esAfirmacion: reconoce variantes cortas de confirmacion
+  ---
+  duration_ms: 0.1114
+  type: 'test'
+  ...
+# Subtest: esAfirmacion: un pedido real no cuenta como afirmacion
+ok 200 - esAfirmacion: un pedido real no cuenta como afirmacion
+  ---
+  duration_ms: 0.0732
+  type: 'test'
+  ...
+# Subtest: generarPreguntaDesambiguacion y generarRespuestaAfirmacionAmbigua mencionan las opciones
+ok 201 - generarPreguntaDesambiguacion y generarRespuestaAfirmacionAmbigua mencionan las opciones
+  ---
+  duration_ms: 0.1099
+  type: 'test'
+  ...
+# Subtest: superadmin ve el panel de administracion y su propio reporte
+ok 202 - superadmin ve el panel de administracion y su propio reporte
+  ---
+  duration_ms: 0.7344
+  type: 'test'
+  ...
+# Subtest: staff y superadmin tienen un reporte, con ids distintos
+ok 203 - staff y superadmin tienen un reporte, con ids distintos
+  ---
+  duration_ms: 0.1183
+  type: 'test'
+  ...
+# Subtest: odontologo, odontologo_admin y recepcionista comparten el mismo catalogo
+ok 204 - odontologo, odontologo_admin y recepcionista comparten el mismo catalogo
+  ---
+  duration_ms: 0.0591
+  type: 'test'
+  ...
+# Subtest: cada intencion de staff tiene una ruta bajo /app
+ok 205 - cada intencion de staff tiene una ruta bajo /app
+  ---
+  duration_ms: 0.0685
+  type: 'test'
+  ...
+# Subtest: buscarAccion encuentra por id y no rompe si no existe
+ok 206 - buscarAccion encuentra por id y no rompe si no existe
+  ---
+  duration_ms: 0.4366
+  type: 'test'
+  ...
+# Subtest: 'reporte de pacientes' resuelve directo a reporte, no empata con pacientes
+ok 207 - 'reporte de pacientes' resuelve directo a reporte, no empata con pacientes
+  ---
+  duration_ms: 1.1627
+  type: 'test'
+  ...
+# Subtest: 'pacientes' solo sigue resolviendo a la lista de pacientes, no al reporte
+ok 208 - 'pacientes' solo sigue resolviendo a la lista de pacientes, no al reporte
+  ---
+  duration_ms: 0.1478
+  type: 'test'
+  ...
+# Subtest: 'reporte de personal' resuelve directo, no empata con panel_admin
+ok 209 - 'reporte de personal' resuelve directo, no empata con panel_admin
+  ---
+  duration_ms: 0.0895
+  type: 'test'
+  ...
+# Subtest: normalizarTexto: minusculas, sin tildes, sin puntuacion
+ok 210 - normalizarTexto: minusculas, sin tildes, sin puntuacion
+  ---
+  duration_ms: 0.7258
+  type: 'test'
+  ...
+# Subtest: normalizarTexto: colapsa espacios múltiples
+ok 211 - normalizarTexto: colapsa espacios múltiples
+  ---
+  duration_ms: 0.141
+  type: 'test'
+  ...
+# Subtest: normalizarFonetica: seseo (s/z/c suave) y yeismo (ll/y) se igualan
+ok 212 - normalizarFonetica: seseo (s/z/c suave) y yeismo (ll/y) se igualan
+  ---
+  duration_ms: 0.0779
+  type: 'test'
+  ...
+# Subtest: normalizarFonetica: b/v se igualan
+ok 213 - normalizarFonetica: b/v se igualan
+  ---
+  duration_ms: 0.5349
+  type: 'test'
+  ...
+# Subtest: distanciaEdicion: identico es 0, una letra de mas es 1
+ok 214 - distanciaEdicion: identico es 0, una letra de mas es 1
+  ---
+  duration_ms: 0.1624
+  type: 'test'
+  ...
+# Subtest: puntuarIntenciones: coincidencia exacta puntua mas que no decir nada
+ok 215 - puntuarIntenciones: coincidencia exacta puntua mas que no decir nada
+  ---
+  duration_ms: 0.3988
+  type: 'test'
+  ...
+# Subtest: puntuarIntenciones: tolera un error de tipeo
+ok 216 - puntuarIntenciones: tolera un error de tipeo
+  ---
+  duration_ms: 0.2885
+  type: 'test'
+  ...
+# Subtest: puntuarIntenciones: tolera una transcripcion de voz con seseo
+ok 217 - puntuarIntenciones: tolera una transcripcion de voz con seseo
+  ---
+  duration_ms: 0.2348
+  type: 'test'
+  ...
+# Subtest: resolverIntencion: texto claro ejecuta directo
+ok 218 - resolverIntencion: texto claro ejecuta directo
+  ---
+  duration_ms: 0.6875
+  type: 'test'
+  ...
+# Subtest: resolverIntencion: texto sin relacion no entiende nada
+ok 219 - resolverIntencion: texto sin relacion no entiende nada
+  ---
+  duration_ms: 0.2176
+  type: 'test'
+  ...
+# Subtest: resolverIntencion: empate cercano pide desambiguar en vez de adivinar
+ok 220 - resolverIntencion: empate cercano pide desambiguar en vez de adivinar
+  ---
+  duration_ms: 0.1065
+  type: 'test'
+  ...
+# Subtest: extraerNombreBuscado: reconoce 'paciente <nombre>'
+ok 221 - extraerNombreBuscado: reconoce 'paciente <nombre>'
+  ---
+  duration_ms: 0.1787
+  type: 'test'
+  ...
+# Subtest: extraerNombreBuscado: reconoce 'a <nombre>'
+ok 222 - extraerNombreBuscado: reconoce 'a <nombre>'
+  ---
+  duration_ms: 0.119
+  type: 'test'
+  ...
+# Subtest: extraerNombreBuscado: sin nombre reconocible devuelve null, no inventa
+ok 223 - extraerNombreBuscado: sin nombre reconocible devuelve null, no inventa
+  ---
+  duration_ms: 0.0652
+  type: 'test'
+  ...
+# Subtest: detectarFormato: reconoce 'csv' y 'pdf' exactos
+ok 224 - detectarFormato: reconoce 'csv' y 'pdf' exactos
+  ---
+  duration_ms: 0.7637
+  type: 'test'
+  ...
+# Subtest: detectarFormato: tolera CSV mal transcrito por voz (deletreado)
+ok 225 - detectarFormato: tolera CSV mal transcrito por voz (deletreado)
+  ---
+  duration_ms: 0.1161
+  type: 'test'
+  ...
+# Subtest: detectarFormato: sin ninguna coincidencia devuelve null, no inventa
+ok 226 - detectarFormato: sin ninguna coincidencia devuelve null, no inventa
+  ---
+  duration_ms: 0.1605
+  type: 'test'
+  ...
+# Subtest: esRespuestaTodos: reconoce variantes de 'todos' y pedidos de lista completa
+ok 227 - esRespuestaTodos: reconoce variantes de 'todos' y pedidos de lista completa
+  ---
+  duration_ms: 0.5335
+  type: 'test'
+  ...
+# Subtest: esRespuestaTodos: un nombre real no cuenta como 'todos'
+ok 228 - esRespuestaTodos: un nombre real no cuenta como 'todos'
+  ---
+  duration_ms: 0.0795
+  type: 'test'
+  ...
+# Subtest: interpretarRangoFechas: reconoce 'ultimos N dias/semanas/meses'
+ok 229 - interpretarRangoFechas: reconoce 'ultimos N dias/semanas/meses'
+  ---
+  duration_ms: 0.2457
+  type: 'test'
+  ...
+# Subtest: dentroDeRango: fecha reciente entra, fecha vieja no, sin fecha no entra
+ok 230 - dentroDeRango: fecha reciente entra, fecha vieja no, sin fecha no entra
+  ---
+  duration_ms: 0.6143
+  type: 'test'
+  ...
+# Subtest: preguntaDelPaso: cada paso tiene su propia pregunta no vacia
+ok 231 - preguntaDelPaso: cada paso tiene su propia pregunta no vacia
+  ---
+  duration_ms: 0.1235
+  type: 'test'
+  ...
+# Subtest: JSON conserva textos, listas, alergias y antecedentes sin separadores ambiguos
+ok 232 - JSON conserva textos, listas, alergias y antecedentes sin separadores ambiguos
+  ---
+  duration_ms: 0.9718
+  type: 'test'
+  ...
+# Subtest: columnas null devuelven una historia vacía válida
+ok 233 - columnas null devuelven una historia vacía válida
+  ---
+  duration_ms: 0.1173
+  type: 'test'
+  ...
+# Subtest: texto legado se conserva en antecedentes y como un único elemento de lista
+ok 234 - texto legado se conserva en antecedentes y como un único elemento de lista
+  ---
+  duration_ms: 0.0802
+  type: 'test'
+  ...
+# Subtest: JSON inválido o con tipos incorrectos produce error, no datos vacíos
+ok 235 - JSON inválido o con tipos incorrectos produce error, no datos vacíos
+  ---
+  duration_ms: 0.2773
+  type: 'test'
+  ...
+# Subtest: no se inventa la severidad de alergias antiguas
+ok 236 - no se inventa la severidad de alergias antiguas
+  ---
+  duration_ms: 0.1143
+  type: 'test'
+  ...
+# Subtest: alergias JSON sin id reciben solo un identificador local y conservan severidad
+ok 237 - alergias JSON sin id reciben solo un identificador local y conservan severidad
+  ---
+  duration_ms: 0.0741
+  type: 'test'
+  ...
+# Subtest: trazabilidad lee la fecha del servidor sin fabricar responsable
+ok 238 - trazabilidad lee la fecha del servidor sin fabricar responsable
+  ---
+  duration_ms: 0.6083
+  type: 'test'
+  ...
+# Subtest: IDs locales no pasan la validación de UUID
+ok 239 - IDs locales no pasan la validación de UUID
+  ---
+  duration_ms: 0.1552
+  type: 'test'
+  ...
+# Subtest: p1/p2/p3 y clínica inválida se rechazan antes de consultar
+ok 240 - p1/p2/p3 y clínica inválida se rechazan antes de consultar
+  ---
+  duration_ms: 0.8866
+  type: 'test'
+  ...
+# Subtest: falta de configuración genera un error explicativo al usar el cliente
+ok 241 - falta de configuración genera un error explicativo al usar el cliente
+  ---
+  duration_ms: 0.125
+  type: 'test'
+  ...
+# Subtest: consulta solo el paciente indicado; ausencia devuelve historia vacía
+ok 242 - consulta solo el paciente indicado; ausencia devuelve historia vacía
+  ---
+  duration_ms: 0.4344
+  type: 'test'
+  ...
+# Subtest: lectura existente recupera contenido y fecha del servidor
+ok 243 - lectura existente recupera contenido y fecha del servidor
+  ---
+  duration_ms: 0.2167
+  type: 'test'
+  ...
+# Subtest: INSERT usa los UUID recibidos y no escribe fechas ni responsable
+ok 244 - INSERT usa los UUID recibidos y no escribe fechas ni responsable
+  ---
+  duration_ms: 0.1509
+  type: 'test'
+  ...
+# Subtest: UPDATE filtra por id, paciente y clínica sin cambiar sus identificadores
+ok 245 - UPDATE filtra por id, paciente y clínica sin cambiar sus identificadores
+  ---
+  duration_ms: 0.1527
+  type: 'test'
+  ...
+# Subtest: historia duplicada, clínica distinta o paciente distinto no permiten escritura
+ok 246 - historia duplicada, clínica distinta o paciente distinto no permiten escritura
+  ---
+  duration_ms: 0.157
+  type: 'test'
+  ...
+# Subtest: errores de consulta, RLS y UPDATE sin filas no se anuncian como éxito
+ok 247 - errores de consulta, RLS y UPDATE sin filas no se anuncian como éxito
+  ---
+  duration_ms: 0.162
+  type: 'test'
+  ...
+# Subtest: tonoStatTile traduce todos los tonos y resuelve yellow como orange
+ok 248 - tonoStatTile traduce todos los tonos y resuelve yellow como orange
+  ---
+  duration_ms: 0.6557
+  type: 'test'
+  ...
+# Subtest: deltaDesdeIndicador: sin delta no hay píldora
+ok 249 - deltaDesdeIndicador: sin delta no hay píldora
+  ---
+  duration_ms: 0.1103
+  type: 'test'
+  ...
+# Subtest: deltaDesdeIndicador respeta el texto y deduce dirección y color
+ok 250 - deltaDesdeIndicador respeta el texto y deduce dirección y color
+  ---
+  duration_ms: 0.3931
+  type: 'test'
+  ...
+# Subtest: estaVacioPorDefecto: un objeto con campos no es vacío, y el cero no es vacío
+ok 251 - estaVacioPorDefecto: un objeto con campos no es vacío, y el cero no es vacío
+  ---
+  duration_ms: 0.0826
+  type: 'test'
+  ...
+# Subtest: estadoDashboard: un error explícito nunca se oculta
+ok 252 - estadoDashboard: un error explícito nunca se oculta
+  ---
+  duration_ms: 0.0893
+  type: 'test'
+  ...
+# Subtest: estadoDashboard: cargando se distingue antes de mirar el valor
+ok 253 - estadoDashboard: cargando se distingue antes de mirar el valor
+  ---
+  duration_ms: 0.5086
+  type: 'test'
+  ...
+# Subtest: estadoDashboard: sinPermiso no se degrada a vacío
+ok 254 - estadoDashboard: sinPermiso no se degrada a vacío
+  ---
+  duration_ms: 0.0755
+  type: 'test'
+  ...
+# Subtest: estadoDashboard: un vacío legítimo no es error ni falta de permiso
+ok 255 - estadoDashboard: un vacío legítimo no es error ni falta de permiso
+  ---
+  duration_ms: 0.0529
+  type: 'test'
+  ...
+# Subtest: estadoDashboard: con valor no vacío el bloque está listo
+ok 256 - estadoDashboard: con valor no vacío el bloque está listo
+  ---
+  duration_ms: 0.0836
+  type: 'test'
+  ...
+# Subtest: estadoDashboard acepta un predicado propio para decidir el vacío
+ok 257 - estadoDashboard acepta un predicado propio para decidir el vacío
+  ---
+  duration_ms: 0.1159
+  type: 'test'
+  ...
+# Subtest: el indicador de tipo se conserva (compilación) sin inventar campos
+ok 258 - el indicador de tipo se conserva (compilación) sin inventar campos
+  ---
+  duration_ms: 0.0724
+  type: 'test'
+  ...
+# Subtest: pide solo los pagos pendientes de la clínica y mapea las filas
+ok 259 - pide solo los pagos pendientes de la clínica y mapea las filas
+  ---
+  duration_ms: 1.0188
+  type: 'test'
+  ...
+# Subtest: un SELECT vacío (posible RLS) devuelve una lista vacía, no un error
+ok 260 - un SELECT vacío (posible RLS) devuelve una lista vacía, no un error
+  ---
+  duration_ms: 0.1044
+  type: 'test'
+  ...
+# Subtest: un error de lectura se propaga con su mensaje
+ok 261 - un error de lectura se propaga con su mensaje
+  ---
+  duration_ms: 0.3031
+  type: 'test'
+  ...
+# Subtest: una respuesta sin data válida no se trata como éxito
+ok 262 - una respuesta sin data válida no se trata como éxito
+  ---
+  duration_ms: 0.096
+  type: 'test'
+  ...
+# Subtest: consulta las columnas mínimas y resume clínicas y usuarios
+ok 263 - consulta las columnas mínimas y resume clínicas y usuarios
+  ---
+  duration_ms: 5.8649
+  type: 'test'
+  ...
+# Subtest: las agregaciones de gráficos salen de las mismas filas, sin consultas extra
+ok 264 - las agregaciones de gráficos salen de las mismas filas, sin consultas extra
+  ---
+  duration_ms: 0.1466
+  type: 'test'
+  ...
+# Subtest: un SELECT vacío (posible RLS) devuelve ceros, no un error
+ok 265 - un SELECT vacío (posible RLS) devuelve ceros, no un error
+  ---
+  duration_ms: 0.129
+  type: 'test'
+  ...
+# Subtest: error al consultar clínicas se propaga y no sigue con usuarios
+ok 266 - error al consultar clínicas se propaga y no sigue con usuarios
+  ---
+  duration_ms: 0.2994
+  type: 'test'
+  ...
+# Subtest: error al consultar usuarios se propaga
+ok 267 - error al consultar usuarios se propaga
+  ---
+  duration_ms: 0.1108
+  type: 'test'
+  ...
+# Subtest: una respuesta sin data válida no se trata como éxito
+ok 268 - una respuesta sin data válida no se trata como éxito
+  ---
+  duration_ms: 0.0956
+  type: 'test'
+  ...
+# Subtest: sin configuración de Supabase el error explica qué falta
+ok 269 - sin configuración de Supabase el error explica qué falta
+  ---
+  duration_ms: 0.1207
+  type: 'test'
+  ...
+# Subtest: contarHallazgos: sin pacientes devuelve un objeto vacío
+ok 270 - contarHallazgos: sin pacientes devuelve un objeto vacío
+  ---
+  duration_ms: 0.6835
+  type: 'test'
+  ...
+# Subtest: contarHallazgos: un paciente sin piezas no aporta conteos
+ok 271 - contarHallazgos: un paciente sin piezas no aporta conteos
+  ---
+  duration_ms: 0.0796
+  type: 'test'
+  ...
+# Subtest: contarHallazgos: excluye la condición `sano`
+ok 272 - contarHallazgos: excluye la condición `sano`
+  ---
+  duration_ms: 0.1427
+  type: 'test'
+  ...
+# Subtest: contarHallazgos: suma condiciones de varios pacientes
+ok 273 - contarHallazgos: suma condiciones de varios pacientes
+  ---
+  duration_ms: 0.1107
+  type: 'test'
+  ...
+# Subtest: contarHallazgos: la misma condición en la misma pieza cuenta una vez por registro
+ok 274 - contarHallazgos: la misma condición en la misma pieza cuenta una vez por registro
+  ---
+  duration_ms: 0.0832
+  type: 'test'
+  ...
+# Subtest: contarHallazgos: cubre todas las condiciones no sanas
+ok 275 - contarHallazgos: cubre todas las condiciones no sanas
+  ---
+  duration_ms: 0.0649
+  type: 'test'
+  ...
+# Subtest: totalHallazgos: objeto vacío es cero y no muta la entrada
+ok 276 - totalHallazgos: objeto vacío es cero y no muta la entrada
+  ---
+  duration_ms: 0.4955
+  type: 'test'
+  ...
+# Subtest: proximaActividad devuelve null sin citas
+ok 277 - proximaActividad devuelve null sin citas
+  ---
+  duration_ms: 0.6051
+  type: 'test'
+  ...
+# Subtest: proximaActividad ignora el pasado y los estados terminales
+ok 278 - proximaActividad ignora el pasado y los estados terminales
+  ---
+  duration_ms: 0.1247
+  type: 'test'
+  ...
+# Subtest: proximaActividad toma la futura más cercana por fecha
+ok 279 - proximaActividad toma la futura más cercana por fecha
+  ---
+  duration_ms: 5.5972
+  type: 'test'
+  ...
+# Subtest: proximaActividad desempata por hora el mismo día
+ok 280 - proximaActividad desempata por hora el mismo día
+  ---
+  duration_ms: 0.202
+  type: 'test'
+  ...
+# Subtest: proximaActividad con hora descarta la cita de hoy ya pasada
+ok 281 - proximaActividad con hora descarta la cita de hoy ya pasada
+  ---
+  duration_ms: 0.5413
+  type: 'test'
+  ...
+# Subtest: resumirTratamientos clasifica por el estado real del plan
+ok 282 - resumirTratamientos clasifica por el estado real del plan
+  ---
+  duration_ms: 0.4394
+  type: 'test'
+  ...
+# Subtest: resumirTratamientos no cuenta planes sin procedimientos (plan auto-creado)
+ok 283 - resumirTratamientos no cuenta planes sin procedimientos (plan auto-creado)
+  ---
+  duration_ms: 0.0779
+  type: 'test'
+  ...
+# Subtest: resumirTratamientos ignora estados desconocidos y devuelve ceros sin datos
+ok 284 - resumirTratamientos ignora estados desconocidos y devuelve ceros sin datos
+  ---
+  duration_ms: 0.0684
+  type: 'test'
+  ...
+# Subtest: crearResumenTratamientosVacio devuelve referencias independientes
+ok 285 - crearResumenTratamientosVacio devuelve referencias independientes
+  ---
+  duration_ms: 0.0702
+  type: 'test'
+  ...
+# Subtest: proximaCita toma la futura más cercana y descarta pasadas y no vigentes
+ok 286 - proximaCita toma la futura más cercana y descarta pasadas y no vigentes
+  ---
+  duration_ms: 5.5698
+  type: 'test'
+  ...
+# Subtest: proximaCita desempata por hora el mismo día
+ok 287 - proximaCita desempata por hora el mismo día
+  ---
+  duration_ms: 0.0981
+  type: 'test'
+  ...
+# Subtest: proximaCita devuelve null sin citas vigentes futuras
+ok 288 - proximaCita devuelve null sin citas vigentes futuras
+  ---
+  duration_ms: 0.0655
+  type: 'test'
+  ...
+# Subtest: planesVigentes excluye completados y cancelados
+ok 289 - planesVigentes excluye completados y cancelados
+  ---
+  duration_ms: 0.3699
+  type: 'test'
+  ...
+# Subtest: planActual prefiere en_proceso, luego aceptado, luego propuesto
+ok 290 - planActual prefiere en_proceso, luego aceptado, luego propuesto
+  ---
+  duration_ms: 0.5211
+  type: 'test'
+  ...
+# Subtest: planActual desempata por el más reciente y devuelve null sin vigentes
+ok 291 - planActual desempata por el más reciente y devuelve null sin vigentes
+  ---
+  duration_ms: 0.0794
+  type: 'test'
+  ...
+# Subtest: avancePlan cuenta completados sobre no cancelados y redondea
+ok 292 - avancePlan cuenta completados sobre no cancelados y redondea
+  ---
+  duration_ms: 0.1258
+  type: 'test'
+  ...
+# Subtest: pagosPendientes deja solo los de estado pendiente
+ok 293 - pagosPendientes deja solo los de estado pendiente
+  ---
+  duration_ms: 0.0809
+  type: 'test'
+  ...
+# Subtest: indicadoresPaciente arma las cuatro tarjetas y colorea el saldo
+ok 294 - indicadoresPaciente arma las cuatro tarjetas y colorea el saldo
+  ---
+  duration_ms: 0.1274
+  type: 'test'
+  ...
+# Subtest: citasDelDia filtra por fecha y ordena por hora
+ok 295 - citasDelDia filtra por fecha y ordena por hora
+  ---
+  duration_ms: 0.8064
+  type: 'test'
+  ...
+# Subtest: resumenDelDia cuenta por estado y excluye canceladas del total
+ok 296 - resumenDelDia cuenta por estado y excluye canceladas del total
+  ---
+  duration_ms: 0.15
+  type: 'test'
+  ...
+# Subtest: pacientesDelDia deduplica, excluye canceladas y respeta el orden de la primera cita
+ok 297 - pacientesDelDia deduplica, excluye canceladas y respeta el orden de la primera cita
+  ---
+  duration_ms: 0.1172
+  type: 'test'
+  ...
+# Subtest: pacientesDelDia: un día sin citas no tiene pacientes
+ok 298 - pacientesDelDia: un día sin citas no tiene pacientes
+  ---
+  duration_ms: 0.4689
+  type: 'test'
+  ...
+# Subtest: totalPendiente suma números y textos NUMERIC y redondea a dos decimales
+ok 299 - totalPendiente suma números y textos NUMERIC y redondea a dos decimales
+  ---
+  duration_ms: 0.135
+  type: 'test'
+  ...
+# Subtest: indicadoresRecepcion arma las cinco tarjetas del flujo diario
+ok 300 - indicadoresRecepcion arma las cinco tarjetas del flujo diario
+  ---
+  duration_ms: 0.0985
+  type: 'test'
+  ...
+# Subtest: contarUsuariosPorRol: lista vacía devuelve total 0 y sin ítems
+ok 301 - contarUsuariosPorRol: lista vacía devuelve total 0 y sin ítems
+  ---
+  duration_ms: 1.13
+  type: 'test'
+  ...
+# Subtest: contarUsuariosPorRol: ignora roles nulos/vacíos y cuenta todos los perfiles
+ok 302 - contarUsuariosPorRol: ignora roles nulos/vacíos y cuenta todos los perfiles
+  ---
+  duration_ms: 5.4849
+  type: 'test'
+  ...
+# Subtest: contarUsuariosPorRol: agrupa por rol y ordena desc por cantidad
+ok 303 - contarUsuariosPorRol: agrupa por rol y ordena desc por cantidad
+  ---
+  duration_ms: 0.12
+  type: 'test'
+  ...
+# Subtest: distribuirClinicasPorEstado: todas activas
+ok 304 - distribuirClinicasPorEstado: todas activas
+  ---
+  duration_ms: 0.1139
+  type: 'test'
+  ...
+# Subtest: distribuirClinicasPorEstado: activas e inactivas
+ok 305 - distribuirClinicasPorEstado: activas e inactivas
+  ---
+  duration_ms: 0.9124
+  type: 'test'
+  ...
+# Subtest: distribuirClinicasPorEstado: solo inactivas cuenta totales
+ok 306 - distribuirClinicasPorEstado: solo inactivas cuenta totales
+  ---
+  duration_ms: 0.1218
+  type: 'test'
+  ...
+# Subtest: distribuirClinicasPorEstado: vacío devuelve ceros
+ok 307 - distribuirClinicasPorEstado: vacío devuelve ceros
+  ---
+  duration_ms: 0.068
+  type: 'test'
+  ...
+# Subtest: serieUsuariosPorRol: arma los puntos desde la agregación
+ok 308 - serieUsuariosPorRol: arma los puntos desde la agregación
+  ---
+  duration_ms: 0.1348
+  type: 'test'
+  ...
+# Subtest: serieUsuariosPorRol: agregación vacía deja la serie sin puntos
+ok 309 - serieUsuariosPorRol: agregación vacía deja la serie sin puntos
+  ---
+  duration_ms: 0.0935
+  type: 'test'
+  ...
+# Subtest: serieClinicasPorEstado: arma puntos Activas/Inactivas
+ok 310 - serieClinicasPorEstado: arma puntos Activas/Inactivas
+  ---
+  duration_ms: 0.1415
+  type: 'test'
+  ...
+# Subtest: contarClinicas: sin filas el total y las activas son cero
+ok 311 - contarClinicas: sin filas el total y las activas son cero
+  ---
+  duration_ms: 0.8373
+  type: 'test'
+  ...
+# Subtest: contarClinicas cuenta total y activas por separado
+ok 312 - contarClinicas cuenta total y activas por separado
+  ---
+  duration_ms: 0.1024
+  type: 'test'
+  ...
+# Subtest: contarClinicas: todas inactivas deja el total intacto
+ok 313 - contarClinicas: todas inactivas deja el total intacto
+  ---
+  duration_ms: 0.0643
+  type: 'test'
+  ...
+# Subtest: contarClinicas: un `activo` nulo o ausente no cuenta como activa
+ok 314 - contarClinicas: un `activo` nulo o ausente no cuenta como activa
+  ---
+  duration_ms: 0.0649
+  type: 'test'
+  ...
+# Subtest: contarUsuarios cuenta total y activos por separado
+ok 315 - contarUsuarios cuenta total y activos por separado
+  ---
+  duration_ms: 0.0883
+  type: 'test'
+  ...
+# Subtest: contarUsuarios: sin filas devuelve ceros
+ok 316 - contarUsuarios: sin filas devuelve ceros
+  ---
+  duration_ms: 0.0582
+  type: 'test'
+  ...
+# Subtest: resumirSuperadmin combina ambos conteos sin cruzarlos
+ok 317 - resumirSuperadmin combina ambos conteos sin cruzarlos
+  ---
+  duration_ms: 0.5754
+  type: 'test'
+  ...
+# Subtest: estaVacioResumen: solo vacío si no hay ni clínicas ni usuarios
+ok 318 - estaVacioResumen: solo vacío si no hay ni clínicas ni usuarios
+  ---
+  duration_ms: 0.0979
+  type: 'test'
+  ...
+# Subtest: indicadoresSuperadmin arma cuatro tarjetas con los conteos reales
+ok 319 - indicadoresSuperadmin arma cuatro tarjetas con los conteos reales
+  ---
+  duration_ms: 0.1441
+  type: 'test'
+  ...
+# Subtest: los iconos de los indicadores existen en el registro de DashboardStatCard
+ok 320 - los iconos de los indicadores existen en el registro de DashboardStatCard
+  ---
+  duration_ms: 0.1719
+  type: 'test'
+  ...
+# Subtest: crearResumenVacio no comparte referencias entre campos
+ok 321 - crearResumenVacio no comparte referencias entre campos
+  ---
+  duration_ms: 0.0821
+  type: 'test'
+  ...
+# Subtest: esUuid acepta UUIDs reales y rechaza los ids de la demo
+ok 322 - esUuid acepta UUIDs reales y rechaza los ids de la demo
+  ---
+  duration_ms: 0.5624
+  type: 'test'
+  ...
+# Subtest: el mapper ida y vuelta conserva todos los campos, incluidos los null
+ok 323 - el mapper ida y vuelta conserva todos los campos, incluidos los null
+  ---
+  duration_ms: 0.1841
+  type: 'test'
+  ...
+# Subtest: textos con saltos de línea y separadores no se reinterpretan
+ok 324 - textos con saltos de línea y separadores no se reinterpretan
+  ---
+  duration_ms: 0.07
+  type: 'test'
+  ...
+# Subtest: columnas null devuelven cadenas vacías, no 'null' ni una fecha inventada
+ok 325 - columnas null devuelven cadenas vacías, no 'null' ni una fecha inventada
+  ---
+  duration_ms: 0.9913
+  type: 'test'
+  ...
+# Subtest: el INSERT no envía `id` ni `creado_en`, y usa el UUID de clínica recibido
+ok 326 - el INSERT no envía `id` ni `creado_en`, y usa el UUID de clínica recibido
+  ---
+  duration_ms: 0.4061
+  type: 'test'
+  ...
+# Subtest: el UPDATE conserva los identificadores de la fila ya guardada
+ok 327 - el UPDATE conserva los identificadores de la fila ya guardada
+  ---
+  duration_ms: 0.0943
+  type: 'test'
+  ...
+# Subtest: tieneProximaAtencion distingue la fecha real de null y de cadena vacía
+ok 328 - tieneProximaAtencion distingue la fecha real de null y de cadena vacía
+  ---
+  duration_ms: 0.0846
+  type: 'test'
+  ...
+# Subtest: los ids de la demo se rechazan antes de tocar la red
+ok 329 - los ids de la demo se rechazan antes de tocar la red
+  ---
+  duration_ms: 1.0066
+  type: 'test'
+  ...
+# Subtest: los ids de plan y procedimiento se validan aunque sean opcionales
+ok 330 - los ids de plan y procedimiento se validan aunque sean opcionales
+  ---
+  duration_ms: 0.261
+  type: 'test'
+  ...
+# Subtest: la consulta filtra por paciente y pide fecha descendente
+ok 331 - la consulta filtra por paciente y pide fecha descendente
+  ---
+  duration_ms: 0.3816
+  type: 'test'
+  ...
+# Subtest: un SELECT vacío no es un error: se devuelve una lista vacía
+ok 332 - un SELECT vacío no es un error: se devuelve una lista vacía
+  ---
+  duration_ms: 0.1478
+  type: 'test'
+  ...
+# Subtest: el INSERT usa los UUID recibidos y devuelve la fila que guardó la base
+ok 333 - el INSERT usa los UUID recibidos y devuelve la fila que guardó la base
+  ---
+  duration_ms: 0.1297
+  type: 'test'
+  ...
+# Subtest: el UPDATE se acota a id, paciente y clínica
+ok 334 - el UPDATE se acota a id, paciente y clínica
+  ---
+  duration_ms: 0.1393
+  type: 'test'
+  ...
+# Subtest: un UPDATE que no afecta filas devuelve null, no una evolución inventada
+ok 335 - un UPDATE que no afecta filas devuelve null, no una evolución inventada
+  ---
+  duration_ms: 0.0709
+  type: 'test'
+  ...
+# Subtest: registrarProximaAtencion solo cambia la fecha y conserva el resto
+ok 336 - registrarProximaAtencion solo cambia la fecha y conserva el resto
+  ---
+  duration_ms: 0.1141
+  type: 'test'
+  ...
+# Subtest: los errores de escritura no se anuncian como éxito
+ok 337 - los errores de escritura no se anuncian como éxito
+  ---
+  duration_ms: 0.1666
+  type: 'test'
+  ...
+# Subtest: hoyEnIso devuelve el día local, no el día UTC
+ok 338 - hoyEnIso devuelve el día local, no el día UTC
+  ---
+  duration_ms: 1.4654
+  type: 'test'
+  ...
+# Subtest: fechaDesdeIso construye la fecha en hora local
+ok 339 - fechaDesdeIso construye la fecha en hora local
+  ---
+  duration_ms: 0.1571
+  type: 'test'
+  ...
+# Subtest: una fecha que no existe en el calendario se rechaza
+ok 340 - una fecha que no existe en el calendario se rechaza
+  ---
+  duration_ms: 0.1378
+  type: 'test'
+  ...
+# Subtest: el formateo devuelve el texto original si la fecha es ilegible
+ok 341 - el formateo devuelve el texto original si la fecha es ilegible
+  ---
+  duration_ms: 9.6086
+  type: 'test'
+  ...
+# Subtest: trozosDeFecha separa día, mes y año, y marca el día de hoy
+ok 342 - trozosDeFecha separa día, mes y año, y marca el día de hoy
+  ---
+  duration_ms: 0.8384
+  type: 'test'
+  ...
+# Subtest: compararEvoluciones ordena de la atención más reciente a la más antigua
+ok 343 - compararEvoluciones ordena de la atención más reciente a la más antigua
+  ---
+  duration_ms: 0.4795
+  type: 'test'
+  ...
+# Subtest: dos atenciones del mismo día se ordenan por fecha de creación
+ok 344 - dos atenciones del mismo día se ordenan por fecha de creación
+  ---
+  duration_ms: 0.1112
+  type: 'test'
+  ...
+# Subtest: un creado_en vacío no se compara como texto contra uno real
+ok 345 - un creado_en vacío no se compara como texto contra uno real
+  ---
+  duration_ms: 0.087
+  type: 'test'
+  ...
+# Subtest: los ids de la demo se rechazan antes de tocar la red
+ok 346 - los ids de la demo se rechazan antes de tocar la red
+  ---
+  duration_ms: 0.8276
+  type: 'test'
+  ...
+# Subtest: los planes se piden por paciente, del más reciente al más antiguo
+ok 347 - los planes se piden por paciente, del más reciente al más antiguo
+  ---
+  duration_ms: 0.4605
+  type: 'test'
+  ...
+# Subtest: los procedimientos se piden por plan y en el orden en que se agregaron
+ok 348 - los procedimientos se piden por plan y en el orden en que se agregaron
+  ---
+  duration_ms: 0.1589
+  type: 'test'
+  ...
+# Subtest: un SELECT vacío no es un error: se devuelve una lista vacía
+ok 349 - un SELECT vacío no es un error: se devuelve una lista vacía
+  ---
+  duration_ms: 0.1172
+  type: 'test'
+  ...
+# Subtest: el mapper traduce el numeric de PostgREST a número
+ok 350 - el mapper traduce el numeric de PostgREST a número
+  ---
+  duration_ms: 0.0849
+  type: 'test'
+  ...
+# Subtest: los estados fuera del check del SQL no se inventan
+ok 351 - los estados fuera del check del SQL no se inventan
+  ---
+  duration_ms: 0.0716
+  type: 'test'
+  ...
+# Subtest: los títulos y descripciones ausentes no rompen las etiquetas
+ok 352 - los títulos y descripciones ausentes no rompen las etiquetas
+  ---
+  duration_ms: 0.0964
+  type: 'test'
+  ...
+# Subtest: solo se ofrecen los planes activos: un cancelado no aparece (US-6.4)
+ok 353 - solo se ofrecen los planes activos: un cancelado no aparece (US-6.4)
+  ---
+  duration_ms: 0.1318
+  type: 'test'
+  ...
+# Subtest: el estado del plan se rotula en el desplegable
+ok 354 - el estado del plan se rotula en el desplegable
+  ---
+  duration_ms: 0.089
+  type: 'test'
+  ...
+# Subtest: el centinela del desplegable se traduce a null y vuelve sin inventar un id
+ok 355 - el centinela del desplegable se traduce a null y vuelve sin inventar un id
+  ---
+  duration_ms: 0.1364
+  type: 'test'
+  ...
+# Subtest: acepta piezas FDI permanentes válidas
+ok 356 - acepta piezas FDI permanentes válidas
+  ---
+  duration_ms: 0.4638
+  type: 'test'
+  ...
+# Subtest: rechaza piezas que no existen en la notación FDI
+ok 357 - rechaza piezas que no existen en la notación FDI
+  ---
+  duration_ms: 0.0917
+  type: 'test'
+  ...
+# Subtest: rechaza las posiciones huecas de cada cuadrante (9 y 0)
+ok 358 - rechaza las posiciones huecas de cada cuadrante (9 y 0)
+  ---
+  duration_ms: 0.0928
+  type: 'test'
+  ...
+# Subtest: rechaza valores no enteros
+ok 359 - rechaza valores no enteros
+  ---
+  duration_ms: 0.0661
+  type: 'test'
+  ...
+# Subtest: los límites publicados coinciden con el rango aceptado
+ok 360 - los límites publicados coinciden con el rango aceptado
+  ---
+  duration_ms: 0.0676
+  type: 'test'
+  ...
+# Subtest: saldoPresupuesto descuenta solo los pagos confirmados
+ok 361 - saldoPresupuesto descuenta solo los pagos confirmados
+  ---
+  duration_ms: 0.5782
+  type: 'test'
+  ...
+# Subtest: totalConfirmado ignora pendiente y rechazado
+ok 362 - totalConfirmado ignora pendiente y rechazado
+  ---
+  duration_ms: 0.1379
+  type: 'test'
+  ...
+# Subtest: un estado desconocido no se cuenta como dinero recibido
+ok 363 - un estado desconocido no se cuenta como dinero recibido
+  ---
+  duration_ms: 0.0672
+  type: 'test'
+  ...
+# Subtest: el saldo pendiente nunca es negativo
+ok 364 - el saldo pendiente nunca es negativo
+  ---
+  duration_ms: 0.0565
+  type: 'test'
+  ...
+# Subtest: el saldo de un presupuesto sin pagos es el total completo
+ok 365 - el saldo de un presupuesto sin pagos es el total completo
+  ---
+  duration_ms: 0.0627
+  type: 'test'
+  ...
+# Subtest: montoAceptable limita al saldo pendiente y no baja de cero
+ok 366 - montoAceptable limita al saldo pendiente y no baja de cero
+  ---
+  duration_ms: 0.0657
+  type: 'test'
+  ...
+# Subtest: saldoTrasAbono descuenta el abono y nunca deja saldo negativo
+ok 367 - saldoTrasAbono descuenta el abono y nunca deja saldo negativo
+  ---
+  duration_ms: 0.0606
+  type: 'test'
+  ...
+# Subtest: aNumero tolera el NUMERIC de Postgres como texto y null
+ok 368 - aNumero tolera el NUMERIC de Postgres como texto y null
+  ---
+  duration_ms: 0.0522
+  type: 'test'
+  ...
+# Subtest: redondear deja dos decimales, como el NUMERIC(10,2) de la base
+ok 369 - redondear deja dos decimales, como el NUMERIC(10,2) de la base
+  ---
+  duration_ms: 0.0729
+  type: 'test'
+  ...
+# Subtest: calcularEstadoCuenta aplica la misma regla de confirmados
+ok 370 - calcularEstadoCuenta aplica la misma regla de confirmados
+  ---
+  duration_ms: 0.1607
+  type: 'test'
+  ...
+# Subtest: un presupuesto en cero deja el saldo en cero, sin inventar saldo
+ok 371 - un presupuesto en cero deja el saldo en cero, sin inventar saldo
+  ---
+  duration_ms: 0.0819
+  type: 'test'
+  ...
+# Subtest: pagar de mas no deja un saldo negativo
+ok 372 - pagar de mas no deja un saldo negativo
+  ---
+  duration_ms: 0.0501
+  type: 'test'
+  ...
+# Subtest: rutaQrCobro es fija por clínica, sin extensión
+ok 373 - rutaQrCobro es fija por clínica, sin extensión
+  ---
+  duration_ms: 0.4886
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro exige un UUID real de clínica
+ok 374 - obtenerUrlQrCobro exige un UUID real de clínica
+  ---
+  duration_ms: 0.4249
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro devuelve la URL firmada cuando el objeto existe
+ok 375 - obtenerUrlQrCobro devuelve la URL firmada cuando el objeto existe
+  ---
+  duration_ms: 0.4491
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro devuelve null si todavía no hay QR subido
+ok 376 - obtenerUrlQrCobro devuelve null si todavía no hay QR subido
+  ---
+  duration_ms: 0.1622
+  type: 'test'
+  ...
+# Subtest: obtenerUrlQrCobro relanza otros errores de Storage
+ok 377 - obtenerUrlQrCobro relanza otros errores de Storage
+  ---
+  duration_ms: 0.1145
+  type: 'test'
+  ...
+# Subtest: subirQrCobro rechaza un archivo que no pasa la validación local, sin tocar la red
+ok 378 - subirQrCobro rechaza un archivo que no pasa la validación local, sin tocar la red
+  ---
+  duration_ms: 0.3428
+  type: 'test'
+  ...
+# Subtest: subirQrCobro sube con upsert y devuelve una URL firmada nueva
+ok 379 - subirQrCobro sube con upsert y devuelve una URL firmada nueva
+  ---
+  duration_ms: 0.1827
+  type: 'test'
+  ...
+# Subtest: subirQrCobro propaga el error si Storage rechaza la subida
+ok 380 - subirQrCobro propaga el error si Storage rechaza la subida
+  ---
+  duration_ms: 0.1071
+  type: 'test'
+  ...
+# Subtest: acepta una imagen JPG/PNG/WEBP dentro del límite
+ok 381 - acepta una imagen JPG/PNG/WEBP dentro del límite
+  ---
+  duration_ms: 0.7019
+  type: 'test'
+  ...
+# Subtest: rechaza un archivo vacío
+ok 382 - rechaza un archivo vacío
+  ---
+  duration_ms: 0.102
+  type: 'test'
+  ...
+# Subtest: rechaza un archivo que excede el tamaño máximo
+ok 383 - rechaza un archivo que excede el tamaño máximo
+  ---
+  duration_ms: 0.7297
+  type: 'test'
+  ...
+# Subtest: rechaza formatos que no son imagen
+ok 384 - rechaza formatos que no son imagen
+  ---
+  duration_ms: 0.0946
+  type: 'test'
+  ...
+# Subtest: una cita se normaliza con su motivo, estado y horario
+ok 385 - una cita se normaliza con su motivo, estado y horario
+  ---
+  duration_ms: 0.6026
+  type: 'test'
+  ...
+# Subtest: una cita sin motivo cae al título por defecto
+ok 386 - una cita sin motivo cae al título por defecto
+  ---
+  duration_ms: 0.1036
+  type: 'test'
+  ...
+# Subtest: una evolución se normaliza con su procedimiento y la pieza
+ok 387 - una evolución se normaliza con su procedimiento y la pieza
+  ---
+  duration_ms: 0.1303
+  type: 'test'
+  ...
+# Subtest: el historial mezcla las dos fuentes y ordena de lo más nuevo a lo más viejo
+ok 388 - el historial mezcla las dos fuentes y ordena de lo más nuevo a lo más viejo
+  ---
+  duration_ms: 0.4179
+  type: 'test'
+  ...
+# Subtest: a igual fecha, la hora más tarde va primero
+ok 389 - a igual fecha, la hora más tarde va primero
+  ---
+  duration_ms: 0.0849
+  type: 'test'
+  ...
+# Subtest: contarAtenciones separa citas de evoluciones
+ok 390 - contarAtenciones separa citas de evoluciones
+  ---
+  duration_ms: 0.1502
+  type: 'test'
+  ...
+# Subtest: sin datos, el historial es una lista vacía
+ok 391 - sin datos, el historial es una lista vacía
+  ---
+  duration_ms: 0.499
+  type: 'test'
+  ...
+# Subtest: un borrador completo y correcto no tiene errores
+ok 392 - un borrador completo y correcto no tiene errores
+  ---
+  duration_ms: 0.8974
+  type: 'test'
+  ...
+# Subtest: nombres y apellidos son obligatorios y no aceptan solo espacios
+ok 393 - nombres y apellidos son obligatorios y no aceptan solo espacios
+  ---
+  duration_ms: 0.1132
+  type: 'test'
+  ...
+# Subtest: la CI exige formato y es obligatoria
+ok 394 - la CI exige formato y es obligatoria
+  ---
+  duration_ms: 0.0809
+  type: 'test'
+  ...
+# Subtest: la fecha de nacimiento no puede ser futura
+ok 395 - la fecha de nacimiento no puede ser futura
+  ---
+  duration_ms: 0.0662
+  type: 'test'
+  ...
+# Subtest: la fecha de nacimiento rechaza fechas que no existen en el calendario
+ok 396 - la fecha de nacimiento rechaza fechas que no existen en el calendario
+  ---
+  duration_ms: 0.0647
+  type: 'test'
+  ...
+# Subtest: la fecha de nacimiento rechaza edades mayores a 120 años
+ok 397 - la fecha de nacimiento rechaza edades mayores a 120 años
+  ---
+  duration_ms: 0.3987
+  type: 'test'
+  ...
+# Subtest: el teléfono admite formatos locales y rechaza el vacío
+ok 398 - el teléfono admite formatos locales y rechaza el vacío
+  ---
+  duration_ms: 0.0936
+  type: 'test'
+  ...
+# Subtest: el correo es opcional, pero si viene debe ser válido
+ok 399 - el correo es opcional, pero si viene debe ser válido
+  ---
+  duration_ms: 0.1389
+  type: 'test'
+  ...
+# Subtest: el contacto de emergencia es opcional, pero si se completa pide nombre y teléfono
+ok 400 - el contacto de emergencia es opcional, pero si se completa pide nombre y teléfono
+  ---
+  duration_ms: 0.1024
+  type: 'test'
+  ...
+# Subtest: un contacto de emergencia completo y válido no genera errores
+ok 401 - un contacto de emergencia completo y válido no genera errores
+  ---
+  duration_ms: 0.1196
+  type: 'test'
+  ...
+# Subtest: hayErrores resume la presencia de problemas
+ok 402 - hayErrores resume la presencia de problemas
+  ---
+  duration_ms: 0.0621
+  type: 'test'
+  ...
+# Subtest: devuelve cinco clinicas de demostracion con todos los campos completos
+ok 403 - devuelve cinco clinicas de demostracion con todos los campos completos
+  ---
+  duration_ms: 0.7787
+  type: 'test'
+  ...
+# Subtest: es determinista: dos llamadas con el mismo centro dan lo mismo
+ok 404 - es determinista: dos llamadas con el mismo centro dan lo mismo
+  ---
+  duration_ms: 0.9348
+  type: 'test'
+  ...
+# Subtest: los ids empiezan con demo- y no se repiten
+ok 405 - los ids empiezan con demo- y no se repiten
+  ---
+  duration_ms: 0.1389
+  type: 'test'
+  ...
+# Subtest: sin radio explicito quedan dentro del filtro de 5 km y lejos del punto
+ok 406 - sin radio explicito quedan dentro del filtro de 5 km y lejos del punto
+  ---
+  duration_ms: 0.1041
+  type: 'test'
+  ...
+# Subtest: las distancias son distintas entre si: no se apilan en el mismo punto
+ok 407 - las distancias son distintas entre si: no se apilan en el mismo punto
+  ---
+  duration_ms: 0.0877
+  type: 'test'
+  ...
+# Subtest: con radio de 2 km se respeta el radio pedido
+ok 408 - con radio de 2 km se respeta el radio pedido
+  ---
+  duration_ms: 0.079
+  type: 'test'
+  ...
+# Subtest: con un radio menor a 0.4 km se devuelven las cinco, dentro del radio
+ok 409 - con un radio menor a 0.4 km se devuelven las cinco, dentro del radio
+  ---
+  duration_ms: 0.1063
+  type: 'test'
+  ...
+# Subtest: un radio no usable cae al radio por defecto
+ok 410 - un radio no usable cae al radio por defecto
+  ---
+  duration_ms: 0.1415
+  type: 'test'
+  ...
+# Subtest: devuelve lista vacia si la ubicacion no tiene numeros finitos
+ok 411 - devuelve lista vacia si la ubicacion no tiene numeros finitos
+  ---
+  duration_ms: 0.0859
+  type: 'test'
+  ...
+# Subtest: los datosdemo son distintos entre si y corresponden a una ciudad de Bolivia
+ok 412 - los datosdemo son distintos entre si y corresponden a una ciudad de Bolivia
+  ---
+  duration_ms: 0.2252
+  type: 'test'
+  ...
+# Subtest: severidad: dolor severo + fiebre es emergencia
+ok 413 - severidad: dolor severo + fiebre es emergencia
+  ---
+  duration_ms: 0.6262
+  type: 'test'
+  ...
+# Subtest: severidad: dolor severo + inflamacion es emergencia
+ok 414 - severidad: dolor severo + inflamacion es emergencia
+  ---
+  duration_ms: 0.0765
+  type: 'test'
+  ...
+# Subtest: severidad: trauma dental + sangrado es emergencia, incluso sin dolor
+ok 415 - severidad: trauma dental + sangrado es emergencia, incluso sin dolor
+  ---
+  duration_ms: 0.0538
+  type: 'test'
+  ...
+# Subtest: severidad: dolor severo solo (sin fiebre/inflamacion) es urgente
+ok 416 - severidad: dolor severo solo (sin fiebre/inflamacion) es urgente
+  ---
+  duration_ms: 0.0801
+  type: 'test'
+  ...
+# Subtest: severidad: pus + dolor moderado es urgente
+ok 417 - severidad: pus + dolor moderado es urgente
+  ---
+  duration_ms: 0.5678
+  type: 'test'
+  ...
+# Subtest: severidad: pus sin dolor (intensidad null) no es urgente por si solo
+ok 418 - severidad: pus sin dolor (intensidad null) no es urgente por si solo
+  ---
+  duration_ms: 0.0746
+  type: 'test'
+  ...
+# Subtest: severidad: sensibilidad sola es rutina
+ok 419 - severidad: sensibilidad sola es rutina
+  ---
+  duration_ms: 0.0572
+  type: 'test'
+  ...
+# Subtest: severidad: dolor leve sin otros sintomas es rutina
+ok 420 - severidad: dolor leve sin otros sintomas es rutina
+  ---
+  duration_ms: 0.0444
+  type: 'test'
+  ...
+# Subtest: severidad: ningun sintoma marcado es rutina
+ok 421 - severidad: ningun sintoma marcado es rutina
+  ---
+  duration_ms: 0.0671
+  type: 'test'
+  ...
+# Subtest: requiereIntensidadYDuracion: true si hay dolor de muela o mandibula
+ok 422 - requiereIntensidadYDuracion: true si hay dolor de muela o mandibula
+  ---
+  duration_ms: 0.1147
+  type: 'test'
+  ...
+# Subtest: requiereIntensidadYDuracion: false sin dolor
+ok 423 - requiereIntensidadYDuracion: false sin dolor
+  ---
+  duration_ms: 0.0728
+  type: 'test'
+  ...
+# Subtest: alSeleccionarSintoma: marcar ninguno limpia el resto
+ok 424 - alSeleccionarSintoma: marcar ninguno limpia el resto
+  ---
+  duration_ms: 0.3818
+  type: 'test'
+  ...
+# Subtest: alSeleccionarSintoma: marcar otro sintoma desmarca ninguno
+ok 425 - alSeleccionarSintoma: marcar otro sintoma desmarca ninguno
+  ---
+  duration_ms: 0.0594
+  type: 'test'
+  ...
+# Subtest: alSeleccionarSintoma: marcar un sintoma ya marcado lo desmarca (toggle)
+ok 426 - alSeleccionarSintoma: marcar un sintoma ya marcado lo desmarca (toggle)
+  ---
+  duration_ms: 0.0354
+  type: 'test'
+  ...
+# Subtest: alSeleccionarSintoma: marcar ninguno de nuevo lo desmarca (toggle)
+ok 427 - alSeleccionarSintoma: marcar ninguno de nuevo lo desmarca (toggle)
+  ---
+  duration_ms: 0.0274
+  type: 'test'
+  ...
+# Subtest: condicion posible: trauma + sangrado es fractura/luxacion
+ok 428 - condicion posible: trauma + sangrado es fractura/luxacion
+  ---
+  duration_ms: 0.0784
+  type: 'test'
+  ...
+# Subtest: condicion posible: trauma solo, sin sangrado
+ok 429 - condicion posible: trauma solo, sin sangrado
+  ---
+  duration_ms: 0.027
+  type: 'test'
+  ...
+# Subtest: condicion posible: dolor severo + fiebre es absceso
+ok 430 - condicion posible: dolor severo + fiebre es absceso
+  ---
+  duration_ms: 0.0344
+  type: 'test'
+  ...
+# Subtest: condicion posible: inflamacion + fiebre (sin dolor) es infeccion dental
+ok 431 - condicion posible: inflamacion + fiebre (sin dolor) es infeccion dental
+  ---
+  duration_ms: 0.0338
+  type: 'test'
+  ...
+# Subtest: condicion posible: dolor severo solo (sin fiebre/inflamacion) es pulpitis
+ok 432 - condicion posible: dolor severo solo (sin fiebre/inflamacion) es pulpitis
+  ---
+  duration_ms: 0.0487
+  type: 'test'
+  ...
+# Subtest: condicion posible: sangrado + inflamacion es enfermedad de encias
+ok 433 - condicion posible: sangrado + inflamacion es enfermedad de encias
+  ---
+  duration_ms: 0.0855
+  type: 'test'
+  ...
+# Subtest: condicion posible: sangrado solo es gingivitis
+ok 434 - condicion posible: sangrado solo es gingivitis
+  ---
+  duration_ms: 0.0336
+  type: 'test'
+  ...
+# Subtest: condicion posible: pus/mal aliento solo
+ok 435 - condicion posible: pus/mal aliento solo
+  ---
+  duration_ms: 0.0197
+  type: 'test'
+  ...
+# Subtest: condicion posible: dolor leve/moderado solo es caries
+ok 436 - condicion posible: dolor leve/moderado solo es caries
+  ---
+  duration_ms: 0.0185
+  type: 'test'
+  ...
+# Subtest: condicion posible: sensibilidad sola
+ok 437 - condicion posible: sensibilidad sola
+  ---
+  duration_ms: 0.0185
+  type: 'test'
+  ...
+# Subtest: condicion posible: ninguno o sin sintomas no sugiere nada
+ok 438 - condicion posible: ninguno o sin sintomas no sugiere nada
+  ---
+  duration_ms: 0.0206
+  type: 'test'
+  ...
+# Subtest: prediagnosticoDesdeFila mapea una fila válida
+ok 439 - prediagnosticoDesdeFila mapea una fila válida
+  ---
+  duration_ms: 0.7714
+  type: 'test'
+  ...
+# Subtest: prediagnosticoDesdeFila acepta intensidad/duracion null (rutina sin dolor)
+ok 440 - prediagnosticoDesdeFila acepta intensidad/duracion null (rutina sin dolor)
+  ---
+  duration_ms: 0.0998
+  type: 'test'
+  ...
+# Subtest: prediagnosticoDesdeFila rechaza un síntoma desconocido en vez de ignorarlo
+ok 441 - prediagnosticoDesdeFila rechaza un síntoma desconocido en vez de ignorarlo
+  ---
+  duration_ms: 0.2223
+  type: 'test'
+  ...
+# Subtest: prediagnosticoDesdeFila rechaza severidad fuera de las tres conocidas
+ok 442 - prediagnosticoDesdeFila rechaza severidad fuera de las tres conocidas
+  ---
+  duration_ms: 0.0808
+  type: 'test'
+  ...
+# Subtest: prediagnosticoDesdeFila rechaza sintomas que no sea un arreglo
+ok 443 - prediagnosticoDesdeFila rechaza sintomas que no sea un arreglo
+  ---
+  duration_ms: 0.0802
+  type: 'test'
+  ...
+# Subtest: prediagnosticoParaGuardar no incluye paciente_id/clinica_id (los pone el servicio)
+ok 444 - prediagnosticoParaGuardar no incluye paciente_id/clinica_id (los pone el servicio)
+  ---
+  duration_ms: 0.0656
+  type: 'test'
+  ...
+# Subtest: IDs locales se rechazan antes de consultar
+ok 445 - IDs locales se rechazan antes de consultar
+  ---
+  duration_ms: 0.9666
+  type: 'test'
+  ...
+# Subtest: sin fila previa, cargarPrediagnostico devuelve null (no completó el wizard)
+ok 446 - sin fila previa, cargarPrediagnostico devuelve null (no completó el wizard)
+  ---
+  duration_ms: 0.1504
+  type: 'test'
+  ...
+# Subtest: cargarPrediagnostico filtra por el paciente indicado
+ok 447 - cargarPrediagnostico filtra por el paciente indicado
+  ---
+  duration_ms: 0.4319
+  type: 'test'
+  ...
+# Subtest: guardarPrediagnostico inserta con paciente_id y clinica_id
+ok 448 - guardarPrediagnostico inserta con paciente_id y clinica_id
+  ---
+  duration_ms: 0.2813
+  type: 'test'
+  ...
+# Subtest: respuesta de otro paciente/clinica no se acepta como éxito
+ok 449 - respuesta de otro paciente/clinica no se acepta como éxito
+  ---
+  duration_ms: 0.163
+  type: 'test'
+  ...
+# Subtest: error de RLS o sin fila devuelta no se anuncian como éxito
+ok 450 - error de RLS o sin fila devuelta no se anuncian como éxito
+  ---
+  duration_ms: 0.1563
+  type: 'test'
+  ...
+# Subtest: aNumero tolera el NUMERIC de Postgres como texto y null
+ok 451 - aNumero tolera el NUMERIC de Postgres como texto y null
+  ---
+  duration_ms: 0.5434
+  type: 'test'
+  ...
+# Subtest: redondear deja dos decimales, como el NUMERIC(10,2) de la base
+ok 452 - redondear deja dos decimales, como el NUMERIC(10,2) de la base
+  ---
+  duration_ms: 0.1007
+  type: 'test'
+  ...
+# Subtest: subtotalItem multiplica cantidad por precio y redondea
+ok 453 - subtotalItem multiplica cantidad por precio y redondea
+  ---
+  duration_ms: 0.088
+  type: 'test'
+  ...
+# Subtest: subtotalPartidas suma los subtotales de todas las líneas
+ok 454 - subtotalPartidas suma los subtotales de todas las líneas
+  ---
+  duration_ms: 0.0711
+  type: 'test'
+  ...
+# Subtest: totalPresupuesto resta el descuento del subtotal
+ok 455 - totalPresupuesto resta el descuento del subtotal
+  ---
+  duration_ms: 0.0772
+  type: 'test'
+  ...
+# Subtest: un descuento mayor que el subtotal deja el total en cero, nunca negativo
+ok 456 - un descuento mayor que el subtotal deja el total en cero, nunca negativo
+  ---
+  duration_ms: 0.0474
+  type: 'test'
+  ...
+# Subtest: itemsConSubtotal calcula y adjunta el subtotal de cada partida
+ok 457 - itemsConSubtotal calcula y adjunta el subtotal de cada partida
+  ---
+  duration_ms: 0.1245
+  type: 'test'
+  ...
+# Subtest: esPresupuestoEnviable exige al menos una partida con descripción
+ok 458 - esPresupuestoEnviable exige al menos una partida con descripción
+  ---
+  duration_ms: 0.1361
+  type: 'test'
+  ...
+# Subtest: totalPresupuestado suma los presupuestos vigentes y omite los rechazados
+ok 459 - totalPresupuestado suma los presupuestos vigentes y omite los rechazados
+  ---
+  duration_ms: 0.1023
+  type: 'test'
+  ...
+# Subtest: sin presupuestos, el total presupuestado es cero
+ok 460 - sin presupuestos, el total presupuestado es cero
+  ---
+  duration_ms: 0.1476
+  type: 'test'
+  ...
+# Subtest: el saldo pendiente de un módulo sigue sin poder ser negativo
+ok 461 - el saldo pendiente de un módulo sigue sin poder ser negativo
+  ---
+  duration_ms: 0.1061
+  type: 'test'
+  ...
+# Subtest: esUuid acepta UUIDs reales y rechaza los ids de demo
+ok 462 - esUuid acepta UUIDs reales y rechaza los ids de demo
+  ---
+  duration_ms: 0.7117
+  type: 'test'
+  ...
+# Subtest: presupuestoDesdeFila traduce snake_case y normaliza los nulos de texto
+ok 463 - presupuestoDesdeFila traduce snake_case y normaliza los nulos de texto
+  ---
+  duration_ms: 0.2105
+  type: 'test'
+  ...
+# Subtest: un estado desconocido se degrada a borrador en vez de romper los comparadores
+ok 464 - un estado desconocido se degrada a borrador en vez de romper los comparadores
+  ---
+  duration_ms: 0.1154
+  type: 'test'
+  ...
+# Subtest: itemDesdeFila asume cantidad 1 cuando la columna viene en null
+ok 465 - itemDesdeFila asume cantidad 1 cuando la columna viene en null
+  ---
+  duration_ms: 0.1239
+  type: 'test'
+  ...
+# Subtest: un presupuesto nuevo nace en borrador y con el total que se le calculó
+ok 466 - un presupuesto nuevo nace en borrador y con el total que se le calculó
+  ---
+  duration_ms: 0.1495
+  type: 'test'
+  ...
+# Subtest: itemParaGuardar engancha la partida al presupuesto y usa su subtotal
+ok 467 - itemParaGuardar engancha la partida al presupuesto y usa su subtotal
+  ---
+  duration_ms: 0.1289
+  type: 'test'
+  ...
+# Subtest: el ciclo de vida no retrocede: rechazado y aceptado son terminales
+ok 468 - el ciclo de vida no retrocede: rechazado y aceptado son terminales
+  ---
+  duration_ms: 0.0816
+  type: 'test'
+  ...
+# Subtest: construirCsv: encabezado + filas, separadas por coma
+ok 469 - construirCsv: encabezado + filas, separadas por coma
+  ---
+  duration_ms: 0.9045
+  type: 'test'
+  ...
+# Subtest: construirCsv: entrecomilla un campo que trae una coma
+ok 470 - construirCsv: entrecomilla un campo que trae una coma
+  ---
+  duration_ms: 0.1788
+  type: 'test'
+  ...
+# Subtest: construirCsv: duplica comillas internas
+ok 471 - construirCsv: duplica comillas internas
+  ---
+  duration_ms: 0.1028
+  type: 'test'
+  ...
+# Subtest: construirCsv: numeros se convierten a texto sin comillas
+ok 472 - construirCsv: numeros se convierten a texto sin comillas
+  ---
+  duration_ms: 0.0687
+  type: 'test'
+  ...
+# Subtest: construirCsv: sin filas deja solo el encabezado
+ok 473 - construirCsv: sin filas deja solo el encabezado
+  ---
+  duration_ms: 0.071
+  type: 'test'
+  ...
+# Subtest: creación conserva todos los campos ante error y solo limpia tras éxito real
+ok 474 - creación conserva todos los campos ante error y solo limpia tras éxito real
+  ---
+  duration_ms: 0.9484
+  type: 'test'
+  ...
+# Subtest: doble submit no dispara otra escritura y campos no cambian durante envío
+ok 475 - doble submit no dispara otra escritura y campos no cambian durante envío
+  ---
+  duration_ms: 0.114
+  type: 'test'
+  ...
+# Subtest: validación de descripción/pieza ocurre antes de guardar y conserva el borrador
+ok 476 - validación de descripción/pieza ocurre antes de guardar y conserva el borrador
+  ---
+  duration_ms: 0.5199
+  type: 'test'
+  ...
+# Subtest: edición fallida conserva contenido y estado pendiente; éxito no vacía diagnóstico
+ok 477 - edición fallida conserva contenido y estado pendiente; éxito no vacía diagnóstico
+  ---
+  duration_ms: 0.1377
+  type: 'test'
+  ...
+# Subtest: guardar solo estado no borra cambios de contenido sin guardar
+ok 478 - guardar solo estado no borra cambios de contenido sin guardar
+  ---
+  duration_ms: 0.1005
+  type: 'test'
+  ...
+# Subtest: respuesta NULL no limpia campos ni genera éxito
+ok 479 - respuesta NULL no limpia campos ni genera éxito
+  ---
+  duration_ms: 0.0792
+  type: 'test'
+  ...
+# Subtest: desmontaje descarta respuestas tardías y no anuncia éxito en otra ficha
+ok 480 - desmontaje descarta respuestas tardías y no anuncia éxito en otra ficha
+  ---
+  duration_ms: 0.102
+  type: 'test'
+  ...
+# Subtest: mapper conserva contexto, observaciones, estado y timestamps del servidor
+ok 481 - mapper conserva contexto, observaciones, estado y timestamps del servidor
+  ---
+  duration_ms: 0.8904
+  type: 'test'
+  ...
+# Subtest: filas malformadas no se convierten silenciosamente en diagnósticos válidos
+ok 482 - filas malformadas no se convierten silenciosamente en diagnósticos válidos
+  ---
+  duration_ms: 0.5659
+  type: 'test'
+  ...
+# Subtest: piezas coinciden con todos los rangos FDI de SQL, incluidas las temporales
+ok 483 - piezas coinciden con todos los rangos FDI de SQL, incluidas las temporales
+  ---
+  duration_ms: 0.1278
+  type: 'test'
+  ...
+# Subtest: pieza de formulario admite vacío pero rechaza coerciones de Number y texto libre
+ok 484 - pieza de formulario admite vacío pero rechaza coerciones de Number y texto libre
+  ---
+  duration_ms: 0.2527
+  type: 'test'
+  ...
+# Subtest: payload de contenido es lista blanca y exige descripción/pieza válidas
+ok 485 - payload de contenido es lista blanca y exige descripción/pieza válidas
+  ---
+  duration_ms: 0.1614
+  type: 'test'
+  ...
+# Subtest: permisos visuales distinguen autor, colega, clínica, recepcionista y auditoría
+ok 486 - permisos visuales distinguen autor, colega, clínica, recepcionista y auditoría
+  ---
+  duration_ms: 0.1923
+  type: 'test'
+  ...
+# Subtest: listar filtra paciente y clínica, ordena creado_en DESC y no escribe
+ok 487 - listar filtra paciente y clínica, ordena creado_en DESC y no escribe
+  ---
+  duration_ms: 1.5407
+  type: 'test'
+  ...
+# Subtest: lectura por rangos recupera más del límite API sin repetir ni omitir ids
+ok 488 - lectura por rangos recupera más del límite API sin repetir ni omitir ids
+  ---
+  duration_ms: 2.7687
+  type: 'test'
+  ...
+# Subtest: límite configurado menor al lote usa filas reales para avanzar
+ok 489 - límite configurado menor al lote usa filas reales para avanzar
+  ---
+  duration_ms: 0.2456
+  type: 'test'
+  ...
+# Subtest: conteo no confirmado o rango incompleto no se convierten en lista vacía
+ok 490 - conteo no confirmado o rango incompleto no se convierten en lista vacía
+  ---
+  duration_ms: 0.5719
+  type: 'test'
+  ...
+# Subtest: cambio de volumen entre rangos solicita reintento sin devolver lista parcial
+ok 491 - cambio de volumen entre rangos solicita reintento sin devolver lista parcial
+  ---
+  duration_ms: 0.1723
+  type: 'test'
+  ...
+# Subtest: SELECT vacío es válido, NULL/error/contexto ajeno/duplicados no lo son
+ok 492 - SELECT vacío es válido, NULL/error/contexto ajeno/duplicados no lo son
+  ---
+  duration_ms: 0.3522
+  type: 'test'
+  ...
+# Subtest: UUID inválido en todas las operaciones se rechaza antes de tocar red
+ok 493 - UUID inválido en todas las operaciones se rechaza antes de tocar red
+  ---
+  duration_ms: 0.4248
+  type: 'test'
+  ...
+# Subtest: crear confirma una fila activa y manda observaciones/contexto sin timestamps
+ok 494 - crear confirma una fila activa y manda observaciones/contexto sin timestamps
+  ---
+  duration_ms: 0.2815
+  type: 'test'
+  ...
+# Subtest: actualizar usa filtros completos y solo cambia los tres campos editables
+ok 495 - actualizar usa filtros completos y solo cambia los tres campos editables
+  ---
+  duration_ms: 0.2029
+  type: 'test'
+  ...
+# Subtest: cambio de estado escribe solo estado, verifica respuesta y admite los tres estados
+ok 496 - cambio de estado escribe solo estado, verifica respuesta y admite los tres estados
+  ---
+  duration_ms: 0.2828
+  type: 'test'
+  ...
+# Subtest: errores Supabase y UPDATE de cero filas no se anuncian como éxito
+ok 497 - errores Supabase y UPDATE de cero filas no se anuncian como éxito
+  ---
+  duration_ms: 0.5156
+  type: 'test'
+  ...
+# Subtest: contenido inválido no llega a red y respuesta no coincidente no confirma éxito
+ok 498 - contenido inválido no llega a red y respuesta no coincidente no confirma éxito
+  ---
+  duration_ms: 0.3276
+  type: 'test'
+  ...
+# Subtest: perfil visual procede del usuario Auth actual, activo y único
+ok 499 - perfil visual procede del usuario Auth actual, activo y único
+  ---
+  duration_ms: 0.3034
+  type: 'test'
+  ...
+# Subtest: lista con datos conserva texto, pieza, observaciones y fechas del diagnóstico
+ok 500 - lista con datos conserva texto, pieza, observaciones y fechas del diagnóstico
+  ---
+  duration_ms: 13.1199
+  type: 'test'
+  ...
+# Subtest: pieza/observaciones opcionales no inventan contenido y fechas NULL tienen texto explícito
+ok 501 - pieza/observaciones opcionales no inventan contenido y fechas NULL tienen texto explícito
+  ---
+  duration_ms: 0.1186
+  type: 'test'
+  ...
+# Subtest: estados muestran Activo/Inactivo/Resuelto sin depender del color
+ok 502 - estados muestran Activo/Inactivo/Resuelto sin depender del color
+  ---
+  duration_ms: 0.101
+  type: 'test'
+  ...
+# Subtest: loading, error, vacío y resultados son ramas distintas incluso si quedan datos anteriores
+ok 503 - loading, error, vacío y resultados son ramas distintas incluso si quedan datos anteriores
+  ---
+  duration_ms: 0.1457
+  type: 'test'
+  ...
+# Subtest: paginación de 20 limita, permite última página parcial y ajusta páginas inválidas
+ok 504 - paginación de 20 limita, permite última página parcial y ajusta páginas inválidas
+  ---
+  duration_ms: 0.5749
+  type: 'test'
+  ...
+# Subtest: orden creado DESC e id DESC conserva microsegundos, offsets y NULLS LAST
+ok 505 - orden creado DESC e id DESC conserva microsegundos, offsets y NULLS LAST
+  ---
+  duration_ms: 0.3905
+  type: 'test'
+  ...
+# Subtest: acciones solo para autor activo de la clínica; colega, recepción y auditoría leen
+ok 506 - acciones solo para autor activo de la clínica; colega, recepción y auditoría leen
+  ---
+  duration_ms: 0.1007
+  type: 'test'
+  ...
+# Subtest: confirmaciones reemplazan id sin duplicar y mantienen creado_en como orden
+ok 507 - confirmaciones reemplazan id sin duplicar y mantienen creado_en como orden
+  ---
+  duration_ms: 0.0895
+  type: 'test'
+  ...
+# Subtest: error de carga permite reintento y luego resultados, sin falso vacío ni bloqueo
+ok 508 - error de carga permite reintento y luego resultados, sin falso vacío ni bloqueo
+  ---
+  duration_ms: 0.2969
+  type: 'test'
+  ...
+# Subtest: doble reintento y remontaje StrictMode reutilizan lectura pendiente
+ok 509 - doble reintento y remontaje StrictMode reutilizan lectura pendiente
+  ---
+  duration_ms: 0.1687
+  type: 'test'
+  ...
+# Subtest: alta, edición y estado se reflejan en lista confirmada sin otra carga
+ok 510 - alta, edición y estado se reflejan en lista confirmada sin otra carga
+  ---
+  duration_ms: 0.1707
+  type: 'test'
+  ...
+# Subtest: respuesta tardía y confirmación de otro paciente no contaminan otra ficha
+ok 511 - respuesta tardía y confirmación de otro paciente no contaminan otra ficha
+  ---
+  duration_ms: 0.31
+  type: 'test'
+  ...
+# Subtest: perfil denegado falla antes de consultar diagnósticos
+ok 512 - perfil denegado falla antes de consultar diagnósticos
+  ---
+  duration_ms: 0.079
+  type: 'test'
+  ...
+# Subtest: lista React real muestra datos, observaciones, estados y fechas semánticas
+ok 513 - lista React real muestra datos, observaciones, estados y fechas semánticas
+  ---
+  duration_ms: 17728.3113
+  type: 'test'
+  ...
+# Subtest: loading utiliza aria-busy/status sin mostrar resultados viejos ni vacío
+ok 514 - loading utiliza aria-busy/status sin mostrar resultados viejos ni vacío
+  ---
+  duration_ms: 3.0035
+  type: 'test'
+  ...
+# Subtest: error tiene alert y botón de reintento, sin falso vacío ni fila residual
+ok 515 - error tiene alert y botón de reintento, sin falso vacío ni fila residual
+  ---
+  duration_ms: 2.8358
+  type: 'test'
+  ...
+# Subtest: vacío solo después de consulta correcta y campos opcionales no generan etiquetas vacías
+ok 516 - vacío solo después de consulta correcta y campos opcionales no generan etiquetas vacías
+  ---
+  duration_ms: 9.0222
+  type: 'test'
+  ...
+# Subtest: colega, recepción y superadmin no reciben botones de edición ni formulario
+ok 517 - colega, recepción y superadmin no reciben botones de edición ni formulario
+  ---
+  duration_ms: 13.6809
+  type: 'test'
+  ...
+# Subtest: lista React pagina a 20 y navegación tiene nombre y límites accesibles
+ok 518 - lista React pagina a 20 y navegación tiene nombre y límites accesibles
+  ---
+  duration_ms: 40.6965
+  type: 'test'
+  ...
+# Subtest: T-5.10 crear confirma primero CRUD, relee fila y actualiza total sin F5 ni suma local
+ok 519 - T-5.10 crear confirma primero CRUD, relee fila y actualiza total sin F5 ni suma local
+  ---
+  duration_ms: 1.987
+  type: 'test'
+  ...
+# Subtest: T-5.10 editar costo y cancelado conservan como autoridad el plan releído
+ok 520 - T-5.10 editar costo y cancelado conservan como autoridad el plan releído
+  ---
+  duration_ms: 0.2845
+  type: 'test'
+  ...
+# Subtest: T-5.10 eliminar último procedimiento relee plan vacío = 0.00
+ok 521 - T-5.10 eliminar último procedimiento relee plan vacío = 0.00
+  ---
+  duration_ms: 0.2501
+  type: 'test'
+  ...
+# Subtest: T-5.10 no relee antes de confirmar mutación y bloquea impresión desde el envío
+ok 522 - T-5.10 no relee antes de confirmar mutación y bloquea impresión desde el envío
+  ---
+  duration_ms: 0.5417
+  type: 'test'
+  ...
+# Subtest: T-5.10 fallo de relectura conserva CREATE confirmado y reintenta solo SELECT
+ok 523 - T-5.10 fallo de relectura conserva CREATE confirmado y reintenta solo SELECT
+  ---
+  duration_ms: 0.4209
+  type: 'test'
+  ...
+# Subtest: T-5.10 error parcial tras DELETE no vuelve a borrar y conserva fila retirada
+ok 524 - T-5.10 error parcial tras DELETE no vuelve a borrar y conserva fila retirada
+  ---
+  duration_ms: 0.2298
+  type: 'test'
+  ...
+# Subtest: T-5.10 error CRUD no se anuncia como éxito ni dispara relectura automática
+ok 525 - T-5.10 error CRUD no se anuncia como éxito ni dispara relectura automática
+  ---
+  duration_ms: 0.255
+  type: 'test'
+  ...
+# Subtest: T-5.10 no duplica CRUD durante relectura ni metadatos que puedan pisarla
+ok 526 - T-5.10 no duplica CRUD durante relectura ni metadatos que puedan pisarla
+  ---
+  duration_ms: 0.2991
+  type: 'test'
+  ...
+# Subtest: T-5.10 reintentos simultáneos comparten solo una lectura
+ok 527 - T-5.10 reintentos simultáneos comparten solo una lectura
+  ---
+  duration_ms: 0.2468
+  type: 'test'
+  ...
+# Subtest: T-5.10 cambiar plan durante relectura descarta total/mensaje tardíos
+ok 528 - T-5.10 cambiar plan durante relectura descarta total/mensaje tardíos
+  ---
+  duration_ms: 0.2477
+  type: 'test'
+  ...
+# Subtest: T-5.10 volver a plan y releer no permite que una respuesta anterior pise el nuevo total
+ok 529 - T-5.10 volver a plan y releer no permite que una respuesta anterior pise el nuevo total
+  ---
+  duration_ms: 0.2282
+  type: 'test'
+  ...
+# Subtest: T-5.10 ficha/sesión desactivada no recibe el plan releído tardío
+ok 530 - T-5.10 ficha/sesión desactivada no recibe el plan releído tardío
+  ---
+  duration_ms: 0.2353
+  type: 'test'
+  ...
+# Subtest: T-5.10 fila releída ajena no reconcilia ni habilita impresión
+ok 531 - T-5.10 fila releída ajena no reconcilia ni habilita impresión
+  ---
+  duration_ms: 0.3323
+  type: 'test'
+  ...
+# Subtest: T-5.10 formato usa siempre dos decimales para total persistido
+ok 532 - T-5.10 formato usa siempre dos decimales para total persistido
+  ---
+  duration_ms: 0.08
+  type: 'test'
+  ...
+# Subtest: T-5.10 UPDATE confirmado se conserva aunque falle la relectura
+ok 533 - T-5.10 UPDATE confirmado se conserva aunque falle la relectura
+  ---
+  duration_ms: 0.132
+  type: 'test'
+  ...
+# Subtest: T-5.10 reintento fallido tras error CRUD no fabrica confirmación de mutación
+ok 534 - T-5.10 reintento fallido tras error CRUD no fabrica confirmación de mutación
+  ---
+  duration_ms: 0.1688
+  type: 'test'
+  ...
+# Subtest: mapper conserva identidad, título legado NULL, notas, costo y los cinco estados reales
+ok 535 - mapper conserva identidad, título legado NULL, notas, costo y los cinco estados reales
+  ---
+  duration_ms: 0.9676
+  type: 'test'
+  ...
+# Subtest: mapper rechaza filas inválidas, UUID demo, estados desconocidos y costo no finito
+ok 536 - mapper rechaza filas inválidas, UUID demo, estados desconocidos y costo no finito
+  ---
+  duration_ms: 0.2048
+  type: 'test'
+  ...
+# Subtest: orden local de confirmaciones preserva microsegundos, id DESC y NULLS LAST
+ok 537 - orden local de confirmaciones preserva microsegundos, id DESC y NULLS LAST
+  ---
+  duration_ms: 0.4516
+  type: 'test'
+  ...
+# Subtest: payload de creación exige título, conserva notas y usa lista blanca
+ok 538 - payload de creación exige título, conserva notas y usa lista blanca
+  ---
+  duration_ms: 0.2289
+  type: 'test'
+  ...
+# Subtest: lectura ordena creado_en DESC, id DESC, filtra paciente/clínica y nunca inserta
+ok 539 - lectura ordena creado_en DESC, id DESC, filtra paciente/clínica y nunca inserta
+  ---
+  duration_ms: 0.4007
+  type: 'test'
+  ...
+# Subtest: lectura recupera múltiples lotes sin truncar ni crear automáticamente
+ok 540 - lectura recupera múltiples lotes sin truncar ni crear automáticamente
+  ---
+  duration_ms: 0.8752
+  type: 'test'
+  ...
+# Subtest: 0 filas es lectura confirmada; errores/NULL/conteo inconsistente no son vacío ni INSERT
+ok 541 - 0 filas es lectura confirmada; errores/NULL/conteo inconsistente no son vacío ni INSERT
+  ---
+  duration_ms: 0.3631
+  type: 'test'
+  ...
+# Subtest: creación explícita confirma fila real e inicia propuesto sin costo calculado ni timestamps enviados
+ok 542 - creación explícita confirma fila real e inicia propuesto sin costo calculado ni timestamps enviados
+  ---
+  duration_ms: 0.1874
+  type: 'test'
+  ...
+# Subtest: título vacío y contexto inválido se rechazan antes de la red
+ok 543 - título vacío y contexto inválido se rechazan antes de la red
+  ---
+  duration_ms: 0.1912
+  type: 'test'
+  ...
+# Subtest: guardar notas/título envía solo el campo solicitado y filtra por id real, paciente, clínica y autor
+ok 544 - guardar notas/título envía solo el campo solicitado y filtra por id real, paciente, clínica y autor
+  ---
+  duration_ms: 0.1619
+  type: 'test'
+  ...
+# Subtest: escrituras no confunden error/0 filas/respuesta ajena/contenido no confirmado con éxito
+ok 545 - escrituras no confunden error/0 filas/respuesta ajena/contenido no confirmado con éxito
+  ---
+  duration_ms: 0.2697
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> propuesto
+ok 546 - T-5.7 servicio propuesto -> propuesto
+  ---
+  duration_ms: 0.1547
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> aceptado
+ok 547 - T-5.7 servicio propuesto -> aceptado
+  ---
+  duration_ms: 0.0445
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> en_proceso
+ok 548 - T-5.7 servicio propuesto -> en_proceso
+  ---
+  duration_ms: 0.0432
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> completado
+ok 549 - T-5.7 servicio propuesto -> completado
+  ---
+  duration_ms: 0.0325
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> cancelado
+ok 550 - T-5.7 servicio propuesto -> cancelado
+  ---
+  duration_ms: 0.0316
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> propuesto
+ok 551 - T-5.7 servicio aceptado -> propuesto
+  ---
+  duration_ms: 0.0311
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> aceptado
+ok 552 - T-5.7 servicio aceptado -> aceptado
+  ---
+  duration_ms: 0.0262
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> en_proceso
+ok 553 - T-5.7 servicio aceptado -> en_proceso
+  ---
+  duration_ms: 0.0397
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> completado
+ok 554 - T-5.7 servicio aceptado -> completado
+  ---
+  duration_ms: 0.0467
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> cancelado
+ok 555 - T-5.7 servicio aceptado -> cancelado
+  ---
+  duration_ms: 0.045
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> propuesto
+ok 556 - T-5.7 servicio en_proceso -> propuesto
+  ---
+  duration_ms: 0.043
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> aceptado
+ok 557 - T-5.7 servicio en_proceso -> aceptado
+  ---
+  duration_ms: 0.0389
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> en_proceso
+ok 558 - T-5.7 servicio en_proceso -> en_proceso
+  ---
+  duration_ms: 0.0365
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> completado
+ok 559 - T-5.7 servicio en_proceso -> completado
+  ---
+  duration_ms: 0.0492
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> cancelado
+ok 560 - T-5.7 servicio en_proceso -> cancelado
+  ---
+  duration_ms: 0.0341
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> propuesto
+ok 561 - T-5.7 servicio completado -> propuesto
+  ---
+  duration_ms: 0.0281
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> aceptado
+ok 562 - T-5.7 servicio completado -> aceptado
+  ---
+  duration_ms: 0.024
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> en_proceso
+ok 563 - T-5.7 servicio completado -> en_proceso
+  ---
+  duration_ms: 0.0254
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> completado
+ok 564 - T-5.7 servicio completado -> completado
+  ---
+  duration_ms: 0.0228
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> cancelado
+ok 565 - T-5.7 servicio completado -> cancelado
+  ---
+  duration_ms: 0.0499
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> propuesto
+ok 566 - T-5.7 servicio cancelado -> propuesto
+  ---
+  duration_ms: 0.0193
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> aceptado
+ok 567 - T-5.7 servicio cancelado -> aceptado
+  ---
+  duration_ms: 0.026
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> en_proceso
+ok 568 - T-5.7 servicio cancelado -> en_proceso
+  ---
+  duration_ms: 0.0279
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> completado
+ok 569 - T-5.7 servicio cancelado -> completado
+  ---
+  duration_ms: 0.0315
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> cancelado
+ok 570 - T-5.7 servicio cancelado -> cancelado
+  ---
+  duration_ms: 0.0347
+  type: 'test'
+  ...
+# Subtest: T-5.7 terminales y estados desconocidos no tienen acciones
+ok 571 - T-5.7 terminales y estados desconocidos no tienen acciones
+  ---
+  duration_ms: 0.071
+  type: 'test'
+  ...
+# Subtest: T-5.7 valida todos los UUID antes de red
+ok 572 - T-5.7 valida todos los UUID antes de red
+  ---
+  duration_ms: 0.0986
+  type: 'test'
+  ...
+# Subtest: T-5.7 Supabase y transporte fallan sin reintento
+ok 573 - T-5.7 Supabase y transporte fallan sin reintento
+  ---
+  duration_ms: 0.0836
+  type: 'test'
+  ...
+# Subtest: T-5.7 cero filas y PGRST116 muestran conflicto o autorización
+ok 574 - T-5.7 cero filas y PGRST116 muestran conflicto o autorización
+  ---
+  duration_ms: 0.1119
+  type: 'test'
+  ...
+# Subtest: T-5.7 respuesta con estado, contexto o timestamp inesperado no confirma
+ok 575 - T-5.7 respuesta con estado, contexto o timestamp inesperado no confirma
+  ---
+  duration_ms: 0.1061
+  type: 'test'
+  ...
+# Subtest: T-5.7 dos clientes con lectura propuesto: CAS rechaza cancelar después de aceptar
+ok 576 - T-5.7 dos clientes con lectura propuesto: CAS rechaza cancelar después de aceptar
+  ---
+  duration_ms: 0.1295
+  type: 'test'
+  ...
+# Subtest: T-5.10 obtenerPlanPorId solo lee por id/paciente/clínica y conserva total/timestamps reales
+ok 577 - T-5.10 obtenerPlanPorId solo lee por id/paciente/clínica y conserva total/timestamps reales
+  ---
+  duration_ms: 0.0892
+  type: 'test'
+  ...
+# Subtest: T-5.10 relectura valida UUID antes de red y rechaza error/0 filas/contexto/costo inesperado
+ok 578 - T-5.10 relectura valida UUID antes de red y rechaza error/0 filas/contexto/costo inesperado
+  ---
+  duration_ms: 0.1545
+  type: 'test'
+  ...
+# Subtest: T-5.8 consulta y filtro propuesto
+ok 579 - T-5.8 consulta y filtro propuesto
+  ---
+  duration_ms: 1.3519
+  type: 'test'
+  ...
+# Subtest: T-5.8 consulta y filtro aceptado
+ok 580 - T-5.8 consulta y filtro aceptado
+  ---
+  duration_ms: 0.1511
+  type: 'test'
+  ...
+# Subtest: T-5.8 consulta y filtro en_proceso
+ok 581 - T-5.8 consulta y filtro en_proceso
+  ---
+  duration_ms: 0.1026
+  type: 'test'
+  ...
+# Subtest: T-5.8 consulta y filtro completado
+ok 582 - T-5.8 consulta y filtro completado
+  ---
+  duration_ms: 0.0893
+  type: 'test'
+  ...
+# Subtest: T-5.8 consulta y filtro cancelado
+ok 583 - T-5.8 consulta y filtro cancelado
+  ---
+  duration_ms: 0.1365
+  type: 'test'
+  ...
+# Subtest: T-5.8 solo lee una página de 20, no descarga indefinidamente
+ok 584 - T-5.8 solo lee una página de 20, no descarga indefinidamente
+  ---
+  duration_ms: 0.1806
+  type: 'test'
+  ...
+# Subtest: T-5.8 vacío confirmado y relaciones RLS invisibles no son errores
+ok 585 - T-5.8 vacío confirmado y relaciones RLS invisibles no son errores
+  ---
+  duration_ms: 0.1287
+  type: 'test'
+  ...
+# Subtest: T-5.8 errores, NULL, conteo incompleto y duplicados no son vacío
+ok 586 - T-5.8 errores, NULL, conteo incompleto y duplicados no son vacío
+  ---
+  duration_ms: 0.3643
+  type: 'test'
+  ...
+# Subtest: T-5.8 rechaza clínica, estado o relaciones ajenas
+ok 587 - T-5.8 rechaza clínica, estado o relaciones ajenas
+  ---
+  duration_ms: 0.2431
+  type: 'test'
+  ...
+# Subtest: T-5.8 valida UUID, estado y página antes de red
+ok 588 - T-5.8 valida UUID, estado y página antes de red
+  ---
+  duration_ms: 0.2476
+  type: 'test'
+  ...
+# Subtest: T-5.8 orden estable con microsegundos, id y fechas NULL
+ok 589 - T-5.8 orden estable con microsegundos, id y fechas NULL
+  ---
+  duration_ms: 0.2523
+  type: 'test'
+  ...
+# Subtest: T-5.8 permisos exigen clínica propia o auditoría explícita
+ok 590 - T-5.8 permisos exigen clínica propia o auditoría explícita
+  ---
+  duration_ms: 0.1436
+  type: 'test'
+  ...
+# Subtest: T-5.8 loading, error y reintento no publican falso vacío
+ok 591 - T-5.8 loading, error y reintento no publican falso vacío
+  ---
+  duration_ms: 0.2227
+  type: 'test'
+  ...
+# Subtest: T-5.8 respuestas obsoletas de filtros o contextos no se muestran
+ok 592 - T-5.8 respuestas obsoletas de filtros o contextos no se muestran
+  ---
+  duration_ms: 0.0975
+  type: 'test'
+  ...
+# Subtest: T-5.8 aislamiento y permisos del controlador antes de consultar
+ok 593 - T-5.8 aislamiento y permisos del controlador antes de consultar
+  ---
+  duration_ms: 0.1303
+  type: 'test'
+  ...
+# Subtest: T-5.8 páginas, reinicio por filtro y última página tras reducción de total
+ok 594 - T-5.8 páginas, reinicio por filtro y última página tras reducción de total
+  ---
+  duration_ms: 0.1223
+  type: 'test'
+  ...
+# Subtest: T-5.8 cambio confirmado T-5.7 desaparece del filtro anterior y aparece en el nuevo
+ok 595 - T-5.8 cambio confirmado T-5.7 desaparece del filtro anterior y aparece en el nuevo
+  ---
+  duration_ms: 0.4625
+  type: 'test'
+  ...
+# Subtest: T-5.8 navegación reutiliza ficha y solo selecciona planes visibles
+ok 596 - T-5.8 navegación reutiliza ficha y solo selecciona planes visibles
+  ---
+  duration_ms: 0.0684
+  type: 'test'
+  ...
+# Subtest: T-5.8 refresco durante lectura descarta resultados anteriores y coalesce reintentos
+ok 597 - T-5.8 refresco durante lectura descarta resultados anteriores y coalesce reintentos
+  ---
+  duration_ms: 0.0991
+  type: 'test'
+  ...
+# Subtest: T-5.8 respuesta tardía de otra clínica o sesión desactivada no publica resultados
+ok 598 - T-5.8 respuesta tardía de otra clínica o sesión desactivada no publica resultados
+  ---
+  duration_ms: 0.0679
+  type: 'test'
+  ...
+# Subtest: T-5.8 vista real tiene exactamente cinco filtros, sin Todos ni búsqueda
+ok 599 - T-5.8 vista real tiene exactamente cinco filtros, sin Todos ni búsqueda
+  ---
+  duration_ms: 510.701
+  type: 'test'
+  ...
+# Subtest: T-5.8 cada estado presenta título/paciente/autor/costo/fecha y enlace al plan
+ok 600 - T-5.8 cada estado presenta título/paciente/autor/costo/fecha y enlace al plan
+  ---
+  duration_ms: 2.7339
+  type: 'test'
+  ...
+# Subtest: T-5.8 loading/error/vacío son exclusivos aunque hubiera datos anteriores
+ok 601 - T-5.8 loading/error/vacío son exclusivos aunque hubiera datos anteriores
+  ---
+  duration_ms: 1.0262
+  type: 'test'
+  ...
+# Subtest: T-5.8 paginación tiene conteo, botones y límites accesibles
+ok 602 - T-5.8 paginación tiene conteo, botones y límites accesibles
+  ---
+  duration_ms: 1.1027
+  type: 'test'
+  ...
+# Subtest: T-5.8 auditoría de lectura no enlaza a rutas staff y relaciones invisibles son explícitas
+ok 603 - T-5.8 auditoría de lectura no enlaza a rutas staff y relaciones invisibles son explícitas
+  ---
+  duration_ms: 0.5114
+  type: 'test'
+  ...
+# Subtest: abrir ficha lista múltiples planes sin seleccionar último ni crear
+ok 604 - abrir ficha lista múltiples planes sin seleccionar último ni crear
+  ---
+  duration_ms: 1.6562
+  type: 'test'
+  ...
+# Subtest: 0 filas y error conservan ramas distintas y no desencadenan creación
+ok 605 - 0 filas y error conservan ramas distintas y no desencadenan creación
+  ---
+  duration_ms: 0.4144
+  type: 'test'
+  ...
+# Subtest: crear requiere acción explícita y selecciona la fila confirmada
+ok 606 - crear requiere acción explícita y selecciona la fila confirmada
+  ---
+  duration_ms: 0.1517
+  type: 'test'
+  ...
+# Subtest: permisos por perfil real y autor; recepción, superadmin y colega no editan planes ajenos
+ok 607 - permisos por perfil real y autor; recepción, superadmin y colega no editan planes ajenos
+  ---
+  duration_ms: 0.3573
+  type: 'test'
+  ...
+# Subtest: bloquea doble escritura, selección y recarga durante guardado
+ok 608 - bloquea doble escritura, selección y recarga durante guardado
+  ---
+  duration_ms: 0.2564
+  type: 'test'
+  ...
+# Subtest: cambio de paciente descarta lectura tardía y no muestra selección ni notas previas
+ok 609 - cambio de paciente descarta lectura tardía y no muestra selección ni notas previas
+  ---
+  duration_ms: 0.1704
+  type: 'test'
+  ...
+# Subtest: escritura tardía no reconcilia ni anuncia éxito al cambiar ficha/sesión
+ok 610 - escritura tardía no reconcilia ni anuncia éxito al cambiar ficha/sesión
+  ---
+  duration_ms: 0.175
+  type: 'test'
+  ...
+# Subtest: remontaje StrictMode reintenta lectura invalidada sin quedar en loading
+ok 611 - remontaje StrictMode reintenta lectura invalidada sin quedar en loading
+  ---
+  duration_ms: 0.1074
+  type: 'test'
+  ...
+# Subtest: formulario precarga notas reales y sincroniza cargas sin borrar borrador del otro campo
+ok 612 - formulario precarga notas reales y sincroniza cargas sin borrar borrador del otro campo
+  ---
+  duration_ms: 0.2182
+  type: 'test'
+  ...
+# Subtest: formulario falla sin limpiar; creación limpia solo tras éxito confirmado; título vacío no envía
+ok 613 - formulario falla sin limpiar; creación limpia solo tras éxito confirmado; título vacío no envía
+  ---
+  duration_ms: 0.2673
+  type: 'test'
+  ...
+# Subtest: guardar título conserva notas no enviadas; ninguna sincronización guarda por sí sola
+ok 614 - guardar título conserva notas no enviadas; ninguna sincronización guarda por sí sola
+  ---
+  duration_ms: 0.098
+  type: 'test'
+  ...
+# Subtest: formulario bloquea doble submit y descarta respuesta al desmontarse
+ok 615 - formulario bloquea doble submit y descarta respuesta al desmontarse
+  ---
+  duration_ms: 0.0709
+  type: 'test'
+  ...
+# Subtest: T-5.7 aceptar/iniciar actualizan lista y selección sin recargar
+ok 616 - T-5.7 aceptar/iniciar actualizan lista y selección sin recargar
+  ---
+  duration_ms: 0.2678
+  type: 'test'
+  ...
+# Subtest: T-5.7 cancelado exige confirmación visual para el id exacto
+ok 617 - T-5.7 cancelado exige confirmación visual para el id exacto
+  ---
+  duration_ms: 0.1911
+  type: 'test'
+  ...
+# Subtest: T-5.7 completado exige confirmación visual para el id exacto
+ok 618 - T-5.7 completado exige confirmación visual para el id exacto
+  ---
+  duration_ms: 0.1111
+  type: 'test'
+  ...
+# Subtest: T-5.7 cambio de selección borra confirmación y mensajes del plan anterior
+ok 619 - T-5.7 cambio de selección borra confirmación y mensajes del plan anterior
+  ---
+  duration_ms: 0.1206
+  type: 'test'
+  ...
+# Subtest: T-5.7 doble submit y otros guardados/selección quedan bloqueados sin actualización optimista
+ok 620 - T-5.7 doble submit y otros guardados/selección quedan bloqueados sin actualización optimista
+  ---
+  duration_ms: 0.1714
+  type: 'test'
+  ...
+# Subtest: T-5.7 doble confirmación no duplica envío
+ok 621 - T-5.7 doble confirmación no duplica envío
+  ---
+  duration_ms: 0.1396
+  type: 'test'
+  ...
+# Subtest: T-5.7 fallo conserva estado y plan, sin éxito ni reintentos
+ok 622 - T-5.7 fallo conserva estado y plan, sin éxito ni reintentos
+  ---
+  duration_ms: 0.1445
+  type: 'test'
+  ...
+# Subtest: T-5.7 permisos rechazan colegas, recepción, superadmin, inactivo y clínica ajena
+ok 623 - T-5.7 permisos rechazan colegas, recepción, superadmin, inactivo y clínica ajena
+  ---
+  duration_ms: 0.2316
+  type: 'test'
+  ...
+# Subtest: T-5.7 respuesta inesperada no reconcilia la lista
+ok 624 - T-5.7 respuesta inesperada no reconcilia la lista
+  ---
+  duration_ms: 0.2843
+  type: 'test'
+  ...
+# Subtest: T-5.7 request tardío no modifica un nuevo contexto de plan/paciente/sesión
+ok 625 - T-5.7 request tardío no modifica un nuevo contexto de plan/paciente/sesión
+  ---
+  duration_ms: 0.1613
+  type: 'test'
+  ...
+# Subtest: T-5.7 remontaje durante request espera, descarta respuesta e inicia lectura vigente
+ok 626 - T-5.7 remontaje durante request espera, descarta respuesta e inicia lectura vigente
+  ---
+  duration_ms: 0.1446
+  type: 'test'
+  ...
+# Subtest: UI real muestra selector con varios ids y metadatos del seleccionado, sin selector de estado
+ok 627 - UI real muestra selector con varios ids y metadatos del seleccionado, sin selector de estado
+  ---
+  duration_ms: 622.824
+  type: 'test'
+  ...
+# Subtest: UI de permisos: colega lee notas ajenas; recepción/superadmin no tienen formularios ni crear
+ok 628 - UI de permisos: colega lee notas ajenas; recepción/superadmin no tienen formularios ni crear
+  ---
+  duration_ms: 1.3051
+  type: 'test'
+  ...
+# Subtest: UI distingue loading/error/vacío sin mostrar selección residual
+ok 629 - UI distingue loading/error/vacío sin mostrar selección residual
+  ---
+  duration_ms: 0.572
+  type: 'test'
+  ...
+# Subtest: formulario real precarga notas/título según plan seleccionado y bloquea controles en envío
+ok 630 - formulario real precarga notas/título según plan seleccionado y bloquea controles en envío
+  ---
+  duration_ms: 0.8469
+  type: 'test'
+  ...
+# Subtest: regresión: store no contiene creación automática ni escrituras de planes/procedimientos implícitos
+ok 631 - regresión: store no contiene creación automática ni escrituras de planes/procedimientos implícitos
+  ---
+  duration_ms: 2.5568
+  type: 'test'
+  ...
+# Subtest: T-5.7 UI real ofrece exactamente botones válidos por estado y ninguno en terminales
+ok 632 - T-5.7 UI real ofrece exactamente botones válidos por estado y ninguno en terminales
+  ---
+  duration_ms: 2.4871
+  type: 'test'
+  ...
+# Subtest: T-5.7 UI no muestra transiciones a perfiles de lectura ni inactivos
+ok 633 - T-5.7 UI no muestra transiciones a perfiles de lectura ni inactivos
+  ---
+  duration_ms: 1.2596
+  type: 'test'
+  ...
+# Subtest: T-5.7 UI de confirmar completar/cancelar identifica el plan y permite volver
+ok 634 - T-5.7 UI de confirmar completar/cancelar identifica el plan y permite volver
+  ---
+  duration_ms: 0.9008
+  type: 'test'
+  ...
+# Subtest: T-5.7 UI muestra loading y bloqueos, error sin ocultar plan y éxito confirmado
+ok 635 - T-5.7 UI muestra loading y bloqueos, error sin ocultar plan y éxito confirmado
+  ---
+  duration_ms: 1.3299
+  type: 'test'
+  ...
+# Subtest: T-5.10 UI oculta importe previo durante CRUD/relectura y ofrece reintento solo en error
+ok 636 - T-5.10 UI oculta importe previo durante CRUD/relectura y ofrece reintento solo en error
+  ---
+  duration_ms: 1.0704
+  type: 'test'
+  ...
+# Subtest: mapper conserva identidad, servicio/pieza opcionales, costo y urgente sin mapear a alta/media
+ok 637 - mapper conserva identidad, servicio/pieza opcionales, costo y urgente sin mapear a alta/media
+  ---
+  duration_ms: 0.8478
+  type: 'test'
+  ...
+# Subtest: mapper preserva las cuatro prioridades y cuatro estados exactos
+ok 638 - mapper preserva las cuatro prioridades y cuatro estados exactos
+  ---
+  duration_ms: 0.2979
+  type: 'test'
+  ...
+# Subtest: mapper rechaza filas malformadas, UUID demo y valores omitidos
+ok 639 - mapper rechaza filas malformadas, UUID demo y valores omitidos
+  ---
+  duration_ms: 0.139
+  type: 'test'
+  ...
+# Subtest: FDI admite permanentes/temporales y vacío; costos negativos, NaN, Infinity y exceso de precisión se rechazan
+ok 640 - FDI admite permanentes/temporales y vacío; costos negativos, NaN, Infinity y exceso de precisión se rechazan
+  ---
+  duration_ms: 2.343
+  type: 'test'
+  ...
+# Subtest: lista filtra plan/clínica y ordena creado_en ASC e id ASC sin escrituras
+ok 641 - lista filtra plan/clínica y ordena creado_en ASC e id ASC sin escrituras
+  ---
+  duration_ms: 0.6884
+  type: 'test'
+  ...
+# Subtest: lista por lotes recupera todos los procedimientos con límite API menor y no escribe
+ok 642 - lista por lotes recupera todos los procedimientos con límite API menor y no escribe
+  ---
+  duration_ms: 0.7248
+  type: 'test'
+  ...
+# Subtest: cero filas es lista visible vacía; error/NULL/conteo incompleto/contexto ajeno no lo son
+ok 643 - cero filas es lista visible vacía; error/NULL/conteo incompleto/contexto ajeno no lo son
+  ---
+  duration_ms: 0.8812
+  type: 'test'
+  ...
+# Subtest: creación envía pendiente explícito y servicio opcional, conserva urgente y confirma id real
+ok 644 - creación envía pendiente explícito y servicio opcional, conserva urgente y confirma id real
+  ---
+  duration_ms: 0.2768
+  type: 'test'
+  ...
+# Subtest: edición usa lista blanca sin cambiar id, plan, clínica, servicio o creado_en
+ok 645 - edición usa lista blanca sin cambiar id, plan, clínica, servicio o creado_en
+  ---
+  duration_ms: 0.1602
+  type: 'test'
+  ...
+# Subtest: DELETE confirma una fila real filtrada por id/plan/clínica
+ok 646 - DELETE confirma una fila real filtrada por id/plan/clínica
+  ---
+  duration_ms: 0.1621
+  type: 'test'
+  ...
+# Subtest: UUIDs inválidos y contenido inválido en CRUD se rechazan antes de red
+ok 647 - UUIDs inválidos y contenido inválido en CRUD se rechazan antes de red
+  ---
+  duration_ms: 0.5129
+  type: 'test'
+  ...
+# Subtest: errores Supabase, transporte y cero filas no confirman crear/editar/eliminar
+ok 648 - errores Supabase, transporte y cero filas no confirman crear/editar/eliminar
+  ---
+  duration_ms: 0.3033
+  type: 'test'
+  ...
+# Subtest: contenido, timestamp y estado inicial no confirmados no anuncian éxito
+ok 649 - contenido, timestamp y estado inicial no confirmados no anuncian éxito
+  ---
+  duration_ms: 0.1706
+  type: 'test'
+  ...
+# Subtest: orden local ASC conserva microsegundos, id ASC y fechas NULL al final
+ok 650 - orden local ASC conserva microsegundos, id ASC y fechas NULL al final
+  ---
+  duration_ms: 0.1642
+  type: 'test'
+  ...
+# Subtest: sin plan seleccionado no carga ni permite altas
+ok 651 - sin plan seleccionado no carga ni permite altas
+  ---
+  duration_ms: 1.4353
+  type: 'test'
+  ...
+# Subtest: CRUD reconcilia la lista confirmada sin F5 ni recargas y sin alterar costo/estado del plan
+ok 652 - CRUD reconcilia la lista confirmada sin F5 ni recargas y sin alterar costo/estado del plan
+  ---
+  duration_ms: 0.4623
+  type: 'test'
+  ...
+# Subtest: eliminar exige confirmación y cancelación impide enviar DELETE
+ok 653 - eliminar exige confirmación y cancelación impide enviar DELETE
+  ---
+  duration_ms: 0.1465
+  type: 'test'
+  ...
+# Subtest: eliminación no optimista conserva fila/confirmación si falla, y solo retira después de respuesta
+ok 654 - eliminación no optimista conserva fila/confirmación si falla, y solo retira después de respuesta
+  ---
+  duration_ms: 0.2918
+  type: 'test'
+  ...
+# Subtest: permisos autor/plan/clínica: colega, recepción y superadmin leen sin poder escribir
+ok 655 - permisos autor/plan/clínica: colega, recepción y superadmin leen sin poder escribir
+  ---
+  duration_ms: 0.3831
+  type: 'test'
+  ...
+# Subtest: error de lectura permite reintento y cero filas confirmado habilita creación explícita
+ok 656 - error de lectura permite reintento y cero filas confirmado habilita creación explícita
+  ---
+  duration_ms: 0.2406
+  type: 'test'
+  ...
+# Subtest: cambio de plan descarta lectura tardía y confirma únicamente filas del plan nuevo
+ok 657 - cambio de plan descarta lectura tardía y confirma únicamente filas del plan nuevo
+  ---
+  duration_ms: 0.1565
+  type: 'test'
+  ...
+# Subtest: respuesta tardía de guardado/eliminación no publica éxito en otro plan
+ok 658 - respuesta tardía de guardado/eliminación no publica éxito en otro plan
+  ---
+  duration_ms: 0.1909
+  type: 'test'
+  ...
+# Subtest: bloquea escrituras simultáneas y no acepta id de otro plan ni respuesta ajena
+ok 659 - bloquea escrituras simultáneas y no acepta id de otro plan ni respuesta ajena
+  ---
+  duration_ms: 0.1421
+  type: 'test'
+  ...
+# Subtest: StrictMode invalida lectura anterior y recupera la nueva generación
+ok 660 - StrictMode invalida lectura anterior y recupera la nueva generación
+  ---
+  duration_ms: 0.142
+  type: 'test'
+  ...
+# Subtest: formulario conserva campos ante fallo y limpia creación solo tras éxito
+ok 661 - formulario conserva campos ante fallo y limpia creación solo tras éxito
+  ---
+  duration_ms: 0.332
+  type: 'test'
+  ...
+# Subtest: formulario valida FDI/costo/UUID/descripcion antes de red y fuerza pendiente al crear
+ok 662 - formulario valida FDI/costo/UUID/descripcion antes de red y fuerza pendiente al crear
+  ---
+  duration_ms: 0.1794
+  type: 'test'
+  ...
+# Subtest: edición precarga urgente y los datos reales; error/NULL no limpian; éxito conserva respuesta confirmada
+ok 663 - edición precarga urgente y los datos reales; error/NULL no limpian; éxito conserva respuesta confirmada
+  ---
+  duration_ms: 0.0942
+  type: 'test'
+  ...
+# Subtest: formulario bloquea doble envío y descarta respuesta al desmontar por cambio de plan
+ok 664 - formulario bloquea doble envío y descarta respuesta al desmontar por cambio de plan
+  ---
+  duration_ms: 0.0759
+  type: 'test'
+  ...
+# Subtest: lista React real muestra descripción/pieza/prioridad/estado/costo exactos y acciones del autor
+ok 665 - lista React real muestra descripción/pieza/prioridad/estado/costo exactos y acciones del autor
+  ---
+  duration_ms: 545.1276
+  type: 'test'
+  ...
+# Subtest: permisos visuales de lectura no muestran formulario, editar, eliminar ni confirmación
+ok 666 - permisos visuales de lectura no muestran formulario, editar, eliminar ni confirmación
+  ---
+  duration_ms: 0.5958
+  type: 'test'
+  ...
+# Subtest: sin plan/loading/error/vacío son ramas distintas, sin resultados residuales ni alta fuera de success
+ok 667 - sin plan/loading/error/vacío son ramas distintas, sin resultados residuales ni alta fuera de success
+  ---
+  duration_ms: 0.8194
+  type: 'test'
+  ...
+# Subtest: confirmación de borrado identifica el procedimiento y ofrece cancelar/confirmar sin eliminar al abrir
+ok 668 - confirmación de borrado identifica el procedimiento y ofrece cancelar/confirmar sin eliminar al abrir
+  ---
+  duration_ms: 1.6908
+  type: 'test'
+  ...
+# Subtest: formulario de edición precarga urgente y estado real; creación muestra pendiente fijo sin campo de servicio
+ok 669 - formulario de edición precarga urgente y estado real; creación muestra pendiente fijo sin campo de servicio
+  ---
+  duration_ms: 0.7266
+  type: 'test'
+  ...
+# Subtest: paginación real limita a 20 procedimientos y lectura preserva opcionales
+ok 670 - paginación real limita a 20 procedimientos y lectura preserva opcionales
+  ---
+  duration_ms: 1.8121
+  type: 'test'
+  ...
+# Subtest: T-5.9 composición real muestra jerarquía diagnósticos/consulta clínica/planes/procedimientos/impresión
+ok 671 - T-5.9 composición real muestra jerarquía diagnósticos/consulta clínica/planes/procedimientos/impresión
+  ---
+  duration_ms: 13930.7258
+  type: 'test'
+  ...
+# Subtest: T-5.9 error de diagnóstico deja planes visibles y bloquea solo impresión completa
+ok 672 - T-5.9 error de diagnóstico deja planes visibles y bloquea solo impresión completa
+  ---
+  duration_ms: 2.641
+  type: 'test'
+  ...
+# Subtest: T-5.9 error de planes conserva diagnósticos y reintento independiente
+ok 673 - T-5.9 error de planes conserva diagnósticos y reintento independiente
+  ---
+  duration_ms: 5.9206
+  type: 'test'
+  ...
+# Subtest: T-5.9 fallo de vista clínica no rompe planes/diagnósticos del paciente
+ok 674 - T-5.9 fallo de vista clínica no rompe planes/diagnósticos del paciente
+  ---
+  duration_ms: 10.852
+  type: 'test'
+  ...
+# Subtest: T-5.9 loading y vacío por sección no muestran selecciones antiguas
+ok 675 - T-5.9 loading y vacío por sección no muestran selecciones antiguas
+  ---
+  duration_ms: 8.2098
+  type: 'test'
+  ...
+# Subtest: T-5.9 plan inválido informa sin ocultar ficha ni habilitar impresión
+ok 676 - T-5.9 plan inválido informa sin ocultar ficha ni habilitar impresión
+  ---
+  duration_ms: 11.8416
+  type: 'test'
+  ...
+# Subtest: T-5.9 recepción/colega/superadmin conservan lectura sin formularios ajenos
+ok 677 - T-5.9 recepción/colega/superadmin conservan lectura sin formularios ajenos
+  ---
+  duration_ms: 23.0853
+  type: 'test'
+  ...
+# Subtest: T-5.9 impresión usa plan seleccionado y costo persistido sin procedimientos ni sumas
+ok 678 - T-5.9 impresión usa plan seleccionado y costo persistido sin procedimientos ni sumas
+  ---
+  duration_ms: 4.0693
+  type: 'test'
+  ...
+# Subtest: T-5.9 documento rechaza datos de otro paciente antes de montar portal imprimible
+ok 679 - T-5.9 documento rechaza datos de otro paciente antes de montar portal imprimible
+  ---
+  duration_ms: 1.4396
+  type: 'test'
+  ...
+# Subtest: T-5.9 integración compartida conserva tab/ruta y remonta contexto de sesión/paciente
+ok 680 - T-5.9 integración compartida conserva tab/ruta y remonta contexto de sesión/paciente
+  ---
+  duration_ms: 11.9506
+  type: 'test'
+  ...
+# Subtest: T-5.10 totales pendientes no muestran importe viejo en ficha ni vista de clínica
+ok 681 - T-5.10 totales pendientes no muestran importe viejo en ficha ni vista de clínica
+  ---
+  duration_ms: 12.8126
+  type: 'test'
+  ...
+# Subtest: T-5.10 impresión comparte formato del total confirmado y bloquea documento pendiente
+ok 682 - T-5.10 impresión comparte formato del total confirmado y bloquea documento pendiente
+  ---
+  duration_ms: 2.2542
+  type: 'test'
+  ...
+# Subtest: T-5.9 contexto paciente hace solo SELECT por id/clínica y conserva datos reales
+ok 683 - T-5.9 contexto paciente hace solo SELECT por id/clínica y conserva datos reales
+  ---
+  duration_ms: 1.1214
+  type: 'test'
+  ...
+# Subtest: T-5.9 UUID/permisos se validan antes de consultar paciente
+ok 684 - T-5.9 UUID/permisos se validan antes de consultar paciente
+  ---
+  duration_ms: 0.2397
+  type: 'test'
+  ...
+# Subtest: T-5.9 paciente invisible, error o respuesta ajena no permiten imprimir ni montar ficha
+ok 685 - T-5.9 paciente invisible, error o respuesta ajena no permiten imprimir ni montar ficha
+  ---
+  duration_ms: 0.1899
+  type: 'test'
+  ...
+# Subtest: T-5.9 lectura real de recepción y auditoría conserva RLS/contexto
+ok 686 - T-5.9 lectura real de recepción y auditoría conserva RLS/contexto
+  ---
+  duration_ms: 0.1754
+  type: 'test'
+  ...
+# Subtest: T-5.9 contexto distingue loading/error/reintento y no usa paciente viejo
+ok 687 - T-5.9 contexto distingue loading/error/reintento y no usa paciente viejo
+  ---
+  duration_ms: 0.3198
+  type: 'test'
+  ...
+# Subtest: T-5.9 cambiar paciente/sesión descarta respuestas tardías de contexto
+ok 688 - T-5.9 cambiar paciente/sesión descarta respuestas tardías de contexto
+  ---
+  duration_ms: 0.6421
+  type: 'test'
+  ...
+# Subtest: T-5.9 otra pestaña o sesión paciente no inicia consultas del contexto
+ok 689 - T-5.9 otra pestaña o sesión paciente no inicia consultas del contexto
+  ---
+  duration_ms: 0.1761
+  type: 'test'
+  ...
+# Subtest: T-5.9 tab tratamiento y selección manual persisten en URL tras F5
+ok 690 - T-5.9 tab tratamiento y selección manual persisten en URL tras F5
+  ---
+  duration_ms: 0.2101
+  type: 'test'
+  ...
+# Subtest: T-5.9 plan URL debe ser UUID y pertenecer al paciente visible
+ok 691 - T-5.9 plan URL debe ser UUID y pertenecer al paciente visible
+  ---
+  duration_ms: 0.0905
+  type: 'test'
+  ...
+# Subtest: T-5.9 impresión espera que el plan URL esté seleccionado y rechaza datos ajenos
+ok 692 - T-5.9 impresión espera que el plan URL esté seleccionado y rechaza datos ajenos
+  ---
+  duration_ms: 0.1953
+  type: 'test'
+  ...
+# Subtest: T-5.9 montar lecturas y seleccionar plan no crea ni modifica registros
+ok 693 - T-5.9 montar lecturas y seleccionar plan no crea ni modifica registros
+  ---
+  duration_ms: 0.6035
+  type: 'test'
+  ...
+# Subtest: T-5.9 errores de diagnóstico/planes/procedimientos permanecen independientes
+ok 694 - T-5.9 errores de diagnóstico/planes/procedimientos permanecen independientes
+  ---
+  duration_ms: 0.3428
+  type: 'test'
+  ...
+# Subtest: T-5.9 seleccionar otro plan consulta solo sus procedimientos y descarta carga anterior
+ok 695 - T-5.9 seleccionar otro plan consulta solo sus procedimientos y descarta carga anterior
+  ---
+  duration_ms: 0.1132
+  type: 'test'
+  ...
+# Subtest: T-5.9 contexto UUID inválido no consulta Auth ni paciente
+ok 696 - T-5.9 contexto UUID inválido no consulta Auth ni paciente
+  ---
+  duration_ms: 0.0584
+  type: 'test'
+  ...
+# Subtest: T-5.9 remontaje invalida contexto pendiente y realiza carga vigente
+ok 697 - T-5.9 remontaje invalida contexto pendiente y realiza carga vigente
+  ---
+  duration_ms: 0.1373
+  type: 'test'
+  ...
+1..697
+# tests 697
+# suites 0
+# pass 697
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 42778.7553
+

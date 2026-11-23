@@ -1,0 +1,23 @@
+{
+  "fecha": "2026-11-23T17:59:43.092Z",
+  "cp": "CP-09",
+  "tipo": "Navegador real con persistencia remota y recarga completa",
+  "paciente": "PRUEBA CP Validación CSV (nuevo, sintético)",
+  "pieza": 16,
+  "antes": {
+    "condicion": "Sano",
+    "nota": ""
+  },
+  "despuesGuardar": {
+    "pieza": "Pieza 16, Primer molar superior derecho, Caries",
+    "nota": "PRUEBA CP-09 2026-11-23: persistencia pieza 16"
+  },
+  "despuesRecargar": {
+    "condicion": "Caries",
+    "nota": "PRUEBA CP-09 2026-11-23: persistencia pieza 16",
+    "pieza": "Pieza 16, Primer molar superior derecho, Caries",
+    "comparadorAccesible": false
+  },
+  "estado": "APROBADO",
+  "cp26": "No existe control accesible para seleccionar y comparar dos fechas en la pestaña inspeccionada"
+}

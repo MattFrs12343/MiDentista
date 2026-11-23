@@ -1,0 +1,50 @@
+{
+  "fecha": "2026-11-23T17:58:09.589Z",
+  "tipo": "Navegador real Edge, login manual, sin lectura de credenciales",
+  "results": [
+    {
+      "cp": "CP-01",
+      "accion": "Login manual y recarga del área de personal",
+      "rutaAntes": "/app",
+      "rutaDespues": "/app",
+      "rolOdontologoVisible": true,
+      "accesoPersonal": true,
+      "contextoVisibleConservado": true,
+      "limite": "No comprueba todas las políticas de aislamiento entre clínicas."
+    },
+    {
+      "cp": [
+        "CP-03",
+        "CP-24"
+      ],
+      "rol": "odontólogo",
+      "solicitud": "/app/admin",
+      "destino": "/app",
+      "bitacoraGlobalVisible": false
+    },
+    {
+      "cp": [
+        "CP-06",
+        "CP-09",
+        "CP-23"
+      ],
+      "accion": "Abrir lista antes de crear datos sintéticos",
+      "ruta": "/app/pacientes",
+      "filas": 7,
+      "sinPacientes": false,
+      "nuevoPaciente": true
+    },
+    {
+      "cp": "CP-05",
+      "accion": "Enviar formulario de paciente vacío; sin persistencia",
+      "mensaje": "Revisá los campos marcados antes de guardar.",
+      "invalidos": [],
+      "erroresVisibles": [
+        "La cédula de identidad es obligatoria.",
+        "La fecha de nacimiento es obligatoria.",
+        "El teléfono es obligatorio.",
+        "Revisá los campos marcados antes de guardar."
+      ]
+    }
+  ]
+}

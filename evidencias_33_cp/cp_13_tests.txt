@@ -1,0 +1,121 @@
+{
+  "cp": "CP-13",
+  "command": "node --test --test-reporter=tap src/features/evolucion/evolucionService.test.ts src/features/evolucion/evolucionMapper.test.ts",
+  "started_at": "2026-11-23T14:32:05.461535-04:00",
+  "duration_seconds": 0.178,
+  "exit_code": 0,
+  "tests": 16,
+  "pass": 16,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: esUuid acepta UUIDs reales y rechaza los ids de la demo
+ok 1 - esUuid acepta UUIDs reales y rechaza los ids de la demo
+  ---
+  duration_ms: 0.5432
+  type: 'test'
+  ...
+# Subtest: el mapper ida y vuelta conserva todos los campos, incluidos los null
+ok 2 - el mapper ida y vuelta conserva todos los campos, incluidos los null
+  ---
+  duration_ms: 0.1849
+  type: 'test'
+  ...
+# Subtest: textos con saltos de línea y separadores no se reinterpretan
+ok 3 - textos con saltos de línea y separadores no se reinterpretan
+  ---
+  duration_ms: 0.0734
+  type: 'test'
+  ...
+# Subtest: columnas null devuelven cadenas vacías, no 'null' ni una fecha inventada
+ok 4 - columnas null devuelven cadenas vacías, no 'null' ni una fecha inventada
+  ---
+  duration_ms: 0.5861
+  type: 'test'
+  ...
+# Subtest: el INSERT no envía `id` ni `creado_en`, y usa el UUID de clínica recibido
+ok 5 - el INSERT no envía `id` ni `creado_en`, y usa el UUID de clínica recibido
+  ---
+  duration_ms: 0.8013
+  type: 'test'
+  ...
+# Subtest: el UPDATE conserva los identificadores de la fila ya guardada
+ok 6 - el UPDATE conserva los identificadores de la fila ya guardada
+  ---
+  duration_ms: 0.1101
+  type: 'test'
+  ...
+# Subtest: tieneProximaAtencion distingue la fecha real de null y de cadena vacía
+ok 7 - tieneProximaAtencion distingue la fecha real de null y de cadena vacía
+  ---
+  duration_ms: 0.0888
+  type: 'test'
+  ...
+# Subtest: los ids de la demo se rechazan antes de tocar la red
+ok 8 - los ids de la demo se rechazan antes de tocar la red
+  ---
+  duration_ms: 0.9711
+  type: 'test'
+  ...
+# Subtest: los ids de plan y procedimiento se validan aunque sean opcionales
+ok 9 - los ids de plan y procedimiento se validan aunque sean opcionales
+  ---
+  duration_ms: 0.2596
+  type: 'test'
+  ...
+# Subtest: la consulta filtra por paciente y pide fecha descendente
+ok 10 - la consulta filtra por paciente y pide fecha descendente
+  ---
+  duration_ms: 0.373
+  type: 'test'
+  ...
+# Subtest: un SELECT vacío no es un error: se devuelve una lista vacía
+ok 11 - un SELECT vacío no es un error: se devuelve una lista vacía
+  ---
+  duration_ms: 0.1483
+  type: 'test'
+  ...
+# Subtest: el INSERT usa los UUID recibidos y devuelve la fila que guardó la base
+ok 12 - el INSERT usa los UUID recibidos y devuelve la fila que guardó la base
+  ---
+  duration_ms: 0.1412
+  type: 'test'
+  ...
+# Subtest: el UPDATE se acota a id, paciente y clínica
+ok 13 - el UPDATE se acota a id, paciente y clínica
+  ---
+  duration_ms: 0.1486
+  type: 'test'
+  ...
+# Subtest: un UPDATE que no afecta filas devuelve null, no una evolución inventada
+ok 14 - un UPDATE que no afecta filas devuelve null, no una evolución inventada
+  ---
+  duration_ms: 0.0789
+  type: 'test'
+  ...
+# Subtest: registrarProximaAtencion solo cambia la fecha y conserva el resto
+ok 15 - registrarProximaAtencion solo cambia la fecha y conserva el resto
+  ---
+  duration_ms: 0.1136
+  type: 'test'
+  ...
+# Subtest: los errores de escritura no se anuncian como éxito
+ok 16 - los errores de escritura no se anuncian como éxito
+  ---
+  duration_ms: 0.1303
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 138.6972
+

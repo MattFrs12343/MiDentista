@@ -1,0 +1,63 @@
+{
+  "fecha": "2026-11-23T18:05:42.130Z",
+  "tipo": "Navegador real, rol recepción, CSV descargado sin mocks",
+  "results": [
+    {
+      "accion": "Comprobar rol visible",
+      "recepcionista": true,
+      "ruta": "/app"
+    },
+    {
+      "cp": [
+        "CP-03",
+        "CP-24"
+      ],
+      "rol": "recepcionista",
+      "solicitud": "/app/admin",
+      "destino": "/app",
+      "bitacoraGlobalVisible": false
+    },
+    {
+      "cp": [
+        "CP-06",
+        "CP-23"
+      ],
+      "accion": "Buscar PRUEBA CP y descargar CSV real",
+      "encabezados": [
+        "Nombre completo",
+        "CI",
+        "Teléfono",
+        "Correo",
+        "Dirección",
+        "Registrado el"
+      ],
+      "filas": [
+        [
+          "PRUEBA CP Validación CSV",
+          "TESTCP20261123",
+          "00000000",
+          "cp.validacion@example.invalid",
+          "PRUEBA, \"sin datos reales\" — validación 33 CP",
+          "2026-11-23"
+        ]
+      ],
+      "paginacionVisible": false,
+      "busqueda": "PRUEBA CP",
+      "descargaReal": true,
+      "encabezadoCsv": "Nombre completo,CI,Teléfono,Correo,Dirección,Registrado el",
+      "registrosCsv": 1,
+      "comaYComillasEscapadas": true,
+      "acentosConservados": true,
+      "csvCoincideConReporte": true,
+      "archivo": "evidencias_33_cp/descargas_recepcion/pacientes.csv"
+    },
+    {
+      "cp": "CP-06",
+      "accion": "Buscar texto sin coincidencias",
+      "ceroResultados": true,
+      "filasImprimibles": 0,
+      "limpiarBusqueda": true
+    }
+  ],
+  "impresion": "Pendiente de abrir diálogo real"
+}

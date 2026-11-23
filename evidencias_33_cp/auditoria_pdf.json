@@ -1,0 +1,73 @@
+{
+  "paginas": 200,
+  "capitulo6Paginas": [
+    169,
+    188
+  ],
+  "conclusionPagina": 189,
+  "anexoEPagina": 199,
+  "cpVisibles": 33,
+  "conteosPDF": {
+    "APROBADO": 29,
+    "FALLIDO": 4,
+    "BLOQUEADO": 0,
+    "NO EJECUTADO": 0
+  },
+  "referenciasRotas": 0,
+  "paginasVaciasCandidatas": [],
+  "textoFueraDePagina": [],
+  "revisionVisualPreparada": [
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    199
+  ],
+  "pdfSha256": "44aaab4d11eb56855b08614b45d0f2d0eef2bef0f59a016dbb4bcfd36f02f9ae",
+  "metodo": "Exportación Word del DOCX PRUEBAS_EJECUTADAS en rangos nuevos; sin reutilizar páginas de otras versiones",
+  "revisionVisualRealizada": {
+    "paginas": [
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      199
+    ],
+    "metodo": "Inspección visual de cinco láminas de cuatro páginas del capítulo 6 y de las páginas individuales de conclusión y Anexo E",
+    "hallazgos": "Sin recortes, superposiciones o tablas partidas observados en las páginas revisadas; se conserva estilo de PRESENTACION."
+  }
+}

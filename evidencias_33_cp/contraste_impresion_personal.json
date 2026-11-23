@@ -1,0 +1,12 @@
+{
+  "fecha": "2026-11-23T14:29:52.863736-04:00",
+  "cp": "CP-32",
+  "tipo": "Inspección de render de impresión del navegador (archivo privado de evaluación)",
+  "paginas": 3,
+  "registrosCSVGlobal": 23,
+  "registrosCSVFiltrado": 1,
+  "correosFueraDelFiltroPresentesEnImpresion": 12,
+  "estado": "FALLIDO",
+  "resultado": "El render imprimible conserva el reporte global además del filtrado; no se publican nombres ni correos.",
+  "limite": "El render de evaluación no se atribuye a un guardado manual ni a una biblioteca del producto."
+}

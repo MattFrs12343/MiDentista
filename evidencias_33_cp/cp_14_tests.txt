@@ -1,0 +1,91 @@
+{
+  "cp": "CP-14",
+  "command": "node --test --test-reporter=tap src/features/presupuestos/calculoTotal.test.ts",
+  "started_at": "2026-11-23T14:32:05.640304-04:00",
+  "duration_seconds": 0.124,
+  "exit_code": 0,
+  "tests": 11,
+  "pass": 11,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: aNumero tolera el NUMERIC de Postgres como texto y null
+ok 1 - aNumero tolera el NUMERIC de Postgres como texto y null
+  ---
+  duration_ms: 0.5464
+  type: 'test'
+  ...
+# Subtest: redondear deja dos decimales, como el NUMERIC(10,2) de la base
+ok 2 - redondear deja dos decimales, como el NUMERIC(10,2) de la base
+  ---
+  duration_ms: 0.1046
+  type: 'test'
+  ...
+# Subtest: subtotalItem multiplica cantidad por precio y redondea
+ok 3 - subtotalItem multiplica cantidad por precio y redondea
+  ---
+  duration_ms: 0.0797
+  type: 'test'
+  ...
+# Subtest: subtotalPartidas suma los subtotales de todas las líneas
+ok 4 - subtotalPartidas suma los subtotales de todas las líneas
+  ---
+  duration_ms: 0.0733
+  type: 'test'
+  ...
+# Subtest: totalPresupuesto resta el descuento del subtotal
+ok 5 - totalPresupuesto resta el descuento del subtotal
+  ---
+  duration_ms: 0.0791
+  type: 'test'
+  ...
+# Subtest: un descuento mayor que el subtotal deja el total en cero, nunca negativo
+ok 6 - un descuento mayor que el subtotal deja el total en cero, nunca negativo
+  ---
+  duration_ms: 0.0539
+  type: 'test'
+  ...
+# Subtest: itemsConSubtotal calcula y adjunta el subtotal de cada partida
+ok 7 - itemsConSubtotal calcula y adjunta el subtotal de cada partida
+  ---
+  duration_ms: 0.0893
+  type: 'test'
+  ...
+# Subtest: esPresupuestoEnviable exige al menos una partida con descripción
+ok 8 - esPresupuestoEnviable exige al menos una partida con descripción
+  ---
+  duration_ms: 0.145
+  type: 'test'
+  ...
+# Subtest: totalPresupuestado suma los presupuestos vigentes y omite los rechazados
+ok 9 - totalPresupuestado suma los presupuestos vigentes y omite los rechazados
+  ---
+  duration_ms: 0.1354
+  type: 'test'
+  ...
+# Subtest: sin presupuestos, el total presupuestado es cero
+ok 10 - sin presupuestos, el total presupuestado es cero
+  ---
+  duration_ms: 0.1065
+  type: 'test'
+  ...
+# Subtest: el saldo pendiente de un módulo sigue sin poder ser negativo
+ok 11 - el saldo pendiente de un módulo sigue sin poder ser negativo
+  ---
+  duration_ms: 0.0751
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 84.9893
+

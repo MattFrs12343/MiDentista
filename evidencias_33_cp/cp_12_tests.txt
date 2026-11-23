@@ -1,0 +1,121 @@
+{
+  "cp": "CP-12",
+  "command": "node --test --test-reporter=tap src/features/treatment/planTotal.test.ts",
+  "started_at": "2026-11-23T14:32:05.313454-04:00",
+  "duration_seconds": 0.147,
+  "exit_code": 0,
+  "tests": 16,
+  "pass": 16,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: T-5.10 crear confirma primero CRUD, relee fila y actualiza total sin F5 ni suma local
+ok 1 - T-5.10 crear confirma primero CRUD, relee fila y actualiza total sin F5 ni suma local
+  ---
+  duration_ms: 2.1638
+  type: 'test'
+  ...
+# Subtest: T-5.10 editar costo y cancelado conservan como autoridad el plan releído
+ok 2 - T-5.10 editar costo y cancelado conservan como autoridad el plan releído
+  ---
+  duration_ms: 0.3406
+  type: 'test'
+  ...
+# Subtest: T-5.10 eliminar último procedimiento relee plan vacío = 0.00
+ok 3 - T-5.10 eliminar último procedimiento relee plan vacío = 0.00
+  ---
+  duration_ms: 0.2872
+  type: 'test'
+  ...
+# Subtest: T-5.10 no relee antes de confirmar mutación y bloquea impresión desde el envío
+ok 4 - T-5.10 no relee antes de confirmar mutación y bloquea impresión desde el envío
+  ---
+  duration_ms: 0.5023
+  type: 'test'
+  ...
+# Subtest: T-5.10 fallo de relectura conserva CREATE confirmado y reintenta solo SELECT
+ok 5 - T-5.10 fallo de relectura conserva CREATE confirmado y reintenta solo SELECT
+  ---
+  duration_ms: 0.4671
+  type: 'test'
+  ...
+# Subtest: T-5.10 error parcial tras DELETE no vuelve a borrar y conserva fila retirada
+ok 6 - T-5.10 error parcial tras DELETE no vuelve a borrar y conserva fila retirada
+  ---
+  duration_ms: 0.2678
+  type: 'test'
+  ...
+# Subtest: T-5.10 error CRUD no se anuncia como éxito ni dispara relectura automática
+ok 7 - T-5.10 error CRUD no se anuncia como éxito ni dispara relectura automática
+  ---
+  duration_ms: 0.2479
+  type: 'test'
+  ...
+# Subtest: T-5.10 no duplica CRUD durante relectura ni metadatos que puedan pisarla
+ok 8 - T-5.10 no duplica CRUD durante relectura ni metadatos que puedan pisarla
+  ---
+  duration_ms: 0.2806
+  type: 'test'
+  ...
+# Subtest: T-5.10 reintentos simultáneos comparten solo una lectura
+ok 9 - T-5.10 reintentos simultáneos comparten solo una lectura
+  ---
+  duration_ms: 0.3213
+  type: 'test'
+  ...
+# Subtest: T-5.10 cambiar plan durante relectura descarta total/mensaje tardíos
+ok 10 - T-5.10 cambiar plan durante relectura descarta total/mensaje tardíos
+  ---
+  duration_ms: 0.2929
+  type: 'test'
+  ...
+# Subtest: T-5.10 volver a plan y releer no permite que una respuesta anterior pise el nuevo total
+ok 11 - T-5.10 volver a plan y releer no permite que una respuesta anterior pise el nuevo total
+  ---
+  duration_ms: 0.2335
+  type: 'test'
+  ...
+# Subtest: T-5.10 ficha/sesión desactivada no recibe el plan releído tardío
+ok 12 - T-5.10 ficha/sesión desactivada no recibe el plan releído tardío
+  ---
+  duration_ms: 0.1813
+  type: 'test'
+  ...
+# Subtest: T-5.10 fila releída ajena no reconcilia ni habilita impresión
+ok 13 - T-5.10 fila releída ajena no reconcilia ni habilita impresión
+  ---
+  duration_ms: 0.3296
+  type: 'test'
+  ...
+# Subtest: T-5.10 formato usa siempre dos decimales para total persistido
+ok 14 - T-5.10 formato usa siempre dos decimales para total persistido
+  ---
+  duration_ms: 0.0585
+  type: 'test'
+  ...
+# Subtest: T-5.10 UPDATE confirmado se conserva aunque falle la relectura
+ok 15 - T-5.10 UPDATE confirmado se conserva aunque falle la relectura
+  ---
+  duration_ms: 0.1179
+  type: 'test'
+  ...
+# Subtest: T-5.10 reintento fallido tras error CRUD no fabrica confirmación de mutación
+ok 16 - T-5.10 reintento fallido tras error CRUD no fabrica confirmación de mutación
+  ---
+  duration_ms: 0.1925
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 110.5445
+

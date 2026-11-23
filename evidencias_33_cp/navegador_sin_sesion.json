@@ -1,0 +1,34 @@
+{
+  "fecha": "2026-11-23T17:55:29.504Z",
+  "tipo": "Recorrido de navegador Edge, perfil aislado, sin sesión",
+  "casosRelacionados": [
+    "CP-01",
+    "CP-02",
+    "CP-03",
+    "CP-24"
+  ],
+  "alcance": "Comprueba acceso anónimo únicamente. No aprueba login válido, rechazo de cuenta existente ni aislamiento por rol.",
+  "results": [
+    {
+      "entrada": "/app/admin",
+      "ruta": "/login",
+      "formulario": true,
+      "tablas": 0,
+      "resultado": "Redirección observada a login"
+    },
+    {
+      "entrada": "/app/pacientes",
+      "ruta": "/login",
+      "formulario": true,
+      "tablas": 0,
+      "resultado": "Redirección observada a login"
+    },
+    {
+      "entrada": "/portal/citas",
+      "ruta": "/login",
+      "formulario": true,
+      "tablas": 0,
+      "resultado": "Redirección observada a login"
+    }
+  ]
+}

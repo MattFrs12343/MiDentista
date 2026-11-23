@@ -1,0 +1,145 @@
+{
+  "cp": "CP-10",
+  "command": "node --test --test-reporter=tap src/features/treatment/diagnosticoService.test.ts src/features/treatment/diagnosticoFormulario.test.ts",
+  "started_at": "2026-11-23T14:32:04.900365-04:00",
+  "duration_seconds": 0.208,
+  "exit_code": 0,
+  "tests": 20,
+  "pass": 20,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: creación conserva todos los campos ante error y solo limpia tras éxito real
+ok 1 - creación conserva todos los campos ante error y solo limpia tras éxito real
+  ---
+  duration_ms: 1.0663
+  type: 'test'
+  ...
+# Subtest: doble submit no dispara otra escritura y campos no cambian durante envío
+ok 2 - doble submit no dispara otra escritura y campos no cambian durante envío
+  ---
+  duration_ms: 0.1264
+  type: 'test'
+  ...
+# Subtest: validación de descripción/pieza ocurre antes de guardar y conserva el borrador
+ok 3 - validación de descripción/pieza ocurre antes de guardar y conserva el borrador
+  ---
+  duration_ms: 0.6143
+  type: 'test'
+  ...
+# Subtest: edición fallida conserva contenido y estado pendiente; éxito no vacía diagnóstico
+ok 4 - edición fallida conserva contenido y estado pendiente; éxito no vacía diagnóstico
+  ---
+  duration_ms: 0.1493
+  type: 'test'
+  ...
+# Subtest: guardar solo estado no borra cambios de contenido sin guardar
+ok 5 - guardar solo estado no borra cambios de contenido sin guardar
+  ---
+  duration_ms: 0.1152
+  type: 'test'
+  ...
+# Subtest: respuesta NULL no limpia campos ni genera éxito
+ok 6 - respuesta NULL no limpia campos ni genera éxito
+  ---
+  duration_ms: 0.0873
+  type: 'test'
+  ...
+# Subtest: desmontaje descarta respuestas tardías y no anuncia éxito en otra ficha
+ok 7 - desmontaje descarta respuestas tardías y no anuncia éxito en otra ficha
+  ---
+  duration_ms: 0.1086
+  type: 'test'
+  ...
+# Subtest: listar filtra paciente y clínica, ordena creado_en DESC y no escribe
+ok 8 - listar filtra paciente y clínica, ordena creado_en DESC y no escribe
+  ---
+  duration_ms: 1.3019
+  type: 'test'
+  ...
+# Subtest: lectura por rangos recupera más del límite API sin repetir ni omitir ids
+ok 9 - lectura por rangos recupera más del límite API sin repetir ni omitir ids
+  ---
+  duration_ms: 2.5343
+  type: 'test'
+  ...
+# Subtest: límite configurado menor al lote usa filas reales para avanzar
+ok 10 - límite configurado menor al lote usa filas reales para avanzar
+  ---
+  duration_ms: 0.2215
+  type: 'test'
+  ...
+# Subtest: conteo no confirmado o rango incompleto no se convierten en lista vacía
+ok 11 - conteo no confirmado o rango incompleto no se convierten en lista vacía
+  ---
+  duration_ms: 0.4796
+  type: 'test'
+  ...
+# Subtest: cambio de volumen entre rangos solicita reintento sin devolver lista parcial
+ok 12 - cambio de volumen entre rangos solicita reintento sin devolver lista parcial
+  ---
+  duration_ms: 0.1612
+  type: 'test'
+  ...
+# Subtest: SELECT vacío es válido, NULL/error/contexto ajeno/duplicados no lo son
+ok 13 - SELECT vacío es válido, NULL/error/contexto ajeno/duplicados no lo son
+  ---
+  duration_ms: 0.3358
+  type: 'test'
+  ...
+# Subtest: UUID inválido en todas las operaciones se rechaza antes de tocar red
+ok 14 - UUID inválido en todas las operaciones se rechaza antes de tocar red
+  ---
+  duration_ms: 0.3848
+  type: 'test'
+  ...
+# Subtest: crear confirma una fila activa y manda observaciones/contexto sin timestamps
+ok 15 - crear confirma una fila activa y manda observaciones/contexto sin timestamps
+  ---
+  duration_ms: 0.2913
+  type: 'test'
+  ...
+# Subtest: actualizar usa filtros completos y solo cambia los tres campos editables
+ok 16 - actualizar usa filtros completos y solo cambia los tres campos editables
+  ---
+  duration_ms: 0.1995
+  type: 'test'
+  ...
+# Subtest: cambio de estado escribe solo estado, verifica respuesta y admite los tres estados
+ok 17 - cambio de estado escribe solo estado, verifica respuesta y admite los tres estados
+  ---
+  duration_ms: 0.231
+  type: 'test'
+  ...
+# Subtest: errores Supabase y UPDATE de cero filas no se anuncian como éxito
+ok 18 - errores Supabase y UPDATE de cero filas no se anuncian como éxito
+  ---
+  duration_ms: 0.4313
+  type: 'test'
+  ...
+# Subtest: contenido inválido no llega a red y respuesta no coincidente no confirma éxito
+ok 19 - contenido inválido no llega a red y respuesta no coincidente no confirma éxito
+  ---
+  duration_ms: 0.3486
+  type: 'test'
+  ...
+# Subtest: perfil visual procede del usuario Auth actual, activo y único
+ok 20 - perfil visual procede del usuario Auth actual, activo y único
+  ---
+  duration_ms: 0.2856
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 159.363
+

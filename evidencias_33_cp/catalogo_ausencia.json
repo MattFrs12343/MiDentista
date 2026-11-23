@@ -1,0 +1,30 @@
+{
+  "fecha": "2026-11-23T18:00:27.264Z",
+  "cp": "CP-27",
+  "tipo": "Navegador real (odontólogo) y contraste estático de rutas/catálogo",
+  "navegacion": {
+    "rutas": [
+      "/app",
+      "/app/pacientes",
+      "/app/historia-clinica",
+      "/app/odontograma",
+      "/app/diagnostico-tratamiento",
+      "/app/presupuestos",
+      "/app/pagos"
+    ],
+    "agendaProximamente": true,
+    "botonesCatalogo": [],
+    "botonesPresupuesto": []
+  },
+  "formularioPresupuesto": {
+    "abierto": true,
+    "catalogoLectura": false,
+    "botones": [
+      ""
+    ],
+    "listas": []
+  },
+  "estado": "FALLIDO",
+  "resultado": "No existe ruta ni formulario accesible de alta, edición y desactivación del catálogo. La lectura de servicios para presupuestos no implementa su administración.",
+  "limite": "No se crean servicios, no se modifican permisos ni se implementan operaciones faltantes."
+}

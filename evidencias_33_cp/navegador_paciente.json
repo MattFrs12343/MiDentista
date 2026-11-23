@@ -1,0 +1,45 @@
+{
+  "fecha": "2026-11-23T18:17:53.076Z",
+  "tipo": "Navegador real Edge, sesión paciente manual, sin modificar datos",
+  "results": [
+    {
+      "accion": "Sesión de paciente abierta manualmente",
+      "ruta": "/portal",
+      "portal": true
+    },
+    {
+      "cp": "CP-03",
+      "rol": "paciente",
+      "solicitud": "/app/admin",
+      "destino": "/portal",
+      "adminVisible": false,
+      "listadoPersonalVisible": false,
+      "bitacoraVisible": false
+    },
+    {
+      "cp": "CP-03",
+      "rol": "paciente",
+      "solicitud": "/app/pacientes",
+      "destino": "/portal",
+      "adminVisible": false,
+      "listadoPersonalVisible": false,
+      "bitacoraVisible": false
+    },
+    {
+      "cp": "CP-25",
+      "accion": "Intentar localizar configuración, disponibilidad, reserva, confirmación, reprogramación y cancelación",
+      "ruta": "/portal/citas",
+      "tituloCitas": true,
+      "agendarVisible": true,
+      "canalTelefonico": true,
+      "canalCorreo": true,
+      "instruccionContacto": true,
+      "formularios": 0,
+      "camposFechaHora": 0,
+      "controlesReserva": [],
+      "estado": "FALLIDO",
+      "resultado": "El portal ofrece contacto telefónico/correo y consulta de citas, pero no un recorrido accesible integral para configurar horarios, reservar y reprogramar. No existen formularios de fecha/hora o controles de reserva en la interfaz observada.",
+      "contrasteEstatico": "App.tsx no registra ruta de agenda de personal; Sidebar marca Agenda y citas como Próximamente; MisCitasPage.tsx líneas 23–39 explica ausencia de formulario de reserva."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "fecha": "2026-11-23T18:21:09.459Z",
+  "tipo": "Navegador real; lecturas y CSV administrativo autorizado",
+  "results": [
+    {
+      "cp": "CP-03",
+      "rol": "superadmin",
+      "solicitud": "/app/admin",
+      "destino": "/app/admin",
+      "bitacoraOfrecida": true,
+      "administracionVisible": true
+    },
+    {
+      "cp": "CP-03",
+      "rol": "superadmin",
+      "solicitud": "/app/pacientes",
+      "destino": "/app/admin",
+      "busquedaPacientesVisible": false
+    },
+    {
+      "cp": "CP-24",
+      "accion": "Consultar Bitácora y abrir evento de alta del paciente sintético",
+      "tituloVisible": false,
+      "eventosMostrados": 0,
+      "filtros": 0,
+      "cargarMas": false,
+      "camposPresentacion": [
+        "acción",
+        "tabla",
+        "clínica",
+        "fecha/hora",
+        "rol",
+        "IP si está registrada",
+        "detalle expandible"
+      ],
+      "errorInstalacion": false,
+      "detalleDisponible": false,
+      "soloLectura": true,
+      "limite": "La interfaz ofrece expansión y Cargar más; no tiene filtros por tabla/acción/fechas. No se borran ni alteran eventos."
+    },
+    {
+      "cp": "CP-32",
+      "accion": "Descarga global real desde administración",
+      "columnas": [
+        "Nombre",
+        "Correo",
+        "Rol",
+        "Clínica",
+        "Estado"
+      ],
+      "registrosReporte": 23,
+      "registrosCsv": 23,
+      "csvCoincideExactamente": true,
+      "clinicasDistintas": 7,
+      "descargaReal": true,
+      "archivoPrivado": "Directorio temporal local; no se publican nombres/correos del personal"
+    }
+  ],
+  "notaPreliminarBitacora": "La primera lectura de CP-24 se hizo antes de activar correctamente la pestaña Radix; no constituye resultado final. La activación por teclado y consulta resuelta están en bitacora_superadmin.json, con 30 eventos y detalle sintético verificado."
+}

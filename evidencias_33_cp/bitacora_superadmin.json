@@ -1,0 +1,22 @@
+{
+  "fecha": "2026-11-23T18:24:31.095Z",
+  "cp": "CP-24",
+  "tipo": "Consulta real como superadmin, con espera a resolución del servicio",
+  "tituloVisible": true,
+  "eventosMostrados": 30,
+  "filtros": 0,
+  "cargarMas": true,
+  "vacia": false,
+  "error": false,
+  "mensajeError": null,
+  "cargando": false,
+  "detalleDisponible": true,
+  "eventoPacienteSintetico": true,
+  "camposDetalle": [
+    "antes",
+    "despues"
+  ],
+  "identificacionPrueba": "TESTCP20261123",
+  "soloLectura": true,
+  "limite": "Sin filtros por tabla/acción/fechas en la interfaz actual. No se modifica ni elimina auditoría."
+}

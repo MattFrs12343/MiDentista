@@ -1,0 +1,18 @@
+{
+  "fecha": "2026-11-23T18:29:57.525Z",
+  "cp": "CP-02",
+  "tipo": "Navegador real, cuenta propia existente y activa, una contraseña sintética deliberadamente incorrecta",
+  "cuentaExistenteComprobadaPorUI": true,
+  "intentos": 1,
+  "respuestaVisible": {
+    "ruta": "/login",
+    "mensaje": "Cuenta bloqueada por demasiados intentos fallidos. Probá de nuevo en 15 minuto(s), o recuperá tu contraseña.",
+    "accesoPersonal": false
+  },
+  "accesoProtegidoDespues": {
+    "destino": "/login",
+    "formularioAcceso": true
+  },
+  "estado": "APROBADO",
+  "privacidad": "Sin lectura/publicación de secretos ni edición manual de usuarios/claves. El sistema mostró bloqueo automático temporal; contador previo desconocido."
+}

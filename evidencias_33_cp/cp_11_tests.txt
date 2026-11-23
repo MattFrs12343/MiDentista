@@ -1,0 +1,427 @@
+{
+  "cp": "CP-11",
+  "command": "node --test --test-reporter=tap src/features/treatment/planTratamientoService.test.ts src/features/treatment/planesTratamientoControlador.test.ts",
+  "started_at": "2026-11-23T14:32:05.110872-04:00",
+  "duration_seconds": 0.199,
+  "exit_code": 0,
+  "tests": 67,
+  "pass": 67,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: mapper conserva identidad, título legado NULL, notas, costo y los cinco estados reales
+ok 1 - mapper conserva identidad, título legado NULL, notas, costo y los cinco estados reales
+  ---
+  duration_ms: 1.0445
+  type: 'test'
+  ...
+# Subtest: mapper rechaza filas inválidas, UUID demo, estados desconocidos y costo no finito
+ok 2 - mapper rechaza filas inválidas, UUID demo, estados desconocidos y costo no finito
+  ---
+  duration_ms: 0.2093
+  type: 'test'
+  ...
+# Subtest: orden local de confirmaciones preserva microsegundos, id DESC y NULLS LAST
+ok 3 - orden local de confirmaciones preserva microsegundos, id DESC y NULLS LAST
+  ---
+  duration_ms: 0.441
+  type: 'test'
+  ...
+# Subtest: payload de creación exige título, conserva notas y usa lista blanca
+ok 4 - payload de creación exige título, conserva notas y usa lista blanca
+  ---
+  duration_ms: 0.2518
+  type: 'test'
+  ...
+# Subtest: lectura ordena creado_en DESC, id DESC, filtra paciente/clínica y nunca inserta
+ok 5 - lectura ordena creado_en DESC, id DESC, filtra paciente/clínica y nunca inserta
+  ---
+  duration_ms: 0.4143
+  type: 'test'
+  ...
+# Subtest: lectura recupera múltiples lotes sin truncar ni crear automáticamente
+ok 6 - lectura recupera múltiples lotes sin truncar ni crear automáticamente
+  ---
+  duration_ms: 0.8924
+  type: 'test'
+  ...
+# Subtest: 0 filas es lectura confirmada; errores/NULL/conteo inconsistente no son vacío ni INSERT
+ok 7 - 0 filas es lectura confirmada; errores/NULL/conteo inconsistente no son vacío ni INSERT
+  ---
+  duration_ms: 0.4007
+  type: 'test'
+  ...
+# Subtest: creación explícita confirma fila real e inicia propuesto sin costo calculado ni timestamps enviados
+ok 8 - creación explícita confirma fila real e inicia propuesto sin costo calculado ni timestamps enviados
+  ---
+  duration_ms: 0.1945
+  type: 'test'
+  ...
+# Subtest: título vacío y contexto inválido se rechazan antes de la red
+ok 9 - título vacío y contexto inválido se rechazan antes de la red
+  ---
+  duration_ms: 0.1987
+  type: 'test'
+  ...
+# Subtest: guardar notas/título envía solo el campo solicitado y filtra por id real, paciente, clínica y autor
+ok 10 - guardar notas/título envía solo el campo solicitado y filtra por id real, paciente, clínica y autor
+  ---
+  duration_ms: 0.1604
+  type: 'test'
+  ...
+# Subtest: escrituras no confunden error/0 filas/respuesta ajena/contenido no confirmado con éxito
+ok 11 - escrituras no confunden error/0 filas/respuesta ajena/contenido no confirmado con éxito
+  ---
+  duration_ms: 0.2785
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> propuesto
+ok 12 - T-5.7 servicio propuesto -> propuesto
+  ---
+  duration_ms: 0.1521
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> aceptado
+ok 13 - T-5.7 servicio propuesto -> aceptado
+  ---
+  duration_ms: 0.0448
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> en_proceso
+ok 14 - T-5.7 servicio propuesto -> en_proceso
+  ---
+  duration_ms: 0.0453
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> completado
+ok 15 - T-5.7 servicio propuesto -> completado
+  ---
+  duration_ms: 0.0344
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio propuesto -> cancelado
+ok 16 - T-5.7 servicio propuesto -> cancelado
+  ---
+  duration_ms: 0.0435
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> propuesto
+ok 17 - T-5.7 servicio aceptado -> propuesto
+  ---
+  duration_ms: 0.0391
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> aceptado
+ok 18 - T-5.7 servicio aceptado -> aceptado
+  ---
+  duration_ms: 0.0264
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> en_proceso
+ok 19 - T-5.7 servicio aceptado -> en_proceso
+  ---
+  duration_ms: 0.0307
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> completado
+ok 20 - T-5.7 servicio aceptado -> completado
+  ---
+  duration_ms: 0.0368
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio aceptado -> cancelado
+ok 21 - T-5.7 servicio aceptado -> cancelado
+  ---
+  duration_ms: 0.0346
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> propuesto
+ok 22 - T-5.7 servicio en_proceso -> propuesto
+  ---
+  duration_ms: 0.035
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> aceptado
+ok 23 - T-5.7 servicio en_proceso -> aceptado
+  ---
+  duration_ms: 0.0297
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> en_proceso
+ok 24 - T-5.7 servicio en_proceso -> en_proceso
+  ---
+  duration_ms: 0.0357
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> completado
+ok 25 - T-5.7 servicio en_proceso -> completado
+  ---
+  duration_ms: 0.0402
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio en_proceso -> cancelado
+ok 26 - T-5.7 servicio en_proceso -> cancelado
+  ---
+  duration_ms: 0.0345
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> propuesto
+ok 27 - T-5.7 servicio completado -> propuesto
+  ---
+  duration_ms: 0.0424
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> aceptado
+ok 28 - T-5.7 servicio completado -> aceptado
+  ---
+  duration_ms: 0.0258
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> en_proceso
+ok 29 - T-5.7 servicio completado -> en_proceso
+  ---
+  duration_ms: 0.02
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> completado
+ok 30 - T-5.7 servicio completado -> completado
+  ---
+  duration_ms: 0.0222
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio completado -> cancelado
+ok 31 - T-5.7 servicio completado -> cancelado
+  ---
+  duration_ms: 0.0353
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> propuesto
+ok 32 - T-5.7 servicio cancelado -> propuesto
+  ---
+  duration_ms: 0.0195
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> aceptado
+ok 33 - T-5.7 servicio cancelado -> aceptado
+  ---
+  duration_ms: 0.0269
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> en_proceso
+ok 34 - T-5.7 servicio cancelado -> en_proceso
+  ---
+  duration_ms: 0.0275
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> completado
+ok 35 - T-5.7 servicio cancelado -> completado
+  ---
+  duration_ms: 0.0283
+  type: 'test'
+  ...
+# Subtest: T-5.7 servicio cancelado -> cancelado
+ok 36 - T-5.7 servicio cancelado -> cancelado
+  ---
+  duration_ms: 0.0208
+  type: 'test'
+  ...
+# Subtest: T-5.7 terminales y estados desconocidos no tienen acciones
+ok 37 - T-5.7 terminales y estados desconocidos no tienen acciones
+  ---
+  duration_ms: 0.0538
+  type: 'test'
+  ...
+# Subtest: T-5.7 valida todos los UUID antes de red
+ok 38 - T-5.7 valida todos los UUID antes de red
+  ---
+  duration_ms: 0.0979
+  type: 'test'
+  ...
+# Subtest: T-5.7 Supabase y transporte fallan sin reintento
+ok 39 - T-5.7 Supabase y transporte fallan sin reintento
+  ---
+  duration_ms: 0.0667
+  type: 'test'
+  ...
+# Subtest: T-5.7 cero filas y PGRST116 muestran conflicto o autorización
+ok 40 - T-5.7 cero filas y PGRST116 muestran conflicto o autorización
+  ---
+  duration_ms: 0.1008
+  type: 'test'
+  ...
+# Subtest: T-5.7 respuesta con estado, contexto o timestamp inesperado no confirma
+ok 41 - T-5.7 respuesta con estado, contexto o timestamp inesperado no confirma
+  ---
+  duration_ms: 0.1041
+  type: 'test'
+  ...
+# Subtest: T-5.7 dos clientes con lectura propuesto: CAS rechaza cancelar después de aceptar
+ok 42 - T-5.7 dos clientes con lectura propuesto: CAS rechaza cancelar después de aceptar
+  ---
+  duration_ms: 0.1331
+  type: 'test'
+  ...
+# Subtest: T-5.10 obtenerPlanPorId solo lee por id/paciente/clínica y conserva total/timestamps reales
+ok 43 - T-5.10 obtenerPlanPorId solo lee por id/paciente/clínica y conserva total/timestamps reales
+  ---
+  duration_ms: 0.1001
+  type: 'test'
+  ...
+# Subtest: T-5.10 relectura valida UUID antes de red y rechaza error/0 filas/contexto/costo inesperado
+ok 44 - T-5.10 relectura valida UUID antes de red y rechaza error/0 filas/contexto/costo inesperado
+  ---
+  duration_ms: 0.1589
+  type: 'test'
+  ...
+# Subtest: abrir ficha lista múltiples planes sin seleccionar último ni crear
+ok 45 - abrir ficha lista múltiples planes sin seleccionar último ni crear
+  ---
+  duration_ms: 1.5458
+  type: 'test'
+  ...
+# Subtest: 0 filas y error conservan ramas distintas y no desencadenan creación
+ok 46 - 0 filas y error conservan ramas distintas y no desencadenan creación
+  ---
+  duration_ms: 0.2918
+  type: 'test'
+  ...
+# Subtest: crear requiere acción explícita y selecciona la fila confirmada
+ok 47 - crear requiere acción explícita y selecciona la fila confirmada
+  ---
+  duration_ms: 0.1456
+  type: 'test'
+  ...
+# Subtest: permisos por perfil real y autor; recepción, superadmin y colega no editan planes ajenos
+ok 48 - permisos por perfil real y autor; recepción, superadmin y colega no editan planes ajenos
+  ---
+  duration_ms: 0.3457
+  type: 'test'
+  ...
+# Subtest: bloquea doble escritura, selección y recarga durante guardado
+ok 49 - bloquea doble escritura, selección y recarga durante guardado
+  ---
+  duration_ms: 0.2477
+  type: 'test'
+  ...
+# Subtest: cambio de paciente descarta lectura tardía y no muestra selección ni notas previas
+ok 50 - cambio de paciente descarta lectura tardía y no muestra selección ni notas previas
+  ---
+  duration_ms: 0.1844
+  type: 'test'
+  ...
+# Subtest: escritura tardía no reconcilia ni anuncia éxito al cambiar ficha/sesión
+ok 51 - escritura tardía no reconcilia ni anuncia éxito al cambiar ficha/sesión
+  ---
+  duration_ms: 0.2114
+  type: 'test'
+  ...
+# Subtest: remontaje StrictMode reintenta lectura invalidada sin quedar en loading
+ok 52 - remontaje StrictMode reintenta lectura invalidada sin quedar en loading
+  ---
+  duration_ms: 0.1115
+  type: 'test'
+  ...
+# Subtest: formulario precarga notas reales y sincroniza cargas sin borrar borrador del otro campo
+ok 53 - formulario precarga notas reales y sincroniza cargas sin borrar borrador del otro campo
+  ---
+  duration_ms: 0.16
+  type: 'test'
+  ...
+# Subtest: formulario falla sin limpiar; creación limpia solo tras éxito confirmado; título vacío no envía
+ok 54 - formulario falla sin limpiar; creación limpia solo tras éxito confirmado; título vacío no envía
+  ---
+  duration_ms: 0.2442
+  type: 'test'
+  ...
+# Subtest: guardar título conserva notas no enviadas; ninguna sincronización guarda por sí sola
+ok 55 - guardar título conserva notas no enviadas; ninguna sincronización guarda por sí sola
+  ---
+  duration_ms: 0.1039
+  type: 'test'
+  ...
+# Subtest: formulario bloquea doble submit y descarta respuesta al desmontarse
+ok 56 - formulario bloquea doble submit y descarta respuesta al desmontarse
+  ---
+  duration_ms: 0.0737
+  type: 'test'
+  ...
+# Subtest: T-5.7 aceptar/iniciar actualizan lista y selección sin recargar
+ok 57 - T-5.7 aceptar/iniciar actualizan lista y selección sin recargar
+  ---
+  duration_ms: 0.2845
+  type: 'test'
+  ...
+# Subtest: T-5.7 cancelado exige confirmación visual para el id exacto
+ok 58 - T-5.7 cancelado exige confirmación visual para el id exacto
+  ---
+  duration_ms: 0.2018
+  type: 'test'
+  ...
+# Subtest: T-5.7 completado exige confirmación visual para el id exacto
+ok 59 - T-5.7 completado exige confirmación visual para el id exacto
+  ---
+  duration_ms: 0.0999
+  type: 'test'
+  ...
+# Subtest: T-5.7 cambio de selección borra confirmación y mensajes del plan anterior
+ok 60 - T-5.7 cambio de selección borra confirmación y mensajes del plan anterior
+  ---
+  duration_ms: 0.1151
+  type: 'test'
+  ...
+# Subtest: T-5.7 doble submit y otros guardados/selección quedan bloqueados sin actualización optimista
+ok 61 - T-5.7 doble submit y otros guardados/selección quedan bloqueados sin actualización optimista
+  ---
+  duration_ms: 0.1532
+  type: 'test'
+  ...
+# Subtest: T-5.7 doble confirmación no duplica envío
+ok 62 - T-5.7 doble confirmación no duplica envío
+  ---
+  duration_ms: 0.1291
+  type: 'test'
+  ...
+# Subtest: T-5.7 fallo conserva estado y plan, sin éxito ni reintentos
+ok 63 - T-5.7 fallo conserva estado y plan, sin éxito ni reintentos
+  ---
+  duration_ms: 0.1327
+  type: 'test'
+  ...
+# Subtest: T-5.7 permisos rechazan colegas, recepción, superadmin, inactivo y clínica ajena
+ok 64 - T-5.7 permisos rechazan colegas, recepción, superadmin, inactivo y clínica ajena
+  ---
+  duration_ms: 0.2048
+  type: 'test'
+  ...
+# Subtest: T-5.7 respuesta inesperada no reconcilia la lista
+ok 65 - T-5.7 respuesta inesperada no reconcilia la lista
+  ---
+  duration_ms: 0.215
+  type: 'test'
+  ...
+# Subtest: T-5.7 request tardío no modifica un nuevo contexto de plan/paciente/sesión
+ok 66 - T-5.7 request tardío no modifica un nuevo contexto de plan/paciente/sesión
+  ---
+  duration_ms: 0.1276
+  type: 'test'
+  ...
+# Subtest: T-5.7 remontaje durante request espera, descarta respuesta e inicia lectura vigente
+ok 67 - T-5.7 remontaje durante request espera, descarta respuesta e inicia lectura vigente
+  ---
+  duration_ms: 0.1227
+  type: 'test'
+  ...
+1..67
+# tests 67
+# suites 0
+# pass 67
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 154.3222
+

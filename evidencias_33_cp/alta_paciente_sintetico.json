@@ -1,0 +1,16 @@
+{
+  "fecha": "2026-11-23T17:58:37.108Z",
+  "tipo": "Navegador real, alta de paciente sintético sin crear cuenta Auth",
+  "creado": true,
+  "error": "",
+  "datosSinteticos": {
+    "nombres": "PRUEBA CP",
+    "apellidos": "Validación CSV",
+    "ci": "TESTCP20261123",
+    "fechaNacimiento": "2000-01-01",
+    "telefono": "00000000",
+    "email": "cp.validacion@example.invalid",
+    "direccion": "PRUEBA, \"sin datos reales\" — validación 33 CP"
+  },
+  "limpieza": "Se conserva identificado como PRUEBA; no se eliminan registros clínicos."
+}

@@ -1,0 +1,17 @@
+{
+  "fecha": "2026-11-23T18:10:31.780Z",
+  "tipo": "Clic real en botón que llama window.print(); observación de evento nativo y vista previa",
+  "ruta": "/app/pacientes",
+  "eventoBeforePrint": 2,
+  "filasReporte": 1,
+  "encabezados": [
+    "Nombre completo",
+    "CI",
+    "Teléfono",
+    "Correo",
+    "Dirección",
+    "Registrado el"
+  ],
+  "vistaPreviaImpresion": false,
+  "limite": "No se atribuye generación PDF a una biblioteca; no se afirma guardado mediante diálogo si no se realizó."
+}

@@ -1,0 +1,73 @@
+{
+  "cp": "CP-08",
+  "command": "node --test --test-reporter=tap src/features/clinical/clinicalHistoryService.test.ts",
+  "started_at": "2026-11-23T14:32:04.737001-04:00",
+  "duration_seconds": 0.163,
+  "exit_code": 0,
+  "tests": 8,
+  "pass": 8,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: p1/p2/p3 y clínica inválida se rechazan antes de consultar
+ok 1 - p1/p2/p3 y clínica inválida se rechazan antes de consultar
+  ---
+  duration_ms: 1.0197
+  type: 'test'
+  ...
+# Subtest: falta de configuración genera un error explicativo al usar el cliente
+ok 2 - falta de configuración genera un error explicativo al usar el cliente
+  ---
+  duration_ms: 0.1419
+  type: 'test'
+  ...
+# Subtest: consulta solo el paciente indicado; ausencia devuelve historia vacía
+ok 3 - consulta solo el paciente indicado; ausencia devuelve historia vacía
+  ---
+  duration_ms: 0.4595
+  type: 'test'
+  ...
+# Subtest: lectura existente recupera contenido y fecha del servidor
+ok 4 - lectura existente recupera contenido y fecha del servidor
+  ---
+  duration_ms: 0.2337
+  type: 'test'
+  ...
+# Subtest: INSERT usa los UUID recibidos y no escribe fechas ni responsable
+ok 5 - INSERT usa los UUID recibidos y no escribe fechas ni responsable
+  ---
+  duration_ms: 0.1731
+  type: 'test'
+  ...
+# Subtest: UPDATE filtra por id, paciente y clínica sin cambiar sus identificadores
+ok 6 - UPDATE filtra por id, paciente y clínica sin cambiar sus identificadores
+  ---
+  duration_ms: 0.1521
+  type: 'test'
+  ...
+# Subtest: historia duplicada, clínica distinta o paciente distinto no permiten escritura
+ok 7 - historia duplicada, clínica distinta o paciente distinto no permiten escritura
+  ---
+  duration_ms: 0.1478
+  type: 'test'
+  ...
+# Subtest: errores de consulta, RLS y UPDATE sin filas no se anuncian como éxito
+ok 8 - errores de consulta, RLS y UPDATE sin filas no se anuncian como éxito
+  ---
+  duration_ms: 0.1626
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 119.2426
+

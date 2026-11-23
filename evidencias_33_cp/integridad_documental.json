@@ -1,0 +1,36 @@
+{
+  "baseUnica": "PROYECTOCOMPLETO1_FINAL_CICLO4_PRESENTACION.docx",
+  "partesModificadas": [
+    "word/document.xml"
+  ],
+  "cp": 33,
+  "conteos": {
+    "APROBADO": 29,
+    "FALLIDO": 4,
+    "BLOQUEADO": 0,
+    "NO EJECUTADO": 0
+  },
+  "definicionesEInterfazConservadas": 33,
+  "propiedadesDeParrafoRunTablaFilaCeldaSeccionIdenticas": true,
+  "capitulos1a5YCUIntactos": true,
+  "unicoCambioAnteriorCapitulo6": "Resumen: resultados de validación",
+  "bibliografiaPortadaEstilosMediaIntactos": true,
+  "cantidadesXML": {
+    "drawing": 141,
+    "tbl": 111
+  },
+  "versionesAnterioresHashesConservados": [
+    "PROYECTOCOMPLETO1.bak.docx",
+    "PROYECTOCOMPLETO1.docx",
+    "PROYECTOCOMPLETO1.pdf",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4.docx",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4.pdf",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4_CORREGIDO.docx",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4_CORREGIDO.pdf",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4_DEFINITIVO.docx",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4_DEFINITIVO.pdf",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4_PRESENTACION.docx",
+    "PROYECTOCOMPLETO1_FINAL_CICLO4_PRESENTACION.pdf"
+  ],
+  "referenciasRotasDetectadas": 0
+}

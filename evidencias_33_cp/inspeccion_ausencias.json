@@ -1,0 +1,26 @@
+{
+  "fecha": "2026-11-23T14:34:06.476216-04:00",
+  "tipo": "Inspección estática complementaria; no sustituye aceptación de funciones existentes",
+  "CP-25": [
+    "App.tsx: rutas de personal sin agenda",
+    "Sidebar.tsx: Agenda y citas en Próximamente",
+    "MisCitasPage.tsx: líneas 23–39 describen ausencia de reserva; navegador_paciente.json confirma cero formularios/controles"
+  ],
+  "CP-26": [
+    "OdontogramTab.tsx: selección de pieza, impresión y edición del vigente, sin dos versiones",
+    "Búsqueda histórica/comparación en componentes no halló selector",
+    "odontograma_persistencia.json: comparadorAccesible false en la interfaz abierta"
+  ],
+  "CP-27": [
+    "App.tsx y Sidebar.tsx sin administración de catálogo",
+    "servicioCatalogo.ts: contrato de solo lectura, SELECT activos",
+    "Búsqueda de INSERT/UPDATE/DELETE de servicios en frontend/src no encontró operaciones de administración"
+  ],
+  "hashes": {
+    "frontend/src/App.tsx": "b2ee4999dfa23c92ccdca7acabd5c0b1213b957adb3d3bf6bcaf792ccf40cb00",
+    "frontend/src/components/layout/Sidebar.tsx": "011a25d5c715cbfffdac187bf8d1522f5af449c32eeced23c50ea9b184588fed",
+    "frontend/src/features/odontogram/OdontogramTab.tsx": "44f8264440e2013b671bba635e5e8fc8560fdb38c9b7daf8d98cb871642f6817",
+    "frontend/src/features/presupuestos/servicioCatalogo.ts": "b846980e923827192eba55f7163ffea1df26280baa9d4fffba25bdab3689efca",
+    "frontend/src/features/portal-paciente/MisCitasPage.tsx": "e85212fc23f5570899b00e5d9ed3af3885d1df9c720735dd67916f2f763b63a3"
+  }
+}

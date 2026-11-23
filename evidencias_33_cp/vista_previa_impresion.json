@@ -1,0 +1,7 @@
+{
+  "fecha": "2026-11-23T18:10:02.431Z",
+  "vistaPreviaReal": "edge://print/",
+  "documentoRenderizado": true,
+  "origen": "Botón Descargar PDF del reporte filtrado del paciente sintético",
+  "alcance": "Flujo nativo window.print(), no biblioteca PDF ni guardado acreditado"
+}

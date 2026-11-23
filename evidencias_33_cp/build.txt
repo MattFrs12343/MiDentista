@@ -1,0 +1,131 @@
+{
+  "id": "build",
+  "command": "npm.cmd run build",
+  "directory": "C:\\angelicaaa\\si1\\proyecto clinica dental\\MiDentista\\frontend",
+  "started_at": "2026-11-23T13:53:15.495866-04:00",
+  "ended_at": "2026-11-23T13:53:59.439842-04:00",
+  "duration_seconds": 43.944,
+  "exit_code": 0
+}
+
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v8.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 4979 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                       0.94 kB │ gzip:   0.46 kB
+dist/assets/favicon--8DChio-.jpg                      5.34 kB
+dist/assets/spinner-mark-CTKHzLlI.png                16.52 kB
+dist/assets/logo-mark-hd-C4oblf1J.jpg                32.85 kB
+dist/assets/hero-dashboard-B9sBsyP9.jpg              95.42 kB
+dist/assets/banner-pacientes-D06ku2Aa.jpg           100.71 kB
+dist/assets/banner-tratamiento-DdAHKcqo.jpg         107.69 kB
+dist/assets/banner-odontograma-BadC3823.jpg         113.09 kB
+dist/assets/banner-presupuestos-XfAvRKxx.jpg        113.58 kB
+dist/assets/banner-historia-clinica-B3StgCeb.jpg    118.20 kB
+dist/assets/duracion-dias-DFLNp7R_.png              811.11 kB
+dist/assets/duracion-mas-dias-BStGSaqe.png        1,110.93 kB
+dist/assets/ninguno-Dd94nIPl.png                  1,142.51 kB
+dist/assets/trauma-dental-CzE0Apcx.png            1,157.20 kB
+dist/assets/sangrado-jQ8DKIu0.png                 1,173.80 kB
+dist/assets/duracion-horas-DS0cVLHq.png           1,173.94 kB
+dist/assets/fiebre-C5fvagDE.png                   1,177.63 kB
+dist/assets/dolor-mandibula-BMQp2LP8.png          1,179.01 kB
+dist/assets/intensidad-moderado-B7RWkFST.png      1,187.23 kB
+dist/assets/intensidad-leve-BXSHpgzV.png          1,191.97 kB
+dist/assets/intensidad-severo-DLhveahs.png        1,202.01 kB
+dist/assets/inflamacion-DHGt6zyu.png              1,203.10 kB
+dist/assets/pus-mal-aliento-B4OlYjp8.png          1,206.02 kB
+dist/assets/sensibilidad-D3rSatg9.png             1,214.55 kB
+dist/assets/dolor-muela-DFZ2RdfR.png              1,236.14 kB
+dist/assets/portada-cuestionario-BuybtMFx.png     1,271.95 kB
+dist/assets/PatientProfilePage-CnB2Ugst.css           0.60 kB │ gzip:   0.29 kB
+dist/assets/DashboardPage-2I9_jQUH.css                2.07 kB │ gzip:   0.75 kB
+dist/assets/BuscarClinicaPage-vh-t_kPv.css           15.09 kB │ gzip:   6.36 kB
+dist/assets/index-X25BmhOn.css                      104.88 kB │ gzip:  17.70 kB
+dist/assets/text-scrim-CNA3Bl-4.js                    0.25 kB │ gzip:   0.13 kB
+dist/assets/SintomasWizardPage-JLVsmRCM.js            0.43 kB │ gzip:   0.29 kB
+dist/assets/PortalEstado-Dxcz4osB.js                  0.47 kB │ gzip:   0.33 kB
+dist/assets/badge-CVn77nme.js                         0.66 kB │ gzip:   0.39 kB
+dist/assets/PortalPacienteContext-CB9X9Iv1.js         0.68 kB │ gzip:   0.43 kB
+dist/assets/BotonesReporte-S7IZv8el.js                0.69 kB │ gzip:   0.39 kB
+dist/assets/textarea-Y0y5VoU2.js                      0.70 kB │ gzip:   0.46 kB
+dist/assets/PagosPage-5JC9BKL6.js                     0.73 kB │ gzip:   0.48 kB
+dist/assets/modeloArco-Cum7gnCq.js                    1.13 kB │ gzip:   0.50 kB
+dist/assets/CaretLeft.es-CWnXq6oV.js                  1.34 kB │ gzip:   0.54 kB
+dist/assets/card-BJzstZAf.js                          1.36 kB │ gzip:   0.66 kB
+dist/assets/empty-state-s25OZJJe.js                   1.39 kB │ gzip:   0.75 kB
+dist/assets/CaretRight.es-jzzG9RiJ.js                 1.42 kB │ gzip:   0.56 kB
+dist/assets/portalFormato-DujUkBN-.js                 1.43 kB │ gzip:   0.62 kB
+dist/assets/form-parts-BjyqGOlF.js                    1.46 kB │ gzip:   0.67 kB
+dist/assets/ArrowUpRight.es-CQp4am7c.js               1.52 kB │ gzip:   0.62 kB
+dist/assets/hanging-banner-lbmpLxF0.js                1.55 kB │ gzip:   0.71 kB
+dist/assets/Plus.es-YNB4itSi.js                       1.57 kB │ gzip:   0.58 kB
+dist/assets/MagnifyingGlass.es-DWP2nS_W.js            1.67 kB │ gzip:   0.68 kB
+dist/assets/PatientPickerPage-C36OpCPT.js             1.73 kB │ gzip:   0.98 kB
+dist/assets/section-hero-C2iKZ7A8.js                  1.80 kB │ gzip:   0.94 kB
+dist/assets/Clock.es-DT5Ry6So.js                      1.83 kB │ gzip:   0.65 kB
+dist/assets/DownloadSimple.es-2lpMbUlm.js             2.05 kB │ gzip:   0.69 kB
+dist/assets/Envelope.es-BW815ooa.js                   2.15 kB │ gzip:   0.78 kB
+dist/assets/Notebook.es-DXUoXZiH.js                   2.29 kB │ gzip:   0.79 kB
+dist/assets/XCircle.es-BobIlYEa.js                    2.48 kB │ gzip:   0.81 kB
+dist/assets/PencilSimple.es-BwklWgLi.js               2.48 kB │ gzip:   0.90 kB
+dist/assets/Trash.es-nwetI7SP.js                      2.58 kB │ gzip:   0.80 kB
+dist/assets/MiHistoriaPage-BveE9U35.js                2.61 kB │ gzip:   1.07 kB
+dist/assets/FileText.es-00PlMTKv.js                   2.65 kB │ gzip:   0.81 kB
+dist/assets/NotePencil.es-C5ugAnxW.js                 2.78 kB │ gzip:   0.95 kB
+dist/assets/CalendarPlus.es-y9mNz-bw.js               2.92 kB │ gzip:   0.89 kB
+dist/assets/MapPin.es-DKsFBAvc.js                     2.94 kB │ gzip:   1.09 kB
+dist/assets/FloppyDisk.es-C4bTx3E7.js                 2.95 kB │ gzip:   0.91 kB
+dist/assets/Printer.es-D6bwxHDs.js                    3.00 kB │ gzip:   1.08 kB
+dist/assets/CalendarCheck.es-CoR-UpU-.js              3.01 kB │ gzip:   0.93 kB
+dist/assets/Buildings.es-BFjpXKxl.js                  3.33 kB │ gzip:   1.02 kB
+dist/assets/PatientOnboardingPage-CE86Bdz4.js         3.41 kB │ gzip:   1.61 kB
+dist/assets/Receipt.es-DcGWYaIQ.js                    3.42 kB │ gzip:   1.06 kB
+dist/assets/PortalHero-D-zYpKYv.js                    4.08 kB │ gzip:   1.40 kB
+dist/assets/QrCode.es-Cupr2QLG.js                     4.38 kB │ gzip:   1.07 kB
+dist/assets/Phone.es-CXJT7Qlz.js                      4.57 kB │ gzip:   1.69 kB
+dist/assets/PatientsListPage-hjkXIEZl.js              4.96 kB │ gzip:   2.21 kB
+dist/assets/sintomasArbol-B6m3QDQR.js                 5.79 kB │ gzip:   2.19 kB
+dist/assets/QrCobro-BSzOqZrb.js                       5.86 kB │ gzip:   2.41 kB
+dist/assets/PatientForm-SEManYtz.js                   6.03 kB │ gzip:   2.04 kB
+dist/assets/MisEvolucionesPage-DJDuHB74.js            6.04 kB │ gzip:   2.34 kB
+dist/assets/PortalPacienteLayout-BAyVKofJ.js          6.26 kB │ gzip:   2.44 kB
+dist/assets/dist-C8qCnSPc.js                          7.20 kB │ gzip:   2.75 kB
+dist/assets/DentalArch3D-BcgqxNop.js                  7.43 kB │ gzip:   3.02 kB
+dist/assets/MisCitasPage-bCvNxJYg.js                  7.58 kB │ gzip:   2.22 kB
+dist/assets/SintomasWizard-CJRspycU.js                8.33 kB │ gzip:   3.09 kB
+dist/assets/section-board-Cup_by6K.js                 8.72 kB │ gzip:   2.78 kB
+dist/assets/jsx-runtime-D3jfb0Ew.js                   8.90 kB │ gzip:   3.38 kB
+dist/assets/PortalHomePage-DN06Dc9s.js                9.44 kB │ gzip:   3.17 kB
+dist/assets/toothNames-CQl2ro3q.js                   10.28 kB │ gzip:   3.19 kB
+dist/assets/PatientsTable-BSbtxuUc.js                11.94 kB │ gzip:   4.04 kB
+dist/assets/MiOdontogramaPage-C1iO76Fj.js            11.97 kB │ gzip:   4.30 kB
+dist/assets/archivoMapper-BEiDuvYV.js                12.02 kB │ gzip:   4.64 kB
+dist/assets/Warning.es-DLgBVXM_.js                   13.42 kB │ gzip:   3.62 kB
+dist/assets/meshopt_decoder.module-DXTYc6wn.js       26.48 kB │ gzip:   7.26 kB
+dist/assets/cn-RPn7lCMl.js                           28.24 kB │ gzip:   9.09 kB
+dist/assets/MisPagosPage-BL3LBVLs.js                 28.53 kB │ gzip:   8.54 kB
+dist/assets/PresupuestosPage-Cuu9NN6C.js             32.00 kB │ gzip:  10.24 kB
+dist/assets/AdminPage-Bs0cmmE4.js                    38.56 kB │ gzip:  10.99 kB
+dist/assets/GLTFLoader-CkUDLmR8.js                   45.25 kB │ gzip:  13.47 kB
+dist/assets/select-B3EXxfc4.js                       57.07 kB │ gzip:  19.66 kB
+dist/assets/DashboardPage-C7clRBu-.js                87.36 kB │ gzip:  22.40 kB
+dist/assets/BuscarClinicaPage-z0FyHlbN.js           192.71 kB │ gzip:  56.62 kB
+dist/assets/button-CmHtR9b1.js                      218.28 kB │ gzip:  56.70 kB
+dist/assets/PatientProfilePage-Og12zkEE.js          243.68 kB │ gzip:  63.06 kB
+dist/assets/three.core-DtjtRha-.js                  377.37 kB │ gzip: 100.67 kB
+dist/assets/index-Drr8HThk.js                       474.43 kB │ gzip: 141.97 kB
+dist/assets/react-three-fiber.esm-1FPzmQBt.js       542.28 kB │ gzip: 145.16 kB
+
+[32m✓ built in 938ms[39m
+
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m

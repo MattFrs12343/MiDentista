@@ -1,0 +1,91 @@
+{
+  "cp": "CP-05",
+  "command": "node --test --test-reporter=tap src/features/patients/validacionesPaciente.test.ts",
+  "started_at": "2026-11-23T14:32:04.482697-04:00",
+  "duration_seconds": 0.13,
+  "exit_code": 0,
+  "tests": 11,
+  "pass": 11,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0
+}
+
+TAP version 13
+# Subtest: un borrador completo y correcto no tiene errores
+ok 1 - un borrador completo y correcto no tiene errores
+  ---
+  duration_ms: 0.9271
+  type: 'test'
+  ...
+# Subtest: nombres y apellidos son obligatorios y no aceptan solo espacios
+ok 2 - nombres y apellidos son obligatorios y no aceptan solo espacios
+  ---
+  duration_ms: 0.1234
+  type: 'test'
+  ...
+# Subtest: la CI exige formato y es obligatoria
+ok 3 - la CI exige formato y es obligatoria
+  ---
+  duration_ms: 0.0846
+  type: 'test'
+  ...
+# Subtest: la fecha de nacimiento no puede ser futura
+ok 4 - la fecha de nacimiento no puede ser futura
+  ---
+  duration_ms: 0.0635
+  type: 'test'
+  ...
+# Subtest: la fecha de nacimiento rechaza fechas que no existen en el calendario
+ok 5 - la fecha de nacimiento rechaza fechas que no existen en el calendario
+  ---
+  duration_ms: 0.0698
+  type: 'test'
+  ...
+# Subtest: la fecha de nacimiento rechaza edades mayores a 120 años
+ok 6 - la fecha de nacimiento rechaza edades mayores a 120 años
+  ---
+  duration_ms: 0.4449
+  type: 'test'
+  ...
+# Subtest: el teléfono admite formatos locales y rechaza el vacío
+ok 7 - el teléfono admite formatos locales y rechaza el vacío
+  ---
+  duration_ms: 0.101
+  type: 'test'
+  ...
+# Subtest: el correo es opcional, pero si viene debe ser válido
+ok 8 - el correo es opcional, pero si viene debe ser válido
+  ---
+  duration_ms: 0.0789
+  type: 'test'
+  ...
+# Subtest: el contacto de emergencia es opcional, pero si se completa pide nombre y teléfono
+ok 9 - el contacto de emergencia es opcional, pero si se completa pide nombre y teléfono
+  ---
+  duration_ms: 0.0865
+  type: 'test'
+  ...
+# Subtest: un contacto de emergencia completo y válido no genera errores
+ok 10 - un contacto de emergencia completo y válido no genera errores
+  ---
+  duration_ms: 0.1096
+  type: 'test'
+  ...
+# Subtest: hayErrores resume la presencia de problemas
+ok 11 - hayErrores resume la presencia de problemas
+  ---
+  duration_ms: 0.0687
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 89.1059
+

@@ -1,0 +1,834 @@
+{
+  "source": "PROYECTOCOMPLETO1_FINAL_CICLO4_PRESENTACION.docx",
+  "tables": 17,
+  "total": 30,
+  "passed": 30,
+  "failed": 0,
+  "results": [
+    {
+      "id": 1,
+      "title": "Pacientes activos de una clínica",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=11.76..11.77 rows=1 width=144)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: nombre_completo, id"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pacientes  (cost=0.00..11.75 rows=1 width=144)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((activo IS TRUE) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid))"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Servicios activos y precios",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=16.26..16.27 rows=1 width=68)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: nombre, id"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on servicios  (cost=0.00..16.25 rows=1 width=68)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((activo IS TRUE) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid))"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Citas de una fecha",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=15.11..15.12 rows=1 width=96)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: hora_inicio, id"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on citas  (cost=0.00..15.10 rows=1 width=96)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (fecha_cita = '2026-11-22'::date))"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Personal odontológico activo",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Seq Scan on perfiles  (cost=0.00..13.45 rows=1 width=112)"
+        },
+        {
+          "QUERY PLAN": "  Filter: ((activo IS TRUE) AND (rol = ANY ('{odontologo,odontologo_admin}'::text[])) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid))"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Agenda de un profesional",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=15.96..15.96 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: hora_inicio"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on citas  (cost=0.00..15.95 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (odontologo_id = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'::uuid) AND (fecha_cita = '2026-11-22'::date))"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Pagos confirmados de un mes",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Seq Scan on pagos  (cost=0.00..16.00 rows=1 width=100)"
+        },
+        {
+          "QUERY PLAN": "  Filter: ((fecha_pago >= '2026-11-01'::date) AND (fecha_pago < '2026-12-01'::date) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (estado = 'confirmado'::text))"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Planes en proceso",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Seq Scan on planes_tratamiento  (cost=0.00..15.55 rows=1 width=80)"
+        },
+        {
+          "QUERY PLAN": "  Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (estado = 'en_proceso'::text))"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Historial de citas de un paciente",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=15.11..15.12 rows=1 width=60)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: fecha_cita DESC, hora_inicio DESC, id"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on citas  (cost=0.00..15.10 rows=1 width=60)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (paciente_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'::uuid))"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Horarios semanales registrados",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=21.56..21.56 rows=1 width=36)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: dia_semana, hora_inicio"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on horarios  (cost=0.00..21.55 rows=1 width=36)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((activo IS TRUE) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (odontologo_id = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'::uuid))"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Total cobrado por método de pago",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "GroupAggregate  (cost=16.01..16.04 rows=1 width=72)"
+        },
+        {
+          "QUERY PLAN": "  Group Key: metodo_pago"
+        },
+        {
+          "QUERY PLAN": "  ->  Sort  (cost=16.01..16.02 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "        Sort Key: metodo_pago"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on pagos  (cost=0.00..16.00 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "              Filter: ((fecha_pago >= '2026-11-01'::date) AND (fecha_pago < '2026-12-01'::date) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (estado = 'confirmado'::text))"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Paciente con historia clínica",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop  (cost=0.00..24.64 rows=1 width=112)"
+        },
+        {
+          "QUERY PLAN": "  Join Filter: (p.id = h.paciente_id)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on historiales_clinicos h  (cost=0.00..12.88 rows=1 width=96)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Citas con paciente y profesional",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop  (cost=0.14..38.21 rows=1 width=92)"
+        },
+        {
+          "QUERY PLAN": "  ->  Nested Loop  (cost=0.00..26.02 rows=1 width=92)"
+        },
+        {
+          "QUERY PLAN": "        Join Filter: (p.id = c.paciente_id)"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "              Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on citas c  (cost=0.00..14.25 rows=2 width=76)"
+        },
+        {
+          "QUERY PLAN": "              Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  ->  Index Scan using perfiles_pkey on perfiles o  (cost=0.14..6.17 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Index Cond: (id = c.odontologo_id)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Presupuesto e ítems con servicio opcional",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop Left Join  (cost=0.30..34.44 rows=1 width=116)"
+        },
+        {
+          "QUERY PLAN": "  ->  Nested Loop  (cost=0.16..28.26 rows=1 width=116)"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on items_presupuesto i  (cost=0.00..15.88 rows=2 width=100)"
+        },
+        {
+          "QUERY PLAN": "              Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "        ->  Memoize  (cost=0.16..6.18 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "              Cache Key: i.presupuesto_id"
+        },
+        {
+          "QUERY PLAN": "              Cache Mode: logical"
+        },
+        {
+          "QUERY PLAN": "              ->  Index Scan using presupuestos_pkey on presupuestos pr  (cost=0.15..6.17 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "                    Index Cond: (id = i.presupuesto_id)"
+        },
+        {
+          "QUERY PLAN": "                    Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (paciente_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'::uuid))"
+        },
+        {
+          "QUERY PLAN": "  ->  Index Scan using servicios_pkey on servicios s  (cost=0.15..6.17 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Index Cond: (id = i.servicio_id)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Pagos y presupuesto opcional",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop Left Join  (cost=0.15..26.11 rows=2 width=84)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pagos pg  (cost=0.00..13.75 rows=2 width=100)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  ->  Index Scan using presupuestos_pkey on presupuestos pr  (cost=0.15..6.17 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "        Index Cond: (id = pg.presupuesto_id)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Plan y procedimientos",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=26.89..26.90 rows=1 width=168)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: pc.creado_en, pc.id"
+        },
+        {
+          "QUERY PLAN": "  ->  Nested Loop  (cost=0.16..26.88 rows=1 width=168)"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on procedimientos_tratamiento pc  (cost=0.00..14.50 rows=2 width=136)"
+        },
+        {
+          "QUERY PLAN": "              Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "        ->  Memoize  (cost=0.16..6.18 rows=1 width=80)"
+        },
+        {
+          "QUERY PLAN": "              Cache Key: pc.plan_tratamiento_id"
+        },
+        {
+          "QUERY PLAN": "              Cache Mode: logical"
+        },
+        {
+          "QUERY PLAN": "              ->  Index Scan using planes_tratamiento_pkey on planes_tratamiento pt  (cost=0.15..6.17 rows=1 width=80)"
+        },
+        {
+          "QUERY PLAN": "                    Index Cond: (id = pc.plan_tratamiento_id)"
+        },
+        {
+          "QUERY PLAN": "                    Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (paciente_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'::uuid))"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Evoluciones y plan opcional",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=22.69..22.69 rows=1 width=92)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: e.fecha_consulta DESC, e.creado_en DESC, e.id"
+        },
+        {
+          "QUERY PLAN": "  ->  Nested Loop Left Join  (cost=0.15..22.68 rows=1 width=92)"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on evoluciones_clinicas e  (cost=0.00..14.50 rows=1 width=92)"
+        },
+        {
+          "QUERY PLAN": "              Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (paciente_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'::uuid))"
+        },
+        {
+          "QUERY PLAN": "        ->  Index Scan using planes_tratamiento_pkey on planes_tratamiento pt  (cost=0.15..8.17 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "              Index Cond: (id = e.plan_tratamiento_id)"
+        },
+        {
+          "QUERY PLAN": "              Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Piezas del odontograma JSONB actual",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop  (cost=0.00..19.65 rows=100 width=112)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on odontogramas o  (cost=0.00..16.90 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (paciente_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'::uuid))"
+        },
+        {
+          "QUERY PLAN": "  ->  Function Scan on jsonb_array_elements pieza  (cost=0.00..1.00 rows=100 width=32)"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "title": "Saldo por paciente sin multiplicar agregados",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop Left Join  (cost=29.62..41.51 rows=1 width=144)"
+        },
+        {
+          "QUERY PLAN": "  Join Filter: (pagos.paciente_id = p.id)"
+        },
+        {
+          "QUERY PLAN": "  ->  Nested Loop Left Join  (cost=15.11..26.95 rows=1 width=96)"
+        },
+        {
+          "QUERY PLAN": "        Join Filter: (presupuestos.paciente_id = p.id)"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "              Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "        ->  GroupAggregate  (cost=15.11..15.15 rows=2 width=64)"
+        },
+        {
+          "QUERY PLAN": "              Group Key: presupuestos.paciente_id"
+        },
+        {
+          "QUERY PLAN": "              ->  Sort  (cost=15.11..15.12 rows=2 width=48)"
+        },
+        {
+          "QUERY PLAN": "                    Sort Key: presupuestos.paciente_id"
+        },
+        {
+          "QUERY PLAN": "                    ->  Seq Scan on presupuestos  (cost=0.00..15.10 rows=2 width=48)"
+        },
+        {
+          "QUERY PLAN": "                          Filter: ((estado <> 'rechazado'::text) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid))"
+        },
+        {
+          "QUERY PLAN": "  ->  GroupAggregate  (cost=14.51..14.53 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Group Key: pagos.paciente_id"
+        },
+        {
+          "QUERY PLAN": "        ->  Sort  (cost=14.51..14.52 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "              Sort Key: pagos.paciente_id"
+        },
+        {
+          "QUERY PLAN": "              ->  Seq Scan on pagos  (cost=0.00..14.50 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "                    Filter: ((estado = 'confirmado'::text) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid))"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Intervalos libres de 30 minutos: ejemplo académico",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=87.51..88.01 rows=200 width=32)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: s.odontologo_id, s.inicio"
+        },
+        {
+          "QUERY PLAN": "  ->  HashAggregate  (cost=77.37..79.87 rows=200 width=32)"
+        },
+        {
+          "QUERY PLAN": "        Group Key: s.odontologo_id, s.inicio, (s.inicio + '00:30:00'::interval)"
+        },
+        {
+          "QUERY PLAN": "        ->  Hash Right Anti Join  (cost=51.56..69.87 rows=1000 width=32)"
+        },
+        {
+          "QUERY PLAN": "              Hash Cond: ((c.odontologo_id = s.odontologo_id) AND (c.fecha_cita = s.dia))"
+        },
+        {
+          "QUERY PLAN": "              Join Filter: ((s.inicio < (c.fecha_cita + c.hora_fin)) AND ((s.inicio + '00:30:00'::interval) > (c.fecha_cita + c.hora_inicio)))"
+        },
+        {
+          "QUERY PLAN": "              ->  Seq Scan on citas c  (cost=0.00..15.53 rows=1 width=36)"
+        },
+        {
+          "QUERY PLAN": "                    Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (estado = ANY ('{reservada,confirmada,atendida}'::text[])))"
+        },
+        {
+          "QUERY PLAN": "              ->  Hash  (cost=36.56..36.56 rows=1000 width=28)"
+        },
+        {
+          "QUERY PLAN": "                    ->  Subquery Scan on s  (cost=0.00..36.56 rows=1000 width=28)"
+        },
+        {
+          "QUERY PLAN": "                          ->  ProjectSet  (cost=0.00..26.56 rows=1000 width=28)"
+        },
+        {
+          "QUERY PLAN": "                                ->  Seq Scan on horarios h  (cost=0.00..21.55 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "                                      Filter: ((activo IS TRUE) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (dia_semana = 1))"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "title": "Citas de hoy con datos del paciente",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=27.72..27.73 rows=1 width=120)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: c.hora_inicio"
+        },
+        {
+          "QUERY PLAN": "  ->  Nested Loop  (cost=0.00..27.71 rows=1 width=120)"
+        },
+        {
+          "QUERY PLAN": "        Join Filter: (p.id = c.paciente_id)"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on citas c  (cost=0.00..15.95 rows=1 width=120)"
+        },
+        {
+          "QUERY PLAN": "              Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (fecha_cita = CURRENT_DATE))"
+        },
+        {
+          "QUERY PLAN": "        ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "              Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Pacientes con plan propuesto",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop Semi Join  (cost=0.00..27.31 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "  Join Filter: (p.id = pt.paciente_id)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on planes_tratamiento pt  (cost=0.00..15.55 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (estado = 'propuesto'::text))"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "title": "Profesionales con más de tres citas en el mes",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Seq Scan on perfiles o  (cost=0.00..3880.90 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "  Filter: ((rol = ANY ('{odontologo,odontologo_admin}'::text[])) AND (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND ((SubPlan 1) > 3))"
+        },
+        {
+          "QUERY PLAN": "  SubPlan 1"
+        },
+        {
+          "QUERY PLAN": "    ->  Aggregate  (cost=16.80..16.81 rows=1 width=8)"
+        },
+        {
+          "QUERY PLAN": "          ->  Seq Scan on citas c  (cost=0.00..16.80 rows=1 width=0)"
+        },
+        {
+          "QUERY PLAN": "                Filter: ((fecha_cita >= '2026-11-01'::date) AND (fecha_cita < '2026-12-01'::date) AND (odontologo_id = o.id) AND (clinica_id = o.clinica_id))"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "title": "Pacientes con saldo mayor a 500",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Seq Scan on pacientes p  (cost=0.00..4385.00 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "  Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (GREATEST((COALESCE((SubPlan 1), '0'::numeric) - COALESCE((SubPlan 2), '0'::numeric)), '0'::numeric) > '500'::numeric))"
+        },
+        {
+          "QUERY PLAN": "  SubPlan 1"
+        },
+        {
+          "QUERY PLAN": "    ->  Aggregate  (cost=15.95..15.96 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "          ->  Seq Scan on presupuestos pr  (cost=0.00..15.95 rows=1 width=16)"
+        },
+        {
+          "QUERY PLAN": "                Filter: ((estado <> 'rechazado'::text) AND (paciente_id = p.id) AND (clinica_id = p.clinica_id))"
+        },
+        {
+          "QUERY PLAN": "  SubPlan 2"
+        },
+        {
+          "QUERY PLAN": "    ->  Aggregate  (cost=15.25..15.26 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "          ->  Seq Scan on pagos pg  (cost=0.00..15.25 rows=1 width=16)"
+        },
+        {
+          "QUERY PLAN": "                Filter: ((paciente_id = p.id) AND (clinica_id = p.clinica_id) AND (estado = 'confirmado'::text))"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "title": "Presupuestos aceptados mayores al promedio de su clínica",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Seq Scan on presupuestos pr  (cost=0.00..5155.05 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "  Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (estado = 'aceptado'::text) AND (total > (SubPlan 1)))"
+        },
+        {
+          "QUERY PLAN": "  SubPlan 1"
+        },
+        {
+          "QUERY PLAN": "    ->  Aggregate  (cost=15.10..15.11 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "          ->  Seq Scan on presupuestos p2  (cost=0.00..15.10 rows=1 width=16)"
+        },
+        {
+          "QUERY PLAN": "                Filter: ((clinica_id = pr.clinica_id) AND (estado = 'aceptado'::text))"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Evoluciones de la fecha clínica más reciente",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Seq Scan on evoluciones_clinicas e  (cost=0.00..4368.25 rows=1 width=68)"
+        },
+        {
+          "QUERY PLAN": "  Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (fecha_consulta = (SubPlan 1)))"
+        },
+        {
+          "QUERY PLAN": "  SubPlan 1"
+        },
+        {
+          "QUERY PLAN": "    ->  Aggregate  (cost=14.50..14.51 rows=1 width=4)"
+        },
+        {
+          "QUERY PLAN": "          ->  Seq Scan on evoluciones_clinicas e2  (cost=0.00..14.50 rows=1 width=4)"
+        },
+        {
+          "QUERY PLAN": "                Filter: ((paciente_id = e.paciente_id) AND (clinica_id = e.clinica_id))"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "title": "Pacientes sin citas",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop Anti Join  (cost=0.00..26.02 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "  Join Filter: (c.paciente_id = p.id)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on citas c  (cost=0.00..14.25 rows=2 width=32)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "title": "Frecuencia de servicios presupuestados",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Sort  (cost=50.39..50.39 rows=2 width=56)"
+        },
+        {
+          "QUERY PLAN": "  Sort Key: ((SubPlan 1)) DESC, s.id"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on servicios s  (cost=0.00..50.38 rows=2 width=56)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "        SubPlan 1"
+        },
+        {
+          "QUERY PLAN": "          ->  Aggregate  (cost=17.05..17.06 rows=1 width=8)"
+        },
+        {
+          "QUERY PLAN": "                ->  Seq Scan on items_presupuesto i  (cost=0.00..17.05 rows=1 width=0)"
+        },
+        {
+          "QUERY PLAN": "                      Filter: ((servicio_id = s.id) AND (clinica_id = s.clinica_id))"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "title": "Pacientes sin historia clínica",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop Anti Join  (cost=0.00..24.64 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "  Join Filter: (h.paciente_id = p.id)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on historiales_clinicos h  (cost=0.00..12.88 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "title": "Cuenta de un paciente: total vigente y confirmado",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Index Scan using pacientes_pkey on pacientes p  (cost=0.14..39.39 rows=1 width=80)"
+        },
+        {
+          "QUERY PLAN": "  Index Cond: (id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  SubPlan 1"
+        },
+        {
+          "QUERY PLAN": "    ->  Aggregate  (cost=15.95..15.96 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "          ->  Seq Scan on presupuestos pr  (cost=0.00..15.95 rows=1 width=16)"
+        },
+        {
+          "QUERY PLAN": "                Filter: ((estado <> 'rechazado'::text) AND (paciente_id = p.id) AND (clinica_id = p.clinica_id))"
+        },
+        {
+          "QUERY PLAN": "  SubPlan 2"
+        },
+        {
+          "QUERY PLAN": "    ->  Aggregate  (cost=15.25..15.26 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "          ->  Seq Scan on pagos pg  (cost=0.00..15.25 rows=1 width=16)"
+        },
+        {
+          "QUERY PLAN": "                Filter: ((paciente_id = p.id) AND (clinica_id = p.clinica_id) AND (estado = 'confirmado'::text))"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "title": "Pacientes con pagos pendientes",
+      "estado": "APROBADO",
+      "plan": [
+        {
+          "QUERY PLAN": "Nested Loop Semi Join  (cost=0.00..26.26 rows=1 width=48)"
+        },
+        {
+          "QUERY PLAN": "  Join Filter: (p.id = pg.paciente_id)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pacientes p  (cost=0.00..11.75 rows=1 width=64)"
+        },
+        {
+          "QUERY PLAN": "        Filter: (clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)"
+        },
+        {
+          "QUERY PLAN": "  ->  Seq Scan on pagos pg  (cost=0.00..14.50 rows=1 width=32)"
+        },
+        {
+          "QUERY PLAN": "        Filter: ((clinica_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid) AND (estado = 'pendiente'::text))"
+        }
+      ]
+    }
+  ]
+}

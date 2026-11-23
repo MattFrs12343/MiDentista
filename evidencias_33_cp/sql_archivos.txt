@@ -1,0 +1,27 @@
+{
+  "id": "sql_archivos",
+  "command": "node docs/modules/10-archivos/pruebas-sql-ciclo-4.mjs file:///C:/Users/DELL/AppData/Local/Temp/opencode/midentista-c4-validation/node_modules/%40electric-sql/pglite/dist/index.js",
+  "directory": "C:\\angelicaaa\\si1\\proyecto clinica dental\\MiDentista",
+  "started_at": "2026-11-23T13:53:15.504311-04:00",
+  "ended_at": "2026-11-23T13:53:17.092416-04:00",
+  "duration_seconds": 1.588,
+  "exit_code": 0
+}
+
+✔ migración incremental real y verificador se ejecutan sobre PostgreSQL aislado (46.4119ms)
+✔ RPC SQL acepta exactamente 5 GB y rechaza un byte más, sin archivos gigantes (13.1981ms)
+✔ dos reservas SQL para misma clínica solo permiten una con espacio de 6 y archivos de 4 (5.0502ms)
+✔ cancelación idempotente, confirmación atómica y ruta durable acreditan objeto real (11.5693ms)
+✔ SQL rechaza idempotencia incompatible, recepción con evolución y clínica cruzada (8.407ms)
+✔ authenticated no administra cuota ajena ni llama funciones privilegiadas (6.2342ms)
+✔ solo superadmin audita SQL A/B, pendientes e históricos, sin borrar (8.6568ms)
+✔ cierre de bypass Storage es RESTRICTIVE y segunda migración no sobrescribe (7.8979ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 114.4299
+

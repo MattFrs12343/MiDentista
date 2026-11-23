@@ -1,0 +1,77 @@
+{
+  "fecha": "2026-11-23T18:26:33.872Z",
+  "cp": "CP-32",
+  "tipo": "Flujo real de asistente, descarga CSV real y comprobación del DOM con medio de impresión",
+  "filtro": {
+    "especialidad": "Endodoncia y Odontología General",
+    "clinica": "Dental Cristo Rey",
+    "esperadosSegunTarjetas": 1
+  },
+  "respuestasEnviadas": [
+    "reporte de personal",
+    "CSV",
+    "Endodoncia y Odontología General",
+    "Dental Cristo Rey"
+  ],
+  "columnas": [
+    "Nombre",
+    "Correo",
+    "Rol",
+    "Clínica",
+    "Estado"
+  ],
+  "registrosFiltrados": 1,
+  "coincideConEspecialidadYClinica": true,
+  "descargaReal": true,
+  "csvContieneSoloFiltrados": true,
+  "documentosVisiblesAlImprimir": [
+    {
+      "reporte": "REPORTE DE PACIENTES para impresión",
+      "columnas": [],
+      "registros": 0
+    },
+    {
+      "reporte": "REPORTE DE PERSONAL para impresión",
+      "columnas": [
+        "NOMBRE",
+        "CORREO",
+        "ROL",
+        "CLÍNICA",
+        "ESTADO"
+      ],
+      "registros": 1
+    },
+    {
+      "reporte": "REPORTE DE PERSONAL para impresión",
+      "columnas": [
+        "NOMBRE",
+        "CORREO",
+        "ROL",
+        "CLÍNICA",
+        "ESTADO"
+      ],
+      "registros": 23
+    }
+  ],
+  "limite": "Identidades y CSV de personal conservados solo en temporal privado; no se publican.",
+  "fechaDescarga": "2026-11-23T18:27:41.071Z",
+  "registrosCsv": 1,
+  "interaccionDescarga": "Activación mediante teclado de botón real, ruta de descarga nativa Windows",
+  "fechaImpresion": "2026-11-23T18:28:17.465Z",
+  "documentosVisiblesAlImprimirPDF": [
+    {
+      "reporte": "REPORTE DE PACIENTES para impresión",
+      "registros": 0
+    },
+    {
+      "reporte": "REPORTE DE PERSONAL para impresión",
+      "registros": 1
+    },
+    {
+      "reporte": "REPORTE DE PERSONAL para impresión",
+      "registros": 23
+    }
+  ],
+  "estado": "FALLIDO",
+  "resultado": "CSV global y filtrado correctos, pero la impresión del reporte filtrado conserva también el reporte global de 23 registros; no respeta exclusivamente el alcance seleccionado."
+}

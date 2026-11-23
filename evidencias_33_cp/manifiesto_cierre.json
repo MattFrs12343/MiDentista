@@ -1,0 +1,259 @@
+{
+  "fechaCierre": "2026-11-23T14:41:08.482968-04:00",
+  "totalCP": 33,
+  "ejecucionActual": 30,
+  "evidenciaRemotaPreviaReutilizada": 3,
+  "aprobados": 29,
+  "fallidos": 4,
+  "bloqueados": 0,
+  "noEjecutados": 0,
+  "archivos": [
+    {
+      "ruta": "RESULTADOS_EJECUCION_33_CP.md",
+      "bytes": 85063,
+      "sha256": "3031fa8ff13a66a029a1d034f892a500ac258f6900e270c22abde558ad05e13c"
+    },
+    {
+      "ruta": "PROYECTOCOMPLETO1_FINAL_CICLO4_PRUEBAS_EJECUTADAS.docx",
+      "bytes": 10013675,
+      "sha256": "b856fd79a13371ecbf9600b127d852406d41ce17041fc08f7ffa5818da2afd81"
+    },
+    {
+      "ruta": "PROYECTOCOMPLETO1_FINAL_CICLO4_PRUEBAS_EJECUTADAS.pdf",
+      "bytes": 9163087,
+      "sha256": "44aaab4d11eb56855b08614b45d0f2d0eef2bef0f59a016dbb4bcfd36f02f9ae"
+    },
+    {
+      "ruta": "RECORRIDOS_AUTENTICADOS_33_CP.md",
+      "bytes": 4754,
+      "sha256": "118d2650a7145577f97d46508e21d8d5f0b4c6e2229fd2ce69ab9908b64bd28e"
+    },
+    {
+      "ruta": "evidencias_33_cp/alta_paciente_sintetico.json",
+      "bytes": 545,
+      "sha256": "45593d9eaa752c63b0e526a1f4922d2eebe993a02107d569ae6fe58a9de9d0cc"
+    },
+    {
+      "ruta": "evidencias_33_cp/auditoria_pdf.json",
+      "bytes": 1422,
+      "sha256": "f58b3467bd622af171fee9a7d841f2ae6ec23fb5cffd01e61d8244433fa731ee"
+    },
+    {
+      "ruta": "evidencias_33_cp/bitacora_superadmin.json",
+      "bytes": 606,
+      "sha256": "6382e5891acc025b5390bfde1ffdbccda2da7460ec1f76bab347c6ba3dc56cf5"
+    },
+    {
+      "ruta": "evidencias_33_cp/build.txt",
+      "bytes": 9065,
+      "sha256": "7fc9005f6bf66a4d85a18db6b826e92fd6c972d23d0069432ebda3a22d5b7725"
+    },
+    {
+      "ruta": "evidencias_33_cp/catalogo_ausencia.json",
+      "bytes": 898,
+      "sha256": "71ca457527a6dc10162ab2cf4c88570b6482f855fef490f3ba0f9225249f632c"
+    },
+    {
+      "ruta": "evidencias_33_cp/consultas.txt",
+      "bytes": 21130,
+      "sha256": "ebc6047a65beba2dba7ff6b07756f803c859890f89c9375ed2899008e5b48706"
+    },
+    {
+      "ruta": "evidencias_33_cp/consultas_planes.json",
+      "bytes": 28410,
+      "sha256": "257299d73f39c3933ba14c039cdee866af8f8ac67679b9d91ef7630882605f51"
+    },
+    {
+      "ruta": "evidencias_33_cp/contraste_impresion_personal.json",
+      "bytes": 553,
+      "sha256": "ea1f285f697b81e9217a9c4bcf126b44fc6df73c97aa3f52f4d65f3ff36ff9b2"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_05_tests.txt",
+      "bytes": 2500,
+      "sha256": "faa8c6f05efdccb257d3aafbcef22047c2224f06ddf19f996bb6716723ff0ef1"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_07_tests.txt",
+      "bytes": 2057,
+      "sha256": "c58d1c5cfd20818520010e7794feafeb46803b1d191248de4d65f95e24090908"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_08_tests.txt",
+      "bytes": 2135,
+      "sha256": "038bc416995fcd68d501a2a8131629dee9e1963179a1c8f455145f82723fad4d"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_10_tests.txt",
+      "bytes": 4875,
+      "sha256": "c196aa52ddc2f9306309439830e9fbf8b7149f7ffe500b2041f1b643372dedb0"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_11_tests.txt",
+      "bytes": 13701,
+      "sha256": "c63f1cc4103d3c88879267c69f72a2a3bcf3cfe7dcda40f1fe810a6c766ec89d"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_12_tests.txt",
+      "bytes": 3943,
+      "sha256": "fee8382ab9e5e33ae0f0e45b7b437ebece81051ca8cf20b094d615a14111a34e"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_13_tests.txt",
+      "bytes": 3706,
+      "sha256": "6964666f4eb5168a0b63c7465c1ecadf9c8d1d4ffc15d0331df845792248122c"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_14_tests.txt",
+      "bytes": 2587,
+      "sha256": "03d7069ea2f1b594e227d35639fc58357d19b743a33e0698834a937090b228fd"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_15_tests.txt",
+      "bytes": 2624,
+      "sha256": "c43be46c73a8f48e0bdb78c5f113d60391304d59758404c381287e1d7f055acb"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_16_tests.txt",
+      "bytes": 1983,
+      "sha256": "d101648c834363ccb6aef5bc81711ffba77eec3255bf729c0683142a5a17c83e"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_22_tests.txt",
+      "bytes": 1308,
+      "sha256": "b87cafd2bc1e0525bfb44156b8122b266438fb61329a9ef17e686e4875d86c8f"
+    },
+    {
+      "ruta": "evidencias_33_cp/cp_33_tests.txt",
+      "bytes": 6029,
+      "sha256": "f9d7f3e007a8024e20a2251fe581a6fce08b39260b4c4020a7f911fc2c996ed9"
+    },
+    {
+      "ruta": "evidencias_33_cp/descargas_recepcion/pacientes.csv",
+      "bytes": 208,
+      "sha256": "3e10bc5de66061714fdb86f580a8cf9c830a2d577ea008e03ea540e0b4a04c37"
+    },
+    {
+      "ruta": "evidencias_33_cp/edge_archivos.txt",
+      "bytes": 4157,
+      "sha256": "24d41f58178d6390f73947fb6898281f404c6949226c78f581343e5346071cc3"
+    },
+    {
+      "ruta": "evidencias_33_cp/evidencia_remota_previa_archivos.md",
+      "bytes": 1249,
+      "sha256": "9ea7e0bb1be4e78b6205e2393cf1cedbb8c7e60c8744cc6b9933829e4a539f18"
+    },
+    {
+      "ruta": "evidencias_33_cp/git_status_final.txt",
+      "bytes": 946,
+      "sha256": "f3b909951b4663be5037fdbea5c61b4dc66fa1d53b918c9885b09385c941163c"
+    },
+    {
+      "ruta": "evidencias_33_cp/impresion_recepcion.json",
+      "bytes": 502,
+      "sha256": "7216522ddf625bdae0afb8bbc8c869421d1ac1322501bb1c47a18a36eae997d1"
+    },
+    {
+      "ruta": "evidencias_33_cp/impresion_superadmin.json",
+      "bytes": 534,
+      "sha256": "3aa277ffb76b339e8e07a2352994762dd4ca3129b76f5e493858a1dbf04dadef"
+    },
+    {
+      "ruta": "evidencias_33_cp/inspeccion_ausencias.json",
+      "bytes": 1579,
+      "sha256": "47f1f5e1e88a7f18e866c5c8a466d07ed31db3fde76fab872d182601f30e63d9"
+    },
+    {
+      "ruta": "evidencias_33_cp/integridad_documental.json",
+      "bytes": 1180,
+      "sha256": "b2549b6180a397ed6e34bfaf9e418aa20df25f15f1a11242e8f7e1ae323ac62e"
+    },
+    {
+      "ruta": "evidencias_33_cp/lint.txt",
+      "bytes": 7548,
+      "sha256": "6e35188031aa8cb17f34002a6a331a5466243bc7c5f3002054aa5dc4766a00fc"
+    },
+    {
+      "ruta": "evidencias_33_cp/login_incorrecto.json",
+      "bytes": 746,
+      "sha256": "8a2869430f4d1d9ae18042e0b43da7b20caf518a0bf229c3182c21d2ec506f94"
+    },
+    {
+      "ruta": "evidencias_33_cp/login_inicial.png",
+      "bytes": 693350,
+      "sha256": "dfca28420cdef1aef28680fc7b0b11c3e0b30aa17cea9b703e2aa78893bd04af"
+    },
+    {
+      "ruta": "evidencias_33_cp/navegador_odontologo_inicial.json",
+      "bytes": 1359,
+      "sha256": "80d900f6167a9935797ebe9616b467883a16d5c19124ac270b1c58b45a419c27"
+    },
+    {
+      "ruta": "evidencias_33_cp/navegador_paciente.json",
+      "bytes": 1614,
+      "sha256": "5650eaaee4bf5e1ff873ba9a7b0ec3522839663591be721e71e13ad7aee7d1e8"
+    },
+    {
+      "ruta": "evidencias_33_cp/navegador_recepcion.json",
+      "bytes": 1585,
+      "sha256": "2204d77aea6df111b04359665ee373bbfed29b745b44bc1e680fea8710316bd0"
+    },
+    {
+      "ruta": "evidencias_33_cp/navegador_sin_sesion.json",
+      "bytes": 846,
+      "sha256": "6255c139a0113c2cae7541a5bcf4e4a161da18f677f1cf45db569637504ee7e3"
+    },
+    {
+      "ruta": "evidencias_33_cp/navegador_superadmin.json",
+      "bytes": 1945,
+      "sha256": "2aef2bef98322b1fce4800ba0a2bdeec0214a1766c86c0303669b87b6edc5388"
+    },
+    {
+      "ruta": "evidencias_33_cp/odontograma_persistencia.json",
+      "bytes": 764,
+      "sha256": "256c01578e64b868533042bf7a1cb925d483f3f73b46b31f1216945517a50c5d"
+    },
+    {
+      "ruta": "evidencias_33_cp/odontograma_recargado.png",
+      "bytes": 425434,
+      "sha256": "7c84d80b700b5cf1af534e6c111f79c94d7a5e4a1ff62c01b07e9d3a16c09064"
+    },
+    {
+      "ruta": "evidencias_33_cp/reporte_personal_filtrado.json",
+      "bytes": 2080,
+      "sha256": "fb0453be7fa27ecd916ca9dfb8bc1a63bdce61308a296f33ee01dfc344eac4f5"
+    },
+    {
+      "ruta": "evidencias_33_cp/resultados_finales.json",
+      "bytes": 25707,
+      "sha256": "1271bb861bc1c26692647486321e21f997c3dd94ea7270974c9c9304dc877740"
+    },
+    {
+      "ruta": "evidencias_33_cp/sql_archivos.txt",
+      "bytes": 1343,
+      "sha256": "fe333347f45cc00ae2c573043887d6f503aadbc86299b1863abb43bf869ca2c3"
+    },
+    {
+      "ruta": "evidencias_33_cp/suite.txt",
+      "bytes": 144469,
+      "sha256": "9fa023fe7b47411f7b04b2777b04affc8b692a7d8f657c2b609e713bd903c21b"
+    },
+    {
+      "ruta": "evidencias_33_cp/trazabilidad_tests.json",
+      "bytes": 4272,
+      "sha256": "8b02ea05bd13771915eeba6273347f3ce6568bedc903ac739d48f7f33de32aa7"
+    },
+    {
+      "ruta": "evidencias_33_cp/vista_previa_impresion.json",
+      "bytes": 278,
+      "sha256": "48de93fcac56e84df3b09a39f207b6d8de267947528414b1097413a3c8d656e1"
+    },
+    {
+      "ruta": "evidencias_33_cp/vista_previa_impresion_superadmin.json",
+      "bytes": 316,
+      "sha256": "f855bc9864b1f6941247baba3a6c7fc7613f0f8f9f6f98427cf6368f31d8d6a4"
+    }
+  ],
+  "seguridad": "Sin patrones de JWT o claves privilegiadas en evidencias publicables; no se inspeccionaron secretos del entorno",
+  "gitSinCambiosRastreados": true
+}
