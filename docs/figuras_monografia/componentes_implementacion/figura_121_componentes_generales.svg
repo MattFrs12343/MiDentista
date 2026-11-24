@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1440" viewBox="0 0 1600 1440" font-family="Arial, Helvetica, sans-serif" fill="#202020"><title>Componentes generales por paquetes funcionales y casos de uso</title><rect width="100%" height="100%" fill="white"/>
+<rect x="15" y="15" width="1570" height="770" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="15" y="15" width="1100" height="58" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="40" y="56" font-size="34" font-weight="bold" text-anchor="start">Frontend React · paquetes funcionales PK-01 a PK-09</text>
+<rect x="45" y="100" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="45" y="100" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="60" y="129" font-size="30" font-weight="bold" text-anchor="start">PK-01</text>
+<text x="285" y="183" font-size="31" font-weight="bold" text-anchor="middle">Acceso y onboarding</text>
+<text x="285" y="227" font-size="32" text-anchor="middle">UC-01–UC-09</text>
+<text x="285" y="265" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="565" y="100" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="565" y="100" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="580" y="129" font-size="30" font-weight="bold" text-anchor="start">PK-02</text>
+<text x="805" y="183" font-size="31" font-weight="bold" text-anchor="middle">Gestión de pacientes</text>
+<text x="805" y="227" font-size="32" text-anchor="middle">UC-10–UC-15</text>
+<text x="805" y="265" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="1085" y="100" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1085" y="100" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="1100" y="129" font-size="30" font-weight="bold" text-anchor="start">PK-03</text>
+<text x="1325" y="183" font-size="31" font-weight="bold" text-anchor="middle">Historia clínica</text>
+<text x="1325" y="227" font-size="32" text-anchor="middle">UC-16–UC-20</text>
+<text x="1325" y="265" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="45" y="320" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="45" y="320" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="60" y="349" font-size="30" font-weight="bold" text-anchor="start">PK-04</text>
+<text x="285" y="403" font-size="31" font-weight="bold" text-anchor="middle">Odontograma</text>
+<text x="285" y="447" font-size="32" text-anchor="middle">UC-21–UC-25</text>
+<text x="285" y="485" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="565" y="320" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="565" y="320" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="580" y="349" font-size="30" font-weight="bold" text-anchor="start">PK-05</text>
+<text x="805" y="403" font-size="31" font-weight="bold" text-anchor="middle">Diagnóstico y tratamiento</text>
+<text x="805" y="447" font-size="32" text-anchor="middle">UC-26–UC-30</text>
+<text x="805" y="485" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="1085" y="320" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1085" y="320" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="1100" y="349" font-size="30" font-weight="bold" text-anchor="start">PK-06</text>
+<text x="1325" y="403" font-size="31" font-weight="bold" text-anchor="middle">Evolución clínica</text>
+<text x="1325" y="447" font-size="32" text-anchor="middle">UC-31–UC-33</text>
+<text x="1325" y="485" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="45" y="540" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="45" y="540" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="60" y="569" font-size="30" font-weight="bold" text-anchor="start">PK-07</text>
+<text x="285" y="623" font-size="31" font-weight="bold" text-anchor="middle">Agenda y citas</text>
+<text x="285" y="667" font-size="32" text-anchor="middle">UC-34–UC-39</text>
+<text x="285" y="705" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="565" y="540" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="565" y="540" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="580" y="569" font-size="30" font-weight="bold" text-anchor="start">PK-08</text>
+<text x="805" y="623" font-size="31" font-weight="bold" text-anchor="middle">Presupuestos</text>
+<text x="805" y="667" font-size="32" text-anchor="middle">UC-40–UC-44</text>
+<text x="805" y="705" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<rect x="1085" y="540" width="480" height="185" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1085" y="540" width="270" height="38" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="1100" y="569" font-size="30" font-weight="bold" text-anchor="start">PK-09</text>
+<text x="1325" y="623" font-size="31" font-weight="bold" text-anchor="middle">Pagos y cuentas</text>
+<text x="1325" y="667" font-size="32" text-anchor="middle">UC-45–UC-48</text>
+<text x="1325" y="705" font-size="26" text-anchor="middle">realizado por vistas y componentes</text>
+<polyline points="200,785 200,813" fill="none" stroke="#404040" stroke-width="2"/>
+<path d="M 181,832 A 19,19 0 0 1 219,832" fill="none" stroke="#202020" stroke-width="2"/>
+<circle cx="200" cy="832" r="11" fill="white" stroke="#202020" stroke-width="2"/>
+<polyline points="200,843 200,890" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="240" y="842" font-size="29" text-anchor="start">IApp: consultas y acciones de los nueve paquetes</text>
+<rect x="15" y="890" width="1570" height="140" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="933" font-size="33" font-weight="bold" text-anchor="middle">SERVICIOS / ACCESO A DATOS</text>
+<rect x="1525" y="908" width="31" height="34" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1518" y="912" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1518" y="930" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="978" font-size="32" text-anchor="middle">data/store.tsx · data/api.ts · servicios / mappers en features/</text>
+<text x="800.0" y="1018" font-size="32" text-anchor="middle">lib/supabase.ts: cliente común · acceso mixto, no capas estrictas</text>
+<polyline points="200,1030 200,1061" fill="none" stroke="#404040" stroke-width="2"/>
+<path d="M 181,1080 A 19,19 0 0 1 219,1080" fill="none" stroke="#202020" stroke-width="2"/>
+<circle cx="200" cy="1080" r="11" fill="white" stroke="#202020" stroke-width="2"/>
+<polyline points="200,1091 200,1130" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="240" y="1090" font-size="29" text-anchor="start">IBackend: Auth / PostgREST / RPC / HTTPS / Storage</text>
+<rect x="15" y="1130" width="1570" height="140" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="1173" font-size="33" font-weight="bold" text-anchor="middle">SUPABASE BACKEND</text>
+<rect x="1525" y="1148" width="31" height="34" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1518" y="1152" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1518" y="1170" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="1218" font-size="32" text-anchor="middle">Auth · PostgreSQL / RLS · PostgREST · Storage</text>
+<text x="800.0" y="1258" font-size="32" text-anchor="middle">Edge Functions: supabase/functions/api/ y supabase/functions/archivos/</text>
+<text x="800" y="1321" font-size="28" text-anchor="middle">Complemento final, sin PK-10: Archivos e Imágenes usa servicios propios, Edge archivos y cuota.</text>
+<text x="800" y="1366" font-size="28" text-anchor="middle">Los rangos CU expresan pertenencia académica, no cumplimiento integral de todas las funciones.</text>
+<text x="800" y="1411" font-size="28" text-anchor="middle">Socket: interfaz requerida · círculo: interfaz provista · contratos UML, no tipos TypeScript literales.</text>
+</svg>

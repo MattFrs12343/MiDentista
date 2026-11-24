@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="2200" viewBox="0 0 1600 2200" font-family="Arial, Helvetica, sans-serif" fill="#202020"><title>Vista general UML del dominio actual de MiDentista</title><rect width="100%" height="100%" fill="white"/>
+<rect x="10" y="10" width="1580" height="265" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="10" y="10" width="1580" height="43" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="30" y="42" font-size="30" font-weight="bold" text-anchor="start">USUARIOS / ORGANIZACIÓN</text>
+<rect x="35" y="76" width="350" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="210.0" y="109" font-size="30" font-weight="bold" text-anchor="middle">Clinica</text>
+<polyline points="35,122 385,122" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="49" y="154" font-size="28" text-anchor="start">nombre: Texto</text>
+<text x="49" y="186" font-size="28" text-anchor="start">moneda: Texto</text>
+<rect x="625" y="76" width="350" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="109" font-size="30" font-weight="bold" text-anchor="middle">Perfil</text>
+<polyline points="625,122 975,122" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="639" y="154" font-size="28" text-anchor="start">nombreCompleto: Texto</text>
+<text x="639" y="186" font-size="28" text-anchor="start">rol: Rol; activo: Booleano</text>
+<rect x="1215" y="76" width="350" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="1390.0" y="109" font-size="30" font-weight="bold" text-anchor="middle">Paciente</text>
+<polyline points="1215,122 1565,122" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1229" y="154" font-size="28" text-anchor="start">nombreCompleto: Texto</text>
+<text x="1229" y="186" font-size="28" text-anchor="start">ci; teléfono: Texto</text>
+<polyline points="385,126 625,126" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="391" y="116" font-size="28" text-anchor="start">0..1</text>
+<text x="619" y="156" font-size="28" text-anchor="end">0..*</text>
+<polyline points="975,126 1215,126" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="981" y="116" font-size="28" text-anchor="start">0..1</text>
+<text x="1209" y="156" font-size="28" text-anchor="end">0..*</text>
+<polyline points="210,196 210,242 1390,242 1390,196" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="220" y="226" font-size="28" text-anchor="start">1</text>
+<text x="1400" y="226" font-size="28" text-anchor="start">0..*</text>
+<text x="800" y="234" font-size="28" text-anchor="middle">pertenece a la clínica</text>
+<rect x="10" y="290" width="1580" height="290" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="10" y="290" width="1580" height="43" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="30" y="322" font-size="30" font-weight="bold" text-anchor="start">NÚCLEO CLÍNICO</text>
+<rect x="120" y="347" width="300" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="270.0" y="380" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="35" y="452" width="470" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="270.0" y="485" font-size="30" font-weight="bold" text-anchor="middle">HistorialClinico</text>
+<polyline points="35,498 505,498" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="49" y="530" font-size="28" text-anchor="start">motivoConsulta: Texto</text>
+<text x="49" y="562" font-size="28" text-anchor="start">antecedentes; alergias: Texto</text>
+<polyline points="270,395 270,452" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="261" y="421" font-size="28" text-anchor="end">1</text>
+<text x="279" y="444" font-size="28" text-anchor="start">0..*</text>
+<rect x="650" y="347" width="300" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="380" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="565" y="452" width="470" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="485" font-size="30" font-weight="bold" text-anchor="middle">Odontograma</text>
+<polyline points="565,498 1035,498" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="579" y="530" font-size="28" text-anchor="start">fechaExamen: Fecha</text>
+<text x="579" y="562" font-size="28" text-anchor="start">piezas: CondicionPieza[*]</text>
+<polyline points="800,395 800,452" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="791" y="421" font-size="28" text-anchor="end">1</text>
+<text x="809" y="444" font-size="28" text-anchor="start">0..*</text>
+<rect x="1180" y="347" width="300" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="1330.0" y="380" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="1095" y="452" width="470" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="1330.0" y="485" font-size="30" font-weight="bold" text-anchor="middle">Diagnostico</text>
+<polyline points="1095,498 1565,498" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1109" y="530" font-size="28" text-anchor="start">descripción: Texto; pieza: FDI?</text>
+<text x="1109" y="562" font-size="28" text-anchor="start">estado: EstadoDiagnóstico</text>
+<polyline points="1330,395 1330,452" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1321" y="421" font-size="28" text-anchor="end">1</text>
+<text x="1339" y="444" font-size="28" text-anchor="start">0..*</text>
+<rect x="10" y="595" width="1580" height="345" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="10" y="595" width="1580" height="43" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="30" y="627" font-size="30" font-weight="bold" text-anchor="start">TRATAMIENTO</text>
+<rect x="95" y="651" width="300" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="245.0" y="684" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="1205" y="651" width="300" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="1355.0" y="684" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="35" y="753" width="440" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="255.0" y="786" font-size="30" font-weight="bold" text-anchor="middle">PlanTratamiento</text>
+<polyline points="35,799 475,799" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="49" y="831" font-size="28" text-anchor="start">título: Texto; estado: EstadoPlan</text>
+<text x="49" y="863" font-size="28" text-anchor="start">costoTotal: Importe</text>
+<rect x="575" y="753" width="450" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="786" font-size="30" font-weight="bold" text-anchor="middle">ProcedimientoTratamiento</text>
+<polyline points="575,799 1025,799" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="589" y="831" font-size="28" text-anchor="start">descripción: Texto; pieza: FDI?</text>
+<text x="589" y="863" font-size="28" text-anchor="start">costo: Importe; estado: Estado</text>
+<rect x="1125" y="753" width="440" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="1345.0" y="786" font-size="30" font-weight="bold" text-anchor="middle">EvolucionClinica</text>
+<polyline points="1125,799 1565,799" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1139" y="831" font-size="28" text-anchor="start">fechaConsulta: Fecha</text>
+<text x="1139" y="863" font-size="28" text-anchor="start">procedimientoRealizado: Texto</text>
+<polyline points="245,699 245,753" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="236" y="725" font-size="28" text-anchor="end">1</text>
+<text x="254" y="745" font-size="28" text-anchor="start">0..*</text>
+<polyline points="1355,699 1355,753" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1346" y="725" font-size="28" text-anchor="end">1</text>
+<text x="1364" y="745" font-size="28" text-anchor="start">0..*</text>
+<polyline points="475,791 575,791" fill="none" stroke="#404040" stroke-width="2"/>
+<polygon points="475,791 486,784 497,791 486,798" fill="#202020" stroke="#202020"/>
+<text x="481" y="781" font-size="28" text-anchor="start">1</text>
+<text x="569" y="821" font-size="28" text-anchor="end">0..*</text>
+<polyline points="1025,819 1125,819" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1031" y="809" font-size="28" text-anchor="start">0..1</text>
+<text x="1119" y="849" font-size="28" text-anchor="end">0..*</text>
+<polyline points="255,873 255,912 1345,912 1345,873" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="265" y="902" font-size="28" text-anchor="start">0..1</text>
+<text x="1355" y="902" font-size="28" text-anchor="start">0..*</text>
+<text x="800" y="905" font-size="28" text-anchor="middle">plan asociado a la evolución</text>
+<rect x="10" y="955" width="1580" height="300" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="10" y="955" width="1580" height="43" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="30" y="987" font-size="30" font-weight="bold" text-anchor="start">AGENDA</text>
+<rect x="35" y="1010" width="300" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="185.0" y="1043" font-size="29" font-weight="bold" text-anchor="middle">Perfil «ref»</text>
+<rect x="35" y="1120" width="450" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="260.0" y="1153" font-size="30" font-weight="bold" text-anchor="middle">Horario</text>
+<polyline points="35,1166 485,1166" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="49" y="1198" font-size="28" text-anchor="start">díaSemana: Entero</text>
+<text x="49" y="1230" font-size="28" text-anchor="start">inicio; fin: Hora</text>
+<rect x="1080" y="1120" width="485" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="1322.5" y="1153" font-size="30" font-weight="bold" text-anchor="middle">Cita</text>
+<polyline points="1080,1166 1565,1166" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1094" y="1198" font-size="28" text-anchor="start">fecha: Fecha; inicio; fin: Hora</text>
+<text x="1094" y="1230" font-size="28" text-anchor="start">estado: EstadoCita</text>
+<rect x="1170" y="1010" width="320" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="1330.0" y="1043" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<polyline points="185,1058 185,1120" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="176" y="1084" font-size="28" text-anchor="end">1</text>
+<text x="194" y="1112" font-size="28" text-anchor="start">0..*</text>
+<polyline points="1330,1058 1330,1120" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1321" y="1084" font-size="28" text-anchor="end">1</text>
+<text x="1339" y="1112" font-size="28" text-anchor="start">0..*</text>
+<polyline points="335,1034 950,1034 950,1180 1080,1180" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="345" y="1024" font-size="28" text-anchor="start">1</text>
+<text x="1070" y="1170" font-size="28" text-anchor="end">0..*</text>
+<text x="640" y="1025" font-size="28" text-anchor="middle">atiende</text>
+<rect x="10" y="1270" width="1580" height="390" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="10" y="1270" width="1580" height="43" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="30" y="1302" font-size="30" font-weight="bold" text-anchor="start">PRESUPUESTOS / PAGOS</text>
+<rect x="25" y="1325" width="330" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="190.0" y="1358" font-size="29" font-weight="bold" text-anchor="middle">Clinica «ref»</text>
+<rect x="835" y="1325" width="330" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="1000.0" y="1358" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="1245" y="1325" width="330" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="1410.0" y="1358" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="25" y="1430" width="330" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="190.0" y="1463" font-size="30" font-weight="bold" text-anchor="middle">Servicio</text>
+<polyline points="25,1476 355,1476" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="39" y="1508" font-size="28" text-anchor="start">nombre: Texto</text>
+<text x="39" y="1540" font-size="28" text-anchor="start">precioDefecto: Importe</text>
+<rect x="435" y="1430" width="330" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="600.0" y="1463" font-size="30" font-weight="bold" text-anchor="middle">ItemPresupuesto</text>
+<polyline points="435,1476 765,1476" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="449" y="1508" font-size="28" text-anchor="start">cantidad: Entero</text>
+<text x="449" y="1540" font-size="28" text-anchor="start">precioUnitario: Importe</text>
+<rect x="835" y="1430" width="330" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="1000.0" y="1463" font-size="30" font-weight="bold" text-anchor="middle">Presupuesto</text>
+<polyline points="835,1476 1165,1476" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="849" y="1508" font-size="28" text-anchor="start">total; descuento: Dinero</text>
+<text x="849" y="1540" font-size="28" text-anchor="start">estado: Estado</text>
+<rect x="1245" y="1430" width="330" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="1410.0" y="1463" font-size="30" font-weight="bold" text-anchor="middle">Pago</text>
+<polyline points="1245,1476 1575,1476" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1259" y="1508" font-size="28" text-anchor="start">monto: Importe</text>
+<text x="1259" y="1540" font-size="28" text-anchor="start">método; estado</text>
+<polyline points="190,1373 190,1430" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="181" y="1399" font-size="28" text-anchor="end">1</text>
+<text x="199" y="1422" font-size="28" text-anchor="start">0..*</text>
+<polyline points="1000,1373 1000,1430" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="991" y="1399" font-size="28" text-anchor="end">1</text>
+<text x="1009" y="1422" font-size="28" text-anchor="start">0..*</text>
+<polyline points="1410,1373 1410,1430" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1401" y="1399" font-size="28" text-anchor="end">1</text>
+<text x="1419" y="1422" font-size="28" text-anchor="start">0..*</text>
+<polyline points="355,1475 435,1475" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="361" y="1465" font-size="28" text-anchor="start">0..1</text>
+<text x="429" y="1505" font-size="28" text-anchor="end">0..*</text>
+<polyline points="835,1515 765,1515" fill="none" stroke="#404040" stroke-width="2"/>
+<polygon points="835,1515 824,1508 813,1515 824,1522" fill="#202020" stroke="#202020"/>
+<text x="829" y="1505" font-size="28" text-anchor="end">1</text>
+<text x="771" y="1545" font-size="28" text-anchor="start">0..*</text>
+<polyline points="1165,1515 1245,1515" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1171" y="1505" font-size="28" text-anchor="start">0..1</text>
+<text x="1239" y="1545" font-size="28" text-anchor="end">0..*</text>
+<rect x="810" y="1600" width="380" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="1000.0" y="1633" font-size="29" font-weight="bold" text-anchor="middle">PlanTratamiento «ref»</text>
+<polyline points="1000,1550 1000,1600" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="991" y="1576" font-size="28" text-anchor="end">0..1</text>
+<text x="1009" y="1592" font-size="28" text-anchor="start">0..1</text>
+<rect x="10" y="1675" width="1580" height="410" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="10" y="1675" width="1580" height="43" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="30" y="1707" font-size="30" font-weight="bold" text-anchor="start">ARCHIVOS</text>
+<rect x="65" y="1730" width="350" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="240.0" y="1763" font-size="29" font-weight="bold" text-anchor="middle">Paciente «ref»</text>
+<rect x="630" y="1730" width="330" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="795.0" y="1763" font-size="29" font-weight="bold" text-anchor="middle">Clinica «ref»</text>
+<rect x="25" y="1835" width="450" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="250.0" y="1868" font-size="30" font-weight="bold" text-anchor="middle">ArchivoClinico</text>
+<polyline points="25,1881 475,1881" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="39" y="1913" font-size="28" text-anchor="start">nombre; MIME: Texto</text>
+<text x="39" y="1945" font-size="28" text-anchor="start">tamaño: Bytes; tipo: TipoArchivo</text>
+<rect x="585" y="1835" width="420" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="795.0" y="1868" font-size="30" font-weight="bold" text-anchor="middle">CuotaArchivos</text>
+<polyline points="585,1881 1005,1881" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="599" y="1913" font-size="28" text-anchor="start">límite; ocupados: Bytes</text>
+<text x="599" y="1945" font-size="28" text-anchor="start">reservados: Bytes</text>
+<rect x="1115" y="1835" width="460" height="120" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="1345.0" y="1868" font-size="30" font-weight="bold" text-anchor="middle">OperacionArchivo</text>
+<polyline points="1115,1881 1575,1881" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1129" y="1913" font-size="28" text-anchor="start">estado: EstadoOperación</text>
+<text x="1129" y="1945" font-size="28" text-anchor="start">bytesVerificados: Bytes</text>
+<polyline points="240,1778 240,1835" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="231" y="1804" font-size="28" text-anchor="end">1</text>
+<text x="249" y="1827" font-size="28" text-anchor="start">0..*</text>
+<polyline points="795,1778 795,1835" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="786" y="1804" font-size="28" text-anchor="end">0..1</text>
+<text x="804" y="1827" font-size="28" text-anchor="start">0..1</text>
+<polyline points="1005,1895 1115,1895" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="1011" y="1885" font-size="28" text-anchor="start">1</text>
+<text x="1109" y="1925" font-size="28" text-anchor="end">0..*</text>
+<rect x="65" y="2025" width="350" height="48" fill="#fafafa" stroke="#404040" stroke-width="2"/>
+<text x="240.0" y="2058" font-size="29" font-weight="bold" text-anchor="middle">Clinica «ref»</text>
+<polyline points="240,1955 240,2025" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="231" y="1981" font-size="28" text-anchor="end">0..*</text>
+<text x="249" y="2017" font-size="28" text-anchor="start">1</text>
+<text x="590" y="2002" font-size="28" text-anchor="start">Cuota y operación conservan identidad histórica.</text>
+<text x="590" y="2040" font-size="28" text-anchor="start">La cuota no tiene FK a clínicas; puede sobrevivirla.</text>
+<text x="20" y="2125" font-size="29" text-anchor="start">«ref»: misma clase repetida para evitar cruces; asociaciones esenciales, no inventario físico.</text>
+<text x="20" y="2160" font-size="29" text-anchor="start">Atributos principales; ? = opcional. Composición: partidas y procedimientos dependientes.</text>
+<text x="20" y="2194" font-size="28" text-anchor="start">Historia clínica: SQL admite varias por paciente; el servicio rechaza duplicados antes de editar.</text>
+</svg>

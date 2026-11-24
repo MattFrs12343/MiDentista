@@ -1,0 +1,102 @@
+@startuml figura121_componentes_sistema
+' Figura 121 exclusivamente. Paquetes confirmados contra el ENTREGA local actual.
+' No representa nuevos PK ni certifica cumplimiento integral de cada CU.
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam componentStyle uml2
+skinparam roundCorner 0
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 55
+skinparam padding 8
+skinparam ArrowColor #617180
+skinparam ArrowFontColor #33414E
+skinparam ArrowFontSize 13
+skinparam ComponentBorderColor #617180
+skinparam ComponentBackgroundColor white
+skinparam ComponentFontColor #202C36
+skinparam DatabaseBorderColor #617180
+skinparam DatabaseBackgroundColor white
+skinparam LegendBorderColor #617180
+skinparam LegendBackgroundColor white
+top to bottom direction
+
+component "PK-01\nAcceso y\nonboarding\nUC01–UC09" as PK01 <<paquete funcional>>
+component "PK-02\nGestión de\npacientes\nUC10–UC15" as PK02 <<paquete funcional>>
+component "PK-03\nHistoria\nclínica\nUC16–UC20" as PK03 <<paquete funcional>>
+component "PK-04\nOdontograma\n\nUC21–UC25" as PK04 <<paquete funcional>>
+component "PK-05\nDiagnóstico y\ntratamiento\nUC26–UC30" as PK05 <<paquete funcional>>
+component "PK-06\nEvolución\nclínica\nUC31–UC33" as PK06 <<paquete funcional>>
+component "PK-07\nAgenda y\ncitas\nUC34–UC39" as PK07 <<paquete funcional>>
+component "PK-08\nPresupuestos\n\nUC40–UC44" as PK08 <<paquete funcional>>
+component "PK-09\nPagos y\ncuentas\nUC45–UC48" as PK09 <<paquete funcional>>
+
+component "<<componente principal>>\n<b>MiDentista Web</b>\n\nReact + TypeScript + Vite\nrutas · vistas · módulos funcionales" as Web #F3F6F8
+component "Configuración\n\nVITE_SUPABASE_URL\nVITE_SUPABASE_ANON_KEY\nApp.tsx · vite.config.ts" as Config
+component "Librerías / Frameworks\n\nReact · React Router\nSupabase JS · Radix UI\nTailwind CSS" as Libs
+component "Supabase Backend\nservicios administrados" as Backend #F7F9FA
+component "Reportes y exportación\n\nCSV · impresión\nPDF vía navegador" as Reportes
+component "Supabase Auth\nsesión / identidad" as Auth
+component "PostgREST / API\nacceso a datos" as Rest
+component "Edge Function api\noperaciones privilegiadas" as EdgeApi
+component "Edge Function archivos\ncuota / objetos" as EdgeArchivos
+database "PostgreSQL\nRLS / RPC\nDatos de MiDentista" as PostgreSQL
+component "Supabase Storage\nArchivos clínicos / QR\nbuckets privados" as Storage
+
+' Alineación, sin dependencias funcionales entre paquetes.
+PK01 -[hidden]right- PK02
+PK02 -[hidden]right- PK03
+PK03 -[hidden]right- PK04
+PK04 -[hidden]right- PK05
+PK05 -[hidden]right- PK06
+PK06 -[hidden]right- PK07
+PK07 -[hidden]right- PK08
+PK08 -[hidden]right- PK09
+Auth -[hidden]right- Rest
+Rest -[hidden]right- EdgeApi
+EdgeApi -[hidden]right- EdgeArchivos
+EdgeArchivos -[hidden]right- PostgreSQL
+PostgreSQL -[hidden]right- Storage
+Backend -[hidden]right- Reportes
+Libs -[hidden]down- Reportes
+
+' Conectores superiores: correspondencia funcional de los casos de uso con la aplicación.
+PK01 -down-> Web
+PK02 -down-> Web
+PK03 -down-> Web
+PK04 -down-> Web
+PK05 -down-> Web
+PK06 -down-> Web
+PK07 -down-> Web
+PK08 -down-> Web
+PK09 -down-> Web
+Config -right-> Web
+Libs -left-> Web
+Web -down-> Backend : Supabase JS / HTTP
+Web -down-> Reportes : genera salidas
+
+' Descomposición del backend administrado; no es un servidor intermedio inventado.
+Backend -down-> Auth
+Backend -down-> Rest
+Backend -down-> EdgeApi
+Backend -down-> EdgeArchivos
+Backend -down-> PostgreSQL
+Backend -down-> Storage
+Rest -down-> PostgreSQL : acceso SQL
+EdgeApi -down-> PostgreSQL : datos
+EdgeArchivos -down-> PostgreSQL : RPC de cuota
+EdgeArchivos -down-> Storage : carga de objetos
+
+legend bottom center
+  PK → Web: correspondencia funcional de los casos de uso.
+endlegend
+
+' Evidencias: frontend/package.json; frontend/vite.config.ts; frontend/src/App.tsx;
+' frontend/src/lib/supabase.ts; frontend/src/data/api.ts;
+' supabase/functions/api/index.ts; supabase/functions/archivos/index.ts;
+' frontend/src/features/archivos/archivoService.ts;
+' frontend/src/features/pagos/qrCobroService.ts;
+' frontend/src/features/reportes/BotonesReporte.tsx, ReporteImprimible.tsx y exportarCsv.ts.
+@enduml

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" font-family="Arial, Helvetica, sans-serif" fill="#202020"><title>PK-03 Historia clínica: componentes e interfaces</title><rect width="100%" height="100%" fill="white"/>
+<rect x="15" y="15" width="1570" height="1065" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="15" y="15" width="1000" height="62" fill="#f1f1f1" stroke="#404040" stroke-width="2"/>
+<text x="40" y="59" font-size="35" font-weight="bold" text-anchor="start">PK-03  Historia clínica  |  UC-16–UC-20</text>
+<text x="800" y="118" font-size="30" text-anchor="middle">UC-16 Motivo de consulta · UC-17 Antecedentes</text>
+<text x="800" y="157" font-size="30" text-anchor="middle">UC-18 Alergias/enfermedades · UC-19 Observaciones · UC-20 Consultar/actualizar</text>
+<rect x="65" y="240" width="1470" height="150" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="283" font-size="33" font-weight="bold" text-anchor="middle">FRONTEND REACT / CU DEL PAQUETE</text>
+<rect x="1475" y="258" width="31" height="34" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1468" y="262" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1468" y="280" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="328" font-size="32" text-anchor="middle">ClinicalHistoryTab</text>
+<text x="800.0" y="368" font-size="32" text-anchor="middle">useClinicalHistorySupabase</text>
+<polyline points="230,390 230,428" fill="none" stroke="#404040" stroke-width="2"/>
+<path d="M 211,447 A 19,19 0 0 1 249,447" fill="none" stroke="#202020" stroke-width="2"/>
+<circle cx="230" cy="447" r="11" fill="white" stroke="#202020" stroke-width="2"/>
+<polyline points="230,458 230,505" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="270" y="457" font-size="29" text-anchor="start">IHistoriaClinica: cargar y guardar</text>
+<rect x="65" y="505" width="1470" height="150" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="548" font-size="33" font-weight="bold" text-anchor="middle">SERVICIOS / LÓGICA DE ACCESO (NAVEGADOR)</text>
+<rect x="1475" y="523" width="31" height="34" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1468" y="527" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1468" y="545" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="593" font-size="32" text-anchor="middle">clinicalHistoryService · clinicalHistoryMapper</text>
+<text x="800.0" y="633" font-size="32" text-anchor="middle">cargarHistoriaClinica · guardarHistoriaClinica · lib/supabase.ts</text>
+<polyline points="230,655 230,693" fill="none" stroke="#404040" stroke-width="2"/>
+<path d="M 211,712 A 19,19 0 0 1 249,712" fill="none" stroke="#202020" stroke-width="2"/>
+<circle cx="230" cy="712" r="11" fill="white" stroke="#202020" stroke-width="2"/>
+<polyline points="230,723 230,770" fill="none" stroke="#404040" stroke-width="2"/>
+<text x="270" y="722" font-size="29" text-anchor="start">IDatosHistoria: SELECT / INSERT / UPDATE</text>
+<rect x="65" y="770" width="1470" height="150" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="813" font-size="33" font-weight="bold" text-anchor="middle">BACKEND ADMINISTRADO / PERSISTENCIA</text>
+<rect x="1475" y="788" width="31" height="34" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1468" y="792" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<rect x="1468" y="810" width="14" height="9" fill="white" stroke="#404040" stroke-width="2"/>
+<text x="800.0" y="858" font-size="32" text-anchor="middle">PostgREST / PostgreSQL con RLS</text>
+<text x="800.0" y="898" font-size="32" text-anchor="middle">historiales_clinicos</text>
+<text x="800" y="972" font-size="28" text-anchor="middle">Se rechazan UUID de demo y duplicados; se exige recuperar la fila guardada.</text>
+<text x="800" y="1020" font-size="28" text-anchor="middle">Socket superior: requiere · círculo inferior: provee · contrato rotulado en cada unión.</text>
+<text x="800" y="1060" font-size="28" text-anchor="middle">Nombres I…: contratos de esta vista UML, no interfaces TypeScript ni endpoints inventados.</text>
+</svg>

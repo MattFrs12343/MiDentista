@@ -1,0 +1,373 @@
+@startuml figura95_clases_general
+' Modelo derivado de SQL versionado; no afirma introspección ni instalación remota.
+' Cada Fnn identifica UNA restricción física; las FK compuestas no se fusionan con las simples.
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam classFontSize 14
+skinparam classAttributeFontSize 13
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor white
+skinparam classBorderColor #303030
+skinparam classFontColor black
+skinparam ArrowColor #555555
+skinparam ArrowFontColor black
+skinparam ArrowFontSize 12
+skinparam linetype ortho
+skinparam nodesep 70
+skinparam ranksep 80
+skinparam padding 5
+hide circle
+hide empty methods
+top to bottom direction
+class "Clinica\n<size:12>«table: clinicas»</size>" as clinicas {
+  + id: UUID {PK}
+  + nombre: TEXT
+  + slug: TEXT {UQ}
+  + moneda: TEXT?
+  + activo: BOOLEAN?
+}
+class "Perfil\n<size:12>«table: perfiles»</size>" as perfiles {
+  + id: UUID {PK}
+  + clinica_id: UUID? {FK}
+  + auth_user_id: UUID? {FK}
+  + nombre_completo: TEXT
+  + rol: TEXT
+  + activo: BOOLEAN?
+}
+class "PerfilRecuperacion\n<size:12>«table: perfiles_recuperacion»</size>" as perfiles_recuperacion {
+  + id: UUID {PK}
+  + perfil_id: UUID {FK}
+  + codigo_hash: TEXT
+  + expira_en: TIMESTAMPTZ
+  + usado: BOOLEAN?
+}
+class "Paciente\n<size:12>«table: pacientes»</size>" as pacientes {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + perfil_id: UUID? {FK}
+  + nombre_completo: TEXT
+  + ci: TEXT?
+  + telefono: TEXT?
+  + activo: BOOLEAN?
+}
+class "Servicio\n<size:12>«table: servicios»</size>" as servicios {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + nombre: TEXT
+  + precio_por_defecto: NUMERIC?
+  + activo: BOOLEAN?
+}
+class "HistorialClinico\n<size:12>«table: historiales_clinicos»</size>" as historiales_clinicos {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + motivo_consulta: TEXT?
+  + antecedentes_medicos: TEXT?
+  + alergias: TEXT?
+}
+class "PrediagnosticoSintoma\n<size:12>«table: prediagnosticos_sintomas»</size>" as prediagnosticos_sintomas {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + sintomas: JSONB
+  + intensidad: TEXT?
+  + duracion: TEXT?
+  + severidad: TEXT
+}
+class "Odontograma\n<size:12>«table: odontogramas»</size>" as odontogramas {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + odontologo_id: UUID {FK}
+  + fecha_examen: DATE?
+  + piezas: JSONB?
+  + notas: TEXT?
+}
+class "Diagnostico\n<size:12>«table: diagnosticos»</size>" as diagnosticos {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + odontologo_id: UUID {FK}
+  + descripcion: TEXT
+  + numero_pieza: INTEGER?
+  + estado: TEXT
+}
+class "PlanTratamiento\n<size:12>«table: planes_tratamiento»</size>" as planes_tratamiento {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + odontologo_id: UUID {FK}
+  + titulo: TEXT?
+  + estado: TEXT
+  + costo_total: NUMERIC
+}
+class "ProcedimientoTratamiento\n<size:12>«table: procedimientos_tratamiento»</size>" as procedimientos_tratamiento {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + plan_tratamiento_id: UUID {FK}
+  + servicio_id: UUID? {FK}
+  + descripcion: TEXT
+  + prioridad: TEXT
+  + costo: NUMERIC
+  + estado: TEXT
+}
+class "EvolucionClinica\n<size:12>«table: evoluciones_clinicas»</size>" as evoluciones_clinicas {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + odontologo_id: UUID {FK}
+  + plan_tratamiento_id: UUID? {FK}
+  + procedimiento_id: UUID? {FK}
+  + fecha_consulta: DATE?
+  + procedimiento_realizado: TEXT?
+  + proxima_atencion: DATE?
+}
+class "Horario\n<size:12>«table: horarios»</size>" as horarios {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + odontologo_id: UUID {FK}
+  + dia_semana: INTEGER
+  + hora_inicio: TIME
+  + hora_fin: TIME
+  + activo: BOOLEAN?
+}
+class "Cita\n<size:12>«table: citas»</size>" as citas {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + odontologo_id: UUID {FK}
+  + plan_tratamiento_id: UUID? {FK}
+  + fecha_cita: DATE
+  + hora_inicio: TIME
+  + hora_fin: TIME
+  + estado: TEXT?
+}
+class "Presupuesto\n<size:12>«table: presupuestos»</size>" as presupuestos {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + odontologo_id: UUID {FK}
+  + plan_tratamiento_id: UUID? {FK, UQ}
+  + titulo: TEXT?
+  + descuento: NUMERIC?
+  + total: NUMERIC?
+  + estado: TEXT?
+}
+class "ItemPresupuesto\n<size:12>«table: items_presupuesto»</size>" as items_presupuesto {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + presupuesto_id: UUID {FK}
+  + servicio_id: UUID? {FK}
+  + descripcion: TEXT
+  + cantidad: INTEGER?
+  + precio_unitario: NUMERIC
+  + subtotal: NUMERIC
+}
+class "Pago\n<size:12>«table: pagos»</size>" as pagos {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + presupuesto_id: UUID? {FK}
+  + registrado_por: UUID? {FK}
+  + monto: NUMERIC
+  + metodo_pago: TEXT?
+  + estado: TEXT?
+}
+class "Archivo\n<size:12>«table: archivos»</size>" as archivos {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID {FK}
+  + subido_por: UUID {FK}
+  + evolucion_clinica_id: UUID? {FK}
+  + plan_tratamiento_id: UUID? {FK}
+  + nombre: TEXT
+  + mime: TEXT
+  + tamano: BIGINT
+  + categoria: TEXT
+  + tipo_archivo: TEXT
+}
+class "CuotaArchivo\n<size:12>«table: archivos_cuotas»</size>" as archivos_cuotas {
+  + clinica_id: UUID {PK}
+  + limite_bytes: BIGINT
+  + bytes_ocupados: BIGINT
+  + bytes_reservados: BIGINT
+}
+class "OperacionSubidaArchivo\n<size:12>«table: archivos_operaciones_subida»</size>" as archivos_operaciones_subida {
+  + id: UUID {PK}
+  + clinica_id: UUID {FK}
+  + paciente_id: UUID
+  + actor_auth_id: UUID
+  + perfil_id: UUID
+  + archivo_id: UUID?
+  + estado: TEXT
+  + bytes_verificados: BIGINT
+  + ruta: TEXT {UQ}
+}
+class "Bitacora\n<size:12>«table: bitacora»</size>" as bitacora {
+  + id: UUID {PK}
+  + clinica_id: UUID? {FK}
+  + perfil_id: UUID? {FK}
+  + rol: TEXT?
+  + accion: TEXT
+  + tabla_afectada: TEXT
+  + registro_id: UUID?
+  + detalle: JSONB
+  + ip_address: INET?
+  + creado_en: TIMESTAMPTZ
+}
+class "UsuarioAuth\n<size:12>«Supabase Auth: auth.users»</size>" as auth_users {
+  + id: UUID {PK}
+}
+clinicas -[hidden]right- perfiles
+perfiles -[hidden]right- perfiles_recuperacion
+perfiles_recuperacion -[hidden]right- auth_users
+auth_users -[hidden]right- horarios
+horarios -[hidden]right- citas
+pacientes -[hidden]right- historiales_clinicos
+historiales_clinicos -[hidden]right- prediagnosticos_sintomas
+prediagnosticos_sintomas -[hidden]right- odontogramas
+odontogramas -[hidden]right- diagnosticos
+diagnosticos -[hidden]right- planes_tratamiento
+servicios -[hidden]right- presupuestos
+presupuestos -[hidden]right- items_presupuesto
+items_presupuesto -[hidden]right- pagos
+pagos -[hidden]right- procedimientos_tratamiento
+procedimientos_tratamiento -[hidden]right- evoluciones_clinicas
+archivos_cuotas -[hidden]right- archivos_operaciones_subida
+archivos_operaciones_subida -[hidden]right- archivos
+archivos -[hidden]right- bitacora
+clinicas -[hidden]down- pacientes
+pacientes -[hidden]down- servicios
+servicios -[hidden]down- archivos_cuotas
+' F01: public.perfiles(auth_user_id) -> auth.users(id); fuentes: bd_5clinicas_midentista.sql
+perfiles "0..*" -[norank]- "0..1" auth_users : F01
+' F02: public.perfiles(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+perfiles "0..*" -[norank]- "0..1" clinicas : F02
+' F03: public.perfiles_recuperacion(perfil_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+perfiles_recuperacion "0..*" -[norank]- "1" perfiles : F03
+' F04: public.pacientes(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+pacientes "0..*" -[norank]- "1" clinicas : F04
+' F05: public.pacientes(perfil_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+pacientes "0..*" -[norank]- "0..1" perfiles : F05
+' F06: public.servicios(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+servicios "0..*" -[norank]- "1" clinicas : F06
+' F07: public.historiales_clinicos(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+historiales_clinicos "0..*" -[norank]- "1" clinicas : F07
+' F08: public.historiales_clinicos(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+historiales_clinicos "0..*" -[norank]- "1" pacientes : F08
+' F09: public.prediagnosticos_sintomas(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql; docs/modules/17-asistente-ia/sql.sql
+prediagnosticos_sintomas "0..*" -[norank]- "1" clinicas : F09
+' F10: public.prediagnosticos_sintomas(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql; docs/modules/17-asistente-ia/sql.sql
+prediagnosticos_sintomas "0..*" -[norank]- "1" pacientes : F10
+' F11: public.odontogramas(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+odontogramas "0..*" -[norank]- "1" clinicas : F11
+' F12: public.odontogramas(odontologo_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+odontogramas "0..*" -[norank]- "1" perfiles : F12
+' F13: public.odontogramas(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+odontogramas "0..*" -[norank]- "1" pacientes : F13
+' F14: public.diagnosticos(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+diagnosticos "0..*" -[norank]- "1" clinicas : F14
+' F15: public.diagnosticos(odontologo_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+diagnosticos "0..*" -[norank]- "1" perfiles : F15
+' F16: public.diagnosticos(odontologo_id,clinica_id) -> public.perfiles(id,clinica_id); fuentes: docs/modules/05-diagnostico-tratamiento/migracion-t-5-1.sql
+diagnosticos "0..*" -[norank]- "1" perfiles : F16
+' F17: public.diagnosticos(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+diagnosticos "0..*" -[norank]- "1" pacientes : F17
+' F18: public.diagnosticos(paciente_id,clinica_id) -> public.pacientes(id,clinica_id); fuentes: docs/modules/05-diagnostico-tratamiento/migracion-t-5-1.sql
+diagnosticos "0..*" -[norank]- "1" pacientes : F18
+' F19: public.planes_tratamiento(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+planes_tratamiento "0..*" -[norank]- "1" clinicas : F19
+' F20: public.planes_tratamiento(odontologo_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+planes_tratamiento "0..*" -[norank]- "1" perfiles : F20
+' F21: public.planes_tratamiento(odontologo_id,clinica_id) -> public.perfiles(id,clinica_id); fuentes: docs/modules/05-diagnostico-tratamiento/migracion-t-5-1.sql
+planes_tratamiento "0..*" -[norank]- "1" perfiles : F21
+' F22: public.planes_tratamiento(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+planes_tratamiento "0..*" -[norank]- "1" pacientes : F22
+' F23: public.planes_tratamiento(paciente_id,clinica_id) -> public.pacientes(id,clinica_id); fuentes: docs/modules/05-diagnostico-tratamiento/migracion-t-5-1.sql
+planes_tratamiento "0..*" -[norank]- "1" pacientes : F23
+' F24: public.procedimientos_tratamiento(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+procedimientos_tratamiento "0..*" -[norank]- "1" clinicas : F24
+' F25: public.procedimientos_tratamiento(plan_tratamiento_id) -> public.planes_tratamiento(id); fuentes: bd_5clinicas_midentista.sql
+procedimientos_tratamiento "0..*" -[norank]- "1" planes_tratamiento : F25
+' F26: public.procedimientos_tratamiento(plan_tratamiento_id,clinica_id) -> public.planes_tratamiento(id,clinica_id); fuentes: docs/modules/05-diagnostico-tratamiento/migracion-t-5-1.sql
+procedimientos_tratamiento "0..*" -[norank]- "1" planes_tratamiento : F26
+' F27: public.procedimientos_tratamiento(servicio_id) -> public.servicios(id); fuentes: bd_5clinicas_midentista.sql
+procedimientos_tratamiento "0..*" -[norank]- "0..1" servicios : F27
+' F28: public.procedimientos_tratamiento(servicio_id,clinica_id) -> public.servicios(id,clinica_id); fuentes: docs/modules/05-diagnostico-tratamiento/migracion-t-5-1.sql
+procedimientos_tratamiento "0..*" -[norank]- "0..1" servicios : F28
+' F29: public.evoluciones_clinicas(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+evoluciones_clinicas "0..*" -[norank]- "1" clinicas : F29
+' F30: public.evoluciones_clinicas(odontologo_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+evoluciones_clinicas "0..*" -[norank]- "1" perfiles : F30
+' F31: public.evoluciones_clinicas(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+evoluciones_clinicas "0..*" -[norank]- "1" pacientes : F31
+' F32: public.evoluciones_clinicas(plan_tratamiento_id) -> public.planes_tratamiento(id); fuentes: bd_5clinicas_midentista.sql
+evoluciones_clinicas "0..*" -[norank]- "0..1" planes_tratamiento : F32
+' F33: public.evoluciones_clinicas(procedimiento_id) -> public.procedimientos_tratamiento(id); fuentes: bd_5clinicas_midentista.sql
+evoluciones_clinicas "0..*" -[norank]- "0..1" procedimientos_tratamiento : F33
+' F34: public.horarios(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+horarios "0..*" -[norank]- "1" clinicas : F34
+' F35: public.horarios(odontologo_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+horarios "0..*" -[norank]- "1" perfiles : F35
+' F36: public.citas(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+citas "0..*" -[norank]- "1" clinicas : F36
+' F37: public.citas(odontologo_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+citas "0..*" -[norank]- "1" perfiles : F37
+' F38: public.citas(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+citas "0..*" -[norank]- "1" pacientes : F38
+' F39: public.citas(plan_tratamiento_id) -> public.planes_tratamiento(id); fuentes: bd_5clinicas_midentista.sql
+citas "0..*" -[norank]- "0..1" planes_tratamiento : F39
+' F40: public.presupuestos(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+presupuestos "0..*" -[norank]- "1" clinicas : F40
+' F41: public.presupuestos(odontologo_id) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+presupuestos "0..*" -[norank]- "1" perfiles : F41
+' F42: public.presupuestos(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+presupuestos "0..*" -[norank]- "1" pacientes : F42
+' F43: public.presupuestos(plan_tratamiento_id) -> public.planes_tratamiento(id); fuentes: bd_5clinicas_midentista.sql; docs/modules/08-presupuestos/sql-generar-desde-plan.sql
+presupuestos "0..1" -[norank]- "0..1" planes_tratamiento : F43
+' F44: public.items_presupuesto(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+items_presupuesto "0..*" -[norank]- "1" clinicas : F44
+' F45: public.items_presupuesto(presupuesto_id) -> public.presupuestos(id); fuentes: bd_5clinicas_midentista.sql
+items_presupuesto "0..*" -[norank]- "1" presupuestos : F45
+' F46: public.items_presupuesto(servicio_id) -> public.servicios(id); fuentes: bd_5clinicas_midentista.sql
+items_presupuesto "0..*" -[norank]- "0..1" servicios : F46
+' F47: public.pagos(clinica_id) -> public.clinicas(id); fuentes: bd_5clinicas_midentista.sql
+pagos "0..*" -[norank]- "1" clinicas : F47
+' F48: public.pagos(paciente_id) -> public.pacientes(id); fuentes: bd_5clinicas_midentista.sql
+pagos "0..*" -[norank]- "1" pacientes : F48
+' F49: public.pagos(presupuesto_id) -> public.presupuestos(id); fuentes: bd_5clinicas_midentista.sql
+pagos "0..*" -[norank]- "0..1" presupuestos : F49
+' F50: public.pagos(registrado_por) -> public.perfiles(id); fuentes: bd_5clinicas_midentista.sql
+pagos "0..*" -[norank]- "0..1" perfiles : F50
+' F51: public.archivos(clinica_id) -> public.clinicas(id); fuentes: docs/modules/10-archivos/sql.sql
+archivos "0..*" -[norank]- "1" clinicas : F51
+' F52: public.archivos(evolucion_clinica_id,paciente_id,clinica_id) -> public.evoluciones_clinicas(id,paciente_id,clinica_id); fuentes: docs/modules/10-archivos/migracion-t-10-9.sql
+archivos "0..*" -[norank]- "0..1" evoluciones_clinicas : F52
+' F53: public.archivos(paciente_id) -> public.pacientes(id); fuentes: docs/modules/10-archivos/sql.sql
+archivos "0..*" -[norank]- "1" pacientes : F53
+' F54: public.archivos(paciente_id,clinica_id) -> public.pacientes(id,clinica_id); fuentes: docs/modules/10-archivos/sql.sql
+archivos "0..*" -[norank]- "1" pacientes : F54
+' F55: public.archivos(plan_tratamiento_id,paciente_id,clinica_id) -> public.planes_tratamiento(id,paciente_id,clinica_id); fuentes: docs/modules/10-archivos/migracion-t-10-9.sql
+archivos "0..*" -[norank]- "0..1" planes_tratamiento : F55
+' F56: public.archivos(subido_por) -> public.perfiles(id); fuentes: docs/modules/10-archivos/sql.sql
+archivos "0..*" -[norank]- "1" perfiles : F56
+' F57: public.archivos_operaciones_subida(clinica_id) -> public.archivos_cuotas(clinica_id); fuentes: docs/modules/10-archivos/migracion-ciclo-4.sql
+archivos_operaciones_subida "0..*" -[norank]- "1" archivos_cuotas : F57
+' F58: public.bitacora(clinica_id) -> public.clinicas(id); fuentes: docs/modules/16-bitacora/sql.sql
+bitacora "0..*" -[norank]- "0..1" clinicas : F58
+' F59: public.bitacora(perfil_id) -> public.perfiles(id); fuentes: docs/modules/16-bitacora/sql.sql
+bitacora "0..*" -[norank]- "0..1" perfiles : F59
+legend bottom left
+  21 tablas public + auth.users (infraestructura externa). Una sola clase por tabla.
+  {PK}: clave primaria; {FK}: clave foránea; {UQ}: unicidad; ?: permite NULL. F01–F59: restricciones físicas.
+  Asociación simple; sin composiciones supuestas. Se conservan FK simples y compuestas paralelas.
+  CuotaArchivo no tiene FK a Clinica. Identificadores históricos de OperacionSubidaArchivo no son FK.
+  Storage no se conecta por FK en los contratos versionados. HistorialClinico.paciente_id no es UNIQUE.
+endlegend
+' SVG derivado de esta fuente con PlantUML 1.2026.9 / Graphviz.
+' Acabado tipográfico del SVG: 17 etiquetas desplazadas como máximo 21 px,
+' sin modificar clases, atributos, rutas, identificadores FK ni multiplicidades.
+' Cobertura verificada: 21/21 tablas public; 59/59 FK; 0 clases repetidas.
+@enduml

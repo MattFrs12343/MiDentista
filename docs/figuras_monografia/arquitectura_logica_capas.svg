@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1440" viewBox="0 0 1600 1440" font-family="Arial, Helvetica, sans-serif" font-size="31" fill="#20252b">
+  <title>Arquitectura lógica por capas y carpetas de MiDentista</title>
+  <desc>Organización observada del repositorio: módulos de features, presentación y estado, servicios y acceso a datos, y backend administrado Supabase. Las franjas describen responsabilidades, no capas estrictamente aisladas.</desc>
+  <rect width="1600" height="1440" fill="white"/>
+  <g id="capa-funcional">
+    <rect x="16" y="16" width="1568" height="280" rx="6" fill="#f7f8f9" stroke="#7b838a" stroke-width="1.6"/>
+    <text x="44" y="64" font-size="36" font-weight="bold">01  CAPA FUNCIONAL / MÓDULOS</text>
+    <text x="1556" y="64" text-anchor="end" font-size="30">frontend/src/features/</text>
+    <g transform="translate(44 96)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Identidad y gestión</text>
+      <text x="180" y="92">auth/</text>
+      <text x="180" y="130">portal-paciente/</text>
+      <text x="180" y="168">admin/ (Bitácora)</text>
+    </g>
+    <g transform="translate(426 96)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Atención clínica</text>
+      <text x="180" y="92">patients/ · clinical/</text>
+      <text x="180" y="130">odontogram/</text>
+      <text x="180" y="168">treatment/</text>
+    </g>
+    <g transform="translate(808 96)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Seguimiento y cobros</text>
+      <text x="180" y="92">evolucion/ · agenda/</text>
+      <text x="180" y="130">presupuestos/ · pagos/</text>
+      <text x="180" y="168">archivos/</text>
+    </g>
+    <g transform="translate(1190 96)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Apoyo a la operación</text>
+      <text x="180" y="92">dashboard/ · reportes/</text>
+      <text x="180" y="130">asistente-ia/</text>
+    </g>
+  </g>
+  <g id="relacion-modulos-presentacion" stroke="#555d65" stroke-width="2">
+    <line x1="800" y1="303" x2="800" y2="338" stroke-dasharray="5 5"/>
+    <polygon points="792,336 808,336 800,346" fill="#555d65" stroke="none"/>
+    <text x="824" y="332" font-size="27" stroke="none">se materializan en</text>
+  </g>
+  <g id="capa-presentacion-estado">
+    <rect x="16" y="350" width="1568" height="320" rx="6" fill="#f7f8f9" stroke="#7b838a" stroke-width="1.6"/>
+    <text x="44" y="398" font-size="36" font-weight="bold">02  PRESENTACIÓN Y ESTADO</text>
+    <text x="1556" y="398" text-anchor="end" font-size="30">frontend/src/ · React / TypeScript</text>
+    <g transform="translate(44 430)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,222 0,222" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Vistas y navegación</text>
+      <text x="180" y="96">App.tsx · React Router</text>
+      <text x="180" y="138">features/ (páginas / tabs)</text>
+      <text x="180" y="180">components/layout/</text>
+    </g>
+    <g transform="translate(426 430)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,222 0,222" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Interfaz reutilizable</text>
+      <text x="180" y="96">components/ui/</text>
+      <text x="180" y="138">components/print/</text>
+      <text x="180" y="180">formularios en features/</text>
+    </g>
+    <g transform="translate(808 430)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,222 0,222" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Contextos locales</text>
+      <text x="180" y="92">features/auth/</text>
+      <text x="180" y="130">AuthContext</text>
+      <text x="180" y="168">features/portal-paciente/</text>
+      <text x="180" y="206">PortalPacienteContext</text>
+    </g>
+    <g transform="translate(1190 430)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,222 0,222" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Estado y hooks</text>
+      <text x="180" y="96">data/store.tsx</text>
+      <text x="180" y="138">ClinicaDataProvider</text>
+      <text x="180" y="180">hooks en features/</text>
+    </g>
+  </g>
+  <g id="relacion-presentacion-servicios" stroke="#555d65" stroke-width="2">
+    <line x1="800" y1="677" x2="800" y2="712" stroke-dasharray="5 5"/>
+    <polygon points="792,710 808,710 800,720" fill="#555d65" stroke="none"/>
+    <text x="824" y="706" font-size="27" stroke="none">consume / comparte</text>
+  </g>
+  <g id="capa-servicios-datos">
+    <rect x="16" y="724" width="1568" height="280" rx="6" fill="#f7f8f9" stroke="#7b838a" stroke-width="1.6"/>
+    <text x="44" y="772" font-size="36" font-weight="bold">03  SERVICIOS / ACCESO A DATOS</text>
+    <text x="1556" y="772" text-anchor="end" font-size="30">frontend/src/</text>
+    <g transform="translate(44 804)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 484,18 484,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="242" y="55" font-size="30" font-weight="bold">Servicios y mappers por módulo</text>
+      <text x="242" y="92">features/clinical/</text>
+      <text x="242" y="130">clinicalHistoryService.ts</text>
+      <text x="242" y="168">clinicalHistoryMapper.ts</text>
+    </g>
+    <g transform="translate(558 804)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 484,18 484,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="242" y="55" font-size="30" font-weight="bold">Acceso compartido / HTTP</text>
+      <text x="242" y="92">data/api.ts</text>
+      <text x="242" y="130">data/store.tsx</text>
+      <text x="242" y="168">HTTP hacia Edge api</text>
+    </g>
+    <g transform="translate(1072 804)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 484,18 484,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="242" y="55" font-size="30" font-weight="bold">Cliente Supabase</text>
+      <text x="242" y="92">lib/supabase.ts</text>
+      <text x="242" y="130">obtenerSupabase()</text>
+      <text x="242" y="168">@supabase/supabase-js</text>
+    </g>
+  </g>
+  <g id="relacion-datos-backend" stroke="#555d65" stroke-width="2">
+    <line x1="800" y1="1011" x2="800" y2="1046" stroke-dasharray="5 5"/>
+    <polygon points="792,1044 808,1044 800,1054" fill="#555d65" stroke="none"/>
+    <text x="824" y="1040" font-size="27" stroke="none">SDK / HTTPS · sesión y datos</text>
+  </g>
+  <g id="capa-backend-administrado">
+    <rect x="16" y="1058" width="1568" height="280" rx="6" fill="#f7f8f9" stroke="#7b838a" stroke-width="1.6"/>
+    <text x="44" y="1106" font-size="36" font-weight="bold">04  BACKEND ADMINISTRADO</text>
+    <text x="1556" y="1106" text-anchor="end" font-size="30">Supabase</text>
+    <g transform="translate(44 1138)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Identidad y datos</text>
+      <text x="180" y="92">Supabase Auth</text>
+      <text x="180" y="130">PostgREST / RPC</text>
+      <text x="180" y="168">PostgreSQL + RLS</text>
+    </g>
+    <g transform="translate(426 1138)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Objetos y documentos</text>
+      <text x="180" y="92">Supabase Storage</text>
+      <text x="180" y="130">archivos-clinica</text>
+      <text x="180" y="168">qr-cobros</text>
+    </g>
+    <g transform="translate(808 1138)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Edge · api</text>
+      <text x="180" y="92">supabase/functions/api/</text>
+      <text x="180" y="130">index.ts</text>
+      <text x="180" y="168">Deno / TypeScript</text>
+    </g>
+    <g transform="translate(1190 1138)" text-anchor="middle">
+      <polygon points="0,18 16,18 16,0 122,0 146,18 360,18 360,184 0,184" fill="white" stroke="#7b838a" stroke-width="1.6"/>
+      <text x="180" y="55" font-size="30" font-weight="bold">Edge · archivos</text>
+      <text x="180" y="92">supabase/functions/</text>
+      <text x="180" y="130">archivos/</text>
+      <text x="180" y="168">index.ts · flujoSubida.ts</text>
+    </g>
+  </g>
+  <text x="800" y="1380" text-anchor="middle" font-size="28">Esquema y políticas SQL: bd_5clinicas_midentista.sql · docs/modules/</text>
+  <text x="800" y="1418" text-anchor="middle" font-size="27">Franjas analíticas: store.tsx y algunas vistas también realizan acceso directo a Supabase.</text>
+</svg>
